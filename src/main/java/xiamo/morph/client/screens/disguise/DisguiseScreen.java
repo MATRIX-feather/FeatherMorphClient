@@ -39,6 +39,11 @@ public class DisguiseScreen extends Screen
             selectedIdentifierText.setText("当前伪装：" + (n == null ? "暂无" : n));
         }, true);
 
+        MorphClient.serverReady.onValueChanged((o, n) ->
+        {
+            this.clearAndInit();
+        });
+
         titleText.setWidth(200);
         titleText.setHeight(20);
     }
@@ -50,6 +55,7 @@ public class DisguiseScreen extends Screen
     private final IdentifierDrawableList list = new IdentifierDrawableList(client, 200, 0, 20, 0, 22);
     private final DrawableText titleText = new DrawableText("选择伪装");
     private final DrawableText selectedIdentifierText = new DrawableText();
+    private final DrawableText notReadyText = new DrawableText("等待服务器响应...");
 
     @Override
     public void close()
@@ -65,33 +71,48 @@ public class DisguiseScreen extends Screen
         super.init();
         assert this.client != null;
 
-        //列表
-        list.updateSize(width, this.height, textRenderer.fontHeight * 2 + fontMargin * 2, this.height - 40);
-
-        this.addDrawableChild(list);
-
-        //侧边显示
-        this.addDrawable(titleText);
-        this.addDrawable(selectedIdentifierText);
-
-        //titleText.setScreenY(this.height / 2);
-        titleText.setScreenX(30);
-        titleText.setScreenY(fontMargin);
-        selectedIdentifierText.setScreenX(30);
-        selectedIdentifierText.setScreenY(fontMargin + 2 + textRenderer.fontHeight);
-
-        //按钮
-        this.addDrawableChild(new ButtonWidget(this.width / 2 + 5, this.height - 29, 150, 20, Text.literal("关闭"), (button) ->
+        if (MorphClient.serverReady.get())
         {
-            this.close();
-        }));
+            //列表
+            list.updateSize(width, this.height, textRenderer.fontHeight * 2 + fontMargin * 2, this.height - 40);
 
-        //width - 75: 居中
-        this.addDrawableChild(new ButtonWidget(this.width / 2 - 75 - 75 - 5, this.height - 29, 150, 20, Text.literal("伪装"), (button) ->
+            this.addDrawableChild(list);
+
+            //侧边显示
+            this.addDrawable(titleText);
+            this.addDrawable(selectedIdentifierText);
+
+            //titleText.setScreenY(this.height / 2);
+            titleText.setScreenX(30);
+            titleText.setScreenY(fontMargin);
+            selectedIdentifierText.setScreenX(30);
+            selectedIdentifierText.setScreenY(fontMargin + 2 + textRenderer.fontHeight);
+
+            //按钮
+            this.addDrawableChild(new ButtonWidget(this.width / 2 + 5, this.height - 29, 150, 20, Text.literal("关闭"), (button) ->
+            {
+                this.close();
+            }));
+
+            //width - 75: 居中
+            this.addDrawableChild(new ButtonWidget(this.width / 2 - 75 - 75 - 5, this.height - 29, 150, 20, Text.literal("伪装"), (button) ->
+            {
+                morphClient.sendMorphCommand(this.selectedIdentifier.get());
+                this.close();
+            }));
+        }
+        else
         {
-            morphClient.sendMorphCommand(this.selectedIdentifier.get());
-            this.close();
-        }));
+            this.addDrawable(notReadyText);
+
+            notReadyText.setScreenY(this.height / 2);
+            notReadyText.setScreenX(this.width / 2 - 32);
+
+            this.addDrawableChild(new ButtonWidget(this.width / 2 - 75, this.height - 29, 150, 20, Text.literal("关闭"), (button) ->
+            {
+                this.close();
+            }));
+        }
     }
 
     @Override

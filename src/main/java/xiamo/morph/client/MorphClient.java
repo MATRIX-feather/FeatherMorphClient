@@ -21,9 +21,7 @@ import xiamo.morph.client.bindables.Bindable;
 import xiamo.morph.client.screens.disguise.DisguiseScreen;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
@@ -57,6 +55,39 @@ public class MorphClient implements ClientModInitializer
     public static final Bindable<String> currentIdentifier = new Bindable<>(null);
 
     private final Logger logger = LoggerFactory.getLogger("MorphClient");
+
+    public static final Bindable<Boolean> serverReady = new Bindable<>(false);
+    private boolean handshakeReceived;
+    private boolean apiVersionChecked;
+    private boolean morphListReceived;
+
+    public void resetServerStatus()
+    {
+        handshakeReceived = false;
+        apiVersionChecked = false;
+        morphListReceived = false;
+
+        var list = new ObjectArrayList<>(avaliableMorphs);
+        this.avaliableMorphs.clear();
+        selectedIdentifier.set(null);
+        currentIdentifier.set(null);
+
+        updateServerStatus();
+
+        this.onRevokeConsumers.forEach(c -> c.accept(list));
+    }
+
+    private void updateServerStatus()
+    {
+        serverReady.set(handshakeReceived && apiVersionChecked && morphListReceived);
+    }
+
+    public void initializeData()
+    {
+        this.resetServerStatus();
+
+        ClientPlayNetworking.send(initializeChannelIdentifier, PacketByteBufs.create());
+    }
 
     @Override
     public void onInitializeClient()
@@ -93,13 +124,14 @@ public class MorphClient implements ClientModInitializer
                 return;
             }
 
-            this.avaliableMorphs.clear();
-            selectedIdentifier.set(null);
-            currentIdentifier.set(null);
+            handshakeReceived = true;
+            updateServerStatus();
+
+            ClientPlayNetworking.send(versionChannelIdentifier, PacketByteBufs.create());
 
             var packetBuf = PacketByteBufs.create();
-            ClientPlayNetworking.send(versionChannelIdentifier, packetBuf);
-            ClientPlayNetworking.send(initializeChannelIdentifier, PacketByteBufs.create());
+            packetBuf.writeCharSequence("initial", StandardCharsets.UTF_8);
+            ClientPlayNetworking.send(commandChannelIdentifier, packetBuf);
         });
 
         ClientPlayNetworking.registerGlobalReceiver(versionChannelIdentifier, (client, handler, buf, responseSender) ->
@@ -107,6 +139,8 @@ public class MorphClient implements ClientModInitializer
             try
             {
                 version = buf.readInt();
+                apiVersionChecked = true;
+                updateServerStatus();
             }
             catch (Exception e)
             {
@@ -159,15 +193,39 @@ public class MorphClient implements ClientModInitializer
                                 this.avaliableMorphs.clear();
                                 this.avaliableMorphs.addAll(diff);
 
+                                morphListReceived = true;
+                                updateServerStatus();
+
                                 onGrantConsumers.forEach(c -> c.accept(diff));
                             }
                             default -> logger.warn("未知的Query指令：" + subCmdName);
                         }
                     }
+                    case "reauth" ->
+                    {
+                        initializeData();
+                    }
+                    case "unauth" ->
+                    {
+                        resetServerStatus();
+                    }
                     case "current" ->
                     {
-                        logger.info("setting current");
                         currentIdentifier.set(str.length == 2 ? str[1] : null);
+                    }
+                    case "deny" ->
+                    {
+                        if (str.length < 2) return;
+
+                        var subCmdName = str[1];
+
+                        if (subCmdName.equals("morph"))
+                        {
+                            selectedIdentifier.triggerChange();
+                            currentIdentifier.triggerChange();
+                        }
+                        else
+                            logger.warn("未知的Deny指令：" + subCmdName);
                     }
                     default -> logger.warn("未知的客户端指令：" + baseName);
                 }

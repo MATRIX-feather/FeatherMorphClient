@@ -57,6 +57,11 @@ public class Bindable<T> implements IBindable<T>
 
     private int triggers;
 
+    public void triggerChange()
+    {
+        this.triggerValueChange(this, value, value);
+    }
+
     /**
      * 触发一次变动时间
      *
