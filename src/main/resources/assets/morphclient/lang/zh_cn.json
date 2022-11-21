@@ -1,0 +1,8 @@
+{
+  "key.morphclient.skill": "执行技能",
+  "key.morphclient.unmorph": "取消伪装",
+  "key.morphclient.morph": "伪装",
+  "key.morphclient.toggle": "切换自身可见",
+  "key.morphclient.open_gui": "打开伪装选择界面",
+  "category.morphclient.keybind": "变形"
+}

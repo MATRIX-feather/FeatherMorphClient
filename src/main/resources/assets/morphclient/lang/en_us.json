@@ -1,0 +1,8 @@
+{
+  "key.morphclient.skill": "Execute skill",
+  "key.morphclient.unmorph": "Unmorph",
+  "key.morphclient.morph": "Morph",
+  "key.morphclient.toggle": "Toggle self visibility",
+  "key.morphclient.open_gui": "Open disguise select screen",
+  "category.morphclient.keybind": "MorphClient"
+}
