@@ -74,6 +74,15 @@ public class DrawableText implements Drawable
         return text;
     }
 
+    public DrawableText(String text)
+    {
+        this.setText(text);
+    }
+
+    public DrawableText()
+    {
+    }
+
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta)
     {

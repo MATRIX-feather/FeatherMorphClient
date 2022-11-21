@@ -18,7 +18,6 @@ import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xiamo.morph.client.bindables.Bindable;
-import xiamo.morph.client.bindables.BindableList;
 import xiamo.morph.client.screens.disguise.DisguiseScreen;
 
 import java.nio.charset.StandardCharsets;
@@ -54,6 +53,8 @@ public class MorphClient implements ClientModInitializer
     }
 
     public static final Bindable<String> selectedIdentifier = new Bindable<>(null);
+
+    public static final Bindable<String> currentIdentifier = new Bindable<>(null);
 
     private final Logger logger = LoggerFactory.getLogger("MorphClient");
 
@@ -94,6 +95,7 @@ public class MorphClient implements ClientModInitializer
 
             this.avaliableMorphs.clear();
             selectedIdentifier.set(null);
+            currentIdentifier.set(null);
 
             var packetBuf = PacketByteBufs.create();
             ClientPlayNetworking.send(versionChannelIdentifier, packetBuf);
@@ -120,40 +122,54 @@ public class MorphClient implements ClientModInitializer
         {
             try
             {
+                logger.info("收到了客户端指令：" + readStringfromByte(buf));
+
                 var str = readStringfromByte(buf).split(" ", 3);
 
-                if (str.length < 2) return;
+                if (str.length < 1) return;
 
                 var baseName = str[0];
 
-                if (Objects.equals(baseName, "query"))
+                switch (baseName)
                 {
-                    var subCmdName = str[1];
+                    case "query" ->
+                    {
+                        if (str.length < 2) return;
 
-                    var diff =  Arrays.asList(str[2].split(" "));
+                        var subCmdName = str[1];
 
-                    switch (subCmdName) {
-                        case "add" ->
-                        {
-                            avaliableMorphs.addAll(diff);
-                            onGrantConsumers.forEach(c -> c.accept(diff));
+                        var diff = new ObjectArrayList<>(str[2].split(" "));
+                        diff.removeIf(String::isEmpty);
+
+                        switch (subCmdName) {
+                            case "add" ->
+                            {
+                                avaliableMorphs.addAll(diff);
+                                onGrantConsumers.forEach(c -> c.accept(diff));
+                            }
+                            case "remove" ->
+                            {
+                                avaliableMorphs.removeAll(diff);
+                                onRevokeConsumers.forEach(c -> c.accept(diff));
+                            }
+                            case "set" ->
+                            {
+                                onRevokeConsumers.forEach(c -> c.accept(new ObjectArrayList<>(avaliableMorphs)));
+
+                                this.avaliableMorphs.clear();
+                                this.avaliableMorphs.addAll(diff);
+
+                                onGrantConsumers.forEach(c -> c.accept(diff));
+                            }
+                            default -> logger.warn("未知的Query指令：" + subCmdName);
                         }
-                        case "remove" ->
-                        {
-                            avaliableMorphs.removeAll(diff);
-                            onRevokeConsumers.forEach(c -> c.accept(diff));
-                        }
-                        case "set" ->
-                        {
-                            onRevokeConsumers.forEach(c -> c.accept(new ObjectArrayList<>(avaliableMorphs)));
-
-                            this.avaliableMorphs.clear();
-                            this.avaliableMorphs.addAll(diff);
-
-                            onGrantConsumers.forEach(c -> c.accept(diff));
-                        }
-                        default -> logger.warn("未知的客户端指令：" + subCmdName);
                     }
+                    case "current" ->
+                    {
+                        logger.info("setting current");
+                        currentIdentifier.set(str.length == 2 ? str[1] : null);
+                    }
+                    default -> logger.warn("未知的客户端指令：" + baseName);
                 }
             }
             catch (Exception e)
@@ -203,7 +219,10 @@ public class MorphClient implements ClientModInitializer
 
     public void sendMorphCommand(String id)
     {
-        ClientPlayNetworking.send(commandChannelIdentifier, fromString("morph" + (id == null ? "" : " " + id)));
+        if ("morph:unmorph".equals(id))
+            ClientPlayNetworking.send(commandChannelIdentifier, fromString("unmorph"));
+        else
+            ClientPlayNetworking.send(commandChannelIdentifier, fromString("morph" + (id == null ? "" : " " + id)));
     }
 
     private PacketByteBuf fromString(String str)
