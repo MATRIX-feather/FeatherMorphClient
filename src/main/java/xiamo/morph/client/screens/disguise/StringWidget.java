@@ -1,5 +1,6 @@
 package xiamo.morph.client.screens.disguise;
 
+import com.mojang.authlib.GameProfile;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -7,14 +8,20 @@ import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.Selectable;
+import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ElementListWidget;
+import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.text.Text;
 import org.slf4j.LoggerFactory;
 import xiamo.morph.client.MorphClient;
 
 import java.util.List;
+import java.util.UUID;
 
 public class StringWidget extends ElementListWidget.Entry<StringWidget>
 {
@@ -63,19 +70,21 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget>
     private static class TextWidget implements Selectable, Drawable, Element
     {
         private final String identifier;
-        private final Text text;
+        private Text display;
 
         int screenSpaceY = 0;
         int screenSpaceX = 0;
 
         int width = 0;
         int height = 0;
-        private boolean hovered;
+
+        private LivingEntity entity;
+        private int entitySize;
 
         public TextWidget(int screenSpaceX, int screenSpaceY, int width, int height, String identifier)
         {
             this.identifier = identifier;
-            this.text = Text.literal(identifier);
+            this.display = Text.literal(identifier);
 
             this.screenSpaceX = screenSpaceX;
             this.screenSpaceY = screenSpaceY;
@@ -94,6 +103,56 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget>
                 if (identifier.equals(n)) focusType = FocusType.CURRENT;
                 else focusType = FocusType.NONE;
             }, true);
+
+            try
+            {
+                Entity entity = null;
+
+                var entityType = EntityType.get(identifier);
+
+                if (entityType.isPresent())
+                {
+                    var type = entityType.get();
+
+                    entity = type.create(MinecraftClient.getInstance().world);
+                }
+                else if (identifier.equals("morph:unmorph"))
+                {
+                    entity = MinecraftClient.getInstance().player;
+                }
+                else if (identifier.startsWith("player:"))
+                {
+                    var nameSplited = identifier.split(":", 2);
+
+                    if (nameSplited.length == 2)
+                    {
+                        entity = new OtherClientPlayerEntity(MinecraftClient.getInstance().world,
+                                new GameProfile(UUID.randomUUID(), nameSplited[1]), null);
+                    }
+                }
+
+                if (entity instanceof LivingEntity living)
+                {
+                    this.display = entity.getDisplayName();
+                    this.entity = living;
+
+                    switch (identifier)
+                    {
+                        case "minecraft:ender_dragon" -> entitySize = 2;
+                        case "squid" -> entitySize = 1;
+                        default ->
+                        {
+                            entitySize = (int) (15 / Math.max(entity.getHeight(), entity.getWidth()));
+                            entitySize = Math.max(1, entitySize);
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                LoggerFactory.getLogger("morph").error(e.getMessage());
+                e.printStackTrace();
+            }
         }
 
         private final static TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
@@ -119,9 +178,26 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget>
                         0xff333333);
             }
 
-            textRenderer.draw(matrices, text,
+            textRenderer.draw(matrices, display,
                     screenSpaceX + 5, screenSpaceY + ((height - textRenderer.fontHeight) / 2f), 0xffffffff);
+
+            try
+            {
+                if (entity != null && allowER)
+                {
+                    InventoryScreen.drawEntity(screenSpaceX + width - 5, screenSpaceY + height - 2,
+                            entitySize, 30, 0, entity);
+                }
+            }
+            catch (Exception e)
+            {
+                allowER = false;
+                LoggerFactory.getLogger("morph").error(e.getMessage());
+                e.printStackTrace();
+            }
         }
+
+        private boolean allowER = true;
 
         @Override
         public SelectionType getType()
