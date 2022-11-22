@@ -16,6 +16,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.mob.MagmaCubeEntity;
 import net.minecraft.text.Text;
 import org.slf4j.LoggerFactory;
 import xiamo.morph.client.MorphClient;
@@ -80,6 +81,7 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget>
 
         private LivingEntity entity;
         private int entitySize;
+        private int entityYOffset;
 
         public TextWidget(int screenSpaceX, int screenSpaceY, int width, int height, String identifier)
         {
@@ -139,7 +141,16 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget>
                     switch (identifier)
                     {
                         case "minecraft:ender_dragon" -> entitySize = 2;
-                        case "squid" -> entitySize = 1;
+                        case "minecraft:squid" ->
+                        {
+                            entitySize = 10;
+                            entityYOffset = -6;
+                        }
+                        case "minecraft:magma_cube" ->
+                        {
+                            ((MagmaCubeEntity) living).setSize(4, false);
+                            entitySize = 8;
+                        }
                         default ->
                         {
                             entitySize = (int) (15 / Math.max(entity.getHeight(), entity.getWidth()));
@@ -185,7 +196,7 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget>
             {
                 if (entity != null && allowER)
                 {
-                    InventoryScreen.drawEntity(screenSpaceX + width - 5, screenSpaceY + height - 2,
+                    InventoryScreen.drawEntity(screenSpaceX + width - 5, screenSpaceY + height - 2 + entityYOffset,
                             entitySize, 30, 0, entity);
                 }
             }
@@ -226,10 +237,6 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget>
             }
             else
                 MorphClient.selectedIdentifier.set(this.identifier);
-
-            var logger = LoggerFactory.getLogger("morph");
-
-            logger.info("press " + identifier + " with X " + mouseX + " and Y " + mouseY);
 
             return Element.super.mouseClicked(mouseX, mouseY, button);
         }
