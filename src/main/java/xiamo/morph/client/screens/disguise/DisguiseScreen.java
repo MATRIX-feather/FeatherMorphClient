@@ -63,6 +63,8 @@ public class DisguiseScreen extends Screen
         super.close();
     }
 
+    private boolean isInitialCall = true;
+
     @Override
     protected void init()
     {
@@ -75,6 +77,20 @@ public class DisguiseScreen extends Screen
         {
             //列表
             list.updateSize(width, this.height, textRenderer.fontHeight * 2 + fontMargin * 2, this.height - 40);
+
+            if (isInitialCall)
+            {
+                //第一次打开时滚动到当前伪装
+                var current = MorphClient.currentIdentifier.get();
+
+                if (current != null)
+                {
+                    list.scrollTo(list.children().stream()
+                            .filter(w -> current.equals(w.getIdentifier())).findFirst().orElse(null));
+                }
+
+                isInitialCall = false;
+            }
 
             this.addDrawableChild(list);
 
