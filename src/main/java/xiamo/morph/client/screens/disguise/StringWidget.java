@@ -1,6 +1,7 @@
 package xiamo.morph.client.screens.disguise;
 
 import com.mojang.authlib.GameProfile;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -17,11 +18,13 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.MagmaCubeEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import org.slf4j.LoggerFactory;
 import xiamo.morph.client.MorphClient;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class StringWidget extends ElementListWidget.Entry<StringWidget>
@@ -83,6 +86,8 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget>
         private int entitySize;
         private int entityYOffset;
 
+        private static final Map<String, LivingEntity> stringLivingEntityMap = new Object2ObjectOpenHashMap<>();
+
         public TextWidget(int screenSpaceX, int screenSpaceY, int width, int height, String identifier)
         {
             this.identifier = identifier;
@@ -108,54 +113,65 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget>
 
             try
             {
-                Entity entity = null;
+                LivingEntity living = stringLivingEntityMap.getOrDefault(identifier, null);
 
-                var entityType = EntityType.get(identifier);
-
-                if (entityType.isPresent())
+                if (living == null)
                 {
-                    var type = entityType.get();
+                    Entity entity = null;
 
-                    entity = type.create(MinecraftClient.getInstance().world);
-                }
-                else if (identifier.equals("morph:unmorph"))
-                {
-                    entity = MinecraftClient.getInstance().player;
-                }
-                else if (identifier.startsWith("player:"))
-                {
-                    var nameSplited = identifier.split(":", 2);
+                    var entityType = EntityType.get(identifier);
 
-                    if (nameSplited.length == 2)
+                    if (entityType.isPresent())
                     {
-                        entity = new OtherClientPlayerEntity(MinecraftClient.getInstance().world,
-                                new GameProfile(UUID.randomUUID(), nameSplited[1]), null);
+                        var type = entityType.get();
+
+                        entity = type.create(MinecraftClient.getInstance().world);
+                    }
+                    else if (identifier.equals("morph:unmorph"))
+                    {
+                        entity = MinecraftClient.getInstance().player;
+                    }
+                    else if (identifier.startsWith("player:"))
+                    {
+                        var nameSplited = identifier.split(":", 2);
+
+                        if (nameSplited.length == 2)
+                        {
+                            entity = new OtherClientPlayerEntity(MinecraftClient.getInstance().world,
+                                    new GameProfile(UUID.randomUUID(), nameSplited[1]), null);
+                        }
+                    }
+
+                    if (!(entity instanceof LivingEntity le)) return;
+                    else
+                    {
+                        living = le;
+
+                        if (entity != MinecraftClient.getInstance().player)
+                            stringLivingEntityMap.put(identifier, le);
                     }
                 }
 
-                if (entity instanceof LivingEntity living)
-                {
-                    this.display = entity.getDisplayName();
-                    this.entity = living;
+                this.entity = living;
+                this.display = entity.getDisplayName();
 
-                    switch (identifier)
+                switch (identifier)
+                {
+                    case "minecraft:ender_dragon" -> entitySize = 2;
+                    case "minecraft:squid" ->
                     {
-                        case "minecraft:ender_dragon" -> entitySize = 2;
-                        case "minecraft:squid" ->
-                        {
-                            entitySize = 10;
-                            entityYOffset = -6;
-                        }
-                        case "minecraft:magma_cube" ->
-                        {
-                            ((MagmaCubeEntity) living).setSize(4, false);
-                            entitySize = 8;
-                        }
-                        default ->
-                        {
-                            entitySize = (int) (15 / Math.max(entity.getHeight(), entity.getWidth()));
-                            entitySize = Math.max(1, entitySize);
-                        }
+                        entitySize = 10;
+                        entityYOffset = -6;
+                    }
+                    case "minecraft:magma_cube" ->
+                    {
+                        ((MagmaCubeEntity) living).setSize(4, false);
+                        entitySize = 8;
+                    }
+                    default ->
+                    {
+                        entitySize = (int) (15 / Math.max(entity.getHeight(), entity.getWidth()));
+                        entitySize = Math.max(1, entitySize);
                     }
                 }
             }
@@ -223,20 +239,34 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget>
         {
             var lastFocusType = focusType;
 
-            if (mouseX < this.screenSpaceX + width && mouseX > this.screenSpaceX
-                    && mouseY < this.screenSpaceY + height && mouseY > this.screenSpaceY
-                    && focusType == FocusType.NONE)
+            switch (lastFocusType)
             {
-                focusType = FocusType.SELECTED;
-            }
+                case SELECTED ->
+                {
+                    focusType = FocusType.WAITING;
+                    MorphClient.getInstance().sendMorphCommand(this.identifier);
+                }
 
-            if (lastFocusType == FocusType.SELECTED && this.identifier.equals(MorphClient.selectedIdentifier.get()))
-            {
-                focusType = FocusType.WAITING;
-                MorphClient.getInstance().sendMorphCommand(this.identifier);
+                case CURRENT ->
+                {
+                    focusType = FocusType.WAITING;
+                    MorphClient.getInstance().sendMorphCommand(null);
+                }
+
+                case WAITING ->
+                {
+                }
+
+                default ->
+                {
+                    if (mouseX < this.screenSpaceX + width && mouseX > this.screenSpaceX
+                            && mouseY < this.screenSpaceY + height && mouseY > this.screenSpaceY)
+                    {
+                        MorphClient.selectedIdentifier.set(this.identifier);
+                        focusType = FocusType.SELECTED;
+                    }
+                }
             }
-            else
-                MorphClient.selectedIdentifier.set(this.identifier);
 
             return Element.super.mouseClicked(mouseX, mouseY, button);
         }

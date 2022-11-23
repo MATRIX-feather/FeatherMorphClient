@@ -277,10 +277,12 @@ public class MorphClient implements ClientModInitializer
 
     public void sendMorphCommand(String id)
     {
+        if (id == null) id = "morph:unmorph";
+
         if ("morph:unmorph".equals(id))
             ClientPlayNetworking.send(commandChannelIdentifier, fromString("unmorph"));
         else
-            ClientPlayNetworking.send(commandChannelIdentifier, fromString("morph" + (id == null ? "" : " " + id)));
+            ClientPlayNetworking.send(commandChannelIdentifier, fromString("morph " + id));
     }
 
     private PacketByteBuf fromString(String str)
