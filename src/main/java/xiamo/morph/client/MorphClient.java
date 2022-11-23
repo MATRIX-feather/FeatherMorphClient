@@ -18,6 +18,7 @@ import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xiamo.morph.client.bindables.Bindable;
+import xiamo.morph.client.graphics.InventoryRenderHelper;
 import xiamo.morph.client.screens.disguise.DisguiseScreen;
 
 import java.nio.charset.StandardCharsets;
@@ -53,6 +54,8 @@ public class MorphClient implements ClientModInitializer
     public static final Bindable<String> selectedIdentifier = new Bindable<>(null);
 
     public static final Bindable<String> currentIdentifier = new Bindable<>(null);
+
+    public static final InventoryRenderHelper renderHelper = new InventoryRenderHelper();
 
     private final Logger logger = LoggerFactory.getLogger("MorphClient");
 

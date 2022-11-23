@@ -14,14 +14,13 @@ import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ElementListWidget;
 import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.MagmaCubeEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import org.slf4j.LoggerFactory;
+import xiamo.morph.client.EntityCache;
 import xiamo.morph.client.MorphClient;
+import xiamo.morph.client.bindables.Bindable;
 
 import java.util.List;
 import java.util.Map;
@@ -86,7 +85,8 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget>
         private int entitySize;
         private int entityYOffset;
 
-        private static final Map<String, LivingEntity> stringLivingEntityMap = new Object2ObjectOpenHashMap<>();
+        private final Bindable<String> currentIdentifier = new Bindable<>();
+        private final Bindable<String> selectedIdentifier = new Bindable<>();
 
         public TextWidget(int screenSpaceX, int screenSpaceY, int width, int height, String identifier)
         {
@@ -99,35 +99,35 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget>
             this.width = width;
             this.height = height;
 
-            MorphClient.selectedIdentifier.onValueChanged((o, n) ->
+            selectedIdentifier.bindTo(MorphClient.selectedIdentifier);
+            currentIdentifier.bindTo(MorphClient.currentIdentifier);
+
+            selectedIdentifier.onValueChanged((o, n) ->
             {
                 if (!identifier.equals(n) && focusType != FocusType.CURRENT && focusType != FocusType.WAITING)
                     focusType = FocusType.NONE;
             }, true);
 
-            MorphClient.currentIdentifier.onValueChanged((o, n) ->
+            currentIdentifier.onValueChanged((o, n) ->
             {
-                if (identifier.equals(n)) focusType = FocusType.CURRENT;
+                if (identifier.equals(n))
+                {
+                    focusType = FocusType.CURRENT;
+
+                    if (entity != null && entity.isRemoved()) entity = EntityCache.getEntity(entity.getType());
+                }
                 else focusType = FocusType.NONE;
             }, true);
 
             try
             {
-                LivingEntity living = stringLivingEntityMap.getOrDefault(identifier, null);
+                LivingEntity living = EntityCache.getEntity(identifier);
 
                 if (living == null)
                 {
-                    Entity entity = null;
+                    LivingEntity entity = null;
 
-                    var entityType = EntityType.get(identifier);
-
-                    if (entityType.isPresent())
-                    {
-                        var type = entityType.get();
-
-                        entity = type.create(MinecraftClient.getInstance().world);
-                    }
-                    else if (identifier.equals("morph:unmorph"))
+                    if (identifier.equals("morph:unmorph"))
                     {
                         entity = MinecraftClient.getInstance().player;
                     }
@@ -142,14 +142,9 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget>
                         }
                     }
 
-                    if (!(entity instanceof LivingEntity le)) return;
-                    else
-                    {
-                        living = le;
+                    if (entity == null) return; //没有和此ID匹配的实体
 
-                        if (entity != MinecraftClient.getInstance().player)
-                            stringLivingEntityMap.put(identifier, le);
-                    }
+                    living = entity;
                 }
 
                 this.entity = living;

@@ -5,7 +5,9 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "MinecraftClientMixin",
-    "ClientPlayNetworkHandlerMixin"
+    "ClientPlayNetworkHandlerMixin",
+    "MixinInventoryScreen",
+    "ArmorStandEntityAccessor"
   ],
   "client": [
   ],
