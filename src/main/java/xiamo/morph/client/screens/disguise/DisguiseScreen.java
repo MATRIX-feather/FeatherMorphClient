@@ -5,7 +5,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 import xiamo.morph.client.MorphClient;
 import xiamo.morph.client.bindables.Bindable;
 import xiamo.morph.client.graphics.DrawableText;
@@ -13,20 +12,29 @@ import xiamo.morph.client.graphics.ToggleSelfButton;
 
 public class DisguiseScreen extends Screen
 {
-    private ToggleSelfButton selfVisibleToggle;
+    private final ToggleSelfButton selfVisibleToggle;
 
     public DisguiseScreen()
     {
         super(Text.literal("选择界面"));
 
+        var morphClient = MorphClient.getInstance();
         morphClient.onMorphGrant(c ->
         {
+            if (!this.isCurrent()) return false;
+
             c.forEach(s -> list.children().add(new StringWidget(s)));
+
+            return true;
         });
 
         morphClient.onMorphRevoke(c ->
         {
+            if (!this.isCurrent()) return false;
+
             c.forEach(s -> list.children().removeIf(w -> w.getIdentifier().equals(s)));
+
+            return true;
         });
 
         list.children().add(new StringWidget("morph:unmorph"));
@@ -64,8 +72,6 @@ public class DisguiseScreen extends Screen
 
     private final Bindable<String> selectedIdentifier = new Bindable<>();
 
-    private final MorphClient morphClient = MorphClient.getInstance();
-
     private final ButtonWidget closeButton;
     private final IdentifierDrawableList list = new IdentifierDrawableList(client, 200, 0, 20, 0, 22);
     private final DrawableText titleText = new DrawableText("选择伪装");
@@ -73,9 +79,17 @@ public class DisguiseScreen extends Screen
     private final DrawableText serverAPIText = new DrawableText();
     private final DrawableText notReadyText = new DrawableText("等待服务器响应...");
 
+    private boolean isCurrent()
+    {
+        return MinecraftClient.getInstance().currentScreen == this;
+    }
+
     @Override
     public void close()
     {
+        //workaround: Bindable在界面关闭后还是会保持引用，得手动把字段设置为null
+        list.clearChildren();
+
         super.close();
     }
 

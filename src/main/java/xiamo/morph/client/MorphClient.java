@@ -24,6 +24,7 @@ import xiamo.morph.client.screens.disguise.DisguiseScreen;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 @Environment(EnvType.CLIENT)
 public class MorphClient implements ClientModInitializer
@@ -77,7 +78,7 @@ public class MorphClient implements ClientModInitializer
 
         updateServerStatus();
 
-        this.onRevokeConsumers.forEach(c -> c.accept(list));
+        invokeGrant(list);
     }
 
     private void updateServerStatus()
@@ -182,16 +183,16 @@ public class MorphClient implements ClientModInitializer
                             case "add" ->
                             {
                                 avaliableMorphs.addAll(diff);
-                                onGrantConsumers.forEach(c -> c.accept(diff));
+                                invokeGrant(diff);
                             }
                             case "remove" ->
                             {
                                 avaliableMorphs.removeAll(diff);
-                                onRevokeConsumers.forEach(c -> c.accept(diff));
+                                invokeRevoke(diff);
                             }
                             case "set" ->
                             {
-                                onRevokeConsumers.forEach(c -> c.accept(new ObjectArrayList<>(avaliableMorphs)));
+                                invokeRevoke(diff);
 
                                 this.avaliableMorphs.clear();
                                 this.avaliableMorphs.addAll(diff);
@@ -199,7 +200,7 @@ public class MorphClient implements ClientModInitializer
                                 morphListReceived = true;
                                 updateServerStatus();
 
-                                onGrantConsumers.forEach(c -> c.accept(diff));
+                                invokeGrant(diff);
                             }
                             default -> logger.warn("未知的Query指令：" + subCmdName);
                         }
@@ -259,6 +260,7 @@ public class MorphClient implements ClientModInitializer
         });
     }
 
+    private DisguiseScreen disguiseScreen;
     public final Bindable<Boolean> selfVisibleToggled = new Bindable<>(false);
 
     private final List<String> avaliableMorphs = new ObjectArrayList<>();
@@ -268,14 +270,38 @@ public class MorphClient implements ClientModInitializer
         return new ObjectArrayList<>(avaliableMorphs);
     }
 
-    private final List<Consumer<List<String>>> onGrantConsumers = new ObjectArrayList<>();
-    public void onMorphGrant(Consumer<List<String>> consumer)
+    private final List<Function<List<String>, Boolean>> onGrantConsumers = new ObjectArrayList<>();
+    public void onMorphGrant(Function<List<String>, Boolean> consumer)
     {
         onGrantConsumers.add(consumer);
     }
 
-    private final List<Consumer<List<String>>> onRevokeConsumers = new ObjectArrayList<>();
-    public void onMorphRevoke(Consumer<List<String>> consumer)
+    private void invokeRevoke(List<String> diff)
+    {
+        var tobeRemoved = new ObjectArrayList<Function<List<String>, Boolean>>();
+
+        onRevokeConsumers.forEach(f ->
+        {
+            if (!f.apply(diff)) tobeRemoved.add(f);
+        });
+
+        onRevokeConsumers.removeAll(tobeRemoved);
+    }
+
+    private void invokeGrant(List<String> diff)
+    {
+        var tobeRemoved = new ObjectArrayList<Function<List<String>, Boolean>>();
+
+        onGrantConsumers.forEach(f ->
+        {
+            if (!f.apply(diff)) tobeRemoved.add(f);
+        });
+
+        onGrantConsumers.removeAll(tobeRemoved);
+    }
+
+    private final List<Function<List<String>, Boolean>> onRevokeConsumers = new ObjectArrayList<>();
+    public void onMorphRevoke(Function<List<String>, Boolean> consumer)
     {
         onRevokeConsumers.add(consumer);
     }
@@ -294,7 +320,9 @@ public class MorphClient implements ClientModInitializer
         if (morphKeyBind.wasPressed())
         {
             if (client.currentScreen == null)
-                client.setScreen(new DisguiseScreen());
+            {
+                client.setScreen(disguiseScreen = new DisguiseScreen());
+            }
         }
     }
 

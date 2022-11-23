@@ -56,6 +56,11 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget>
         initFields(name);
     }
 
+    public void clearChildren()
+    {
+        children.forEach(TextWidget::dispose);
+    }
+
     private void initFields(String name)
     {
         this.identifier = name;
@@ -85,8 +90,14 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget>
         private int entitySize;
         private int entityYOffset;
 
-        private final Bindable<String> currentIdentifier = new Bindable<>();
-        private final Bindable<String> selectedIdentifier = new Bindable<>();
+        private void dispose()
+        {
+            currentIdentifier = null;
+            selectedIdentifier = null;
+        }
+
+        private Bindable<String> currentIdentifier = new Bindable<>();
+        private Bindable<String> selectedIdentifier = new Bindable<>();
 
         public TextWidget(int screenSpaceX, int screenSpaceY, int width, int height, String identifier)
         {

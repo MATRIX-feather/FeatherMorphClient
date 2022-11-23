@@ -11,6 +11,11 @@ public class IdentifierDrawableList extends ElementListWidget<StringWidget>
         super(minecraftClient, i, j, k, l, m);
     }
 
+    public void clearChildren()
+    {
+        children().forEach(StringWidget::clearChildren);
+    }
+
     public void setHeight(int nH)
     {
         this.height = nH;
