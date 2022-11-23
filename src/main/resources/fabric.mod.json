@@ -4,8 +4,12 @@
   "version": "${version}",
   "name": "MorphClient",
   "description": "",
-  "authors": [],
-  "contact": {},
+  "authors": ["MATRIX-feather"],
+  "contact":
+  {
+    "sources": "https://github.com/XiaMoZhiShi/MorphPluginClient",
+    "homepage": "https://github.com/XiaMoZhiShi"
+  },
   "license": "MIT",
   "icon": "assets/client/icon.png",
   "environment": "client",
@@ -21,7 +25,7 @@
     "client.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.14.10",
+    "fabricloader": ">=0.12.9",
     "fabric": "*",
     "minecraft": "1.19.2"
   }
