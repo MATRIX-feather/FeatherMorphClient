@@ -1,5 +1,6 @@
 package xiamo.morph.client.graphics;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.Drawable;
@@ -83,11 +84,22 @@ public class DrawableText implements Drawable
     {
     }
 
+    private int color = 0xffffffff;
+
+    public void setColor(int c)
+    {
+        this.color = c;
+    }
+
+    public int getColor()
+    {
+        return color;
+    }
+
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta)
     {
-        var in = renderer.draw(matrices, text, this.screenX, this.screenY, 0x00ffffff);
-
-        renderer.draw(matrices, text, this.screenX - in - 5, this.screenY, 0xffffffff);
+        RenderSystem.enableBlend();
+        renderer.draw(matrices, text, this.screenX, this.screenY, color);
     }
 }

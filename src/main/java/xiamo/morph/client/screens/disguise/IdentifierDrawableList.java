@@ -3,7 +3,6 @@ package xiamo.morph.client.screens.disguise;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.ElementListWidget;
 import net.minecraft.client.util.math.MatrixStack;
-import org.slf4j.LoggerFactory;
 
 public class IdentifierDrawableList extends ElementListWidget<StringWidget>
 {

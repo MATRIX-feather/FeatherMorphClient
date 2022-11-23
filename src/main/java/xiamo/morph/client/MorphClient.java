@@ -138,7 +138,7 @@ public class MorphClient implements ClientModInitializer
         {
             try
             {
-                version = buf.readInt();
+                serverVersion = buf.readInt();
                 apiVersionChecked = true;
                 updateServerStatus();
             }
@@ -148,7 +148,7 @@ public class MorphClient implements ClientModInitializer
                 e.printStackTrace();
             }
 
-            logger.info("服务器API版本：" + version);
+            logger.info("服务器API版本：" + serverVersion);
         });
 
 
@@ -201,6 +201,24 @@ public class MorphClient implements ClientModInitializer
                             default -> logger.warn("未知的Query指令：" + subCmdName);
                         }
                     }
+                    case "set" ->
+                    {
+                        if (str.length < 2) return;
+
+                        var subCmd = str[1];
+
+                        switch (subCmd)
+                        {
+                            case "toggleself" ->
+                            {
+                                if (str.length < 3) return;
+
+                                var val = Boolean.parseBoolean(str[2]);
+
+                                selfVisibleToggled.set(val);
+                            }
+                        }
+                    }
                     case "reauth" ->
                     {
                         initializeData();
@@ -237,6 +255,8 @@ public class MorphClient implements ClientModInitializer
             }
         });
     }
+
+    public final Bindable<Boolean> selfVisibleToggled = new Bindable<>(false);
 
     private final List<String> avaliableMorphs = new ObjectArrayList<>();
 
@@ -275,14 +295,21 @@ public class MorphClient implements ClientModInitializer
         }
     }
 
+    public void sendCommand(String command)
+    {
+        if (command == null || command.isEmpty() || command.isBlank()) return;
+
+        ClientPlayNetworking.send(commandChannelIdentifier, fromString(command));
+    }
+
     public void sendMorphCommand(String id)
     {
         if (id == null) id = "morph:unmorph";
 
         if ("morph:unmorph".equals(id))
-            ClientPlayNetworking.send(commandChannelIdentifier, fromString("unmorph"));
+            sendCommand("unmorph");
         else
-            ClientPlayNetworking.send(commandChannelIdentifier, fromString("morph " + id));
+            sendCommand("morph " + id);
     }
 
     private PacketByteBuf fromString(String str)
@@ -293,11 +320,22 @@ public class MorphClient implements ClientModInitializer
         return packet;
     }
 
-    private int version = -1;
+    private int serverVersion = -1;
+    private final int clientVersion = 1;
 
-    public int getApiVersion()
+    public int getServerVersion()
     {
-        return version;
+        return serverVersion;
+    }
+
+    public boolean serverApiMatch()
+    {
+        return this.getServerVersion() == clientVersion;
+    }
+
+    public int getClientVersion()
+    {
+        return clientVersion;
     }
 
     private String readStringfromByte(ByteBuf buf)
