@@ -212,8 +212,18 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget>
             {
                 if (entity != null && allowER)
                 {
-                    InventoryScreen.drawEntity(screenSpaceX + width - 5, screenSpaceY + height - 2 + entityYOffset,
-                            entitySize, 30, 0, entity);
+                    var x = screenSpaceX + width - 5;
+                    var y = screenSpaceY + height - 2 + entityYOffset;
+                    var mX = 30;
+                    var mY = 0;
+
+                    if (focusType != FocusType.NONE)
+                    {
+                        mX = x - mouseX;
+                        mY = y -mouseY;
+                    }
+
+                    InventoryScreen.drawEntity(x, y, entitySize, mX, mY, entity);
                 }
             }
             catch (Exception e)
@@ -237,34 +247,51 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget>
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button)
         {
-            var lastFocusType = focusType;
-
-            switch (lastFocusType)
+            if (button == 0)
             {
-                case SELECTED ->
+                var lastFocusType = focusType;
+
+                switch (lastFocusType)
                 {
-                    focusType = FocusType.WAITING;
-                    MorphClient.getInstance().sendMorphCommand(this.identifier);
+                    case SELECTED ->
+                    {
+                        focusType = FocusType.WAITING;
+                        MorphClient.getInstance().sendMorphCommand(this.identifier);
+                    }
+
+                    case CURRENT ->
+                    {
+                        if (MorphClient.selectedIdentifier.get() != null)
+                            MorphClient.selectedIdentifier.set(null);
+                    }
+
+                    case WAITING ->
+                    {
+                    }
+
+                    default ->
+                    {
+                        if (mouseX < this.screenSpaceX + width && mouseX > this.screenSpaceX
+                                && mouseY < this.screenSpaceY + height && mouseY > this.screenSpaceY)
+                        {
+                            MorphClient.selectedIdentifier.set(this.identifier);
+                            focusType = FocusType.SELECTED;
+                        }
+                    }
                 }
 
-                case CURRENT ->
+                return true;
+            }
+            else if (button == 1) //Selected + 右键 -> 取消选择
+            {
+                if (focusType == FocusType.SELECTED)
+                {
+                    MorphClient.selectedIdentifier.set(null);
+                }
+                else if (focusType == FocusType.CURRENT)
                 {
                     focusType = FocusType.WAITING;
                     MorphClient.getInstance().sendMorphCommand(null);
-                }
-
-                case WAITING ->
-                {
-                }
-
-                default ->
-                {
-                    if (mouseX < this.screenSpaceX + width && mouseX > this.screenSpaceX
-                            && mouseY < this.screenSpaceY + height && mouseY > this.screenSpaceY)
-                    {
-                        MorphClient.selectedIdentifier.set(this.identifier);
-                        focusType = FocusType.SELECTED;
-                    }
                 }
             }
 
