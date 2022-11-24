@@ -19,6 +19,9 @@
     ],
     "main": [
       "xiamo.morph.client.ClientMain"
+    ],
+    "modmenu":[
+      "xiamo.morph.client.ModMenuApiImpl"
     ]
   },
   "mixins": [

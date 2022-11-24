@@ -4,5 +4,8 @@
   "key.morphclient.morph": "伪装",
   "key.morphclient.toggle": "切换自身可见",
   "key.morphclient.open_gui": "打开伪装选择界面",
-  "category.morphclient.keybind": "变形"
+  "category.morphclient.keybind": "变形",
+  "option.morphclient.previewInInventory.name": "总是在背包中显示伪装预览",
+  "option.morphclient.previewInInventory.description": "",
+  "title.morphclient.config": "MorphClient设置"
 }

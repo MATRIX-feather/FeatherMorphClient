@@ -2,6 +2,12 @@ package xiamo.morph.client;
 
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.autoconfig.ConfigHolder;
+import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
+import me.shedaniel.clothconfig2.api.ConfigBuilder;
+import me.shedaniel.clothconfig2.api.ConfigCategory;
+import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -10,14 +16,17 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xiamo.morph.client.bindables.Bindable;
+import xiamo.morph.client.config.ModConfigData;
 import xiamo.morph.client.graphics.InventoryRenderHelper;
 import xiamo.morph.client.screens.disguise.DisguiseScreen;
 
@@ -118,6 +127,17 @@ public class MorphClient implements ClientModInitializer
         ));
 
         ClientTickEvents.END_CLIENT_TICK.register(this::updateKeys);
+
+        //初始化配置
+        if (modConfigData == null)
+        {
+            AutoConfig.register(ModConfigData.class, GsonConfigSerializer::new);
+
+            configHolder = AutoConfig.getConfigHolder(ModConfigData.class);
+            configHolder.load();
+
+            modConfigData = configHolder.getConfig();
+        }
 
         //初始化网络
         ClientPlayNetworking.registerGlobalReceiver(initializeChannelIdentifier, (client, handler, buf, responseSender) ->
@@ -372,5 +392,42 @@ public class MorphClient implements ClientModInitializer
     private String readStringfromByte(ByteBuf buf)
     {
         return buf.resetReaderIndex().readCharSequence(buf.readableBytes(), StandardCharsets.UTF_8).toString();
+    }
+
+    //Config
+    private ModConfigData modConfigData;
+    private ConfigHolder<ModConfigData> configHolder;
+
+    private void onConfigSave()
+    {
+        configHolder.save();
+    }
+
+    public ModConfigData getModConfigData()
+    {
+        return modConfigData;
+    }
+
+    public ConfigBuilder getFactory(Screen parent)
+    {
+        ConfigBuilder builder = ConfigBuilder.create();
+        ConfigEntryBuilder entryBuilder = builder.entryBuilder();
+        ConfigCategory categoryGeneral = builder.getOrCreateCategory(Text.translatable("stat.generalButton"));
+
+        categoryGeneral.addEntry(
+                entryBuilder.startBooleanToggle(Text.translatable("option.morphclient.previewInInventory.name"), modConfigData.alwaysShowPreviewInInventory)
+                        .setTooltip(Text.translatable("option.morphclient.previewInInventory.description"))
+                        .setDefaultValue(false)
+                        .setSaveConsumer(v -> modConfigData.alwaysShowPreviewInInventory = v)
+                        .build()
+        );
+
+        builder.setParentScreen(parent)
+                .setTitle(Text.translatable("title.morphclient.config"))
+                .transparentBackground();
+
+        builder.setSavingRunnable(this::onConfigSave);
+
+        return builder;
     }
 }

@@ -12,8 +12,6 @@ import xiamo.morph.client.graphics.ToggleSelfButton;
 
 public class DisguiseScreen extends Screen
 {
-    private final ToggleSelfButton selfVisibleToggle;
-
     public DisguiseScreen()
     {
         super(Text.literal("选择界面"));
@@ -67,12 +65,22 @@ public class DisguiseScreen extends Screen
             this.close();
         });
 
+        configMenuButton = new ButtonWidget(0, 0, 20, 20, Text.literal("C"), (button ->
+        {
+            var screen = morphClient.getFactory(this).build();
+
+            MinecraftClient.getInstance().setScreen(screen);
+        }));
+
         selfVisibleToggle = new ToggleSelfButton(0, 0, 20, 20, morphClient.selfVisibleToggled.get(), this);
     }
 
     private final Bindable<String> selectedIdentifier = new Bindable<>();
 
     private final ButtonWidget closeButton;
+    private final ButtonWidget configMenuButton;
+    private final ToggleSelfButton selfVisibleToggle;
+
     private final IdentifierDrawableList list = new IdentifierDrawableList(client, 200, 0, 20, 0, 22);
     private final DrawableText titleText = new DrawableText("选择伪装");
     private final DrawableText selectedIdentifierText = new DrawableText();
@@ -148,7 +156,11 @@ public class DisguiseScreen extends Screen
 
             this.addDrawableChild(selfVisibleToggle);
             selfVisibleToggle.x = baseX - selfVisibleToggle.getWidth() - 5;
-            selfVisibleToggle.y = closeButton.y = this.height - 25;
+
+            this.addDrawableChild(configMenuButton);
+            configMenuButton.x = baseX - selfVisibleToggle.getWidth() - 5 - configMenuButton.getWidth() - 5;
+
+            selfVisibleToggle.y = closeButton.y = configMenuButton.y = this.height - 25;
         }
         else
         {

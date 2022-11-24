@@ -4,5 +4,8 @@
   "key.morphclient.morph": "Morph",
   "key.morphclient.toggle": "Toggle self visibility",
   "key.morphclient.open_gui": "Open disguise select screen",
-  "category.morphclient.keybind": "MorphClient"
+  "category.morphclient.keybind": "MorphClient",
+  "option.morphclient.previewInInventory.name": "Always show disguise preview in inventory",
+  "option.morphclient.previewInInventory.description": "",
+  "title.morphclient.config": "MorphClient Config"
 }
