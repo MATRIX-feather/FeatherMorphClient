@@ -1,7 +1,6 @@
 package xiamo.morph.client.graphics;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import xiamo.morph.client.EntityCache;
 import xiamo.morph.client.MorphClient;
@@ -31,7 +30,9 @@ public class InventoryRenderHelper
         var clientPlayer = MinecraftClient.getInstance().player;
 
         if (entity != null
-                && (modInstance.getModConfigData().alwaysShowPreviewInInventory || modInstance.selfVisibleToggled.get()))
+                && (modInstance.getModConfigData().alwaysShowPreviewInInventory
+                        || modInstance.selfVisibleToggled.get()
+                        || modInstance.getModConfigData().clientViewVisible()))
         {
             try
             {

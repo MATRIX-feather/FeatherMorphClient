@@ -67,39 +67,6 @@ public class MorphClient implements ClientModInitializer
 
     private final Logger logger = LoggerFactory.getLogger("MorphClient");
 
-    public static final Bindable<Boolean> serverReady = new Bindable<>(false);
-    private boolean handshakeReceived;
-    private boolean apiVersionChecked;
-    private boolean morphListReceived;
-
-    public void resetServerStatus()
-    {
-        handshakeReceived = false;
-        apiVersionChecked = false;
-        morphListReceived = false;
-
-        var list = new ObjectArrayList<>(avaliableMorphs);
-        this.avaliableMorphs.clear();
-        selectedIdentifier.set(null);
-        currentIdentifier.set(null);
-
-        updateServerStatus();
-
-        invokeGrant(list);
-    }
-
-    private void updateServerStatus()
-    {
-        serverReady.set(handshakeReceived && apiVersionChecked && morphListReceived);
-    }
-
-    public void initializeData()
-    {
-        this.resetServerStatus();
-
-        ClientPlayNetworking.send(initializeChannelIdentifier, PacketByteBufs.create());
-    }
-
     @Override
     public void onInitializeClient()
     {
@@ -137,6 +104,230 @@ public class MorphClient implements ClientModInitializer
             modConfigData = configHolder.getConfig();
         }
 
+        initializeNetwork();
+    }
+
+    public final Bindable<Boolean> selfVisibleToggled = new Bindable<>(false);
+
+    private final List<String> avaliableMorphs = new ObjectArrayList<>();
+
+    public List<String> getAvaliableMorphs()
+    {
+        return new ObjectArrayList<>(avaliableMorphs);
+    }
+
+    private final List<Function<List<String>, Boolean>> onGrantConsumers = new ObjectArrayList<>();
+    public void onMorphGrant(Function<List<String>, Boolean> consumer)
+    {
+        onGrantConsumers.add(consumer);
+    }
+
+    private void invokeRevoke(List<String> diff)
+    {
+        var tobeRemoved = new ObjectArrayList<Function<List<String>, Boolean>>();
+
+        onRevokeConsumers.forEach(f ->
+        {
+            if (!f.apply(diff)) tobeRemoved.add(f);
+        });
+
+        onRevokeConsumers.removeAll(tobeRemoved);
+    }
+
+    private void invokeGrant(List<String> diff)
+    {
+        var tobeRemoved = new ObjectArrayList<Function<List<String>, Boolean>>();
+
+        onGrantConsumers.forEach(f ->
+        {
+            if (!f.apply(diff)) tobeRemoved.add(f);
+        });
+
+        onGrantConsumers.removeAll(tobeRemoved);
+    }
+
+    private final List<Function<List<String>, Boolean>> onRevokeConsumers = new ObjectArrayList<>();
+    public void onMorphRevoke(Function<List<String>, Boolean> consumer)
+    {
+        onRevokeConsumers.add(consumer);
+    }
+
+    private void updateKeys(MinecraftClient client)
+    {
+        if (executeSkillKeyBind.wasPressed())
+            sendCommand("skill");
+
+        if (unMorphKeyBind.wasPressed())
+            sendCommand("unmorph");
+
+        if (toggleselfKeyBind.wasPressed())
+        {
+            var config = getModConfigData();
+
+            boolean val = !selfVisibleToggled.get();
+
+            updateClientView(config.allowClientView, val);
+        }
+
+        if (morphKeyBind.wasPressed())
+        {
+            if (client.currentScreen == null)
+            {
+                client.setScreen(new DisguiseScreen());
+            }
+        }
+    }
+
+    private boolean lastClientView;
+
+    public void updateClientView(boolean clientViewEnabled, boolean selfViewVisible)
+    {
+        if (clientViewEnabled != lastClientView)
+        {
+            sendCommand("toggleself client " + clientViewEnabled);
+            lastClientView = clientViewEnabled;
+        }
+
+        sendCommand("toggleself " + selfViewVisible);
+
+        modConfigData.allowClientView = clientViewEnabled;
+    }
+
+    public void sendMorphCommand(String id)
+    {
+        if (id == null) id = "morph:unmorph";
+
+        if ("morph:unmorph".equals(id))
+            sendCommand("unmorph");
+        else
+            sendCommand("morph " + id);
+    }
+
+
+    //region Config
+    private ModConfigData modConfigData;
+    private ConfigHolder<ModConfigData> configHolder;
+
+    private void onConfigSave()
+    {
+        configHolder.save();
+    }
+
+    public ModConfigData getModConfigData()
+    {
+        return modConfigData;
+    }
+
+    public ConfigBuilder getFactory(Screen parent)
+    {
+        ConfigBuilder builder = ConfigBuilder.create();
+        ConfigEntryBuilder entryBuilder = builder.entryBuilder();
+        ConfigCategory categoryGeneral = builder.getOrCreateCategory(Text.translatable("stat.generalButton"));
+
+        categoryGeneral.addEntry(
+                entryBuilder.startBooleanToggle(Text.translatable("option.morphclient.previewInInventory.name"), modConfigData.alwaysShowPreviewInInventory)
+                        .setTooltip(Text.translatable("option.morphclient.previewInInventory.description"))
+                        .setDefaultValue(false)
+                        .setSaveConsumer(v -> modConfigData.alwaysShowPreviewInInventory = v)
+                        .build()
+        );
+
+        categoryGeneral.addEntry(
+                entryBuilder.startBooleanToggle(Text.translatable("option.morphclient.allowClientView.name"), modConfigData.allowClientView)
+                        .setTooltip(Text.translatable("option.morphclient.allowClientView.description"))
+                        .setDefaultValue(false)
+                        .setSaveConsumer(v ->
+                        {
+                            modConfigData.allowClientView = v;
+                            updateClientView(v, selfVisibleToggled.get());
+                        })
+                        .build()
+        );
+
+        builder.setParentScreen(parent)
+                .setTitle(Text.translatable("title.morphclient.config"))
+                .transparentBackground();
+
+        builder.setSavingRunnable(this::onConfigSave);
+
+        return builder;
+    }
+    //endregion Config
+
+    //region Network
+    private int serverVersion = -1;
+    private final int clientVersion = 1;
+
+    public int getServerVersion()
+    {
+        return serverVersion;
+    }
+
+    public boolean serverApiMatch()
+    {
+        return this.getServerVersion() == clientVersion;
+    }
+
+    public int getClientVersion()
+    {
+        return clientVersion;
+    }
+
+    private String readStringfromByte(ByteBuf buf)
+    {
+        return buf.resetReaderIndex().readCharSequence(buf.readableBytes(), StandardCharsets.UTF_8).toString();
+    }
+
+    private PacketByteBuf fromString(String str)
+    {
+        var packet = PacketByteBufs.create();
+
+        packet.writeCharSequence(str, StandardCharsets.UTF_8);
+        return packet;
+    }
+
+    public void sendCommand(String command)
+    {
+        if (command == null || command.isEmpty() || command.isBlank()) return;
+
+        ClientPlayNetworking.send(commandChannelIdentifier, fromString(command));
+    }
+
+    public static final Bindable<Boolean> serverReady = new Bindable<>(false);
+    private boolean handshakeReceived;
+    private boolean apiVersionChecked;
+    private boolean morphListReceived;
+
+    public void resetServerStatus()
+    {
+        handshakeReceived = false;
+        apiVersionChecked = false;
+        morphListReceived = false;
+
+        var list = new ObjectArrayList<>(avaliableMorphs);
+        this.avaliableMorphs.clear();
+        selectedIdentifier.set(null);
+        currentIdentifier.set(null);
+
+        updateServerStatus();
+
+        invokeGrant(list);
+    }
+
+    private void updateServerStatus()
+    {
+        serverReady.set(handshakeReceived && apiVersionChecked && morphListReceived);
+    }
+
+    public void initializeClientData()
+    {
+        this.resetServerStatus();
+
+        ClientPlayNetworking.send(initializeChannelIdentifier, PacketByteBufs.create());
+    }
+
+    private void initializeNetwork()
+    {
         //初始化网络
         ClientPlayNetworking.registerGlobalReceiver(initializeChannelIdentifier, (client, handler, buf, responseSender) ->
         {
@@ -150,10 +341,8 @@ public class MorphClient implements ClientModInitializer
             updateServerStatus();
 
             ClientPlayNetworking.send(versionChannelIdentifier, PacketByteBufs.create());
-
-            var packetBuf = PacketByteBufs.create();
-            packetBuf.writeCharSequence("initial", StandardCharsets.UTF_8);
-            ClientPlayNetworking.send(commandChannelIdentifier, packetBuf);
+            sendCommand("initial");
+            sendCommand("option clientview " + modConfigData.allowClientView);
         });
 
         ClientPlayNetworking.registerGlobalReceiver(versionChannelIdentifier, (client, handler, buf, responseSender) ->
@@ -172,7 +361,6 @@ public class MorphClient implements ClientModInitializer
 
             logger.info("服务器API版本：" + serverVersion);
         });
-
 
         ClientPlayNetworking.registerGlobalReceiver(commandChannelIdentifier, (client, handler, buf, responseSender) ->
         {
@@ -228,9 +416,9 @@ public class MorphClient implements ClientModInitializer
                     {
                         if (str.length < 2) return;
 
-                        var subCmd = str[1];
+                        var subCmdName = str[1];
 
-                        switch (subCmd)
+                        switch (subCmdName)
                         {
                             case "toggleself" ->
                             {
@@ -244,7 +432,7 @@ public class MorphClient implements ClientModInitializer
                     }
                     case "reauth" ->
                     {
-                        initializeData();
+                        initializeClientData();
                     }
                     case "unauth" ->
                     {
@@ -278,155 +466,5 @@ public class MorphClient implements ClientModInitializer
             }
         });
     }
-
-    private DisguiseScreen disguiseScreen;
-    public final Bindable<Boolean> selfVisibleToggled = new Bindable<>(false);
-
-    private final List<String> avaliableMorphs = new ObjectArrayList<>();
-
-    public List<String> getAvaliableMorphs()
-    {
-        return new ObjectArrayList<>(avaliableMorphs);
-    }
-
-    private final List<Function<List<String>, Boolean>> onGrantConsumers = new ObjectArrayList<>();
-    public void onMorphGrant(Function<List<String>, Boolean> consumer)
-    {
-        onGrantConsumers.add(consumer);
-    }
-
-    private void invokeRevoke(List<String> diff)
-    {
-        var tobeRemoved = new ObjectArrayList<Function<List<String>, Boolean>>();
-
-        onRevokeConsumers.forEach(f ->
-        {
-            if (!f.apply(diff)) tobeRemoved.add(f);
-        });
-
-        onRevokeConsumers.removeAll(tobeRemoved);
-    }
-
-    private void invokeGrant(List<String> diff)
-    {
-        var tobeRemoved = new ObjectArrayList<Function<List<String>, Boolean>>();
-
-        onGrantConsumers.forEach(f ->
-        {
-            if (!f.apply(diff)) tobeRemoved.add(f);
-        });
-
-        onGrantConsumers.removeAll(tobeRemoved);
-    }
-
-    private final List<Function<List<String>, Boolean>> onRevokeConsumers = new ObjectArrayList<>();
-    public void onMorphRevoke(Function<List<String>, Boolean> consumer)
-    {
-        onRevokeConsumers.add(consumer);
-    }
-
-    private void updateKeys(MinecraftClient client)
-    {
-        if (executeSkillKeyBind.wasPressed())
-            ClientPlayNetworking.send(commandChannelIdentifier, fromString("skill"));
-
-        if (unMorphKeyBind.wasPressed())
-            ClientPlayNetworking.send(commandChannelIdentifier, fromString("unmorph"));
-
-        if (toggleselfKeyBind.wasPressed())
-            ClientPlayNetworking.send(commandChannelIdentifier, fromString("toggleself"));
-
-        if (morphKeyBind.wasPressed())
-        {
-            if (client.currentScreen == null)
-            {
-                client.setScreen(disguiseScreen = new DisguiseScreen());
-            }
-        }
-    }
-
-    public void sendCommand(String command)
-    {
-        if (command == null || command.isEmpty() || command.isBlank()) return;
-
-        ClientPlayNetworking.send(commandChannelIdentifier, fromString(command));
-    }
-
-    public void sendMorphCommand(String id)
-    {
-        if (id == null) id = "morph:unmorph";
-
-        if ("morph:unmorph".equals(id))
-            sendCommand("unmorph");
-        else
-            sendCommand("morph " + id);
-    }
-
-    private PacketByteBuf fromString(String str)
-    {
-        var packet = PacketByteBufs.create();
-
-        packet.writeCharSequence(str, StandardCharsets.UTF_8);
-        return packet;
-    }
-
-    private int serverVersion = -1;
-    private final int clientVersion = 1;
-
-    public int getServerVersion()
-    {
-        return serverVersion;
-    }
-
-    public boolean serverApiMatch()
-    {
-        return this.getServerVersion() == clientVersion;
-    }
-
-    public int getClientVersion()
-    {
-        return clientVersion;
-    }
-
-    private String readStringfromByte(ByteBuf buf)
-    {
-        return buf.resetReaderIndex().readCharSequence(buf.readableBytes(), StandardCharsets.UTF_8).toString();
-    }
-
-    //Config
-    private ModConfigData modConfigData;
-    private ConfigHolder<ModConfigData> configHolder;
-
-    private void onConfigSave()
-    {
-        configHolder.save();
-    }
-
-    public ModConfigData getModConfigData()
-    {
-        return modConfigData;
-    }
-
-    public ConfigBuilder getFactory(Screen parent)
-    {
-        ConfigBuilder builder = ConfigBuilder.create();
-        ConfigEntryBuilder entryBuilder = builder.entryBuilder();
-        ConfigCategory categoryGeneral = builder.getOrCreateCategory(Text.translatable("stat.generalButton"));
-
-        categoryGeneral.addEntry(
-                entryBuilder.startBooleanToggle(Text.translatable("option.morphclient.previewInInventory.name"), modConfigData.alwaysShowPreviewInInventory)
-                        .setTooltip(Text.translatable("option.morphclient.previewInInventory.description"))
-                        .setDefaultValue(false)
-                        .setSaveConsumer(v -> modConfigData.alwaysShowPreviewInInventory = v)
-                        .build()
-        );
-
-        builder.setParentScreen(parent)
-                .setTitle(Text.translatable("title.morphclient.config"))
-                .transparentBackground();
-
-        builder.setSavingRunnable(this::onConfigSave);
-
-        return builder;
-    }
+    //endregion
 }

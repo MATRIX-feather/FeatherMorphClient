@@ -7,5 +7,7 @@
   "category.morphclient.keybind": "变形",
   "option.morphclient.previewInInventory.name": "总是在背包中显示伪装预览",
   "option.morphclient.previewInInventory.description": "",
+  "option.morphclient.allowClientView.name": "在客户端显示自身可见（如果支持）",
+  "option.morphclient.allowClientView.description": "",
   "title.morphclient.config": "MorphClient设置"
 }

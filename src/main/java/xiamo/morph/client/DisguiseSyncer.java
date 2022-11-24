@@ -71,22 +71,43 @@ public class DisguiseSyncer
         }
     }
 
+    private boolean notick(EntityType<?> t)
+    {
+        return t == EntityType.ENDER_DRAGON
+                || t == EntityType.GUARDIAN
+                || t == EntityType.ELDER_GUARDIAN;
+    }
+
     private void sync(LivingEntity entity, PlayerEntity clientPlayer)
     {
         var playerPos = clientPlayer.getPos();
         entity.setPosition(playerPos.x, -32767, playerPos.z);
 
-        //悦灵和闹鬼需要单独tick移动来实现动画
-        if (entity.getType().equals(EntityType.ALLAY) || entity.getType().equals(EntityType.VEX))
-            entity.tickMovement();
+        //黑名单里的实体不要tick
+        if (!notick(entity.getType()))
+            entity.tick();
 
-        entity.setPitch(clientPlayer.getPitch());
+        entity.setSprinting(clientPlayer.isSprinting());
+
+        //幻翼的pitch需要倒转
+        if (entity.getType().equals(EntityType.PHANTOM))
+            entity.setPitch(-clientPlayer.getPitch());
+        else
+            entity.setPitch(clientPlayer.getPitch());
+
         entity.prevPitch = clientPlayer.prevPitch;
 
         entity.bodyYaw = clientPlayer.bodyYaw;
         entity.headYaw = clientPlayer.headYaw;
         entity.prevBodyYaw = clientPlayer.prevBodyYaw;
         entity.prevHeadYaw = clientPlayer.prevHeadYaw;
+
+        entity.limbAngle = clientPlayer.limbAngle;
+        entity.limbDistance = clientPlayer.limbDistance;
+        entity.lastLimbDistance = clientPlayer.lastLimbDistance;
+
+        entity.inPowderSnow = clientPlayer.inPowderSnow;
+        entity.setSneaking(clientPlayer.isSneaking());
 
         //末影龙的Yaw和玩家是反的
         if (entity.getType().equals(EntityType.ENDER_DRAGON))

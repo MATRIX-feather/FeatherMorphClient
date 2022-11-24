@@ -13,6 +13,6 @@ public class ClientPlayNetworkHandlerMixin
     @Inject(method = "onGameJoin", at = @At(value = "RETURN"))
     private void onConnect(CallbackInfo ci)
     {
-        MorphClient.getInstance().initializeData();
+        MorphClient.getInstance().initializeClientData();
     }
 }

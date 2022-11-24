@@ -28,7 +28,7 @@ public abstract class EntityRenderersMixin extends LivingEntityRenderer<Abstract
     )
     public void aaa(LivingEntityRenderer<?, ?> renderer, LivingEntity player, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i)
     {
-        if (!rendererHelper.onDrawCall(f, g, matrixStack, vertexConsumerProvider, i))
+        if (!rendererHelper.onDrawCall(player, f, g, matrixStack, vertexConsumerProvider, i))
         {
             super.render((AbstractClientPlayerEntity) player, f, g, matrixStack, vertexConsumerProvider, i);
         }

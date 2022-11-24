@@ -64,7 +64,10 @@ public class ToggleSelfButton extends ButtonWidget
             var val = !this.toggleBindable.get();
             this.toggleBindable.set(val);
 
-            MorphClient.getInstance().sendCommand("toggleself");
+            var modInstance = MorphClient.getInstance();
+            var config = modInstance.getModConfigData();
+
+            modInstance.updateClientView(config.allowClientView, val);
         }
 
         return success;

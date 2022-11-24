@@ -125,7 +125,7 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget>
                 {
                     focusType = FocusType.CURRENT;
 
-                    if (entity != null && entity.isRemoved()) entity = EntityCache.getEntity(entity.getType());
+                    if (entity != null && entity.isRemoved()) entity = EntityCache.getEntity(n);
                 }
                 else focusType = FocusType.NONE;
             }, true);
