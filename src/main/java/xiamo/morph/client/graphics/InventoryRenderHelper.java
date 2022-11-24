@@ -5,35 +5,26 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.Vec3d;
-import org.slf4j.LoggerFactory;
 import xiamo.morph.client.EntityCache;
 import xiamo.morph.client.MorphClient;
-
-import java.nio.charset.MalformedInputException;
 
 import static net.minecraft.client.gui.screen.ingame.InventoryScreen.drawEntity;
 
 public class InventoryRenderHelper
 {
-    public boolean init;
-    public void doInit()
+    public InventoryRenderHelper()
     {
-        init = true;
-
-        allowRender = true;
-        allowTick = true;
-
-        MorphClient.currentIdentifier.onValueChanged((o, n) ->
-        {
-            this.onCurrentChanged(n);
-        }, true);
+        MorphClient.currentIdentifier.onValueChanged((o, n) -> this.onCurrentChanged(n));
     }
 
     private void onCurrentChanged(String newIdentifier)
     {
         var clientWorld = MinecraftClient.getInstance().world;
-        assert clientWorld != null;
+        if (clientWorld == null)
+        {
+            entity = null;
+            return;
+        }
 
         if (entity != null)
         {
@@ -54,9 +45,7 @@ public class InventoryRenderHelper
         allowTick = true;
 
         if (entity != null)
-        {
             clientWorld.addEntity(entity.getId(), entity);
-        }
     }
 
     public LivingEntity entity;
@@ -102,13 +91,11 @@ public class InventoryRenderHelper
 
     public void onRenderCall(int x, int y, int size, float mouseX, float mouseY)
     {
-        if (!init) doInit();
-
         if (!allowRender) return;
 
         var clientPlayer = MinecraftClient.getInstance().player;
 
-        if (entity != null)
+        if (entity != null && MorphClient.getInstance().selfVisibleToggled.get())
         {
             try
             {

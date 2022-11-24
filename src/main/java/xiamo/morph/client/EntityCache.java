@@ -4,6 +4,8 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.boss.dragon.EnderDragonEntity;
+import net.minecraft.entity.boss.dragon.phase.PhaseType;
 import net.minecraft.entity.decoration.ArmorStandEntity;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
@@ -33,6 +35,9 @@ public class EntityCache
 
         if (instance instanceof ArmorStandEntity armorStandEntity)
             ((ArmorStandEntityAccessor)armorStandEntity).callSetShowArms(true);
+
+        if (instance instanceof EnderDragonEntity dragon)
+            dragon.getPhaseManager().setPhase(PhaseType.HOVER);
 
         living.setSilent(true);
 
