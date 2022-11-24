@@ -97,10 +97,19 @@ public class DisguiseSyncer
 
         entity.prevPitch = clientPlayer.prevPitch;
 
-        entity.bodyYaw = clientPlayer.bodyYaw;
         entity.headYaw = clientPlayer.headYaw;
-        entity.prevBodyYaw = clientPlayer.prevBodyYaw;
         entity.prevHeadYaw = clientPlayer.prevHeadYaw;
+
+        if (entity.getType().equals(EntityType.ARMOR_STAND))
+        {
+            entity.bodyYaw = clientPlayer.headYaw;
+            entity.prevBodyYaw = clientPlayer.prevHeadYaw;
+        }
+        else
+        {
+            entity.bodyYaw = clientPlayer.bodyYaw;
+            entity.prevBodyYaw = clientPlayer.prevBodyYaw;
+        }
 
         entity.limbAngle = clientPlayer.limbAngle;
         entity.limbDistance = clientPlayer.limbDistance;
