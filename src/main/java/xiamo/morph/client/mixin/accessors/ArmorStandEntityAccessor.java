@@ -1,4 +1,4 @@
-package xiamo.morph.client.mixin;
+package xiamo.morph.client.mixin.accessors;
 
 import net.minecraft.entity.decoration.ArmorStandEntity;
 import org.spongepowered.asm.mixin.Mixin;

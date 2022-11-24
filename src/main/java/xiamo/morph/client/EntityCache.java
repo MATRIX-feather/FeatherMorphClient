@@ -9,7 +9,7 @@ import net.minecraft.entity.boss.dragon.phase.PhaseType;
 import net.minecraft.entity.decoration.ArmorStandEntity;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
-import xiamo.morph.client.mixin.ArmorStandEntityAccessor;
+import xiamo.morph.client.mixin.accessors.ArmorStandEntityAccessor;
 
 import java.util.Map;
 
@@ -22,7 +22,7 @@ public class EntityCache
     {
         var cache = cacheMap.getOrDefault(type, null);
 
-        LoggerFactory.getLogger("morph").info("Cache of  " + type.getTranslationKey() + " is " + cache);
+        LoggerFactory.getLogger("morph").info("Cache of " + type.getTranslationKey() + " is " + cache);
 
         if (cache != null && !cache.isRemoved()) return cache;
 
