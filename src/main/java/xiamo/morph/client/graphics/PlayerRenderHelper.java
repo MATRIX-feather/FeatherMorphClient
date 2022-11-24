@@ -12,7 +12,7 @@ public class PlayerRenderHelper
 {
     public PlayerRenderHelper()
     {
-        MorphClient.currentIdentifier.onValueChanged((o, n) ->
+        MorphClient.selfViewIdentifier.onValueChanged((o, n) ->
         {
             //实体同步给MorphClient那里做了
             this.entity = EntityCache.getEntity(n);

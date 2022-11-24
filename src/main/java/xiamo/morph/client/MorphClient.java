@@ -1,6 +1,9 @@
 package xiamo.morph.client;
 
+import com.google.gson.JsonParser;
+import com.mojang.serialization.JsonOps;
 import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.ConfigHolder;
@@ -19,9 +22,16 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtHelper;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +41,7 @@ import xiamo.morph.client.screens.disguise.DisguiseScreen;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 @Environment(EnvType.CLIENT)
@@ -62,6 +73,10 @@ public class MorphClient implements ClientModInitializer
     public static final Bindable<String> selectedIdentifier = new Bindable<>(null);
 
     public static final Bindable<String> currentIdentifier = new Bindable<>(null);
+
+    public static final Bindable<String> selfViewIdentifier = new Bindable<>(null);
+
+    public static final Bindable<Boolean> equipOverriden = new Bindable<>(false);
 
     public static final DisguiseSyncer DISGUISE_SYNCER = new DisguiseSyncer();
 
@@ -308,6 +323,7 @@ public class MorphClient implements ClientModInitializer
         this.avaliableMorphs.clear();
         selectedIdentifier.set(null);
         currentIdentifier.set(null);
+        selfViewIdentifier.set(null);
 
         updateServerStatus();
 
@@ -428,6 +444,51 @@ public class MorphClient implements ClientModInitializer
 
                                 selfVisibleToggled.set(val);
                             }
+                            case "selfview" ->
+                            {
+                                if (str.length < 3) return;
+
+                                var identifier = str[2];
+
+                                selfViewIdentifier.set(identifier);
+                            }
+                            case "fake_equip" ->
+                            {
+                                if (str.length < 3) return;
+
+                                var value = Boolean.valueOf(str[2]);
+
+                                equipOverriden.set(value);
+                            }
+                            case "equip" ->
+                            {
+                                if (str.length < 3) return;
+
+                                var dat = str[2].split(" ", 2);
+
+                                logger.info("get dat: " + dat.length);
+                                if (dat.length != 2) return;
+                                var currentMob = EntityCache.getEntity(selfViewIdentifier.get());
+
+                                if (currentMob == null) return;
+
+                                var stack = jsonToStack(dat[1]);
+
+                                if (stack == null) return;
+
+                                logger.info("updating equip!");
+
+                                switch (dat[0])
+                                {
+                                    case "mainhand" -> equipmentSlotItemStackMap.put(EquipmentSlot.MAINHAND, stack);
+                                    case "offhand" -> equipmentSlotItemStackMap.put(EquipmentSlot.OFFHAND, stack);
+
+                                    case "helmet" -> equipmentSlotItemStackMap.put(EquipmentSlot.HEAD, stack);
+                                    case "chestplate" -> equipmentSlotItemStackMap.put(EquipmentSlot.CHEST, stack);
+                                    case "leggings" -> equipmentSlotItemStackMap.put(EquipmentSlot.LEGS, stack);
+                                    case "boots" -> equipmentSlotItemStackMap.put(EquipmentSlot.FEET, stack);
+                                }
+                            }
                         }
                     }
                     case "reauth" ->
@@ -440,7 +501,14 @@ public class MorphClient implements ClientModInitializer
                     }
                     case "current" ->
                     {
-                        currentIdentifier.set(str.length == 2 ? str[1] : null);
+                        var val = str.length == 2 ? str[1] : null;
+                        currentIdentifier.set(val);
+
+                        if (val == null)
+                        {
+                            selfViewIdentifier.set(null);
+                            equipmentSlotItemStackMap.clear();
+                        }
                     }
                     case "deny" ->
                     {
@@ -465,6 +533,26 @@ public class MorphClient implements ClientModInitializer
                 e.printStackTrace();
             }
         });
+    }
+
+    private final ItemStack air = ItemStack.EMPTY;
+
+    private final Map<EquipmentSlot, ItemStack> equipmentSlotItemStackMap = new Object2ObjectOpenHashMap<>();
+
+    public ItemStack getOverridedItemStackOn(EquipmentSlot slot)
+    {
+        return equipmentSlotItemStackMap.getOrDefault(slot, air);
+    }
+
+    @Nullable
+    private ItemStack jsonToStack(String rawJson)
+    {
+        var item = ItemStack.CODEC.decode(JsonOps.INSTANCE, JsonParser.parseString(rawJson));
+
+        if (item.result().isPresent())
+            return item.result().get().getFirst();
+
+        return null;
     }
     //endregion
 }

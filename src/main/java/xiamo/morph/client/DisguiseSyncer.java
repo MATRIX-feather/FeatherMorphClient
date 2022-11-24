@@ -13,7 +13,7 @@ public class DisguiseSyncer
 {
     public DisguiseSyncer()
     {
-        MorphClient.currentIdentifier.onValueChanged((o, n) -> this.onCurrentChanged(n));
+        MorphClient.selfViewIdentifier.onValueChanged((o, n) -> this.onCurrentChanged(n));
     }
 
     private void onCurrentChanged(String newIdentifier)
@@ -127,13 +127,28 @@ public class DisguiseSyncer
         ((EntityAccessor) entity).setTouchingWater(clientPlayer.isTouchingWater());
 
         //同步装备
-        entity.equipStack(EquipmentSlot.MAINHAND, clientPlayer.getEquippedStack(EquipmentSlot.MAINHAND));
-        entity.equipStack(EquipmentSlot.OFFHAND, clientPlayer.getEquippedStack(EquipmentSlot.OFFHAND));
+        if (!MorphClient.equipOverriden.get())
+        {
+            entity.equipStack(EquipmentSlot.MAINHAND, clientPlayer.getEquippedStack(EquipmentSlot.MAINHAND));
+            entity.equipStack(EquipmentSlot.OFFHAND, clientPlayer.getEquippedStack(EquipmentSlot.OFFHAND));
 
-        entity.equipStack(EquipmentSlot.HEAD, clientPlayer.getEquippedStack(EquipmentSlot.HEAD));
-        entity.equipStack(EquipmentSlot.CHEST, clientPlayer.getEquippedStack(EquipmentSlot.CHEST));
-        entity.equipStack(EquipmentSlot.LEGS, clientPlayer.getEquippedStack(EquipmentSlot.LEGS));
-        entity.equipStack(EquipmentSlot.FEET, clientPlayer.getEquippedStack(EquipmentSlot.FEET));
+            entity.equipStack(EquipmentSlot.HEAD, clientPlayer.getEquippedStack(EquipmentSlot.HEAD));
+            entity.equipStack(EquipmentSlot.CHEST, clientPlayer.getEquippedStack(EquipmentSlot.CHEST));
+            entity.equipStack(EquipmentSlot.LEGS, clientPlayer.getEquippedStack(EquipmentSlot.LEGS));
+            entity.equipStack(EquipmentSlot.FEET, clientPlayer.getEquippedStack(EquipmentSlot.FEET));
+        }
+        else
+        {
+            var client = MorphClient.getInstance();
+
+            entity.equipStack(EquipmentSlot.MAINHAND, client.getOverridedItemStackOn(EquipmentSlot.MAINHAND));
+            entity.equipStack(EquipmentSlot.OFFHAND, client.getOverridedItemStackOn(EquipmentSlot.OFFHAND));
+
+            entity.equipStack(EquipmentSlot.HEAD, client.getOverridedItemStackOn(EquipmentSlot.HEAD));
+            entity.equipStack(EquipmentSlot.CHEST, client.getOverridedItemStackOn(EquipmentSlot.CHEST));
+            entity.equipStack(EquipmentSlot.LEGS, client.getOverridedItemStackOn(EquipmentSlot.LEGS));
+            entity.equipStack(EquipmentSlot.FEET, client.getOverridedItemStackOn(EquipmentSlot.FEET));
+        }
 
         //同步Pose
         entity.setPose(clientPlayer.getPose());

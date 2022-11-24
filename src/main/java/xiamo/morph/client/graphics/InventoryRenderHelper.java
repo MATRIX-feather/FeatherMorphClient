@@ -11,7 +11,7 @@ public class InventoryRenderHelper
 {
     public InventoryRenderHelper()
     {
-        MorphClient.currentIdentifier.onValueChanged((o, n) ->
+        MorphClient.selfViewIdentifier.onValueChanged((o, n) ->
         {
             allowRender = true;
 
