@@ -7,6 +7,7 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
 import xiamo.morph.client.mixin.accessors.EntityAccessor;
 
 public class DisguiseSyncer
@@ -69,6 +70,12 @@ public class DisguiseSyncer
             e.printStackTrace();
             allowTick = false;
         }
+    }
+
+    public void mergeNbt(NbtCompound nbtCompound)
+    {
+        if (entity != null)
+            entity.readCustomDataFromNbt(nbtCompound);
     }
 
     private boolean notick(EntityType<?> t)

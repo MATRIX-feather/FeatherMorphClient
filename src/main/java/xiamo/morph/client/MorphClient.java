@@ -23,11 +23,8 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtHelper;
+import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -489,6 +486,14 @@ public class MorphClient implements ClientModInitializer
                                     case "boots" -> equipmentSlotItemStackMap.put(EquipmentSlot.FEET, stack);
                                 }
                             }
+                            case "nbt" ->
+                            {
+                                if (str.length < 3) return;
+
+                                var nbt = StringNbtReader.parse(str[2].replace("\\u003d", "="));
+
+                                DISGUISE_SYNCER.mergeNbt(nbt);
+                            }
                         }
                     }
                     case "reauth" ->
@@ -504,11 +509,9 @@ public class MorphClient implements ClientModInitializer
                         var val = str.length == 2 ? str[1] : null;
                         currentIdentifier.set(val);
 
-                        if (val == null)
-                        {
-                            selfViewIdentifier.set(null);
-                            equipmentSlotItemStackMap.clear();
-                        }
+                        equipOverriden.set(false);
+                        selfViewIdentifier.set(null);
+                        equipmentSlotItemStackMap.clear();
                     }
                     case "deny" ->
                     {
