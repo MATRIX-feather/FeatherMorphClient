@@ -11,6 +11,8 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.network.encryption.PlayerPublicKey;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
@@ -83,6 +85,11 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
         if (morphTextureIdentifier != null) return morphTextureIdentifier;
 
         return super.getSkinTexture();
+    }
+
+    @Override
+    public boolean hasSkinTexture() {
+        return morphTextureIdentifier != null;
     }
 
     @Override
