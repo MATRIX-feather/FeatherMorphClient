@@ -16,6 +16,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.MinecraftClient;
@@ -24,10 +25,12 @@ import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
@@ -37,8 +40,11 @@ import xiamo.morph.client.config.ModConfigData;
 import xiamo.morph.client.screens.disguise.DisguiseScreen;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Environment(EnvType.CLIENT)
@@ -72,6 +78,8 @@ public class MorphClient implements ClientModInitializer
     public static final Bindable<String> currentIdentifier = new Bindable<>(null);
 
     public static final Bindable<String> selfViewIdentifier = new Bindable<>(null);
+
+    public static final Bindable<NbtCompound> currentNbtCompound = new Bindable<>(null);
 
     public static final Bindable<Boolean> equipOverriden = new Bindable<>(false);
 
@@ -117,6 +125,11 @@ public class MorphClient implements ClientModInitializer
         }
 
         initializeNetwork();
+
+        ClientTickEvents.END_CLIENT_TICK.register(client ->
+        {
+            this.tick();
+        });
     }
 
     public final Bindable<Boolean> selfVisibleToggled = new Bindable<>(false);
@@ -214,7 +227,6 @@ public class MorphClient implements ClientModInitializer
         else
             sendCommand("morph " + id);
     }
-
 
     //region Config
     private ModConfigData modConfigData;
@@ -341,6 +353,20 @@ public class MorphClient implements ClientModInitializer
 
     private void initializeNetwork()
     {
+        ClientPlayConnectionEvents.INIT.register((handler, client) ->
+        {
+        });
+
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) ->
+        {
+            initializeClientData();
+        });
+
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) ->
+        {
+            resetServerStatus();
+        });
+
         //初始化网络
         ClientPlayNetworking.registerGlobalReceiver(initializeChannelIdentifier, (client, handler, buf, responseSender) ->
         {
@@ -558,4 +584,117 @@ public class MorphClient implements ClientModInitializer
         return null;
     }
     //endregion
+
+    //region tick相关
+
+    private long currentTick = 0;
+
+    private void tick()
+    {
+        currentTick += 1;
+
+        if (shouldAbortTicking) return;
+
+        var schedules = new ArrayList<>(this.schedules);
+        schedules.forEach(c ->
+        {
+            if (currentTick - c.TickScheduled >= c.Delay)
+            {
+                this.schedules.remove(c);
+
+                if (c.isCanceled()) return;
+
+                //logger.info("执行：" + c + "，当前TICK：" + currentTick);\
+                if (c.isAsync)
+                    throw new NotImplementedException();
+                else
+                    runFunction(c);
+            }
+        });
+
+        schedules.clear();
+    }
+
+    private void runFunction(ScheduleInfo c)
+    {
+        try
+        {
+            c.Function.accept(null);
+        }
+        catch (Exception e)
+        {
+            this.onExceptionCaught(e, c);
+        }
+    }
+
+    //region tick异常捕捉与处理
+
+    //一秒内最多能接受多少异常
+    protected final int exceptionLimit = 5;
+
+    //已经捕获的异常
+    private int exceptionCaught = 0;
+
+    //是否应该中断tick
+    private boolean shouldAbortTicking = false;
+
+    private void onExceptionCaught(Exception exception, ScheduleInfo scheduleInfo)
+    {
+        if (exception == null) return;
+
+        exceptionCaught += 1;
+
+        logger.warn("执行" + scheduleInfo + "时捕获到未处理的异常：");
+        exception.printStackTrace();
+
+        if (exceptionCaught >= exceptionLimit)
+        {
+            logger.error("可接受异常已到达最大限制");
+            this.shouldAbortTicking = true;
+        }
+    }
+
+    private void processExceptionCount()
+    {
+        exceptionCaught -= 1;
+
+        this.schedule(c -> processExceptionCount(), 5);
+    }
+
+    //endregion tick异常捕捉与处理
+
+    //endregion tick相关
+
+    //region Schedules
+
+    private final List<ScheduleInfo> schedules = new ObjectArrayList<>();
+
+    public ScheduleInfo schedule(Consumer<?> runnable)
+    {
+        return this.schedule(runnable, 1);
+    }
+
+    public ScheduleInfo schedule(Consumer<?> function, int delay)
+    {
+        return this.schedule(function, delay, false);
+    }
+
+    public ScheduleInfo schedule(Consumer<?> function, int delay, boolean async)
+    {
+        var si = new ScheduleInfo(function, delay, currentTick, async);
+
+        synchronized (schedules)
+        {
+            //Logger.info("添加：" + si + "，当前TICK：" + currentTick);
+            schedules.add(si);
+        }
+
+        return si;
+    }
+
+    public long getCurrentTick()
+    {
+        return currentTick;
+    }
+    //endregion Schedules
 }

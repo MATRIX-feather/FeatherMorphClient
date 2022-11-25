@@ -8,6 +8,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import org.slf4j.LoggerFactory;
 import xiamo.morph.client.mixin.accessors.EntityAccessor;
 
 public class DisguiseSyncer
@@ -15,6 +16,12 @@ public class DisguiseSyncer
     public DisguiseSyncer()
     {
         MorphClient.selfViewIdentifier.onValueChanged((o, n) -> this.onCurrentChanged(n));
+
+        MorphClient.currentNbtCompound.onValueChanged((o, n) ->
+        {
+            if (n != null)
+                this.mergeNbt(n);
+        });
     }
 
     private void onCurrentChanged(String newIdentifier)
@@ -46,6 +53,10 @@ public class DisguiseSyncer
         if (entity != null)
         {
             clientWorld.addEntity(entity.getId(), entity);
+
+            var nbt = MorphClient.currentNbtCompound.get();
+            if (nbt != null)
+                mergeNbt(nbt);
         }
     }
 
