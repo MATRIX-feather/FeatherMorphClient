@@ -22,6 +22,8 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
     private GameProfile morphProfile;
 
     private Identifier morphTextureIdentifier;
+    private Identifier capeTextureIdentifier;
+
     private String model;
 
     public static TrackedData<Byte> getPMPMask()
@@ -51,8 +53,24 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
 
                     AbstractClientPlayerEntity.loadSkin(id, playerName);
                 }
+                else if (type == MinecraftProfileTexture.Type.CAPE)
+                {
+                    this.capeTextureIdentifier = id;
+                }
             }, true);
         });
+    }
+
+    public void setFallFlying(boolean val)
+    {
+        fallFlying = val;
+    }
+
+    private boolean fallFlying;
+
+    @Override
+    public boolean isFallFlying() {
+        return fallFlying;
     }
 
     @Override
@@ -85,6 +103,18 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
         if (morphTextureIdentifier != null) return morphTextureIdentifier;
 
         return super.getSkinTexture();
+    }
+
+    @Override
+    public boolean canRenderCapeTexture() {
+        return capeTextureIdentifier != null;
+    }
+
+    @Nullable
+    @Override
+    public Identifier getCapeTexture()
+    {
+        return capeTextureIdentifier;
     }
 
     @Override

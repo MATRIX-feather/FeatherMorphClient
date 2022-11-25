@@ -10,6 +10,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import org.slf4j.LoggerFactory;
+import xiamo.morph.client.graphics.MorphLocalPlayer;
 import xiamo.morph.client.mixin.accessors.EntityAccessor;
 
 public class DisguiseSyncer
@@ -94,7 +95,8 @@ public class DisguiseSyncer
     {
         return t == EntityType.ENDER_DRAGON
                 || t == EntityType.GUARDIAN
-                || t == EntityType.ELDER_GUARDIAN;
+                || t == EntityType.ELDER_GUARDIAN
+                || t == EntityType.PLAYER;
     }
 
     private void sync(LivingEntity entity, PlayerEntity clientPlayer)
@@ -179,6 +181,9 @@ public class DisguiseSyncer
         //同步Pose
         entity.setPose(clientPlayer.getPose());
         entity.setSwimming(clientPlayer.isSwimming());
+
+        if (entity instanceof MorphLocalPlayer player)
+            player.setFallFlying(clientPlayer.isFallFlying());
 
         entity.setInvisible(clientPlayer.isInvisible());
     }
