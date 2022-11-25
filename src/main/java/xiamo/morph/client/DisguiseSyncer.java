@@ -5,6 +5,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
@@ -117,6 +118,13 @@ public class DisguiseSyncer
 
         entity.headYaw = clientPlayer.headYaw;
         entity.prevHeadYaw = clientPlayer.prevHeadYaw;
+
+        entity.handSwinging = clientPlayer.handSwinging;
+        entity.handSwingProgress = clientPlayer.handSwingProgress;
+        entity.lastHandSwingProgress = clientPlayer.lastHandSwingProgress;
+        entity.handSwingTicks = clientPlayer.handSwingTicks;
+
+        entity.preferredHand = clientPlayer.preferredHand;
 
         if (entity.getType().equals(EntityType.ARMOR_STAND))
         {

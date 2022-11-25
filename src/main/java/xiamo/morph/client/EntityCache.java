@@ -1,5 +1,6 @@
 package xiamo.morph.client;
 
+import com.mojang.authlib.GameProfile;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EntityType;
@@ -9,9 +10,11 @@ import net.minecraft.entity.boss.dragon.phase.PhaseType;
 import net.minecraft.entity.decoration.ArmorStandEntity;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
+import xiamo.morph.client.graphics.MorphLocalPlayer;
 import xiamo.morph.client.mixin.accessors.ArmorStandEntityAccessor;
 
 import java.util.Map;
+import java.util.UUID;
 
 public class EntityCache
 {
@@ -55,28 +58,14 @@ public class EntityCache
 
             living.setSilent(true);
         }
-/*
         else if (identifier.startsWith("player:"))
         {
             var splitedId = identifier.split(":", 2);
 
             if (splitedId.length != 2) return null;
             var profile = new GameProfile(UUID.randomUUID(), splitedId[1]);
-            var player = new OtherClientPlayerEntity(MinecraftClient.getInstance().world, profile, null);
-
-            LoggerFactory.getLogger("morph").info("Fetching skin for " + splitedId[1]);
-
-            MinecraftClient.getInstance().getSkinProvider().loadSkin(profile, (type, id, texture) ->
-            {
-                LoggerFactory.getLogger("morph").info("Loading skin for " + identifier);
-
-                AbstractClientPlayerEntity.loadSkin(id, splitedId[1]);
-
-            }, true);
-
-            living = player;
+            living = new MorphLocalPlayer(MinecraftClient.getInstance().world, profile, null);
         }
-*/
 
         cacheMap.put(identifier, living);
 

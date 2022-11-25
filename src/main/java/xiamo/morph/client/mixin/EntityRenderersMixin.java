@@ -1,5 +1,6 @@
 package xiamo.morph.client.mixin;
 
+import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
@@ -10,7 +11,9 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xiamo.morph.client.graphics.PlayerRenderHelper;
 
 @Mixin(PlayerEntityRenderer.class)
@@ -32,5 +35,10 @@ public abstract class EntityRenderersMixin extends LivingEntityRenderer<Abstract
         {
             super.render((AbstractClientPlayerEntity) player, f, g, matrixStack, vertexConsumerProvider, i);
         }
+    }
+
+    @Inject(method = "renderArm", at = @At(value = "HEAD"))
+    public void bbb(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, AbstractClientPlayerEntity player, ModelPart arm, ModelPart sleeve, CallbackInfo ci)
+    {
     }
 }

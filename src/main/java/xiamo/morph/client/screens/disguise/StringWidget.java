@@ -1,7 +1,6 @@
 package xiamo.morph.client.screens.disguise;
 
 import com.mojang.authlib.GameProfile;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -12,7 +11,6 @@ import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ElementListWidget;
-import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.MagmaCubeEntity;
@@ -21,9 +19,9 @@ import org.slf4j.LoggerFactory;
 import xiamo.morph.client.EntityCache;
 import xiamo.morph.client.MorphClient;
 import xiamo.morph.client.bindables.Bindable;
+import xiamo.morph.client.graphics.MorphLocalPlayer;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 public class StringWidget extends ElementListWidget.Entry<StringWidget>
@@ -148,7 +146,7 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget>
 
                         if (nameSplited.length == 2)
                         {
-                            entity = new OtherClientPlayerEntity(MinecraftClient.getInstance().world,
+                            entity = new MorphLocalPlayer(MinecraftClient.getInstance().world,
                                     new GameProfile(UUID.randomUUID(), nameSplited[1]), null);
                         }
                     }
