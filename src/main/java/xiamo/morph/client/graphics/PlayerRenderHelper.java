@@ -51,6 +51,8 @@ public class PlayerRenderHelper
         return true;
     }
 
+    public boolean renderingLeftPart;
+
     @SuppressWarnings("rawtypes")
     public boolean onArmDrawCall(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, AbstractClientPlayerEntity player, ModelPart arm, ModelPart sleeve)
     {
@@ -60,14 +62,23 @@ public class PlayerRenderHelper
 
         if (disguiseRenderer instanceof LivingEntityRenderer livingEntityRenderer)
         {
+            var useLeftPart = renderingLeftPart;
+
             var model = livingEntityRenderer.getModel();
             ModelPart targetArm = null;
-            ModelPart targetSleeve = null;
-
-            var useLeftPart = player.getMainArm() == Arm.LEFT;
 
             if (entity instanceof MorphLocalPlayer)
             {
+                var renderer = (PlayerEntityRenderer) livingEntityRenderer;
+
+                if (useLeftPart)
+                    renderer.renderLeftArm(matrices, vertexConsumers, light, (MorphLocalPlayer)entity);
+                else
+                    renderer.renderRightArm(matrices, vertexConsumers, light, (MorphLocalPlayer)entity);
+
+                return true;
+
+/*
                 var playerModel = (PlayerEntityModel) model;
 
                 playerModel.handSwingProgress = 0.0F;
@@ -76,6 +87,7 @@ public class PlayerRenderHelper
 
                 targetArm = useLeftPart ? playerModel.leftArm : playerModel.rightArm;
                 targetSleeve = useLeftPart ? playerModel.leftSleeve : playerModel.rightSleeve;
+*/
             }
             else if (model instanceof BipedEntityModel<?> bipedEntityModel)
             {
@@ -92,12 +104,6 @@ public class PlayerRenderHelper
 
                 targetArm.pitch = 0;
                 targetArm.render(matrices, vertexConsumers.getBuffer(layer), light, OverlayTexture.DEFAULT_UV);
-
-                if (targetSleeve != null)
-                {
-                    targetSleeve.pitch = 0;
-                    targetSleeve.render(matrices, vertexConsumers.getBuffer(layer), light, OverlayTexture.DEFAULT_UV);
-                }
 
                 return true;
             }

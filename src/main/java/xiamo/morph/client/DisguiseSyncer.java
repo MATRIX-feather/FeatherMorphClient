@@ -21,8 +21,7 @@ public class DisguiseSyncer
 
         MorphClient.currentNbtCompound.onValueChanged((o, n) ->
         {
-            if (n != null)
-                this.mergeNbt(n);
+            if (n != null) this.mergeNbt(n);
         });
     }
 
@@ -85,7 +84,7 @@ public class DisguiseSyncer
         }
     }
 
-    public void mergeNbt(NbtCompound nbtCompound)
+    private void mergeNbt(NbtCompound nbtCompound)
     {
         if (entity != null)
             entity.readCustomDataFromNbt(nbtCompound);

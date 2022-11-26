@@ -11,7 +11,8 @@
     "accessors.LivingRendererAccessor"
   ],
   "client": [
-    "PlayerEntityRenderersMixin"
+    "PlayerEntityRenderersMixin",
+    "EntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

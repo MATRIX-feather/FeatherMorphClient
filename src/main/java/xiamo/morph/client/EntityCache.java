@@ -20,6 +20,11 @@ public class EntityCache
 {
     private static final Map<String, LivingEntity> cacheMap = new Object2ObjectOpenHashMap<>();
 
+    public static boolean containsId(int id)
+    {
+        return cacheMap.values().stream().filter(l -> l.getId() == id).findFirst().orElse(null) != null;
+    }
+
     @Nullable
     public static LivingEntity getEntity(String identifier)
     {
@@ -67,7 +72,7 @@ public class EntityCache
             living = new MorphLocalPlayer(MinecraftClient.getInstance().world, profile, null);
         }
 
-        cacheMap.put(identifier, living);
+        if (living != null) cacheMap.put(identifier, living);
 
         LoggerFactory.getLogger("morph").info("Pushing " + identifier + " into EntityCache.");
 

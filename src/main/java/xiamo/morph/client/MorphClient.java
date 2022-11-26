@@ -518,7 +518,7 @@ public class MorphClient implements ClientModInitializer
 
                                 var nbt = StringNbtReader.parse(str[2].replace("\\u003d", "="));
 
-                                DISGUISE_SYNCER.mergeNbt(nbt);
+                                currentNbtCompound.set(nbt);
                             }
                         }
                     }
