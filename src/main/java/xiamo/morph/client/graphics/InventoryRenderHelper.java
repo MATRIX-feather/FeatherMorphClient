@@ -25,13 +25,10 @@ public class InventoryRenderHelper
     public void onRenderCall(int x, int y, int size, float mouseX, float mouseY)
     {
         if (!allowRender) return;
-
         var modInstance = MorphClient.getInstance();
-        var clientPlayer = MinecraftClient.getInstance().player;
 
         if (entity != null
                 && (modInstance.getModConfigData().alwaysShowPreviewInInventory
-                        || modInstance.selfVisibleToggled.get()
                         || modInstance.getModConfigData().clientViewVisible()))
         {
             try
@@ -46,7 +43,10 @@ public class InventoryRenderHelper
         }
         else
         {
-            drawEntity(x, y, size, mouseX, mouseY, clientPlayer);
+            var clientPlayer = MinecraftClient.getInstance().player;
+
+            if (clientPlayer != null)
+                drawEntity(x, y, size, mouseX, mouseY, clientPlayer);
         }
     }
 }

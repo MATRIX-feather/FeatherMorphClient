@@ -93,9 +93,7 @@ public class DisguiseSyncer
 
     private boolean notick(EntityType<?> t)
     {
-        return t == EntityType.ENDER_DRAGON
-                || t == EntityType.GUARDIAN
-                || t == EntityType.ELDER_GUARDIAN;
+        return t == EntityType.PLAYER;
     }
 
     private void sync(LivingEntity entity, PlayerEntity clientPlayer)
@@ -104,8 +102,11 @@ public class DisguiseSyncer
         entity.setPosition(playerPos.x, playerPos.y - 4096, playerPos.z);
 
         //黑名单里的实体不要tick
-        if (!notick(entity.getType()))
+        if (notick(entity.getType()))
+        {
+            //entity.age++;
             entity.tick();
+        }
 
         entity.setSprinting(clientPlayer.isSprinting());
 
