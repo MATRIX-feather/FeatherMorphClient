@@ -181,6 +181,11 @@ public class DisguiseSyncer
         entity.setPose(clientPlayer.getPose());
         entity.setSwimming(clientPlayer.isSwimming());
 
+        if (clientPlayer.hasVehicle())
+            entity.startRiding(clientPlayer);
+        else if (entity.hasVehicle())
+            entity.stopRiding();
+
         if (entity instanceof MorphLocalPlayer player)
         {
             player.setFallFlying(clientPlayer.isFallFlying());

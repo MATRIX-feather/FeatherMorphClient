@@ -26,6 +26,7 @@ import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
@@ -37,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xiamo.morph.client.bindables.Bindable;
 import xiamo.morph.client.config.ModConfigData;
+import xiamo.morph.client.graphics.MorphLocalPlayer;
 import xiamo.morph.client.screens.disguise.DisguiseScreen;
 
 import java.nio.charset.StandardCharsets;
@@ -519,6 +521,18 @@ public class MorphClient implements ClientModInitializer
                                 var nbt = StringNbtReader.parse(str[2].replace("\\u003d", "="));
 
                                 currentNbtCompound.set(nbt);
+                            }
+                            case "profile" ->
+                            {
+                                if (str.length < 3) return;
+
+                                var nbt = StringNbtReader.parse(str[2]);
+                                var profile = NbtHelper.toGameProfile(nbt);
+
+                                if (profile != null && DISGUISE_SYNCER.entity instanceof MorphLocalPlayer disguise)
+                                {
+                                    this.schedule(c -> disguise.updateSkin(profile, true));
+                                }
                             }
                         }
                     }

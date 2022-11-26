@@ -8,13 +8,13 @@ import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.client.render.entity.PlayerModelPart;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.data.TrackedData;
+import net.minecraft.nbt.NbtHelper;
 import net.minecraft.network.encryption.PlayerPublicKey;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.entity.EntityChangeListener;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 
@@ -22,15 +22,12 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
 {
     private GameProfile morphProfile;
 
+    private final String playerName;
+
     private Identifier morphTextureIdentifier;
     private Identifier capeTextureIdentifier;
 
     private String model;
-
-    public static TrackedData<Byte> getPMPMask()
-    {
-        return PLAYER_MODEL_PARTS;
-    }
 
     public MorphLocalPlayer(ClientWorld clientWorld, GameProfile profile, @Nullable PlayerPublicKey playerPublicKey)
     {
@@ -38,7 +35,26 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
 
         LoggerFactory.getLogger("morph").info("Fetching skin for " + profile);
 
-        var playerName = profile.getName();
+        this.playerName = profile.getName();
+
+        this.updateSkin(profile, false);
+    }
+
+    public void updateSkin(GameProfile profile, boolean force)
+    {
+        if (!profile.getName().equals(playerName))
+        {
+            LoggerFactory.getLogger("morph").info("Profile player name not match : " + profile.getName() + " <-> " + playerName);
+            return;
+        }
+
+        if (force) morphProfile = null;
+
+        if (morphProfile != null)
+        {
+            LoggerFactory.getLogger("morph").info("Head profile not null : " + morphProfile);
+            return;
+        }
 
         SkullBlockEntity.loadProperties(profile, o ->
         {
@@ -52,7 +68,7 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
                     this.morphTextureIdentifier = id;
                     this.model = texture.getMetadata("model");
 
-                    AbstractClientPlayerEntity.loadSkin(id, playerName);
+                    AbstractClientPlayerEntity.loadSkin(id, o.getName());
                 }
                 else if (type == MinecraftProfileTexture.Type.CAPE)
                 {
@@ -60,6 +76,34 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
                 }
             }, true);
         });
+    }
+
+    @Override
+    public void setChangeListener(EntityChangeListener changeListener)
+    {
+        super.setChangeListener(changeListener);
+
+        if (changeListener != EntityChangeListener.NONE)
+        {
+            LoggerFactory.getLogger("morph").info("Fetching Head Profile!");
+
+            var clientPlayer = MinecraftClient.getInstance().player;
+
+            if (clientPlayer != null)
+            {
+                var mainhandStack = clientPlayer.getEquippedStack(EquipmentSlot.MAINHAND);
+
+                var nbt = mainhandStack.getNbt();
+
+                if (nbt != null)
+                {
+                    var skullProfile = NbtHelper.toGameProfile(nbt.getCompound("SkullOwner"));
+
+                    if (skullProfile != null && skullProfile.getName().equals(playerName))
+                        updateSkin(skullProfile, true);
+                }
+            }
+        }
     }
 
     public void setFallFlying(boolean val)
