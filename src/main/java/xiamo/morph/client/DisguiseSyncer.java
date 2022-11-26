@@ -101,7 +101,7 @@ public class DisguiseSyncer
     private void sync(LivingEntity entity, PlayerEntity clientPlayer)
     {
         var playerPos = clientPlayer.getPos();
-        entity.setPosition(playerPos.x, -32767, playerPos.z);
+        entity.setPosition(playerPos.x, playerPos.y - 4096, playerPos.z);
 
         //黑名单里的实体不要tick
         if (!notick(entity.getType()))
