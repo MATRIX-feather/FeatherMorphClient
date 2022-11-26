@@ -21,7 +21,7 @@ public class DisguiseSyncer
 
         MorphClient.currentNbtCompound.onValueChanged((o, n) ->
         {
-            if (n != null) this.mergeNbt(n);
+            if (n != null) MorphClient.getInstance().schedule(c -> this.mergeNbt(n));
         });
     }
 
@@ -57,7 +57,7 @@ public class DisguiseSyncer
 
             var nbt = MorphClient.currentNbtCompound.get();
             if (nbt != null)
-                mergeNbt(nbt);
+                MorphClient.getInstance().schedule(c -> mergeNbt(nbt));
         }
     }
 
