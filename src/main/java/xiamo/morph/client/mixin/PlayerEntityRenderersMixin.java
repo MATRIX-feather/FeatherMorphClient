@@ -17,11 +17,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xiamo.morph.client.graphics.PlayerRenderHelper;
 
 @Mixin(PlayerEntityRenderer.class)
-public abstract class EntityRenderersMixin extends LivingEntityRenderer<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>>
+public abstract class PlayerEntityRenderersMixin extends LivingEntityRenderer<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>>
 {
     private static final PlayerRenderHelper rendererHelper = new PlayerRenderHelper();
 
-    public EntityRenderersMixin(EntityRendererFactory.Context ctx, PlayerEntityModel<AbstractClientPlayerEntity> model, float shadowRadius) {
+    public PlayerEntityRenderersMixin(EntityRendererFactory.Context ctx, PlayerEntityModel<AbstractClientPlayerEntity> model, float shadowRadius) {
         super(ctx, model, shadowRadius);
     }
 
@@ -37,8 +37,10 @@ public abstract class EntityRenderersMixin extends LivingEntityRenderer<Abstract
         }
     }
 
-    @Inject(method = "renderArm", at = @At(value = "HEAD"))
+    @Inject(method = "renderArm", at = @At(value = "HEAD"), cancellable = true)
     public void bbb(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, AbstractClientPlayerEntity player, ModelPart arm, ModelPart sleeve, CallbackInfo ci)
     {
+        if (rendererHelper.onArmDrawCall(matrices, vertexConsumers, light, player, arm, sleeve))
+            ci.cancel();
     }
 }

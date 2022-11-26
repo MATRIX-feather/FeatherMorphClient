@@ -183,7 +183,9 @@ public class DisguiseSyncer
         entity.setSwimming(clientPlayer.isSwimming());
 
         if (entity instanceof MorphLocalPlayer player)
+        {
             player.setFallFlying(clientPlayer.isFallFlying());
+        }
 
         entity.setInvisible(clientPlayer.isInvisible());
     }

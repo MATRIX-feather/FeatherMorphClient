@@ -5,12 +5,13 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "MinecraftClientMixin",
-    "MixinInventoryScreen",
+    "InventoryScreenMixin",
     "accessors.EntityAccessor",
-    "accessors.ArmorStandEntityAccessor"
+    "accessors.ArmorStandEntityAccessor",
+    "accessors.LivingRendererAccessor"
   ],
   "client": [
-    "EntityRenderersMixin"
+    "PlayerEntityRenderersMixin"
   ],
   "injectors": {
     "defaultRequire": 1

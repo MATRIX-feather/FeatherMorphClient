@@ -5,12 +5,10 @@ import net.minecraft.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import xiamo.morph.client.MorphClient;
-import xiamo.morph.client.DisguiseSyncer;
 import xiamo.morph.client.graphics.InventoryRenderHelper;
 
 @Mixin(InventoryScreen.class)
-public class MixinInventoryScreen
+public class InventoryScreenMixin
 {
     private static final InventoryRenderHelper helper = new InventoryRenderHelper();
 
