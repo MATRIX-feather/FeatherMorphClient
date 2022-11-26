@@ -95,8 +95,7 @@ public class DisguiseSyncer
     {
         return t == EntityType.ENDER_DRAGON
                 || t == EntityType.GUARDIAN
-                || t == EntityType.ELDER_GUARDIAN
-                || t == EntityType.PLAYER;
+                || t == EntityType.ELDER_GUARDIAN;
     }
 
     private void sync(LivingEntity entity, PlayerEntity clientPlayer)
