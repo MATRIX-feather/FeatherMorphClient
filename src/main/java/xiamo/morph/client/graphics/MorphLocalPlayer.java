@@ -50,16 +50,20 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
 
         if (force) morphProfile = null;
 
-        if (morphProfile != null)
-        {
-            LoggerFactory.getLogger("morph").info("Head profile not null : " + morphProfile);
-            return;
-        }
+        //记录调用时的Profile状态
+        var currentProfile = morphProfile;
 
         SkullBlockEntity.loadProperties(profile, o ->
         {
             MinecraftClient.getInstance().getSkinProvider().loadSkin(o, (type, id, texture) ->
             {
+                //如果当前profile和调用时的不一样，拒绝设置
+                if (currentProfile != morphProfile)
+                {
+                    LoggerFactory.getLogger("morph").info("GameProfile mismatch! : " + currentProfile + " <-> " + morphProfile);
+                    return;
+                }
+
                 if (type == MinecraftProfileTexture.Type.SKIN)
                 {
                     LoggerFactory.getLogger("morph").info("Loading skin for " + playerName + " :: " + id.toString());
@@ -76,34 +80,6 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
                 }
             }, true);
         });
-    }
-
-    @Override
-    public void setChangeListener(EntityChangeListener changeListener)
-    {
-        super.setChangeListener(changeListener);
-
-        if (changeListener != EntityChangeListener.NONE)
-        {
-            LoggerFactory.getLogger("morph").info("Fetching Head Profile!");
-
-            var clientPlayer = MinecraftClient.getInstance().player;
-
-            if (clientPlayer != null)
-            {
-                var mainhandStack = clientPlayer.getEquippedStack(EquipmentSlot.MAINHAND);
-
-                var nbt = mainhandStack.getNbt();
-
-                if (nbt != null)
-                {
-                    var skullProfile = NbtHelper.toGameProfile(nbt.getCompound("SkullOwner"));
-
-                    if (skullProfile != null && skullProfile.getName().equals(playerName))
-                        updateSkin(skullProfile, true);
-                }
-            }
-        }
     }
 
     public void setFallFlying(boolean val)

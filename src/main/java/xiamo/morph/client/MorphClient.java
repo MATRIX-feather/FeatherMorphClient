@@ -529,9 +529,12 @@ public class MorphClient implements ClientModInitializer
                                 var nbt = StringNbtReader.parse(str[2]);
                                 var profile = NbtHelper.toGameProfile(nbt);
 
-                                if (profile != null && DISGUISE_SYNCER.entity instanceof MorphLocalPlayer disguise)
+                                if (profile != null)
                                 {
-                                    this.schedule(c -> disguise.updateSkin(profile, true));
+                                    if (DISGUISE_SYNCER.entity instanceof MorphLocalPlayer disguise)
+                                        this.schedule(c -> disguise.updateSkin(profile, true));
+                                    else
+                                        logger.warn("Received a GameProfile while current disguise is not a player! : " + profile);
                                 }
                             }
                         }
