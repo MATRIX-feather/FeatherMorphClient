@@ -205,11 +205,12 @@ public class MorphClient implements ClientModInitializer
         }
     }
 
-    private boolean lastClientView;
+    @Nullable
+    private Boolean lastClientView = null;
 
     public void updateClientView(boolean clientViewEnabled, boolean selfViewVisible)
     {
-        if (clientViewEnabled != lastClientView)
+        if (lastClientView == null || clientViewEnabled != lastClientView)
         {
             sendCommand("toggleself client " + clientViewEnabled);
             lastClientView = clientViewEnabled;
