@@ -3,7 +3,7 @@
   "id": "client",
   "version": "${version}",
   "name": "MorphClient",
-  "description": "",
+  "description": "变形插件的客户端模组",
   "authors": ["MATRIX-feather"],
   "contact":
   {
@@ -30,6 +30,6 @@
   "depends": {
     "fabricloader": ">=0.12.9",
     "fabric": "*",
-    "minecraft": "1.19.2"
+    "minecraft": ">=1.19.2"
   }
 }
