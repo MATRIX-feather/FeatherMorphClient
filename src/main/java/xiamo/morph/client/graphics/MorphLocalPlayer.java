@@ -8,19 +8,16 @@ import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.client.render.entity.PlayerModelPart;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.nbt.NbtHelper;
 import net.minecraft.network.encryption.PlayerPublicKey;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Pair;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.entity.EntityChangeListener;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 
 public class MorphLocalPlayer extends OtherClientPlayerEntity
 {
-    private GameProfile morphProfile;
+    private final Pair<Integer, GameProfile> currentProfilePair = new Pair<>(0, null);
 
     private final String playerName;
 
@@ -37,10 +34,15 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
 
         this.playerName = profile.getName();
 
-        this.updateSkin(profile, false);
+        currentProfilePair.setLeft(0);
+        currentProfilePair.setRight(profile);
+
+        this.updateSkin(profile);
     }
 
-    public void updateSkin(GameProfile profile, boolean force)
+    private int requestId = 0;
+
+    public void updateSkin(GameProfile profile)
     {
         if (!profile.getName().equals(playerName))
         {
@@ -48,19 +50,19 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
             return;
         }
 
-        if (force) morphProfile = null;
+        requestId++;
 
-        //记录调用时的Profile状态
-        var currentProfile = morphProfile;
+        var invokeId = requestId;
 
         SkullBlockEntity.loadProperties(profile, o ->
         {
             MinecraftClient.getInstance().getSkinProvider().loadSkin(o, (type, id, texture) ->
             {
-                //如果当前profile和调用时的不一样，拒绝设置
-                if (currentProfile != morphProfile)
+                var currentId = currentProfilePair.getLeft();
+
+                if (invokeId < currentId)
                 {
-                    LoggerFactory.getLogger("morph").info("GameProfile mismatch! : " + currentProfile + " <-> " + morphProfile);
+                    LoggerFactory.getLogger("morph").warn("Not setting: A newer request has been finished! " + invokeId + " <-> " + currentProfilePair.getLeft());
                     return;
                 }
 
@@ -68,7 +70,8 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
                 {
                     LoggerFactory.getLogger("morph").info("Loading skin for " + playerName + " :: " + id.toString());
 
-                    this.morphProfile = o;
+                    currentProfilePair.setLeft(requestId);
+                    currentProfilePair.setRight(o);
                     this.morphTextureIdentifier = id;
                     this.model = texture.getMetadata("model");
 

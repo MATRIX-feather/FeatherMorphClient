@@ -532,7 +532,7 @@ public class MorphClient implements ClientModInitializer
                                 if (profile != null)
                                 {
                                     if (DISGUISE_SYNCER.entity instanceof MorphLocalPlayer disguise)
-                                        this.schedule(c -> disguise.updateSkin(profile, true));
+                                        this.schedule(c -> disguise.updateSkin(profile));
                                     else
                                         logger.warn("Received a GameProfile while current disguise is not a player! : " + profile);
                                 }
