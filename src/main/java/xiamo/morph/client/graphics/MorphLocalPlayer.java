@@ -8,9 +8,12 @@ import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.client.render.entity.PlayerModelPart;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.network.encryption.PlayerPublicKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
@@ -85,16 +88,44 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
         });
     }
 
-    public void setFallFlying(boolean val)
-    {
-        fallFlying = val;
-    }
-
-    private boolean fallFlying;
+    public boolean fallFlying;
 
     @Override
     public boolean isFallFlying() {
         return fallFlying;
+    }
+
+    public void setActiveItem(ItemStack stack)
+    {
+        this.activeItemStack = stack;
+    }
+
+    @Override
+    public boolean isUsingItem() {
+        return itemUseTime > 0;
+    }
+
+    public int itemUseTime;
+
+    @Override
+    public int getItemUseTime()
+    {
+        return itemUseTime;
+    }
+
+    public int itemUseTimeLeft;
+
+    @Override
+    public int getItemUseTimeLeft() {
+        return itemUseTimeLeft;
+    }
+
+    public boolean usingRiptide;
+
+    @Override
+    public boolean isUsingRiptide()
+    {
+        return usingRiptide;
     }
 
     @Override

@@ -5,11 +5,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import org.slf4j.LoggerFactory;
 import xiamo.morph.client.graphics.MorphLocalPlayer;
 import xiamo.morph.client.mixin.accessors.EntityAccessor;
 
@@ -142,8 +140,13 @@ public class DisguiseSyncer
         entity.limbDistance = clientPlayer.limbDistance;
         entity.lastLimbDistance = clientPlayer.lastLimbDistance;
 
-        entity.inPowderSnow = clientPlayer.inPowderSnow;
         entity.setSneaking(clientPlayer.isSneaking());
+
+        entity.hurtTime = clientPlayer.hurtTime;
+        entity.deathTime = clientPlayer.deathTime;
+
+        //entity.inPowderSnow = clientPlayer.inPowderSnow;
+        entity.setFrozenTicks(clientPlayer.getFrozenTicks());
 
         //末影龙的Yaw和玩家是反的
         if (entity.getType().equals(EntityType.ENDER_DRAGON))
@@ -188,7 +191,12 @@ public class DisguiseSyncer
 
         if (entity instanceof MorphLocalPlayer player)
         {
-            player.setFallFlying(clientPlayer.isFallFlying());
+            player.fallFlying = clientPlayer.isFallFlying();
+            player.usingRiptide = clientPlayer.isUsingRiptide();
+
+            player.itemUseTimeLeft = clientPlayer.getItemUseTimeLeft();
+            player.itemUseTime = clientPlayer.getItemUseTime();
+            player.setActiveItem(clientPlayer.getActiveItem());
         }
 
         entity.setInvisible(clientPlayer.isInvisible());
