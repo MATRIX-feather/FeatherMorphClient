@@ -4,7 +4,6 @@
   "package": "xiamo.morph.client.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "MinecraftClientMixin",
     "InventoryScreenMixin",
     "accessors.EntityAccessor",
     "accessors.ArmorStandEntityAccessor",

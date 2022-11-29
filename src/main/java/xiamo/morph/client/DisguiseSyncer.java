@@ -105,8 +105,6 @@ public class DisguiseSyncer
             entity.tick();
         }
 
-        entity.setSprinting(clientPlayer.isSprinting());
-
         //幻翼的pitch需要倒转
         if (entity.getType().equals(EntityType.PHANTOM))
             entity.setPitch(-clientPlayer.getPitch());
@@ -189,14 +187,20 @@ public class DisguiseSyncer
         else if (entity.hasVehicle())
             entity.stopRiding();
 
+        entity.setStuckArrowCount(clientPlayer.getStuckArrowCount());
+
         if (entity instanceof MorphLocalPlayer player)
         {
             player.fallFlying = clientPlayer.isFallFlying();
             player.usingRiptide = clientPlayer.isUsingRiptide();
 
+            player.fishHook = clientPlayer.fishHook;
+
             player.itemUseTimeLeft = clientPlayer.getItemUseTimeLeft();
             player.itemUseTime = clientPlayer.getItemUseTime();
             player.setActiveItem(clientPlayer.getActiveItem());
+
+            player.setMainArm(clientPlayer.getMainArm());
         }
 
         entity.setInvisible(clientPlayer.isInvisible());

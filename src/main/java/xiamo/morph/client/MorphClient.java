@@ -23,6 +23,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
@@ -113,8 +114,6 @@ public class MorphClient implements ClientModInitializer
                 GLFW.GLFW_KEY_RIGHT, "category.morphclient.keybind"
         ));
 
-        ClientTickEvents.END_CLIENT_TICK.register(this::updateKeys);
-
         //初始化配置
         if (modConfigData == null)
         {
@@ -128,10 +127,13 @@ public class MorphClient implements ClientModInitializer
 
         initializeNetwork();
 
-        ClientTickEvents.END_CLIENT_TICK.register(client ->
-        {
-            this.tick();
-        });
+        ClientTickEvents.END_CLIENT_TICK.register(this::tick);
+        ClientTickEvents.END_WORLD_TICK.register(this::postWorldTick);
+    }
+
+    private void postWorldTick(ClientWorld clientWorld)
+    {
+        DISGUISE_SYNCER.onGameTick();
     }
 
     public final Bindable<Boolean> selfVisibleToggled = new Bindable<>(false);
@@ -607,7 +609,7 @@ public class MorphClient implements ClientModInitializer
 
     private long currentTick = 0;
 
-    private void tick()
+    private void tick(MinecraftClient client)
     {
         currentTick += 1;
 
@@ -631,6 +633,8 @@ public class MorphClient implements ClientModInitializer
         });
 
         schedules.clear();
+
+        this.updateKeys(client);
     }
 
     private void runFunction(ScheduleInfo c)
