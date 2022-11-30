@@ -80,6 +80,11 @@ public class DrawableText implements Drawable
         this.setText(text);
     }
 
+    public DrawableText(Text text)
+    {
+        this.setText(text);
+    }
+
     public DrawableText()
     {
     }

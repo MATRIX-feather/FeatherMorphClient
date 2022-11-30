@@ -4,7 +4,9 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import xiamo.morph.client.MorphClient;
 import xiamo.morph.client.bindables.Bindable;
 import xiamo.morph.client.graphics.DrawableText;
@@ -86,6 +88,7 @@ public class DisguiseScreen extends Screen
     private final DrawableText selectedIdentifierText = new DrawableText();
     private final DrawableText serverAPIText = new DrawableText();
     private final DrawableText notReadyText = new DrawableText("等待服务器响应...");
+    private final DrawableText outdatedText = new DrawableText(Text.literal("版本不匹配，可能存在兼容性问题！").formatted(Formatting.BOLD));
 
     private boolean isCurrent()
     {
@@ -137,11 +140,17 @@ public class DisguiseScreen extends Screen
             this.addDrawable(selectedIdentifierText);
             this.addDrawable(serverAPIText);
 
+            if (!MorphClient.getInstance().serverApiMatch())
+                this.addDrawable(outdatedText);
+
             //顶端文本
             var screenX = 30;
 
             serverAPIText.setScreenX(screenX);
             serverAPIText.setScreenY(this.height - textRenderer.fontHeight - fontMargin);
+
+            outdatedText.setScreenX(screenX);
+            outdatedText.setScreenY(this.height - textRenderer.fontHeight * 2 - fontMargin - 2);
 
             titleText.setScreenX(screenX);
             titleText.setScreenY(fontMargin);
