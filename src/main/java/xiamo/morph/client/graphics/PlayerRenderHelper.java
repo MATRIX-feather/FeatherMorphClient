@@ -1,5 +1,6 @@
 package xiamo.morph.client.graphics;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
@@ -8,13 +9,18 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
-import net.minecraft.client.render.entity.model.BipedEntityModel;
+import net.minecraft.client.render.entity.model.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.util.math.Vec3f;
+import org.jetbrains.annotations.Nullable;
 import xiamo.morph.client.EntityCache;
 import xiamo.morph.client.MorphClient;
 import xiamo.morph.client.mixin.accessors.LivingRendererAccessor;
+
+import java.util.Map;
 
 public class PlayerRenderHelper
 {
@@ -42,6 +48,57 @@ public class PlayerRenderHelper
 
     public boolean renderingLeftPart;
 
+    private final Map<EntityType<?>, ModelMap> typeModelPartMap = new Object2ObjectOpenHashMap<>();
+
+    private record ModelMap(@Nullable ModelPart left, @Nullable ModelPart right, Vec3f offset, @Nullable Vec3f scale)
+    {
+        @Nullable
+        public ModelPart getPart(boolean isLeftArm)
+        {
+            return isLeftArm ? left : right;
+        }
+    }
+
+    public ModelMap tryGetArmModel(EntityType<?> type, EntityModel<?> model)
+    {
+        var map = typeModelPartMap.getOrDefault(type, null);
+
+        if (map != null)
+            return map;
+
+        ModelPart leftPart = null;
+        ModelPart rightPart = null;
+        Vec3f offset = new Vec3f(0, 0, 0);
+        Vec3f scale = null;
+
+        if (model instanceof BipedEntityModel<?> bipedEntityModel)
+        {
+            leftPart = bipedEntityModel.leftArm;
+            rightPart = bipedEntityModel.rightArm;
+        }
+        else if (model instanceof SinglePartEntityModel<?> singlePartEntityModel)
+        {
+            leftPart = singlePartEntityModel.getChild(EntityModelPartNames.LEFT_ARM).orElse(null);
+            rightPart = singlePartEntityModel.getChild(EntityModelPartNames.RIGHT_ARM).orElse(null);
+
+            if (type == EntityType.IRON_GOLEM)
+            {
+                scale = new Vec3f(0.75f, 0.75f, 0.75f);
+                offset.set(0, -0.2f, 0);
+            }
+            else if (type == EntityType.ALLAY)
+            {
+                offset.set(0, 0.2f, 0.1f);
+                scale = new Vec3f(1.5f, 1.5f, 1.5f);
+            }
+        }
+
+        map = new ModelMap(leftPart, rightPart, offset, scale);
+        typeModelPartMap.put(type, map);
+
+        return map;
+    }
+
     @SuppressWarnings("rawtypes")
     public boolean onArmDrawCall(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, AbstractClientPlayerEntity player, ModelPart arm, ModelPart sleeve)
     {
@@ -54,7 +111,8 @@ public class PlayerRenderHelper
             var useLeftPart = renderingLeftPart;
 
             var model = livingEntityRenderer.getModel();
-            ModelPart targetArm = null;
+            ModelPart targetArm;
+            ModelMap modelMap;
 
             if (entity instanceof MorphLocalPlayer)
             {
@@ -67,9 +125,10 @@ public class PlayerRenderHelper
 
                 return true;
             }
-            else if (model instanceof BipedEntityModel<?> bipedEntityModel)
+            else
             {
-                targetArm = useLeftPart ? bipedEntityModel.leftArm : bipedEntityModel.rightArm;
+                modelMap = tryGetArmModel(entity.getType(), model);
+                targetArm = modelMap.getPart(useLeftPart);
             }
 
             if (targetArm != null)
@@ -80,6 +139,15 @@ public class PlayerRenderHelper
                 model.setAngles(entity, 0, 0, 0, 0, 0);
                 model.handSwingProgress = 0;
 
+                var scale = modelMap.scale;
+
+                if (scale != null)
+                    matrices.scale(scale.getX(), scale.getY(), scale.getZ());
+
+                var offset = modelMap.offset;
+                matrices.translate(offset.getX(), offset.getY(), offset.getZ());
+
+                //targetArm.roll = 0f;
                 targetArm.pitch = 0;
                 targetArm.render(matrices, vertexConsumers.getBuffer(layer), light, OverlayTexture.DEFAULT_UV);
 
