@@ -1,31 +1,20 @@
 package xiamo.morph.client.graphics;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.model.Model;
 import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.model.ModelPartBuilder;
-import net.minecraft.client.model.ModelPartData;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
-import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.Arm;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
-import org.slf4j.LoggerFactory;
 import xiamo.morph.client.EntityCache;
 import xiamo.morph.client.MorphClient;
 import xiamo.morph.client.mixin.accessors.LivingRendererAccessor;
-
-import java.util.logging.Logger;
 
 public class PlayerRenderHelper
 {
@@ -77,17 +66,6 @@ public class PlayerRenderHelper
                     renderer.renderRightArm(matrices, vertexConsumers, light, (MorphLocalPlayer)entity);
 
                 return true;
-
-/*
-                var playerModel = (PlayerEntityModel) model;
-
-                playerModel.handSwingProgress = 0.0F;
-                playerModel.sneaking = false;
-                playerModel.leaningPitch = 0.0F;
-
-                targetArm = useLeftPart ? playerModel.leftArm : playerModel.rightArm;
-                targetSleeve = useLeftPart ? playerModel.leftSleeve : playerModel.rightSleeve;
-*/
             }
             else if (model instanceof BipedEntityModel<?> bipedEntityModel)
             {
@@ -96,7 +74,7 @@ public class PlayerRenderHelper
 
             if (targetArm != null)
             {
-                var layer = ((LivingRendererAccessor) livingEntityRenderer).callGetRenderLayer((LivingEntity) entity, true, true, true);
+                var layer = ((LivingRendererAccessor) livingEntityRenderer).callGetRenderLayer((LivingEntity) entity, true, false, true);
                 layer = layer == null ? RenderLayer.getSolid() : layer;
 
                 model.setAngles(entity, 0, 0, 0, 0, 0);
