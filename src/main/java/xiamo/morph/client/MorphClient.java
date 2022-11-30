@@ -264,11 +264,13 @@ public class MorphClient implements ClientModInitializer
         categoryGeneral.addEntry(
                 entryBuilder.startBooleanToggle(Text.translatable("option.morphclient.allowClientView.name"), modConfigData.allowClientView)
                         .setTooltip(Text.translatable("option.morphclient.allowClientView.description"))
-                        .setDefaultValue(false)
+                        .setDefaultValue(true)
                         .setSaveConsumer(v ->
                         {
                             modConfigData.allowClientView = v;
-                            updateClientView(v, selfVisibleToggled.get());
+
+                            if (serverReady.get())
+                                updateClientView(v, selfVisibleToggled.get());
                         })
                         .build()
         );

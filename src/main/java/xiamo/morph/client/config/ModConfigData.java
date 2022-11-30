@@ -9,7 +9,7 @@ public class ModConfigData implements ConfigData
 {
     public boolean alwaysShowPreviewInInventory = false;
 
-    public boolean allowClientView = false;
+    public boolean allowClientView = true;
 
     public boolean clientViewVisible()
     {
