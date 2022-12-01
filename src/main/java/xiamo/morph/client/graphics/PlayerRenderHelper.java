@@ -18,6 +18,7 @@ import net.minecraft.util.math.Vec3f;
 import org.jetbrains.annotations.Nullable;
 import xiamo.morph.client.EntityCache;
 import xiamo.morph.client.MorphClient;
+import xiamo.morph.client.MorphLocalPlayer;
 import xiamo.morph.client.mixin.accessors.LivingRendererAccessor;
 
 import java.util.Map;
@@ -28,7 +29,7 @@ public class PlayerRenderHelper
     {
         MorphClient.selfViewIdentifier.onValueChanged((o, n) ->
         {
-            //实体同步给MorphClient那里做了
+            //实体同步给DisguiseSyncer那里做了
             this.entity = EntityCache.getEntity(n);
         });
     }
@@ -48,9 +49,9 @@ public class PlayerRenderHelper
 
     public boolean renderingLeftPart;
 
-    private final Map<EntityType<?>, ModelMap> typeModelPartMap = new Object2ObjectOpenHashMap<>();
+    private final Map<EntityType<?>, ModelInfo> typeModelPartMap = new Object2ObjectOpenHashMap<>();
 
-    private record ModelMap(@Nullable ModelPart left, @Nullable ModelPart right, Vec3f offset, @Nullable Vec3f scale)
+    private record ModelInfo(@Nullable ModelPart left, @Nullable ModelPart right, Vec3f offset, @Nullable Vec3f scale)
     {
         @Nullable
         public ModelPart getPart(boolean isLeftArm)
@@ -59,7 +60,7 @@ public class PlayerRenderHelper
         }
     }
 
-    public ModelMap tryGetArmModel(EntityType<?> type, EntityModel<?> model)
+    public ModelInfo tryGetModel(EntityType<?> type, EntityModel<?> model)
     {
         var map = typeModelPartMap.getOrDefault(type, null);
 
@@ -93,7 +94,7 @@ public class PlayerRenderHelper
             }
         }
 
-        map = new ModelMap(leftPart, rightPart, offset, scale);
+        map = new ModelInfo(leftPart, rightPart, offset, scale);
         typeModelPartMap.put(type, map);
 
         return map;
@@ -112,7 +113,7 @@ public class PlayerRenderHelper
 
             var model = livingEntityRenderer.getModel();
             ModelPart targetArm;
-            ModelMap modelMap;
+            ModelInfo modelInfo;
 
             if (entity instanceof MorphLocalPlayer)
             {
@@ -127,8 +128,8 @@ public class PlayerRenderHelper
             }
             else
             {
-                modelMap = tryGetArmModel(entity.getType(), model);
-                targetArm = modelMap.getPart(useLeftPart);
+                modelInfo = tryGetModel(entity.getType(), model);
+                targetArm = modelInfo.getPart(useLeftPart);
             }
 
             if (targetArm != null)
@@ -139,12 +140,12 @@ public class PlayerRenderHelper
                 model.setAngles(entity, 0, 0, 0, 0, 0);
                 model.handSwingProgress = 0;
 
-                var scale = modelMap.scale;
+                var scale = modelInfo.scale;
 
                 if (scale != null)
                     matrices.scale(scale.getX(), scale.getY(), scale.getZ());
 
-                var offset = modelMap.offset;
+                var offset = modelInfo.offset;
                 matrices.translate(offset.getX(), offset.getY(), offset.getZ());
 
                 //targetArm.roll = 0f;

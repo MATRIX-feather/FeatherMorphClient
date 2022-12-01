@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import xiamo.morph.client.EntityCache;
 import xiamo.morph.client.MorphClient;
 import xiamo.morph.client.bindables.Bindable;
-import xiamo.morph.client.graphics.MorphLocalPlayer;
+import xiamo.morph.client.MorphLocalPlayer;
 
 import java.util.List;
 import java.util.UUID;

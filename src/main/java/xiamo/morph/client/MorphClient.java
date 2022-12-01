@@ -39,13 +39,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xiamo.morph.client.bindables.Bindable;
 import xiamo.morph.client.config.ModConfigData;
-import xiamo.morph.client.graphics.MorphLocalPlayer;
 import xiamo.morph.client.screens.disguise.DisguiseScreen;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -59,21 +57,11 @@ public class MorphClient implements ClientModInitializer
     public static Identifier versionChannelIdentifier = new Identifier(morphNameSpace, "version");
     public static Identifier commandChannelIdentifier = new Identifier(morphNameSpace, "commands");
 
-    private KeyBinding toggleselfKeyBind;
-    private KeyBinding executeSkillKeyBind;
-    private KeyBinding unMorphKeyBind;
-    private KeyBinding morphKeyBind;
-
     private static MorphClient instance;
 
     public static MorphClient getInstance()
     {
         return instance;
-    }
-
-    public MorphClient()
-    {
-        instance = this;
     }
 
     public static final Bindable<String> selectedIdentifier = new Bindable<>(null);
@@ -89,6 +77,16 @@ public class MorphClient implements ClientModInitializer
     public static final DisguiseSyncer DISGUISE_SYNCER = new DisguiseSyncer();
 
     private final Logger logger = LoggerFactory.getLogger("MorphClient");
+
+    private KeyBinding toggleselfKeyBind;
+    private KeyBinding executeSkillKeyBind;
+    private KeyBinding unMorphKeyBind;
+    private KeyBinding morphKeyBind;
+
+    public MorphClient()
+    {
+        instance = this;
+    }
 
     @Override
     public void onInitializeClient()
@@ -151,6 +149,12 @@ public class MorphClient implements ClientModInitializer
         onGrantConsumers.add(consumer);
     }
 
+    private final List<Function<List<String>, Boolean>> onRevokeConsumers = new ObjectArrayList<>();
+    public void onMorphRevoke(Function<List<String>, Boolean> consumer)
+    {
+        onRevokeConsumers.add(consumer);
+    }
+
     private void invokeRevoke(List<String> diff)
     {
         var tobeRemoved = new ObjectArrayList<Function<List<String>, Boolean>>();
@@ -173,12 +177,6 @@ public class MorphClient implements ClientModInitializer
         });
 
         onGrantConsumers.removeAll(tobeRemoved);
-    }
-
-    private final List<Function<List<String>, Boolean>> onRevokeConsumers = new ObjectArrayList<>();
-    public void onMorphRevoke(Function<List<String>, Boolean> consumer)
-    {
-        onRevokeConsumers.add(consumer);
     }
 
     private void updateKeys(MinecraftClient client)
@@ -234,6 +232,7 @@ public class MorphClient implements ClientModInitializer
     }
 
     //region Config
+
     private ModConfigData modConfigData;
     private ConfigHolder<ModConfigData> configHolder;
 
@@ -283,9 +282,11 @@ public class MorphClient implements ClientModInitializer
 
         return builder;
     }
+
     //endregion Config
 
     //region Network
+
     private int serverVersion = -1;
     private final int clientVersion = 1;
 
@@ -605,7 +606,8 @@ public class MorphClient implements ClientModInitializer
 
         return null;
     }
-    //endregion
+
+    //endregion Network
 
     //region tick相关
 
