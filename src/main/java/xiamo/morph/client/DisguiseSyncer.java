@@ -87,7 +87,7 @@ public class DisguiseSyncer
             entity.readCustomDataFromNbt(nbtCompound);
     }
 
-    private boolean notick(EntityType<?> t)
+    private boolean requireTick(EntityType<?> t)
     {
         return t == EntityType.PLAYER;
     }
@@ -97,8 +97,7 @@ public class DisguiseSyncer
         var playerPos = clientPlayer.getPos();
         entity.setPosition(playerPos.x, playerPos.y - 4096, playerPos.z);
 
-        //黑名单里的实体不要tick
-        if (notick(entity.getType()))
+        if (requireTick(entity.getType()))
         {
             //entity.age++;
             entity.tick();
