@@ -11,7 +11,8 @@
     "EntityMixin",
     "accessors.EntityAccessor",
     "accessors.ArmorStandEntityAccessor",
-    "accessors.LivingRendererAccessor"
+    "accessors.LivingRendererAccessor",
+    "ClientPlayerEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

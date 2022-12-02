@@ -24,6 +24,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
@@ -543,6 +544,12 @@ public class MorphClient implements ClientModInitializer
                                         logger.warn("Received a GameProfile while current disguise is not a player! : " + profile);
                                 }
                             }
+                            case "sneaking" ->
+                            {
+                                if (str.length < 3) return;
+
+                                serverSideSneaking = Boolean.valueOf(str[2]);
+                            }
                         }
                     }
                     case "reauth" ->
@@ -586,6 +593,8 @@ public class MorphClient implements ClientModInitializer
             }
         });
     }
+
+    public static Boolean serverSideSneaking;
 
     private final ItemStack air = ItemStack.EMPTY;
 
