@@ -8,6 +8,9 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.text.Text;
+import org.apache.commons.lang3.NotImplementedException;
+import org.slf4j.LoggerFactory;
 import xiamo.morph.client.mixin.accessors.EntityAccessor;
 
 public class DisguiseSyncer
@@ -76,9 +79,54 @@ public class DisguiseSyncer
         }
         catch (Exception e)
         {
-            e.printStackTrace();
-            allowTick = false;
+            onTickError(e);
         }
+    }
+
+    public void onGameRender()
+    {
+        if (!allowTick) return;
+
+        var clientPlayer = MinecraftClient.getInstance().player;
+
+        try
+        {
+            syncDraw(entity, clientPlayer);
+        }
+        catch (Exception e)
+        {
+            onTickError(e);
+        }
+    }
+
+    private void onTickError(Exception e)
+    {
+        allowTick = false;
+        e.printStackTrace();
+
+        if (entity != null)
+        {
+            try
+            {
+                entity.remove(Entity.RemovalReason.DISCARDED);
+            }
+            catch (Exception ee)
+            {
+                LoggerFactory.getLogger("MorphClient").error("无法移除实体：" + ee.getMessage());
+                ee.printStackTrace();
+            }
+
+            entity = null;
+        }
+
+        var clientPlayer = MinecraftClient.getInstance().player;
+        assert clientPlayer != null;
+
+        MorphClient.getInstance().updateClientView(true, false);
+        MorphClient.selfViewIdentifier.set(null);
+
+        clientPlayer.sendMessage(Text.literal("更新当前实体时出现错误。"));
+        clientPlayer.sendMessage(Text.literal("在当前伪装变更前客户端预览将被禁用以避免游戏崩溃。"));
     }
 
     private void mergeNbt(NbtCompound nbtCompound)
@@ -92,6 +140,22 @@ public class DisguiseSyncer
         return t == EntityType.PLAYER;
     }
 
+    private void syncDraw(LivingEntity entity, PlayerEntity clientPlayer)
+    {
+        if (entity == null || clientPlayer == null) return;
+
+        entity.headYaw = clientPlayer.headYaw;
+        entity.prevHeadYaw = clientPlayer.prevHeadYaw;
+
+        //幻翼的pitch需要倒转
+        if (entity.getType().equals(EntityType.PHANTOM))
+            entity.setPitch(-clientPlayer.getPitch());
+        else
+            entity.setPitch(clientPlayer.getPitch());
+
+        entity.prevPitch = clientPlayer.prevPitch;
+    }
+
     private void sync(LivingEntity entity, PlayerEntity clientPlayer)
     {
         var playerPos = clientPlayer.getPos();
@@ -102,17 +166,6 @@ public class DisguiseSyncer
             //entity.age++;
             entity.tick();
         }
-
-        //幻翼的pitch需要倒转
-        if (entity.getType().equals(EntityType.PHANTOM))
-            entity.setPitch(-clientPlayer.getPitch());
-        else
-            entity.setPitch(clientPlayer.getPitch());
-
-        entity.prevPitch = clientPlayer.prevPitch;
-
-        entity.headYaw = clientPlayer.headYaw;
-        entity.prevHeadYaw = clientPlayer.prevHeadYaw;
 
         entity.handSwinging = clientPlayer.handSwinging;
         entity.handSwingProgress = clientPlayer.handSwingProgress;

@@ -46,7 +46,7 @@ public class DisguiseScreen extends Screen
 
         MorphClient.serverReady.onValueChanged((o, n) ->
         {
-            this.clearAndInit();
+            MorphClient.getInstance().schedule(c -> this.clearAndInit());
         });
 
         //初始化文本
