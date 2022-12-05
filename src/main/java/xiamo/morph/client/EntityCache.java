@@ -31,7 +31,7 @@ public class EntityCache
 
         var cache = cacheMap.getOrDefault(identifier, null);
 
-        LoggerFactory.getLogger("morph").info("Cache of " + identifier + " is " + cache);
+        //LoggerFactory.getLogger("morph").info("Cache of " + identifier + " is " + cache);
 
         if (cache != null && !cache.isRemoved()) return cache;
 

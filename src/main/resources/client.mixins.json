@@ -12,6 +12,7 @@
     "accessors.EntityAccessor",
     "accessors.ArmorStandEntityAccessor",
     "accessors.LivingRendererAccessor",
+    "accessors.DragonEntityRendererAccessor",
     "ClientPlayerEntityMixin"
   ],
   "injectors": {

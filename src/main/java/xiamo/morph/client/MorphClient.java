@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xiamo.morph.client.bindables.Bindable;
 import xiamo.morph.client.config.ModConfigData;
+import xiamo.morph.client.graphics.ModelWorkarounds;
 import xiamo.morph.client.screens.disguise.DisguiseScreen;
 
 import java.nio.charset.StandardCharsets;
@@ -83,6 +84,7 @@ public class MorphClient implements ClientModInitializer
     private KeyBinding executeSkillKeyBind;
     private KeyBinding unMorphKeyBind;
     private KeyBinding morphKeyBind;
+    private KeyBinding resetCacheKeybind;
 
     public MorphClient()
     {
@@ -113,6 +115,11 @@ public class MorphClient implements ClientModInitializer
                 GLFW.GLFW_KEY_RIGHT, "category.morphclient.keybind"
         ));
 
+        resetCacheKeybind = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.morphclient.reset_cache", InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_KP_9, "category.morphclient.keybind"
+        ));
+
         //初始化配置
         if (modConfigData == null)
         {
@@ -128,6 +135,8 @@ public class MorphClient implements ClientModInitializer
 
         ClientTickEvents.END_CLIENT_TICK.register(this::tick);
         ClientTickEvents.END_WORLD_TICK.register(this::postWorldTick);
+
+        ModelWorkarounds.initWorkarounds();
     }
 
     private void postWorldTick(ClientWorld clientWorld)
@@ -203,6 +212,11 @@ public class MorphClient implements ClientModInitializer
             {
                 client.setScreen(new DisguiseScreen());
             }
+        }
+
+        if (resetCacheKeybind.wasPressed())
+        {
+            ModelWorkarounds.initWorkarounds();
         }
     }
 
