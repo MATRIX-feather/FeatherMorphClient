@@ -9,7 +9,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
-import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.LoggerFactory;
 import xiamo.morph.client.mixin.accessors.EntityAccessor;
 
@@ -166,6 +165,13 @@ public class DisguiseSyncer
             //entity.age++;
             entity.tick();
         }
+
+        var sleepPos = clientPlayer.getSleepingPosition().orElse(null);
+
+        if (sleepPos != null)
+            entity.setSleepingPosition(sleepPos);
+        else
+            entity.clearSleepingPosition();
 
         entity.handSwinging = clientPlayer.handSwinging;
         entity.handSwingProgress = clientPlayer.handSwingProgress;
