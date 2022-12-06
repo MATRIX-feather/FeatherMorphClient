@@ -17,7 +17,7 @@ public class InventoryRenderHelper
             allowRender = true;
 
             this.entity = n;
-        });
+        }, true);
     }
 
     public boolean allowRender = true;

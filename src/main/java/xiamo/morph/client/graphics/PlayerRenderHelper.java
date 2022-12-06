@@ -40,7 +40,7 @@ public class PlayerRenderHelper
             this.entity = n;
 
             allowRender = true;
-        });
+        }, true);
     }
 
     private void onRenderException(Exception exception)
