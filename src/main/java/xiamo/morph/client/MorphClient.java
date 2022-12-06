@@ -24,8 +24,10 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
@@ -512,9 +514,8 @@ public class MorphClient implements ClientModInitializer
 
                                 var dat = str[2].split(" ", 2);
 
-                                logger.info("get dat: " + dat.length);
                                 if (dat.length != 2) return;
-                                var currentMob = EntityCache.getEntity(selfViewIdentifier.get());
+                                var currentMob = DisguiseSyncer.currentEntity.get();
 
                                 if (currentMob == null) return;
 

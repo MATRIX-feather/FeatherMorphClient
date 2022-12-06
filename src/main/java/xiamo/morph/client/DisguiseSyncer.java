@@ -1,5 +1,7 @@
 package xiamo.morph.client;
 
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -9,22 +11,41 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
+import net.minecraft.world.World;
 import org.slf4j.LoggerFactory;
+import xiamo.morph.client.bindables.Bindable;
 import xiamo.morph.client.mixin.accessors.EntityAccessor;
 
 public class DisguiseSyncer
 {
     public DisguiseSyncer()
     {
-        MorphClient.selfViewIdentifier.onValueChanged((o, n) -> this.onCurrentChanged(n));
+        MorphClient.selfViewIdentifier.onValueChanged((o, n) -> this.refreshClientViewEntity(n));
 
         MorphClient.currentNbtCompound.onValueChanged((o, n) ->
         {
             if (n != null) MorphClient.getInstance().schedule(c -> this.mergeNbt(n));
         });
+
+        ClientTickEvents.END_WORLD_TICK.register((w) ->
+        {
+            if (w != prevWorld && MorphClient.serverReady.get() && prevWorld != null)
+                refreshClientViewEntity(MorphClient.selfViewIdentifier.get());
+
+            prevWorld = w;
+        });
+
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) ->
+        {
+            prevWorld = null;
+        });
     }
 
-    private void onCurrentChanged(String newIdentifier)
+    public static Bindable<LivingEntity> currentEntity = new Bindable<>();
+
+    private World prevWorld;
+
+    private void refreshClientViewEntity(String newIdentifier)
     {
         var clientWorld = MinecraftClient.getInstance().world;
         if (clientWorld == null)
@@ -43,10 +64,12 @@ public class DisguiseSyncer
             entity.equipStack(EquipmentSlot.LEGS, ItemStack.EMPTY);
             entity.equipStack(EquipmentSlot.FEET, ItemStack.EMPTY);
 
-            clientWorld.removeEntity(entity.getId(), Entity.RemovalReason.DISCARDED);
+            entity.setRemoved(Entity.RemovalReason.DISCARDED);
+            entity.onRemoved();
         }
 
-        this.entity = EntityCache.getEntity(newIdentifier);
+        entity = EntityCache.getEntity(newIdentifier);
+        currentEntity.set(entity);
 
         allowTick = true;
 
@@ -73,7 +96,7 @@ public class DisguiseSyncer
             var clientPlayer = MinecraftClient.getInstance().player;
             assert clientPlayer != null;
 
-            if (entity != null)
+            if (entity != null && MorphClient.getInstance().selfVisibleToggled.get())
                 sync(entity, clientPlayer);
         }
         catch (Exception e)
@@ -90,7 +113,8 @@ public class DisguiseSyncer
 
         try
         {
-            syncDraw(entity, clientPlayer);
+            if (MorphClient.getInstance().selfVisibleToggled.get())
+                syncDraw(entity, clientPlayer);
         }
         catch (Exception e)
         {

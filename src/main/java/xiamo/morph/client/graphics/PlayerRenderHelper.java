@@ -21,6 +21,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3f;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
+import xiamo.morph.client.DisguiseSyncer;
 import xiamo.morph.client.EntityCache;
 import xiamo.morph.client.MorphClient;
 import xiamo.morph.client.MorphLocalPlayer;
@@ -34,10 +35,9 @@ public class PlayerRenderHelper
 {
     public PlayerRenderHelper()
     {
-        MorphClient.selfViewIdentifier.onValueChanged((o, n) ->
+        DisguiseSyncer.currentEntity.onValueChanged((o, n) ->
         {
-            //实体同步给DisguiseSyncer那里做了
-            this.entity = EntityCache.getEntity(n);
+            this.entity = n;
 
             allowRender = true;
         });

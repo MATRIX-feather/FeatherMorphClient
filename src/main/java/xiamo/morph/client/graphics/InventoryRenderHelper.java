@@ -2,6 +2,7 @@ package xiamo.morph.client.graphics;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.LivingEntity;
+import xiamo.morph.client.DisguiseSyncer;
 import xiamo.morph.client.EntityCache;
 import xiamo.morph.client.MorphClient;
 
@@ -11,11 +12,11 @@ public class InventoryRenderHelper
 {
     public InventoryRenderHelper()
     {
-        MorphClient.selfViewIdentifier.onValueChanged((o, n) ->
+        DisguiseSyncer.currentEntity.onValueChanged((o, n) ->
         {
             allowRender = true;
 
-            this.entity = EntityCache.getEntity(n);
+            this.entity = n;
         });
     }
 
