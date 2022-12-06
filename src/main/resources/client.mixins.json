@@ -9,11 +9,12 @@
     "InventoryScreenMixin",
     "PlayerEntityRenderersMixin",
     "EntityMixin",
+    "ClientPlayerEntityMixin",
     "accessors.EntityAccessor",
     "accessors.ArmorStandEntityAccessor",
     "accessors.LivingRendererAccessor",
     "accessors.DragonEntityRendererAccessor",
-    "ClientPlayerEntityMixin"
+    "accessors.UtilAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
