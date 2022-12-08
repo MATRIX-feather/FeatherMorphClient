@@ -30,9 +30,9 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
 
     private String model;
 
-    public MorphLocalPlayer(ClientWorld clientWorld, GameProfile profile, @Nullable PlayerPublicKey playerPublicKey)
+    public MorphLocalPlayer(ClientWorld clientWorld, GameProfile profile)
     {
-        super(clientWorld, profile, playerPublicKey);
+        super(clientWorld, profile);
 
         logger.info("Fetching skin for " + profile);
 

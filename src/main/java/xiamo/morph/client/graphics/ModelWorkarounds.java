@@ -1,13 +1,14 @@
 package xiamo.morph.client.graphics;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.client.model.Model;
+import net.fabricmc.loader.impl.lib.sat4j.core.Vec;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.entity.EntityType;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3f;
+import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
+import xiamo.morph.client.Vec3dUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -44,52 +45,36 @@ public class ModelWorkarounds
 
         //No-op
         addWorkaround(List.of(EntityType.WARDEN, EntityType.VILLAGER, EntityType.SNOW_GOLEM), (l, r) ->
-                WorkaroundMeta.newMeta());
+                WorkaroundMeta.of(Vec3d.ZERO, Vec3dUtils.ONE()));
 
         addWorkaround(List.of(EntityType.HOGLIN, EntityType.ZOGLIN), (l, r) ->
-                WorkaroundMeta.of(new Vec3f(0, -0.57f, 0.8f), WorkaroundMeta.VECONE()));
+                WorkaroundMeta.of(new Vec3d(0, -0.57f, 0.8f), Vec3dUtils.ONE()));
 
         addWorkaround(List.of(EntityType.ZOMBIE_HORSE, EntityType.SKELETON_HORSE, EntityType.HORSE), (l, r) ->
-                WorkaroundMeta.of(new Vec3f(0, -0.45f, 1f), WorkaroundMeta.VECONE()));
+                WorkaroundMeta.of(new Vec3d(0, -0.45f, 1f), Vec3dUtils.ONE()));
 
         addWorkaround(EntityType.POLAR_BEAR, (l, r) ->
-                WorkaroundMeta.of(new Vec3f(0, -0.57f, 0.65f), WorkaroundMeta.VECONE()));
+                WorkaroundMeta.of(new Vec3d(0, -0.57f, 0.65f), Vec3dUtils.ONE()));
 
         addWorkaround(EntityType.CREEPER, (l, r) ->
-                WorkaroundMeta.of(new Vec3f(0, -0.57f, 0.5f), WorkaroundMeta.VECONE()));
+                WorkaroundMeta.of(new Vec3d(0, -0.57f, 0.5f), Vec3dUtils.ONE()));
 
         addWorkaround(EntityType.IRON_GOLEM, (l, r) ->
-        {
-            var meta = WorkaroundMeta.newMeta();
-            meta.offset.set(0, -0.2f, 0);
-            meta.scale.set(.75f, .75f, .75f);
-
-            return meta;
-        });
+                new WorkaroundMeta(Vec3dUtils.of(0, -.2, 0), Vec3dUtils.of(.75)));
 
         addWorkaround(EntityType.ALLAY, (l, r) ->
         {
-            var meta = WorkaroundMeta.newMeta();
-
-            meta.offset.set(0, 0.25f, 0.1f);
-            meta.scale.set(1.5f, 1.5f, 1.5f);
-
             l.roll = r.roll = 0;
-            return meta;
+            return new WorkaroundMeta(Vec3dUtils.of(0, .25, .1), Vec3dUtils.of(1.5));
         });
 
         addWorkaround(EntityType.ENDER_DRAGON, (l, r) ->
         {
-            var meta = WorkaroundMeta.newMeta();
-
-            meta.offset.set(0, -3.2f, 0f);
-            meta.scale.set(0.6f, 0.6f, 0.6f);
-
             //0.55f
             l.yaw = -0.6f;
             r.yaw = -l.yaw;
 
-            return meta;
+            return new WorkaroundMeta(Vec3dUtils.of(0, -3.2, 0), Vec3dUtils.of(.6));
         });
     }
 
@@ -104,24 +89,20 @@ public class ModelWorkarounds
     {
         var workaround = workarounds.get(EntityType.getId(entityType));
 
-        return workaround == null ? new WorkaroundMeta(new Vec3f(0, -0.6f, 0.45f), WorkaroundMeta.VECONE()) : workaround.accept(left, right);
+        return workaround == null ? new WorkaroundMeta(new Vec3d(0, -0.6f, 0.45f), Vec3dUtils.ONE()) : workaround.accept(left, right);
     }
 
-    public record WorkaroundMeta(Vec3f offset, Vec3f scale)
+    public record WorkaroundMeta(Vec3d offset, Vec3d scale)
     {
-        public static WorkaroundMeta of(Vec3f offset, Vec3f scale)
+        public WorkaroundMeta(@NotNull Vec3d offset, @NotNull Vec3d scale)
+        {
+            this.offset = offset;
+            this.scale = scale;
+        }
+
+        public static WorkaroundMeta of(Vec3d offset, Vec3d scale)
         {
             return new WorkaroundMeta(offset, scale);
-        }
-
-        public static Vec3f VECONE()
-        {
-            return new Vec3f(1, 1, 1);
-        }
-
-        public static WorkaroundMeta newMeta()
-        {
-            return new WorkaroundMeta(new Vec3f(0, 0, 0), VECONE());
         }
     }
 }

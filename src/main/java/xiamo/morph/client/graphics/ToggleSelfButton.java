@@ -23,7 +23,7 @@ public class ToggleSelfButton extends ButtonWidget
 
     public ToggleSelfButton(int x, int y, int width, int height, boolean toggled, DisguiseScreen screen)
     {
-        super(x, y, width, height, getSwitchTextFrom(toggled), (button) -> {});
+        super(x, y, width, height, getSwitchTextFrom(toggled), (button) -> {}, ButtonWidget.DEFAULT_NARRATION_SUPPLIER);
         this.toggleBindable.set(toggled);
         this.toggleBindable.bindTo(MorphClient.getInstance().selfVisibleToggled);
         this.toggleBindable.onValueChanged((o, n) ->

@@ -18,13 +18,10 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3f;
+import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
-import xiamo.morph.client.DisguiseSyncer;
-import xiamo.morph.client.EntityCache;
-import xiamo.morph.client.MorphClient;
-import xiamo.morph.client.MorphLocalPlayer;
+import xiamo.morph.client.*;
 import xiamo.morph.client.mixin.accessors.DragonEntityRendererAccessor;
 import xiamo.morph.client.mixin.accessors.LivingRendererAccessor;
 
@@ -105,7 +102,7 @@ public class PlayerRenderHelper
 
     private final Map<EntityType<?>, ModelInfo> typeModelPartMap = new Object2ObjectOpenHashMap<>();
 
-    private record ModelInfo(@Nullable ModelPart left, @Nullable ModelPart right, Vec3f offset, Vec3f scale)
+    private record ModelInfo(@Nullable ModelPart left, @Nullable ModelPart right, Vec3d offset, Vec3d scale)
     {
         @Nullable
         public ModelPart getPart(boolean isLeftArm)
@@ -133,8 +130,8 @@ public class PlayerRenderHelper
 
         ModelPart leftPart = null;
         ModelPart rightPart = null;
-        Vec3f offset = new Vec3f(0, 0, 0);
-        Vec3f scale = ModelWorkarounds.WorkaroundMeta.VECONE();
+        Vec3d offset = Vec3dUtils.of(0);
+        Vec3d scale = new Vec3d(0, 0, 0);
 
         if (model != null)
         {
@@ -256,7 +253,7 @@ public class PlayerRenderHelper
                 model.handSwingProgress = 0;
 
                 var scale = modelInfo.scale;
-                matrices.scale(scale.getX(), scale.getY(), scale.getZ());
+                matrices.scale((float)scale.getX(), (float)scale.getY(), (float)scale.getZ());
 
                 var offset = modelInfo.offset;
                 matrices.translate(offset.getX(), offset.getY(), offset.getZ());

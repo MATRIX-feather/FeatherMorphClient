@@ -68,7 +68,7 @@ public class EntityCache
 
             if (splitedId.length != 2) return null;
             var profile = new GameProfile(UUID.randomUUID(), splitedId[1]);
-            living = new MorphLocalPlayer(MinecraftClient.getInstance().world, profile, null);
+            living = new MorphLocalPlayer(MinecraftClient.getInstance().world, profile);
         }
 
         if (living != null) cacheMap.put(identifier, living);

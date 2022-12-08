@@ -147,7 +147,7 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget>
                         if (nameSplited.length == 2)
                         {
                             entity = new MorphLocalPlayer(MinecraftClient.getInstance().world,
-                                    new GameProfile(UUID.randomUUID(), nameSplited[1]), null);
+                                    new GameProfile(UUID.randomUUID(), nameSplited[1]));
                         }
                     }
 

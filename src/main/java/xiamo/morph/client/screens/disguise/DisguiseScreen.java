@@ -4,7 +4,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import xiamo.morph.client.MorphClient;
@@ -62,12 +61,12 @@ public class DisguiseScreen extends Screen
         titleText.setHeight(20);
 
         //初始化按钮
-        closeButton = new ButtonWidget(0, 0, 150, 20, Text.literal("关闭"), (button) ->
+        closeButton = this.buildWidget(0, 0, 150, 20, Text.literal("关闭"), (button) ->
         {
             this.close();
         });
 
-        configMenuButton = new ButtonWidget(0, 0, 20, 20, Text.literal("C"), (button ->
+        configMenuButton = this.buildWidget(0, 0, 20, 20, Text.literal("C"), (button ->
         {
             var screen = morphClient.getFactory(this).build();
 
@@ -75,6 +74,15 @@ public class DisguiseScreen extends Screen
         }));
 
         selfVisibleToggle = new ToggleSelfButton(0, 0, 20, 20, morphClient.selfVisibleToggled.get(), this);
+    }
+
+    private ButtonWidget buildWidget(int x, int y, int width, int height, Text text, ButtonWidget.PressAction action)
+    {
+        var builder = ButtonWidget.builder(text, action);
+
+        builder.dimensions(x, y, width, height);
+
+        return builder.build();
     }
 
     private final Bindable<String> selectedIdentifier = new Bindable<>();
@@ -161,15 +169,18 @@ public class DisguiseScreen extends Screen
             var baseX = this.width - closeButton.getWidth() - 20;
 
             this.addDrawableChild(closeButton);
-            closeButton.x = baseX;
+            closeButton.setX(baseX);
 
             this.addDrawableChild(selfVisibleToggle);
-            selfVisibleToggle.x = baseX - selfVisibleToggle.getWidth() - 5;
+            selfVisibleToggle.setX(baseX - selfVisibleToggle.getWidth() - 5);
 
             this.addDrawableChild(configMenuButton);
-            configMenuButton.x = baseX - selfVisibleToggle.getWidth() - 5 - configMenuButton.getWidth() - 5;
+            configMenuButton.setX(baseX - selfVisibleToggle.getWidth() - 5 - configMenuButton.getWidth() - 5);
 
-            selfVisibleToggle.y = closeButton.y = configMenuButton.y = this.height - 25;
+            var bottomY = this.height - 25;
+            selfVisibleToggle.setY(bottomY);
+            closeButton.setY(bottomY);
+            configMenuButton.setY(bottomY);
         }
         else
         {
@@ -178,7 +189,7 @@ public class DisguiseScreen extends Screen
             notReadyText.setScreenY(this.height / 2);
             notReadyText.setScreenX(this.width / 2 - 32);
 
-            this.addDrawableChild(new ButtonWidget(this.width / 2 - 75, this.height - 29, 150, 20, Text.literal("关闭"), (button) ->
+            this.addDrawableChild(this.buildWidget(this.width / 2 - 75, this.height - 29, 150, 20, Text.literal("关闭"), (button) ->
             {
                 this.close();
             }));
