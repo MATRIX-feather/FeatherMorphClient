@@ -131,7 +131,7 @@ public class PlayerRenderHelper
         ModelPart leftPart = null;
         ModelPart rightPart = null;
         Vec3d offset = Vec3dUtils.of(0);
-        Vec3d scale = new Vec3d(0, 0, 0);
+        Vec3d scale = Vec3dUtils.ONE();
 
         if (model != null)
         {
