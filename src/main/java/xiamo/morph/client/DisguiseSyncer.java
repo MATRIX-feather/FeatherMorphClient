@@ -96,7 +96,7 @@ public class DisguiseSyncer
             var clientPlayer = MinecraftClient.getInstance().player;
             assert clientPlayer != null;
 
-            if (entity != null && MorphClient.getInstance().selfVisibleToggled.get())
+            if (entity != null)
                 sync(entity, clientPlayer);
         }
         catch (Exception e)
@@ -113,8 +113,7 @@ public class DisguiseSyncer
 
         try
         {
-            if (MorphClient.getInstance().selfVisibleToggled.get())
-                syncDraw(entity, clientPlayer);
+            syncDraw(entity, clientPlayer);
         }
         catch (Exception e)
         {
