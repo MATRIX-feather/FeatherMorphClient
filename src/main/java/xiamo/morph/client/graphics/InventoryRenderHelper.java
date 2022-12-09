@@ -37,7 +37,7 @@ public class InventoryRenderHelper
         if (!allowRender) return;
         var modConfig = MorphClient.getInstance().getModConfigData();
 
-        if (entity != null && modConfig.clientViewVisible())
+        if (entity != null && (modConfig.clientViewVisible() || modConfig.alwaysShowPreviewInInventory))
         {
             try
             {
