@@ -20,6 +20,7 @@ import xiamo.morph.client.EntityCache;
 import xiamo.morph.client.MorphClient;
 import xiamo.morph.client.bindables.Bindable;
 import xiamo.morph.client.MorphLocalPlayer;
+import xiamo.morph.client.graphics.InventoryRenderHelper;
 
 import java.util.List;
 import java.util.UUID;
@@ -29,7 +30,6 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget>
     private TextWidget field;
 
     private String identifier = "???";
-    private String name = "???";
 
     public String getIdentifier()
     {
@@ -188,6 +188,8 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget>
 
         private final static TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 
+        private final InventoryRenderHelper inventoryRenderHelper = InventoryRenderHelper.getInstance();
+
         @Override
         public void render(MatrixStack matrices, int mouseX, int mouseY, float delta)
         {
@@ -227,7 +229,10 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget>
                         mY = y -mouseY;
                     }
 
-                    InventoryScreen.drawEntity(x, y, entitySize, mX, mY, entity);
+                    if (entity == MinecraftClient.getInstance().player)
+                        inventoryRenderHelper.onRenderCall(x, y, entitySize, mX, mY);
+                    else
+                        InventoryScreen.drawEntity(x, y, entitySize, mX, mY, entity);
                 }
             }
             catch (Exception e)

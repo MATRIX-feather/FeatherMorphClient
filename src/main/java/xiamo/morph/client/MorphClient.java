@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xiamo.morph.client.bindables.Bindable;
 import xiamo.morph.client.config.ModConfigData;
+import xiamo.morph.client.graphics.InventoryRenderHelper;
 import xiamo.morph.client.graphics.ModelWorkarounds;
 import xiamo.morph.client.screens.disguise.DisguiseScreen;
 

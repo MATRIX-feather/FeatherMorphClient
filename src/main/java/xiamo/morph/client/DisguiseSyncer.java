@@ -167,9 +167,6 @@ public class DisguiseSyncer
     {
         if (entity == null || clientPlayer == null) return;
 
-        entity.headYaw = clientPlayer.headYaw;
-        entity.prevHeadYaw = clientPlayer.prevHeadYaw;
-
         //幻翼的pitch需要倒转
         if (entity.getType().equals(EntityType.PHANTOM))
             entity.setPitch(-clientPlayer.getPitch());
@@ -196,6 +193,9 @@ public class DisguiseSyncer
             entity.setSleepingPosition(sleepPos);
         else
             entity.clearSleepingPosition();
+
+        entity.headYaw = clientPlayer.headYaw;
+        entity.prevHeadYaw = clientPlayer.prevHeadYaw;
 
         entity.handSwinging = clientPlayer.handSwinging;
         entity.handSwingProgress = clientPlayer.handSwingProgress;

@@ -10,6 +10,15 @@ import static net.minecraft.client.gui.screen.ingame.InventoryScreen.drawEntity;
 
 public class InventoryRenderHelper
 {
+    private static InventoryRenderHelper instance;
+
+    public static InventoryRenderHelper getInstance()
+    {
+        if (instance == null) instance = new InventoryRenderHelper();
+
+        return instance;
+    }
+
     public InventoryRenderHelper()
     {
         DisguiseSyncer.currentEntity.onValueChanged((o, n) ->
@@ -28,8 +37,7 @@ public class InventoryRenderHelper
         if (!allowRender) return;
         var modConfig = MorphClient.getInstance().getModConfigData();
 
-        if (entity != null
-                && (modConfig.alwaysShowPreviewInInventory || modConfig.clientViewVisible()))
+        if (entity != null && modConfig.clientViewVisible())
         {
             try
             {
