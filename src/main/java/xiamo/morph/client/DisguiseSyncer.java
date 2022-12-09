@@ -3,14 +3,13 @@ package xiamo.morph.client;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.*;
+import net.minecraft.entity.passive.CamelEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.slf4j.LoggerFactory;
 import xiamo.morph.client.bindables.Bindable;
@@ -175,6 +174,8 @@ public class DisguiseSyncer
         entity.prevPitch = clientPlayer.prevPitch;
     }
 
+    private Vec3d lastPosition = new Vec3d(0, 0, 0);
+
     private void sync(LivingEntity entity, PlayerEntity clientPlayer)
     {
         var playerPos = clientPlayer.getPos();
@@ -184,6 +185,21 @@ public class DisguiseSyncer
         {
             //entity.age++;
             entity.tick();
+        }
+
+        if (entity instanceof CamelEntity camelEntity)
+        {
+            var playerHasVehicle = clientPlayer.hasVehicle();
+            var playerStanding = Vec3dUtils.horizontalSquaredDistance(lastPosition, clientPlayer.getPos()) == 0d;
+
+            if (!playerStanding)
+                lastPosition = clientPlayer.getPos();
+
+            camelEntity.dashingAnimationState.setRunning(clientPlayer.isSprinting(), camelEntity.age);
+            camelEntity.sittingAnimationState.setRunning(playerHasVehicle, camelEntity.age);
+
+            camelEntity.walkingAnimationState.setRunning(!playerHasVehicle && !playerStanding, camelEntity.age);
+            camelEntity.idlingAnimationState.setRunning(playerStanding, camelEntity.age);
         }
 
         var sleepPos = clientPlayer.getSleepingPosition().orElse(null);
