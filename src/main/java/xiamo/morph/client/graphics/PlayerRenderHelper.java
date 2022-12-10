@@ -40,6 +40,11 @@ public class PlayerRenderHelper
         }, true);
     }
 
+    public boolean shouldHideLabel(AbstractClientPlayerEntity player)
+    {
+        return (player instanceof MorphLocalPlayer);
+    }
+
     private void onRenderException(Exception exception)
     {
         allowRender = false;

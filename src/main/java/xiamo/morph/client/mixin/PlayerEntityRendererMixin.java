@@ -15,7 +15,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import xiamo.morph.client.MorphLocalPlayer;
 import xiamo.morph.client.graphics.PlayerRenderHelper;
 
 @Mixin(PlayerEntityRenderer.class)
@@ -30,20 +29,18 @@ public abstract class PlayerEntityRendererMixin extends LivingEntityRenderer<Abs
     @Inject(method = "renderLabelIfPresent(Lnet/minecraft/client/network/AbstractClientPlayerEntity;Lnet/minecraft/text/Text;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At("HEAD"), cancellable = true)
     private void onLabelDrawCall(AbstractClientPlayerEntity abstractClientPlayerEntity, Text text, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci)
     {
-        if (abstractClientPlayerEntity instanceof MorphLocalPlayer)
+        if (rendererHelper.shouldHideLabel(abstractClientPlayerEntity))
             ci.cancel();
     }
 
     @Redirect(
-            method = "render",
+            method = "render(Lnet/minecraft/client/network/AbstractClientPlayerEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/LivingEntityRenderer;render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V")
     )
     public void onRenderCall(LivingEntityRenderer<?, ?> renderer, LivingEntity player, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i)
     {
         if (!rendererHelper.onDrawCall(player, f, g, matrixStack, vertexConsumerProvider, i))
-        {
             super.render((AbstractClientPlayerEntity) player, f, g, matrixStack, vertexConsumerProvider, i);
-        }
     }
 
     //[FirstPersonModel](https://github.com/tr7zw/FirstPersonModel) compat
