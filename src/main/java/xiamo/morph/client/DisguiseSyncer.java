@@ -3,7 +3,10 @@ package xiamo.morph.client;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.*;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.CamelEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -53,18 +56,24 @@ public class DisguiseSyncer
             return;
         }
 
-        if (entity != null)
+        var prevEntity = entity;
+        var client = MorphClient.getInstance();
+
+        if (prevEntity != null)
         {
-            entity.equipStack(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
-            entity.equipStack(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
+            prevEntity.equipStack(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+            prevEntity.equipStack(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
 
-            entity.equipStack(EquipmentSlot.HEAD, ItemStack.EMPTY);
-            entity.equipStack(EquipmentSlot.CHEST, ItemStack.EMPTY);
-            entity.equipStack(EquipmentSlot.LEGS, ItemStack.EMPTY);
-            entity.equipStack(EquipmentSlot.FEET, ItemStack.EMPTY);
+            prevEntity.equipStack(EquipmentSlot.HEAD, ItemStack.EMPTY);
+            prevEntity.equipStack(EquipmentSlot.CHEST, ItemStack.EMPTY);
+            prevEntity.equipStack(EquipmentSlot.LEGS, ItemStack.EMPTY);
+            prevEntity.equipStack(EquipmentSlot.FEET, ItemStack.EMPTY);
 
-            entity.setRemoved(Entity.RemovalReason.DISCARDED);
-            entity.onRemoved();
+            client.schedule(c ->
+            {
+                prevEntity.setRemoved(Entity.RemovalReason.DISCARDED);
+                prevEntity.onRemoved();
+            });
         }
 
         entity = EntityCache.getEntity(newIdentifier);
@@ -74,11 +83,11 @@ public class DisguiseSyncer
 
         if (entity != null)
         {
-            clientWorld.addEntity(entity.getId(), entity);
+            client.schedule(c -> clientWorld.addEntity(entity.getId(), entity));
 
             var nbt = MorphClient.currentNbtCompound.get();
             if (nbt != null)
-                MorphClient.getInstance().schedule(c -> mergeNbt(nbt));
+                client.schedule(c -> mergeNbt(nbt));
         }
     }
 
