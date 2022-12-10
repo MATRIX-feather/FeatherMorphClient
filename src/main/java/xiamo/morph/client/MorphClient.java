@@ -120,7 +120,7 @@ public class MorphClient implements ClientModInitializer
 
         resetCacheKeybind = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.morphclient.reset_cache", InputUtil.Type.KEYSYM,
-                GLFW.GLFW_KEY_KP_9, "category.morphclient.keybind"
+                GLFW.GLFW_KEY_UNKNOWN, "category.morphclient.keybind"
         ));
 
         //初始化配置

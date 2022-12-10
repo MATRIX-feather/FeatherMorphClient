@@ -4,6 +4,7 @@
   "key.morphclient.morph": "伪装",
   "key.morphclient.toggle": "切换自身可见",
   "key.morphclient.open_gui": "打开伪装选择界面",
+  "key.morphclient.reset_cache": "（调试）重置缓存",
   "category.morphclient.keybind": "变形",
   "option.morphclient.previewInInventory.name": "总是在背包中显示伪装预览",
   "option.morphclient.previewInInventory.description": "",
