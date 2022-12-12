@@ -139,7 +139,7 @@ public class MorphClient implements ClientModInitializer
         ClientTickEvents.END_CLIENT_TICK.register(this::tick);
         ClientTickEvents.END_WORLD_TICK.register(this::postWorldTick);
 
-        ModelWorkarounds.initWorkarounds();
+        ModelWorkarounds.getInstance().initWorkarounds();
     }
 
     private void postWorldTick(ClientWorld clientWorld)
@@ -219,7 +219,7 @@ public class MorphClient implements ClientModInitializer
 
         if (resetCacheKeybind.wasPressed())
         {
-            ModelWorkarounds.initWorkarounds();
+            ModelWorkarounds.getInstance().initWorkarounds();
         }
     }
 

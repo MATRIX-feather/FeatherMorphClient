@@ -172,7 +172,7 @@ public class PlayerRenderHelper
                 leftPart = this.tryGetChild(model, leftPartNames);
                 rightPart = this.tryGetChild(model, rightPartNames);
 
-                var meta = ModelWorkarounds.apply(type, leftPart, rightPart);
+                var meta = ModelWorkarounds.getInstance().apply(type, leftPart, rightPart);
 
                 offset = meta.offset();
                 scale = meta.scale();
