@@ -7,6 +7,7 @@
   ],
   "client": [
     "ClientPlayerEntityMixin",
+    "CreativeInventoryMixin",
     "EntityMixin",
     "InventoryScreenMixin",
     "PlayerEntityRendererMixin",
