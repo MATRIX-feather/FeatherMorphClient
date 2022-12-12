@@ -187,6 +187,13 @@ public class DisguiseSyncer
 
     private void sync(LivingEntity entity, PlayerEntity clientPlayer)
     {
+        if (entity.isRemoved() || entity.world == null)
+        {
+            LoggerFactory.getLogger("MorphClient").warn("正试图更新一个已被移除的客户端预览实体");
+            this.refreshClientViewEntity(MorphClient.selfViewIdentifier.get());
+            return;
+        }
+
         var playerPos = clientPlayer.getPos();
         entity.setPosition(playerPos.x, playerPos.y - 4096, playerPos.z);
 
