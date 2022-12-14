@@ -357,13 +357,11 @@ public class MorphClient implements ClientModInitializer
     public static final Bindable<Boolean> serverReady = new Bindable<>(false);
     private boolean handshakeReceived;
     private boolean apiVersionChecked;
-    private boolean morphListReceived;
 
     public void resetServerStatus()
     {
         handshakeReceived = false;
         apiVersionChecked = false;
-        morphListReceived = false;
 
         var list = new ObjectArrayList<>(avaliableMorphs);
         this.avaliableMorphs.clear();
@@ -378,7 +376,7 @@ public class MorphClient implements ClientModInitializer
 
     private void updateServerStatus()
     {
-        serverReady.set(handshakeReceived && apiVersionChecked && morphListReceived);
+        serverReady.set(handshakeReceived && apiVersionChecked);
     }
 
     public void initializeClientData()
@@ -440,6 +438,14 @@ public class MorphClient implements ClientModInitializer
 
         ClientPlayNetworking.registerGlobalReceiver(commandChannelIdentifier, (client, handler, buf, responseSender) ->
         {
+            if (!serverReady.get())
+            {
+                if (modConfigData.verbosePackets)
+                    logger.warn("在初始化完成前收到了客户端指令：" + readStringfromByte(buf) + "，将不会执行任何动作");
+
+                return;
+            }
+
             try
             {
                 if (modConfigData.verbosePackets)
@@ -476,13 +482,10 @@ public class MorphClient implements ClientModInitializer
                             }
                             case "set" ->
                             {
-                                invokeRevoke(diff);
+                                invokeRevoke(avaliableMorphs);
 
                                 this.avaliableMorphs.clear();
                                 this.avaliableMorphs.addAll(diff);
-
-                                morphListReceived = true;
-                                updateServerStatus();
 
                                 invokeGrant(diff);
                             }
