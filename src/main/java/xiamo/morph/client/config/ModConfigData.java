@@ -11,6 +11,8 @@ public class ModConfigData implements ConfigData
 
     public boolean allowClientView = true;
 
+    public boolean verbosePackets = false;
+
     public boolean clientViewVisible()
     {
         return MorphClient.getInstance().selfVisibleToggled.get() && allowClientView;

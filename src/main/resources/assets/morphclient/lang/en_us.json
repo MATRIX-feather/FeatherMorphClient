@@ -10,5 +10,7 @@
   "option.morphclient.previewInInventory.description": "",
   "option.morphclient.allowClientView.name": "Display self-view at client side if supported",
   "option.morphclient.allowClientView.description": "",
+  "option.morphclient.verbosePackets.name": "(Debug) Log packets",
+  "option.morphclient.verbosePackets.description": "",
   "title.morphclient.config": "MorphClient Config"
 }

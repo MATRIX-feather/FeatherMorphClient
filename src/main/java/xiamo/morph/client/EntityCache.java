@@ -73,7 +73,7 @@ public class EntityCache
 
         if (living != null) cacheMap.put(identifier, living);
 
-        LoggerFactory.getLogger("morph").info("Pushing " + identifier + " into EntityCache.");
+        //LoggerFactory.getLogger("morph").info("Pushing " + identifier + " into EntityCache.");
 
         return living;
     }

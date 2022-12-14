@@ -292,6 +292,17 @@ public class MorphClient implements ClientModInitializer
                         .build()
         );
 
+        categoryGeneral.addEntry(
+                entryBuilder.startBooleanToggle(Text.translatable("option.morphclient.verbosePackets.name"), modConfigData.verbosePackets)
+                        .setTooltip(Text.translatable("option.morphclient.verbosePackets.description"))
+                        .setDefaultValue(false)
+                        .setSaveConsumer(v ->
+                        {
+                            modConfigData.verbosePackets = v;
+                        })
+                        .build()
+        );
+
         builder.setParentScreen(parent)
                 .setTitle(Text.translatable("title.morphclient.config"))
                 .transparentBackground();
@@ -431,7 +442,8 @@ public class MorphClient implements ClientModInitializer
         {
             try
             {
-                logger.info("收到了客户端指令：" + readStringfromByte(buf));
+                if (modConfigData.verbosePackets)
+                    logger.info("收到了客户端指令：" + readStringfromByte(buf));
 
                 var str = readStringfromByte(buf).split(" ", 3);
 
@@ -524,12 +536,10 @@ public class MorphClient implements ClientModInitializer
 
                                 if (stack == null) return;
 
-                                logger.info("updating equip!");
-
                                 switch (dat[0])
                                 {
                                     case "mainhand" -> equipmentSlotItemStackMap.put(EquipmentSlot.MAINHAND, stack);
-                                    case "offhand" -> equipmentSlotItemStackMap.put(EquipmentSlot.OFFHAND, stack);
+                                    case "off_hand" -> equipmentSlotItemStackMap.put(EquipmentSlot.OFFHAND, stack);
 
                                     case "helmet" -> equipmentSlotItemStackMap.put(EquipmentSlot.HEAD, stack);
                                     case "chestplate" -> equipmentSlotItemStackMap.put(EquipmentSlot.CHEST, stack);

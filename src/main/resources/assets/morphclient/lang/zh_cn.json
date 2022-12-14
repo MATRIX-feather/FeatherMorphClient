@@ -10,5 +10,7 @@
   "option.morphclient.previewInInventory.description": "",
   "option.morphclient.allowClientView.name": "在客户端显示自身可见（如果支持）",
   "option.morphclient.allowClientView.description": "",
+  "option.morphclient.verbosePackets.name": "（调试）记录发包",
+  "option.morphclient.verbosePackets.description": "",
   "title.morphclient.config": "MorphClient设置"
 }
