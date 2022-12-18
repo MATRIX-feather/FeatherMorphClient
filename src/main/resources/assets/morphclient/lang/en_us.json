@@ -12,5 +12,10 @@
   "option.morphclient.allowClientView.description": "",
   "option.morphclient.verbosePackets.name": "(Debug) Log packets",
   "option.morphclient.verbosePackets.description": "",
-  "title.morphclient.config": "MorphClient Config"
+  "title.morphclient.config": "MorphClient Config",
+  "gui.morphclient.select_disguise": "Select disguise",
+  "gui.morphclient.waiting_for_server": "Waiting for server...",
+  "gui.morphclient.version_mismatch": "API version mismatch",
+  "gui.morphclient.current_disguise": "Current disguise: %s",
+  "gui.morphclient.no_disguise": "None"
 }

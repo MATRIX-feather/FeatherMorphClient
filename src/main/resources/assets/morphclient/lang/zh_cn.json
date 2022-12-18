@@ -12,5 +12,10 @@
   "option.morphclient.allowClientView.description": "",
   "option.morphclient.verbosePackets.name": "（调试）记录发包",
   "option.morphclient.verbosePackets.description": "",
-  "title.morphclient.config": "MorphClient设置"
+  "title.morphclient.config": "MorphClient设置",
+  "gui.morphclient.select_disguise": "选择伪装",
+  "gui.morphclient.waiting_for_server": "等待服务器相应...",
+  "gui.morphclient.version_mismatch": "API版本不匹配",
+  "gui.morphclient.current_disguise": "当前伪装: %s",
+  "gui.morphclient.no_disguise": "暂无"
 }

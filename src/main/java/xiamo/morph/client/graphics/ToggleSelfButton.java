@@ -52,7 +52,7 @@ public class ToggleSelfButton extends ButtonWidget
             screen.renderOrderedTooltip(matrices, tooltips, mouseX, mouseY);
     }
 
-    private final List<OrderedText> tooltips = List.of(Text.literal("切换自身可见").asOrderedText());
+    private final List<OrderedText> tooltips = List.of(Text.translatable("key.morphclient.toggle").asOrderedText());
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button)

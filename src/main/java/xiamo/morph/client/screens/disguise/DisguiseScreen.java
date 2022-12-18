@@ -4,8 +4,10 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.EntityType;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import xiamo.morph.client.EntityCache;
 import xiamo.morph.client.MorphClient;
 import xiamo.morph.client.bindables.Bindable;
 import xiamo.morph.client.graphics.DrawableText;
@@ -51,7 +53,22 @@ public class DisguiseScreen extends Screen
         //初始化文本
         MorphClient.currentIdentifier.onValueChanged((o, n) ->
         {
-            selectedIdentifierText.setText("当前伪装：" + (n == null ? "暂无" : n));
+            Text display = null;
+
+            if (n != null)
+            {
+                var cachedEntity = EntityCache.getEntity(n);
+
+                if (cachedEntity != null)
+                    display = cachedEntity.getName();
+                else
+                    display = Text.literal(n);
+            }
+
+            var text = Text.translatable("gui.morphclient.current_disguise",
+                    display == null ? Text.translatable("gui.morphclient.no_disguise") : display);
+
+            selectedIdentifierText.setText(text);
         }, true);
 
         serverAPIText.setText("Client " + morphClient.getClientVersion() + " :: " + "Server " + morphClient.getServerVersion());
@@ -61,7 +78,7 @@ public class DisguiseScreen extends Screen
         titleText.setHeight(20);
 
         //初始化按钮
-        closeButton = this.buildWidget(0, 0, 150, 20, Text.literal("关闭"), (button) ->
+        closeButton = this.buildWidget(0, 0, 150, 20, Text.translatable("gui.back"), (button) ->
         {
             this.close();
         });
@@ -92,11 +109,11 @@ public class DisguiseScreen extends Screen
     private final ToggleSelfButton selfVisibleToggle;
 
     private final IdentifierDrawableList list = new IdentifierDrawableList(client, 200, 0, 20, 0, 22);
-    private final DrawableText titleText = new DrawableText("选择伪装");
+    private final DrawableText titleText = new DrawableText(Text.translatable("gui.morphclient.select_disguise"));
     private final DrawableText selectedIdentifierText = new DrawableText();
     private final DrawableText serverAPIText = new DrawableText();
-    private final DrawableText notReadyText = new DrawableText("等待服务器响应...");
-    private final DrawableText outdatedText = new DrawableText(Text.literal("版本不匹配，可能存在兼容性问题！").formatted(Formatting.BOLD));
+    private final DrawableText notReadyText = new DrawableText(Text.translatable("gui.morphclient.waiting_for_server"));
+    private final DrawableText outdatedText = new DrawableText(Text.translatable("gui.morphclient.version_mismatch").formatted(Formatting.GOLD).formatted(Formatting.BOLD));
 
     private boolean isCurrent()
     {
@@ -189,7 +206,7 @@ public class DisguiseScreen extends Screen
             notReadyText.setScreenY(this.height / 2);
             notReadyText.setScreenX(this.width / 2 - 32);
 
-            this.addDrawableChild(this.buildWidget(this.width / 2 - 75, this.height - 29, 150, 20, Text.literal("关闭"), (button) ->
+            this.addDrawableChild(this.buildWidget(this.width / 2 - 75, this.height - 29, 150, 20, Text.translatable("gui.back"), (button) ->
             {
                 this.close();
             }));
