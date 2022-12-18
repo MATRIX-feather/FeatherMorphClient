@@ -3,6 +3,7 @@ package xiamo.morph.client;
 import com.mojang.authlib.GameProfile;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
@@ -22,6 +23,22 @@ public class EntityCache
     public static boolean containsId(int id)
     {
         return cacheMap.values().stream().filter(l -> l.getId() == id).findFirst().orElse(null) != null;
+    }
+
+    public static void discardEntity(String identifier)
+    {
+        var entity = cacheMap.getOrDefault(identifier, null);
+
+        if (entity != null)
+        {
+            MorphClient.getInstance().schedule(() ->
+            {
+                entity.discard();
+                entity.onRemoved();
+            });
+
+            cacheMap.remove(identifier);
+        }
     }
 
     @Nullable

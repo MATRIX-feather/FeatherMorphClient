@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 
 public class ScheduleInfo
 {
-    public final Consumer<?> Function;
+    public final Runnable Function;
     public final int Delay;
     public final long TickScheduled;
     public final boolean isAsync;
@@ -21,7 +21,7 @@ public class ScheduleInfo
         return isCanceled;
     }
 
-    public ScheduleInfo(Consumer<?> function, int delay, long tickScheduled, boolean isAsync)
+    public ScheduleInfo(Runnable function, int delay, long tickScheduled, boolean isAsync)
     {
         this.Function = function;
         this.Delay = delay;

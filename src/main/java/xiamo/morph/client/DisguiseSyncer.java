@@ -1,5 +1,6 @@
 package xiamo.morph.client;
 
+import com.mojang.authlib.GameProfile;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.MinecraftClient;
@@ -22,17 +23,21 @@ public class DisguiseSyncer
 {
     public DisguiseSyncer()
     {
-        MorphClient.selfViewIdentifier.onValueChanged((o, n) -> this.refreshClientViewEntity(n));
+        MorphClient.selfViewIdentifier.onValueChanged(this::refreshClientViewEntity);
 
         MorphClient.currentNbtCompound.onValueChanged((o, n) ->
         {
-            if (n != null) MorphClient.getInstance().schedule(c -> this.mergeNbt(n));
+            if (n != null) MorphClient.getInstance().schedule(() -> this.mergeNbt(n));
         });
 
         ClientTickEvents.END_WORLD_TICK.register((w) ->
         {
             if (w != prevWorld && MorphClient.serverReady.get() && prevWorld != null)
-                refreshClientViewEntity(MorphClient.selfViewIdentifier.get());
+            {
+                var id = MorphClient.selfViewIdentifier.get();
+
+                refreshClientViewEntity(id, id);
+            }
 
             prevWorld = w;
         });
@@ -43,11 +48,20 @@ public class DisguiseSyncer
         });
     }
 
+    public void updateSkin(GameProfile profile)
+    {
+        if (this.entity instanceof MorphLocalPlayer localPlayer)
+            localPlayer.updateSkin(profile);
+        else
+            LoggerFactory.getLogger("MorphClient")
+                    .warn("Received a GameProfile while current disguise is not a player! : " + profile);
+    }
+
     public static Bindable<LivingEntity> currentEntity = new Bindable<>();
 
     private World prevWorld;
 
-    private void refreshClientViewEntity(String newIdentifier)
+    private void refreshClientViewEntity(String prevIdentifier, String newIdentifier)
     {
         var clientWorld = MinecraftClient.getInstance().world;
         if (clientWorld == null)
@@ -69,11 +83,7 @@ public class DisguiseSyncer
             prevEntity.equipStack(EquipmentSlot.LEGS, ItemStack.EMPTY);
             prevEntity.equipStack(EquipmentSlot.FEET, ItemStack.EMPTY);
 
-            client.schedule(c ->
-            {
-                prevEntity.setRemoved(Entity.RemovalReason.DISCARDED);
-                prevEntity.onRemoved();
-            });
+            EntityCache.discardEntity(prevIdentifier);
         }
 
         entity = EntityCache.getEntity(newIdentifier);
@@ -83,11 +93,11 @@ public class DisguiseSyncer
 
         if (entity != null)
         {
-            client.schedule(c -> clientWorld.addEntity(entity.getId(), entity));
+            client.schedule(() -> clientWorld.addEntity(entity.getId(), entity));
 
             var nbt = MorphClient.currentNbtCompound.get();
             if (nbt != null)
-                client.schedule(c -> mergeNbt(nbt));
+                client.schedule(() -> mergeNbt(nbt));
         }
     }
 
@@ -190,7 +200,9 @@ public class DisguiseSyncer
         if (entity.isRemoved() || entity.world == null)
         {
             LoggerFactory.getLogger("MorphClient").warn("正试图更新一个已被移除的客户端预览实体");
-            this.refreshClientViewEntity(MorphClient.selfViewIdentifier.get());
+
+            var id = MorphClient.selfViewIdentifier.get();
+            this.refreshClientViewEntity(id, id);
             return;
         }
 

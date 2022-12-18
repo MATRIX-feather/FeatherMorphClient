@@ -317,7 +317,7 @@ public class MorphClient implements ClientModInitializer
     //region Network
 
     private int serverVersion = -1;
-    private final int clientVersion = 1;
+    private final int clientVersion = 2;
 
     public int getServerVersion()
     {
@@ -566,12 +566,7 @@ public class MorphClient implements ClientModInitializer
                                 var profile = NbtHelper.toGameProfile(nbt);
 
                                 if (profile != null)
-                                {
-                                    if (DISGUISE_SYNCER.entity instanceof MorphLocalPlayer disguise)
-                                        this.schedule(c -> disguise.updateSkin(profile));
-                                    else
-                                        logger.warn("Received a GameProfile while current disguise is not a player! : " + profile);
-                                }
+                                    this.schedule(() -> DISGUISE_SYNCER.updateSkin(profile));
                             }
                             case "sneaking" ->
                             {
@@ -683,7 +678,7 @@ public class MorphClient implements ClientModInitializer
     {
         try
         {
-            c.Function.accept(null);
+            c.Function.run();
         }
         catch (Exception e)
         {
@@ -722,7 +717,7 @@ public class MorphClient implements ClientModInitializer
     {
         exceptionCaught -= 1;
 
-        this.schedule(c -> processExceptionCount(), 5);
+        this.schedule(this::processExceptionCount, 5);
     }
 
     //endregion tick异常捕捉与处理
@@ -733,17 +728,17 @@ public class MorphClient implements ClientModInitializer
 
     private final List<ScheduleInfo> schedules = new ObjectArrayList<>();
 
-    public ScheduleInfo schedule(Consumer<?> runnable)
+    public ScheduleInfo schedule(Runnable runnable)
     {
         return this.schedule(runnable, 1);
     }
 
-    public ScheduleInfo schedule(Consumer<?> function, int delay)
+    public ScheduleInfo schedule(Runnable function, int delay)
     {
         return this.schedule(function, delay, false);
     }
 
-    public ScheduleInfo schedule(Consumer<?> function, int delay, boolean async)
+    public ScheduleInfo schedule(Runnable function, int delay, boolean async)
     {
         var si = new ScheduleInfo(function, delay, currentTick, async);
 
