@@ -22,7 +22,20 @@ public class EntityCache
 
     public static boolean containsId(int id)
     {
-        return cacheMap.values().stream().filter(l -> l.getId() == id).findFirst().orElse(null) != null;
+        try
+        {
+            //照理说values里不该出现null值，但这确实发生了
+            return cacheMap.values().stream().filter(l -> l.getId() == id).findFirst().orElse(null) != null;
+        }
+        catch (Exception e)
+        {
+            LoggerFactory.getLogger("MorphClient").error("Error checking cache: " + e.getMessage());
+            e.printStackTrace();
+
+            cacheMap.remove(null);
+
+            return false;
+        }
     }
 
     public static void discardEntity(String identifier)
