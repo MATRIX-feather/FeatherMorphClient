@@ -2,6 +2,7 @@ package xiamo.morph.client.graphics;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.model.Model;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.OverlayTexture;
@@ -118,6 +119,8 @@ public class PlayerRenderHelper
 
     public ModelInfo tryGetModel(EntityType<?> type, EntityModel<?> sourceModel)
     {
+        if (sourceModel == null) return new ModelInfo(null, null, Vec3dUtils.of(0), Vec3dUtils.of(1));
+
         var map = typeModelPartMap.getOrDefault(type, null);
 
         if (map != null)
@@ -223,12 +226,15 @@ public class PlayerRenderHelper
             RenderLayer layer = null;
             EntityModel model = null;
 
+/*
             if (disguiseRenderer instanceof EnderDragonEntityRenderer enderDragonEntityRenderer)
             {
                 model = ((DragonEntityRendererAccessor) enderDragonEntityRenderer).getModel();
                 layer = dragonLayer;
             }
-            else if (disguiseRenderer instanceof LivingEntityRenderer livingEntityRenderer)
+*/
+
+            if (disguiseRenderer instanceof LivingEntityRenderer livingEntityRenderer)
             {
                 model = livingEntityRenderer.getModel();
 

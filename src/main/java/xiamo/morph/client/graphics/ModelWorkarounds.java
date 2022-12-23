@@ -94,6 +94,7 @@ public class ModelWorkarounds
 
         addWorkaround(EntityType.CAMEL, (l, r) -> WorkaroundMeta.of(new Vec3d(0, -0.6, 0.7), Vec3dUtils.ONE()));
 
+/*
         addWorkaround(EntityType.ENDER_DRAGON, (l, r) ->
         {
             //0.55f
@@ -102,6 +103,7 @@ public class ModelWorkarounds
 
             return new WorkaroundMeta(Vec3dUtils.of(0, -3.2, 0), Vec3dUtils.of(.6));
         });
+*/
     }
 
     private WorkaroundMeta defaultMeta()
