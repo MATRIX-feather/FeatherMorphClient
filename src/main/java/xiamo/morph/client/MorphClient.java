@@ -211,7 +211,13 @@ public class MorphClient implements ClientModInitializer
 
         if (morphKeyBind.wasPressed())
         {
-            if (client.currentScreen == null)
+            var player = client.player;
+
+            if (player != null && player.input != null && player.input.sneaking)
+            {
+                sendCommand("morph");
+            }
+            else if (client.currentScreen == null)
             {
                 client.setScreen(new DisguiseScreen());
             }
