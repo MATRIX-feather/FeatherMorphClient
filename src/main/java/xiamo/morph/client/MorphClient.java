@@ -444,7 +444,9 @@ public class MorphClient implements ClientModInitializer
 
         ClientPlayNetworking.registerGlobalReceiver(commandChannelIdentifier, (client, handler, buf, responseSender) ->
         {
-            if (!serverReady.get())
+            var str = readStringfromByte(buf).split(" ", 3);
+
+            if (!serverReady.get() && (str.length != 1 || !str[0].equals("reauth")))
             {
                 if (modConfigData.verbosePackets)
                     logger.warn("在初始化完成前收到了客户端指令：" + readStringfromByte(buf) + "，将不会执行任何动作");
@@ -456,8 +458,6 @@ public class MorphClient implements ClientModInitializer
             {
                 if (modConfigData.verbosePackets)
                     logger.info("收到了客户端指令：" + readStringfromByte(buf));
-
-                var str = readStringfromByte(buf).split(" ", 3);
 
                 if (str.length < 1) return;
 
