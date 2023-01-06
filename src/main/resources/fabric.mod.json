@@ -15,13 +15,13 @@
   "environment": "client",
   "entrypoints": {
     "client": [
-      "xiamo.morph.client.MorphClient"
+      "xiamomc.morph.client.MorphClient"
     ],
     "main": [
-      "xiamo.morph.client.ClientMain"
+      "xiamomc.morph.client.ClientMain"
     ],
     "modmenu":[
-      "xiamo.morph.client.ModMenuApiImpl"
+      "xiamomc.morph.client.ModMenuApiImpl"
     ]
   },
   "mixins": [

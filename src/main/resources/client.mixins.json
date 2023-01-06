@@ -6,16 +6,16 @@
   "mixins": [
   ],
   "client": [
-    "ClientPlayerEntityMixin",
-    "CreativeInventoryMixin",
-    "EntityMixin",
-    "InventoryScreenMixin",
-    "PlayerEntityRendererMixin",
-    "accessors.ArmorStandEntityAccessor",
-    "accessors.DragonEntityRendererAccessor",
-    "accessors.EntityAccessor",
-    "accessors.LivingRendererAccessor",
-    "accessors.UtilAccessor"
+    "xiamomc.morph.client.mixin.ClientPlayerEntityMixin",
+    "xiamomc.morph.client.mixin.CreativeInventoryMixin",
+    "xiamomc.morph.client.mixin.EntityMixin",
+    "xiamomc.morph.client.mixin.InventoryScreenMixin",
+    "xiamomc.morph.client.mixin.PlayerEntityRendererMixin",
+    "xiamomc.morph.client.mixin.accessors.ArmorStandEntityAccessor",
+    "xiamomc.morph.client.mixin.accessors.DragonEntityRendererAccessor",
+    "xiamomc.morph.client.mixin.accessors.EntityAccessor",
+    "xiamomc.morph.client.mixin.accessors.LivingRendererAccessor",
+    "xiamomc.morph.client.mixin.accessors.UtilAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
