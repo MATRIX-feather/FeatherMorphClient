@@ -12,9 +12,12 @@ import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ElementListWidget;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.MagmaCubeEntity;
+import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
 import xiamo.morph.client.EntityCache;
 import xiamo.morph.client.MorphClient;
@@ -22,10 +25,11 @@ import xiamo.morph.client.bindables.Bindable;
 import xiamo.morph.client.MorphLocalPlayer;
 import xiamo.morph.client.graphics.InventoryRenderHelper;
 
+import java.rmi.registry.Registry;
 import java.util.List;
 import java.util.UUID;
 
-public class StringWidget extends ElementListWidget.Entry<StringWidget>
+public class StringWidget extends ElementListWidget.Entry<StringWidget> implements Comparable<StringWidget>
 {
     private TextWidget field;
 
@@ -71,6 +75,12 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget>
         field.screenSpaceY = y;
         field.screenSpaceX = x;
         field.render(matrices, mouseX, mouseY, tickDelta);
+    }
+
+    @Override
+    public int compareTo(@NotNull StringWidget stringWidget)
+    {
+        return identifier.compareTo(stringWidget.identifier);
     }
 
     private static class TextWidget implements Selectable, Drawable, Element
@@ -159,31 +169,51 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget>
                 this.entity = living;
                 this.display = entity.getDisplayName();
 
-                switch (identifier)
-                {
-                    case "minecraft:ender_dragon" -> entitySize = 2;
-                    case "minecraft:squid" ->
-                    {
-                        entitySize = 10;
-                        entityYOffset = -6;
-                    }
-                    case "minecraft:magma_cube" ->
-                    {
-                        ((MagmaCubeEntity) living).setSize(4, false);
-                        entitySize = 8;
-                    }
-                    default ->
-                    {
-                        entitySize = (int) (15 / Math.max(entity.getHeight(), entity.getWidth()));
-                        entitySize = Math.max(1, entitySize);
-                    }
-                }
+                entitySize = getEntitySize(entity);
+                entityYOffset = getEntityYOffset(entity);
+
+                if (entity.getType() == EntityType.MAGMA_CUBE)
+                    ((MagmaCubeEntity) living).setSize(4, false);
             }
             catch (Exception e)
             {
                 LoggerFactory.getLogger("morph").error(e.getMessage());
                 e.printStackTrace();
             }
+        }
+
+        private int getEntityYOffset(LivingEntity entity)
+        {
+            var type = Registries.ENTITY_TYPE.getId(entity.getType());
+
+            return switch (type.toString())
+                    {
+                        case "minecraft:squid", "minecraft:glow_squid" -> -6;
+                        default -> 0;
+                    };
+        }
+
+        private int getEntitySize(LivingEntity entity)
+        {
+            var type = Registries.ENTITY_TYPE.getId(entity.getType());
+
+            return switch (type.toString())
+                    {
+                        case "minecraft:ender_dragon" -> 2;
+                        case "minecraft:squid", "minecraft:glow_squid" -> 10;
+                        case "minecraft:magma_cube" ->
+                        {
+                            ((MagmaCubeEntity) entity).setSize(4, false);
+                            yield 8;
+                        }
+                        default ->
+                        {
+                            var size = (int) (15 / Math.max(entity.getHeight(), entity.getWidth()));
+                            size = Math.max(1, size);
+
+                            yield size;
+                        }
+                    };
         }
 
         private final static TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
@@ -222,6 +252,9 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget>
                     var y = screenSpaceY + height - 2 + entityYOffset;
                     var mX = 30;
                     var mY = 0;
+
+                    if (focusType == FocusType.CURRENT || entity == MinecraftClient.getInstance().player)
+                        entitySize = this.getEntitySize(entity);
 
                     if (focusType != FocusType.NONE)
                     {
