@@ -20,7 +20,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
-import xiamo.morph.client.*;
 import xiamomc.morph.client.MorphLocalPlayer;
 import xiamomc.morph.client.mixin.accessors.LivingRendererAccessor;
 import xiamomc.morph.client.DisguiseSyncer;

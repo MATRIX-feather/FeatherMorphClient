@@ -318,7 +318,7 @@ public class MorphClient implements ClientModInitializer
     //region Network
 
     private int serverVersion = -1;
-    private final int clientVersion = 2;
+    private final int clientVersion = 3;
 
     public int getServerVersion()
     {
@@ -415,7 +415,7 @@ public class MorphClient implements ClientModInitializer
             handshakeReceived = true;
             updateServerStatus();
 
-            ClientPlayNetworking.send(versionChannelIdentifier, PacketByteBufs.create());
+            ClientPlayNetworking.send(versionChannelIdentifier, fromString("" + clientVersion));
             sendCommand("initial");
             sendCommand("option clientview " + modConfigData.allowClientView);
         });
@@ -460,6 +460,12 @@ public class MorphClient implements ClientModInitializer
 
                 switch (baseName)
                 {
+                    case "swap" ->
+                    {
+                        var mainHand = equipmentSlotItemStackMap.get(EquipmentSlot.MAINHAND);
+                        equipmentSlotItemStackMap.put(EquipmentSlot.MAINHAND, equipmentSlotItemStackMap.get(EquipmentSlot.OFFHAND));
+                        equipmentSlotItemStackMap.put(EquipmentSlot.OFFHAND, mainHand);
+                    }
                     case "query" ->
                     {
                         if (str.length < 2) return;
