@@ -294,6 +294,20 @@ public class MorphClient implements ClientModInitializer
         );
 
         categoryGeneral.addEntry(
+                entryBuilder.startBooleanToggle(Text.translatable("option.morphclient.displayDisguiseOnHud.name"), modConfigData.displayDisguiseOnHud)
+                        .setTooltip(Text.translatable("option.morphclient.displayDisguiseOnHud.description"))
+                        .setDefaultValue(true)
+                        .setSaveConsumer(v ->
+                        {
+                            modConfigData.displayDisguiseOnHud = v;
+
+                            if (serverReady.get())
+                                sendCommand("option actionbar " + v);
+                        })
+                        .build()
+        );
+
+        categoryGeneral.addEntry(
                 entryBuilder.startBooleanToggle(Text.translatable("option.morphclient.verbosePackets.name"), modConfigData.verbosePackets)
                         .setTooltip(Text.translatable("option.morphclient.verbosePackets.description"))
                         .setDefaultValue(false)
@@ -418,6 +432,7 @@ public class MorphClient implements ClientModInitializer
             ClientPlayNetworking.send(versionChannelIdentifier, fromString("" + clientVersion));
             sendCommand("initial");
             sendCommand("option clientview " + modConfigData.allowClientView);
+            sendCommand("option hud " + modConfigData.displayDisguiseOnHud);
         });
 
         ClientPlayNetworking.registerGlobalReceiver(versionChannelIdentifier, (client, handler, buf, responseSender) ->
