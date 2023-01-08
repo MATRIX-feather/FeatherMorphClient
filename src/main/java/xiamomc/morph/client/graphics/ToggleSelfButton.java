@@ -7,7 +7,7 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
 import xiamomc.morph.client.MorphClient;
-import xiamomc.morph.client.bindables.Bindable;
+import xiamomc.pluginbase.Bindables.Bindable;
 import xiamomc.morph.client.screens.disguise.DisguiseScreen;
 
 import java.util.List;

@@ -16,16 +16,21 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.slf4j.LoggerFactory;
-import xiamomc.morph.client.bindables.Bindable;
+import xiamomc.pluginbase.Annotations.Initializer;
+import xiamomc.pluginbase.Annotations.Resolved;
+import xiamomc.pluginbase.Bindables.Bindable;
 import xiamomc.morph.client.mixin.accessors.EntityAccessor;
 
-public class DisguiseSyncer
+public class DisguiseSyncer extends MorphClientObject
 {
-    public DisguiseSyncer()
+    @Resolved
+    private ClientMorphManager morphManager;
+
+    @Initializer
+    private void load(ServerHandler serverHandler)
     {
-        var selfViewIdentifier = ClientMorphManager.selfViewIdentifier;
-        var currentNbtCompound = ClientMorphManager.currentNbtCompound;
-        var serverHandler = MorphClient.getInstance().serverHandler;
+        var selfViewIdentifier = morphManager.selfViewIdentifier;
+        var currentNbtCompound = morphManager.currentNbtCompound;
 
         selfViewIdentifier.onValueChanged(this::refreshClientViewEntity);
 
@@ -38,7 +43,7 @@ public class DisguiseSyncer
         {
             if (w != prevWorld && serverHandler.serverReady() && prevWorld != null)
             {
-                var id = ClientMorphManager.selfViewIdentifier.get();
+                var id = morphManager.selfViewIdentifier.get();
 
                 refreshClientViewEntity(id, id);
             }
@@ -99,7 +104,7 @@ public class DisguiseSyncer
         {
             client.schedule(() -> clientWorld.addEntity(entity.getId(), entity));
 
-            var nbt = ClientMorphManager.currentNbtCompound.get();
+            var nbt = morphManager.currentNbtCompound.get();
             if (nbt != null)
                 client.schedule(() -> mergeNbt(nbt));
         }
@@ -167,7 +172,7 @@ public class DisguiseSyncer
         assert clientPlayer != null;
 
         MorphClient.getInstance().updateClientView(true, false);
-        ClientMorphManager.selfViewIdentifier.set(null);
+        morphManager.selfViewIdentifier.set(null);
 
         clientPlayer.sendMessage(Text.literal("更新当前实体时出现错误。"));
         clientPlayer.sendMessage(Text.literal("在当前伪装变更前客户端预览将被禁用以避免游戏崩溃。"));
@@ -205,7 +210,7 @@ public class DisguiseSyncer
         {
             LoggerFactory.getLogger("MorphClient").warn("正试图更新一个已被移除的客户端预览实体");
 
-            var id = ClientMorphManager.selfViewIdentifier.get();
+            var id = morphManager.selfViewIdentifier.get();
             this.refreshClientViewEntity(id, id);
             return;
         }
@@ -283,7 +288,7 @@ public class DisguiseSyncer
         ((EntityAccessor) entity).setTouchingWater(clientPlayer.isTouchingWater());
 
         //同步装备
-        if (!ClientMorphManager.equipOverriden.get())
+        if (!morphManager.equipOverriden.get())
         {
             entity.equipStack(EquipmentSlot.MAINHAND, clientPlayer.getEquippedStack(EquipmentSlot.MAINHAND));
             entity.equipStack(EquipmentSlot.OFFHAND, clientPlayer.getEquippedStack(EquipmentSlot.OFFHAND));

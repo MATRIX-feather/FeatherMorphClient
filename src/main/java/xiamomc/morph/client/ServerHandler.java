@@ -14,8 +14,8 @@ import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import xiamomc.morph.client.bindables.Bindable;
+import xiamomc.pluginbase.Annotations.Resolved;
+import xiamomc.pluginbase.Bindables.Bindable;
 import xiamomc.morph.client.config.ModConfigData;
 import xiamomc.morph.network.commands.C2S.AbstractC2SCommand;
 import xiamomc.morph.network.commands.C2S.C2SInitialCommand;
@@ -23,18 +23,13 @@ import xiamomc.morph.network.commands.C2S.C2SOptionCommand;
 
 import java.nio.charset.StandardCharsets;
 
-public class ServerHandler
+public class ServerHandler extends MorphClientObject
 {
     private final MorphClient client;
 
     public ServerHandler(MorphClient client)
     {
         this.client = client;
-
-        this.morphManager = client.morphManager;
-        this.logger = MorphClient.LOGGER;
-
-        this.config = client.getModConfigData();
     }
 
     //region Common
@@ -45,13 +40,14 @@ public class ServerHandler
     public static Identifier versionChannelIdentifier = new Identifier(morphNameSpace, "version");
     public static Identifier commandChannelIdentifier = new Identifier(morphNameSpace, "commands");
 
-    private final ClientMorphManager morphManager;
-    private final DisguiseSyncer syncer()
-    {
-        return MorphClient.DISGUISE_SYNCER;
-    }
-    private final ModConfigData config;
-    private final Logger logger;
+    @Resolved
+    private ClientMorphManager morphManager;
+
+    @Resolved
+    private DisguiseSyncer syncer;
+
+    @Resolved
+    private ModConfigData config;
 
     //endregion
 
@@ -103,7 +99,7 @@ public class ServerHandler
         ClientPlayNetworking.send(commandChannelIdentifier, fromString(cmd));
     }
 
-    public static final Bindable<Boolean> serverReady = new Bindable<>(false);
+    public final Bindable<Boolean> serverReady = new Bindable<>(false);
     private boolean handshakeReceived;
     private boolean apiVersionChecked;
 
@@ -257,7 +253,7 @@ public class ServerHandler
 
                                 var identifier = str[2];
 
-                                ClientMorphManager.selfViewIdentifier.set(identifier);
+                                morphManager.selfViewIdentifier.set(identifier);
                             }
                             case "fake_equip" ->
                             {
@@ -265,7 +261,7 @@ public class ServerHandler
 
                                 var value = Boolean.valueOf(str[2]);
 
-                                ClientMorphManager.equipOverriden.set(value);
+                                morphManager.equipOverriden.set(value);
                             }
                             case "equip" ->
                             {
@@ -299,7 +295,7 @@ public class ServerHandler
 
                                 var nbt = StringNbtReader.parse(str[2].replace("\\u003d", "="));
 
-                                ClientMorphManager.currentNbtCompound.set(nbt);
+                                morphManager.currentNbtCompound.set(nbt);
                             }
                             case "profile" ->
                             {
@@ -309,7 +305,7 @@ public class ServerHandler
                                 var profile = NbtHelper.toGameProfile(nbt);
 
                                 if (profile != null)
-                                    this.client.schedule(() -> syncer().updateSkin(profile));
+                                    this.client.schedule(() -> syncer.updateSkin(profile));
                             }
                             case "sneaking" ->
                             {
@@ -340,8 +336,8 @@ public class ServerHandler
 
                         if (subCmdName.equals("morph"))
                         {
-                            ClientMorphManager.selectedIdentifier.triggerChange();
-                            ClientMorphManager.currentIdentifier.triggerChange();
+                            morphManager.selectedIdentifier.triggerChange();
+                            morphManager.currentIdentifier.triggerChange();
                         }
                         else
                             logger.warn("未知的Deny指令：" + subCmdName);

@@ -10,7 +10,7 @@ import xiamomc.morph.client.ClientMorphManager;
 import xiamomc.morph.client.EntityCache;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.ServerHandler;
-import xiamomc.morph.client.bindables.Bindable;
+import xiamomc.pluginbase.Bindables.Bindable;
 import xiamomc.morph.client.graphics.DrawableText;
 import xiamomc.morph.client.graphics.ToggleSelfButton;
 
@@ -22,8 +22,8 @@ public class DisguiseScreen extends Screen
 
         var morphClient = MorphClient.getInstance();
 
-        var manager = morphClient.morphManager;
-        var serverHandler = morphClient.serverHandler;
+        this.serverHandler = morphClient.serverHandler;
+        this.manager = morphClient.morphManager;
 
         manager.onMorphGrant(c ->
         {
@@ -47,16 +47,16 @@ public class DisguiseScreen extends Screen
 
         manager.getAvailableMorphs().forEach(s -> list.children().add(new StringWidget(s)));
 
-        selectedIdentifier.bindTo(ClientMorphManager.selectedIdentifier);
-        selectedIdentifier.set(ClientMorphManager.currentIdentifier.get());
+        selectedIdentifier.bindTo(manager.selectedIdentifier);
+        selectedIdentifier.set(manager.currentIdentifier.get());
 
-        ServerHandler.serverReady.onValueChanged((o, n) ->
+        serverHandler.serverReady.onValueChanged((o, n) ->
         {
             MorphClient.getInstance().schedule(this::clearAndInit);
         });
 
         //初始化文本
-        ClientMorphManager.currentIdentifier.onValueChanged((o, n) ->
+        manager.currentIdentifier.onValueChanged((o, n) ->
         {
             Text display = null;
 
@@ -113,6 +113,9 @@ public class DisguiseScreen extends Screen
     private final ButtonWidget configMenuButton;
     private final ToggleSelfButton selfVisibleToggle;
 
+    private final ClientMorphManager manager;
+    private final ServerHandler serverHandler;
+
     private final IdentifierDrawableList list = new IdentifierDrawableList(client, 200, 0, 20, 0, 22);
     private final DrawableText titleText = new DrawableText(Text.translatable("gui.morphclient.select_disguise"));
     private final DrawableText selectedIdentifierText = new DrawableText();
@@ -144,7 +147,7 @@ public class DisguiseScreen extends Screen
         super.init();
         assert this.client != null;
 
-        if (ServerHandler.serverReady.get())
+        if (serverHandler.serverReady.get())
         {
             //列表
             list.updateSize(width, this.height, textRenderer.fontHeight * 2 + fontMargin * 2, this.height - 30);
@@ -152,7 +155,7 @@ public class DisguiseScreen extends Screen
             if (isInitialCall)
             {
                 //第一次打开时滚动到当前伪装
-                var current = ClientMorphManager.currentIdentifier.get();
+                var current = manager.currentIdentifier.get();
 
                 if (current != null)
                 {

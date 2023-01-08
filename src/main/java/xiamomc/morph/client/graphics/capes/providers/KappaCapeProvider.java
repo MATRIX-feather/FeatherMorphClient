@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 public final class KappaCapeProvider implements ICapeProvider
 {
 	//单独给披风请求开一个Worker，避免阻塞MainWorker上的其他请求
-	private static final ExecutorService capeService = ((UtilAccessor)new Util()).callCreateWorker("MorphClientCapeService");;
+	private static final ExecutorService capeService = ((UtilAccessor)new Util()).callCreateWorker("MorphClientCapeService");
 
 	private ExecutorService getCapeExecutor()
 	{

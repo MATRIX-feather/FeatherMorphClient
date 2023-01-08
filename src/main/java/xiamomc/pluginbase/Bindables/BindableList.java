@@ -1,8 +1,8 @@
-package xiamomc.morph.client.bindables;
+package xiamomc.pluginbase.Bindables;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.NotNull;
-import xiamomc.morph.client.WeakReferenceList;
+import xiamomc.pluginbase.WeakReferenceList;
 
 import java.lang.ref.WeakReference;
 import java.util.*;

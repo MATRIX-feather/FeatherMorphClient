@@ -5,15 +5,14 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import xiamomc.morph.client.bindables.Bindable;
-import xiamomc.morph.client.bindables.BindableList;
-import xiamomc.morph.misc.ClientItemUtils;
+import xiamomc.pluginbase.Bindables.Bindable;
+import xiamomc.pluginbase.Bindables.BindableList;
 
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-public class ClientMorphManager
+public class ClientMorphManager extends MorphClientObject
 {
     private final BindableList<String> availableMorphs = new BindableList<>();
 
@@ -32,15 +31,15 @@ public class ClientMorphManager
 
     //region Common
 
-    public static final Bindable<String> selectedIdentifier = new Bindable<>(null);
+    public final Bindable<String> selectedIdentifier = new Bindable<>(null);
 
-    public static final Bindable<String> currentIdentifier = new Bindable<>(null);
+    public final Bindable<String> currentIdentifier = new Bindable<>(null);
 
-    public static final Bindable<String> selfViewIdentifier = new Bindable<>(null);
+    public final Bindable<String> selfViewIdentifier = new Bindable<>(null);
 
-    public static final Bindable<Boolean> equipOverriden = new Bindable<>(false);
+    public final Bindable<Boolean> equipOverriden = new Bindable<>(false);
 
-    public static final Bindable<NbtCompound> currentNbtCompound = new Bindable<>(null);
+    public final Bindable<NbtCompound> currentNbtCompound = new Bindable<>(null);
 
     //endregion
 
@@ -166,6 +165,9 @@ public class ClientMorphManager
 
     public void setCurrent(String val)
     {
+        if (val != null && (val.isBlank() || val.isEmpty()))
+            val = null;
+
         currentIdentifier.set(val);
 
         equipOverriden.set(false);

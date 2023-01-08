@@ -1,6 +1,5 @@
 package xiamomc.morph.client;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.ConfigHolder;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
@@ -18,7 +17,6 @@ import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.text.Text;
-import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
@@ -27,12 +25,14 @@ import xiamomc.morph.client.config.ModConfigData;
 import xiamomc.morph.client.graphics.ModelWorkarounds;
 import xiamomc.morph.client.screens.disguise.DisguiseScreen;
 import xiamomc.morph.network.commands.C2S.*;
+import xiamomc.pluginbase.AbstractSchedulablePlugin;
+import xiamomc.pluginbase.ScheduleInfo;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Environment(EnvType.CLIENT)
-public class MorphClient implements ClientModInitializer
+public class MorphClient extends AbstractSchedulablePlugin implements ClientModInitializer
 {
     private static MorphClient instance;
 
@@ -41,7 +41,7 @@ public class MorphClient implements ClientModInitializer
         return instance;
     }
 
-    public static DisguiseSyncer DISGUISE_SYNCER;
+    public DisguiseSyncer disguiseSyncer;
 
     public static final Logger LOGGER = LoggerFactory.getLogger("MorphClient");
 
@@ -50,6 +50,23 @@ public class MorphClient implements ClientModInitializer
     private KeyBinding unMorphKeyBind;
     private KeyBinding morphKeyBind;
     private KeyBinding resetCacheKeybind;
+
+    @Override
+    public String getNameSpace()
+    {
+        return getClientNameSpace();
+    }
+
+    public static String getClientNameSpace()
+    {
+        return "morphclient";
+    }
+
+    @Override
+    public Logger getSLF4JLogger()
+    {
+        return LOGGER;
+    }
 
     public MorphClient()
     {
@@ -99,9 +116,11 @@ public class MorphClient implements ClientModInitializer
             modConfigData = configHolder.getConfig();
         }
 
-        morphManager = new ClientMorphManager();
-        serverHandler = new ServerHandler(this);
-        DISGUISE_SYNCER = new DisguiseSyncer();
+        dependencyManager.cache(this);
+        dependencyManager.cache(morphManager = new ClientMorphManager());
+        dependencyManager.cache(serverHandler = new ServerHandler(this));
+        dependencyManager.cache(disguiseSyncer = new DisguiseSyncer());
+        dependencyManager.cache(modConfigData);
 
         serverHandler.initializeNetwork();
 
@@ -115,7 +134,7 @@ public class MorphClient implements ClientModInitializer
 
     private void postWorldTick(ClientWorld clientWorld)
     {
-        DISGUISE_SYNCER.onGameTick();
+        disguiseSyncer.onGameTick();
     }
 
     private void updateKeys(MinecraftClient client)
@@ -281,7 +300,7 @@ public class MorphClient implements ClientModInitializer
 
                 //LOGGER.info("执行：" + c + "，当前TICK：" + currentTick);\
                 if (c.isAsync)
-                    throw new NotImplementedException();
+                    CompletableFuture.runAsync(() -> runFunction(c));
                 else
                     runFunction(c);
             }
@@ -315,7 +334,7 @@ public class MorphClient implements ClientModInitializer
     //是否应该中断tick
     private boolean shouldAbortTicking = false;
 
-    private void onExceptionCaught(Exception exception, ScheduleInfo scheduleInfo)
+    private synchronized void onExceptionCaught(Exception exception, ScheduleInfo scheduleInfo)
     {
         if (exception == null) return;
 
@@ -344,34 +363,16 @@ public class MorphClient implements ClientModInitializer
 
     //region Schedules
 
-    private final List<ScheduleInfo> schedules = new ObjectArrayList<>();
-
-    public ScheduleInfo schedule(Runnable runnable)
-    {
-        return this.schedule(runnable, 1);
-    }
-
-    public ScheduleInfo schedule(Runnable function, int delay)
-    {
-        return this.schedule(function, delay, false);
-    }
-
-    public ScheduleInfo schedule(Runnable function, int delay, boolean async)
-    {
-        var si = new ScheduleInfo(function, delay, currentTick, async);
-
-        synchronized (schedules)
-        {
-            //Logger.info("添加：" + si + "，当前TICK：" + currentTick);
-            schedules.add(si);
-        }
-
-        return si;
-    }
-
     public long getCurrentTick()
     {
         return currentTick;
     }
+
+    @Override
+    public boolean acceptSchedules()
+    {
+        return true;
+    }
+
     //endregion Schedules
 }

@@ -20,17 +20,15 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
-import xiamomc.morph.client.ClientMorphManager;
-import xiamomc.morph.client.MorphLocalPlayer;
+import xiamomc.morph.client.*;
 import xiamomc.morph.client.mixin.accessors.LivingRendererAccessor;
-import xiamomc.morph.client.DisguiseSyncer;
-import xiamomc.morph.client.MorphClient;
-import xiamomc.morph.client.Vec3dUtils;
+import xiamomc.pluginbase.Annotations.Initializer;
+import xiamomc.pluginbase.Annotations.Resolved;
 
 import java.util.List;
 import java.util.Map;
 
-public class PlayerRenderHelper
+public class PlayerRenderHelper extends MorphClientObject
 {
     public PlayerRenderHelper()
     {
@@ -41,6 +39,12 @@ public class PlayerRenderHelper
             allowRender = true;
         }, true);
     }
+
+    @Resolved
+    private ClientMorphManager morphManager;
+
+    @Resolved
+    private DisguiseSyncer syncer;
 
     public boolean shouldHideLabel(AbstractClientPlayerEntity player)
     {
@@ -71,7 +75,7 @@ public class PlayerRenderHelper
         assert clientPlayer != null;
 
         MorphClient.getInstance().updateClientView(true, false);
-        ClientMorphManager.selfViewIdentifier.set(null);
+        morphManager.selfViewIdentifier.set(null);
 
         clientPlayer.sendMessage(Text.literal("渲染当前实体时出现错误。"));
         clientPlayer.sendMessage(Text.literal("在当前伪装变更前客户端预览将被禁用以避免游戏崩溃。"));
@@ -81,7 +85,7 @@ public class PlayerRenderHelper
 
     public boolean onDrawCall(LivingEntity player, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i)
     {
-        if (!allowRender) return false;
+        if (!allowRender || syncer == null) return false;
 
         try
         {
@@ -92,7 +96,7 @@ public class PlayerRenderHelper
             //LoggerFactory.getLogger("d").info(player.getName() + " :: " + player.getDataTracker().get(MorphLocalPlayer.getPMPMask()));
             disguiseRenderer.render(entity, f, g, matrixStack, vertexConsumerProvider, i);
 
-            MorphClient.DISGUISE_SYNCER.onGameRender();
+            syncer.onGameRender();
         }
         catch (Exception e)
         {

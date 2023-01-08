@@ -1,4 +1,4 @@
-package xiamomc.morph.client.bindables;
+package xiamomc.pluginbase.Bindables;
 
 import java.util.function.BiConsumer;
 

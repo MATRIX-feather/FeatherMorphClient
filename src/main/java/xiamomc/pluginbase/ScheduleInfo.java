@@ -1,4 +1,4 @@
-package xiamomc.morph.client;
+package xiamomc.pluginbase;
 
 import java.util.function.Consumer;
 

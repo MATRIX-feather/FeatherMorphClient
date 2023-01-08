@@ -1,9 +1,9 @@
-package xiamomc.morph.client.bindables;
+package xiamomc.pluginbase.Bindables;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
-import xiamomc.morph.client.WeakReferenceList;
+import xiamomc.pluginbase.WeakReferenceList;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -57,11 +57,6 @@ public class Bindable<T> implements IBindable<T>
 
     private int triggers;
 
-    public void triggerChange()
-    {
-        this.triggerValueChange(this, value, value);
-    }
-
     /**
      * 触发一次变动时间
      *
@@ -86,6 +81,11 @@ public class Bindable<T> implements IBindable<T>
 
             b.syncValue(source, newVal);
         });
+    }
+
+    public void triggerChange()
+    {
+        this.triggerValueChange(this, null, value);
     }
 
     @ApiStatus.Internal

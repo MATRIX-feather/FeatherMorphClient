@@ -19,11 +19,9 @@ import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
-import xiamomc.morph.client.ClientMorphManager;
-import xiamomc.morph.client.EntityCache;
-import xiamomc.morph.client.MorphClient;
-import xiamomc.morph.client.bindables.Bindable;
-import xiamomc.morph.client.MorphLocalPlayer;
+import xiamomc.morph.client.*;
+import xiamomc.pluginbase.Annotations.Resolved;
+import xiamomc.pluginbase.Bindables.Bindable;
 import xiamomc.morph.client.graphics.InventoryRenderHelper;
 
 import java.util.List;
@@ -83,7 +81,7 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget> implemen
         return identifier.compareTo(stringWidget.identifier);
     }
 
-    private static class TextWidget implements Selectable, Drawable, Element
+    private static class TextWidget extends MorphClientObject implements Selectable, Drawable, Element
     {
         private final String identifier;
         private Text display;
@@ -97,6 +95,9 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget> implemen
         private LivingEntity entity;
         private int entitySize;
         private int entityYOffset;
+
+        @Resolved(shouldSolveImmediately = true)
+        private ClientMorphManager manager;
 
         private void dispose()
         {
@@ -118,8 +119,8 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget> implemen
             this.width = width;
             this.height = height;
 
-            selectedIdentifier.bindTo(ClientMorphManager.selectedIdentifier);
-            currentIdentifier.bindTo(ClientMorphManager.currentIdentifier);
+            selectedIdentifier.bindTo(manager.selectedIdentifier);
+            currentIdentifier.bindTo(manager.currentIdentifier);
 
             selectedIdentifier.onValueChanged((o, n) ->
             {
@@ -303,8 +304,8 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget> implemen
 
                     case CURRENT ->
                     {
-                        if (ClientMorphManager.selectedIdentifier.get() != null)
-                            ClientMorphManager.selectedIdentifier.set(null);
+                        if (manager.selectedIdentifier.get() != null)
+                            manager.selectedIdentifier.set(null);
                     }
 
                     case WAITING ->
@@ -316,7 +317,7 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget> implemen
                         if (mouseX < this.screenSpaceX + width && mouseX > this.screenSpaceX
                                 && mouseY < this.screenSpaceY + height && mouseY > this.screenSpaceY)
                         {
-                            ClientMorphManager.selectedIdentifier.set(this.identifier);
+                            manager.selectedIdentifier.set(this.identifier);
                             focusType = FocusType.SELECTED;
                         }
                     }
@@ -328,7 +329,7 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget> implemen
             {
                 if (focusType == FocusType.SELECTED)
                 {
-                    ClientMorphManager.selectedIdentifier.set(null);
+                    manager.selectedIdentifier.set(null);
                 }
                 else if (focusType == FocusType.CURRENT)
                 {
