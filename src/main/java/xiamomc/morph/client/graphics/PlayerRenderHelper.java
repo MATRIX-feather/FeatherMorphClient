@@ -93,10 +93,10 @@ public class PlayerRenderHelper extends MorphClientObject
 
             var disguiseRenderer = MinecraftClient.getInstance().getEntityRenderDispatcher().getRenderer(entity);
 
+            syncer.onGameRender();
+
             //LoggerFactory.getLogger("d").info(player.getName() + " :: " + player.getDataTracker().get(MorphLocalPlayer.getPMPMask()));
             disguiseRenderer.render(entity, f, g, matrixStack, vertexConsumerProvider, i);
-
-            syncer.onGameRender();
         }
         catch (Exception e)
         {

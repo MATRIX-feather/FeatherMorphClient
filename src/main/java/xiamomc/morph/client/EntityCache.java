@@ -21,6 +21,11 @@ public class EntityCache
 {
     private static final Map<String, LivingEntity> cacheMap = new Object2ObjectOpenHashMap<>();
 
+    public static void clearCache()
+    {
+        cacheMap.clear();
+    }
+
     public static boolean containsId(int id)
     {
         try

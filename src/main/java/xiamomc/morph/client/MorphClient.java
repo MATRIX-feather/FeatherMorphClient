@@ -170,6 +170,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
 
         if (resetCacheKeybind.wasPressed())
         {
+            EntityCache.clearCache();
             modelWorkarounds.initWorkarounds();
         }
     }

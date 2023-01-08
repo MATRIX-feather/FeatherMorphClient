@@ -92,6 +92,8 @@ public class DisguiseSyncer extends MorphClientObject
             prevEntity.equipStack(EquipmentSlot.LEGS, ItemStack.EMPTY);
             prevEntity.equipStack(EquipmentSlot.FEET, ItemStack.EMPTY);
 
+            prevEntity.hurtTime = 0;
+
             EntityCache.discardEntity(prevIdentifier);
         }
 
@@ -184,22 +186,31 @@ public class DisguiseSyncer extends MorphClientObject
             entity.readCustomDataFromNbt(nbtCompound);
     }
 
-    private boolean requireTick(EntityType<?> t)
-    {
-        return t == EntityType.PLAYER;
-    }
-
     private void syncDraw(LivingEntity entity, PlayerEntity clientPlayer)
     {
         if (entity == null || clientPlayer == null) return;
 
         //幻翼的pitch需要倒转
-        if (entity.getType().equals(EntityType.PHANTOM))
+        if (entity.getType() == EntityType.PHANTOM)
             entity.setPitch(-clientPlayer.getPitch());
         else
             entity.setPitch(clientPlayer.getPitch());
 
         entity.prevPitch = clientPlayer.prevPitch;
+
+        entity.headYaw = clientPlayer.headYaw;
+        entity.prevHeadYaw = clientPlayer.prevHeadYaw;
+
+        if (entity.getType() == EntityType.ARMOR_STAND)
+        {
+            entity.bodyYaw = clientPlayer.headYaw;
+            entity.prevBodyYaw = clientPlayer.prevHeadYaw;
+        }
+        else
+        {
+            entity.bodyYaw = clientPlayer.bodyYaw;
+            entity.prevBodyYaw = clientPlayer.prevBodyYaw;
+        }
     }
 
     private Vec3d lastPosition = new Vec3d(0, 0, 0);
@@ -218,11 +229,8 @@ public class DisguiseSyncer extends MorphClientObject
         var playerPos = clientPlayer.getPos();
         entity.setPosition(playerPos.x, playerPos.y - 4096, playerPos.z);
 
-        if (requireTick(entity.getType()))
-        {
-            //entity.age++;
+        if (entity.getType() != EntityType.ENDER_DRAGON)
             entity.tick();
-        }
 
         if (entity instanceof CamelEntity camelEntity)
         {
@@ -246,26 +254,12 @@ public class DisguiseSyncer extends MorphClientObject
         else
             entity.clearSleepingPosition();
 
-        entity.headYaw = clientPlayer.headYaw;
-        entity.prevHeadYaw = clientPlayer.prevHeadYaw;
-
         entity.handSwinging = clientPlayer.handSwinging;
         entity.handSwingProgress = clientPlayer.handSwingProgress;
         entity.lastHandSwingProgress = clientPlayer.lastHandSwingProgress;
         entity.handSwingTicks = clientPlayer.handSwingTicks;
 
         entity.preferredHand = clientPlayer.preferredHand;
-
-        if (entity.getType().equals(EntityType.ARMOR_STAND))
-        {
-            entity.bodyYaw = clientPlayer.headYaw;
-            entity.prevBodyYaw = clientPlayer.prevHeadYaw;
-        }
-        else
-        {
-            entity.bodyYaw = clientPlayer.bodyYaw;
-            entity.prevBodyYaw = clientPlayer.prevBodyYaw;
-        }
 
         entity.limbAngle = clientPlayer.limbAngle;
         entity.limbDistance = clientPlayer.limbDistance;
@@ -280,7 +274,7 @@ public class DisguiseSyncer extends MorphClientObject
         entity.setFrozenTicks(clientPlayer.getFrozenTicks());
 
         //末影龙的Yaw和玩家是反的
-        if (entity.getType().equals(EntityType.ENDER_DRAGON))
+        if (entity.getType() == EntityType.ENDER_DRAGON)
             entity.setYaw(180 + clientPlayer.getYaw());
 
         entity.setOnGround(clientPlayer.isOnGround());
