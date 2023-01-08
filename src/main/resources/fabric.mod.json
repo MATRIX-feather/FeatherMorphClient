@@ -17,9 +17,6 @@
     "client": [
       "xiamomc.morph.client.MorphClient"
     ],
-    "main": [
-      "xiamomc.morph.client.ClientMain"
-    ],
     "modmenu":[
       "xiamomc.morph.client.ModMenuApiImpl"
     ]

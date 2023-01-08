@@ -14,6 +14,7 @@ import xiamomc.morph.client.mixin.accessors.ArmorStandEntityAccessor;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class EntityCache
 {
@@ -100,7 +101,8 @@ public class EntityCache
             living = new MorphLocalPlayer(MinecraftClient.getInstance().world, profile);
         }
 
-        if (living != null) cacheMap.put(identifier, living);
+        if (living != null)
+            cacheMap.put(identifier, living);
 
         //LoggerFactory.getLogger("morph").info("Pushing " + identifier + " into EntityCache.");
 

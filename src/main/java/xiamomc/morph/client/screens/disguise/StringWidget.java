@@ -138,7 +138,10 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget> implemen
                 }
                 else focusType = FocusType.NONE;
             }, true);
+        }
 
+        private void setupEntity(String identifier)
+        {
             try
             {
                 LivingEntity living = EntityCache.getEntity(identifier);
@@ -178,7 +181,7 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget> implemen
             }
             catch (Exception e)
             {
-                LoggerFactory.getLogger("morph").error(e.getMessage());
+                logger.error(e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -224,6 +227,9 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget> implemen
         @Override
         public void render(MatrixStack matrices, int mouseX, int mouseY, float delta)
         {
+            if (entity == null)
+                this.setupEntity(identifier);
+
             if (focusType != FocusType.NONE)
             {
                 var bordercolor = switch (focusType)
