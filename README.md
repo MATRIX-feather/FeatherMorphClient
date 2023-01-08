@@ -1,9 +1,33 @@
-# MorphClient
-[MorphPlugin](https://github.com/XiaMoZhiShi/MorphPlugin)的Fabric客户端模组
+![cover](./assets/cover.png)
 
-## 使用
-1. 确保你的mod加载器是[Fabric](https://fabricmc.net/)或[Quilt](https://quiltmc.org/en/)
-2. 前往[Releases](https://github.com/XiaMoZhiShi/MorphPluginClient/releases/latest)下载最新版本或前往[Actions](https://github.com/XiaMoZhiShi/MorphPluginClient/actions/)下载最新构建
-3. 确保你装了[Fabric API](https://modrinth.com/mod/fabric-api)
-4. 将模组丢进mods目录中并重启游戏
-5. 完成！
+<p align="right">
+  <img src="https://github.com/XiaMoZhiShi/MorphPluginClient/actions/workflows/gradle.yml/badge.svg">
+</p>
+
+<!-- [Wiki](https://github.com/XiaMoZhiShi/MorphPlugin/wiki) -->
+
+# (WIP) FeatherMorphClient
+
+[FeatherMorph](https://github.com/XiaMoZhiShi/MorphPlugin)的客户端模组，可以提供一些增强功能。
+
+### 功能
+- [x] 在客户端显示自身伪装
+- [x] 伪装选择界面
+- [x] 技能快捷键
+- [x] 一键切换自身可见
+
+### 依赖关系
+FeatherMorphClient至少需要下面这些依赖才能运行：
+- Fabric 或 Quilt 1.19.3
+- [Fabric API](https://modrinth.com/mod/fabric-api)
+
+### 构建
+```bash
+#!/usr/bin/env bash
+git clone https://github.com/XiaMoZhiShi/MorphPluginClient
+cd MorphPluginClient
+
+./gradlew build --no-daemon
+```
+
+生成的文件将位于`build/libs`中，`client-x.x.x.jar`就是构建出来的插件。
