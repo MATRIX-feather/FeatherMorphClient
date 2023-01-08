@@ -15,6 +15,7 @@ import xiamomc.morph.client.mixin.accessors.ArmorStandEntityAccessor;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 public class EntityCache
 {
@@ -55,7 +56,7 @@ public class EntityCache
     }
 
     @Nullable
-    public static LivingEntity getEntity(String identifier)
+    public synchronized static LivingEntity getEntity(String identifier)
     {
         if (identifier == null) return null;
 
@@ -83,14 +84,6 @@ public class EntityCache
             if (!(instance instanceof LivingEntity le)) return null;
 
             living = le;
-
-            if (instance instanceof ArmorStandEntity armorStandEntity)
-                ((ArmorStandEntityAccessor)armorStandEntity).callSetShowArms(true);
-
-            if (instance instanceof EnderDragonEntity dragon)
-                dragon.getPhaseManager().setPhase(PhaseType.HOVER);
-
-            living.setSilent(true);
         }
         else if (identifier.startsWith("player:"))
         {

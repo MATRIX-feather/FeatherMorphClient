@@ -19,5 +19,6 @@
   "gui.morphclient.waiting_for_server": "Waiting for server...",
   "gui.morphclient.version_mismatch": "API version mismatch",
   "gui.morphclient.current_disguise": "Current disguise: %s",
-  "gui.morphclient.no_disguise": "None"
+  "gui.morphclient.no_disguise": "None",
+  "gui.morphclient.loading": "Loading..."
 }

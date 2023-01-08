@@ -19,5 +19,6 @@
   "gui.morphclient.waiting_for_server": "等待服务器响应...",
   "gui.morphclient.version_mismatch": "API版本不匹配",
   "gui.morphclient.current_disguise": "当前伪装: %s",
-  "gui.morphclient.no_disguise": "暂无"
+  "gui.morphclient.no_disguise": "暂无",
+  "gui.morphclient.loading": "加载中..."
 }

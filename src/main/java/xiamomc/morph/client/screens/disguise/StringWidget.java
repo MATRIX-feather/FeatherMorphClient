@@ -16,7 +16,9 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.MagmaCubeEntity;
 import net.minecraft.registry.Registries;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.*;
@@ -26,6 +28,7 @@ import xiamomc.morph.client.graphics.InventoryRenderHelper;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class StringWidget extends ElementListWidget.Entry<StringWidget> implements Comparable<StringWidget>
 {
@@ -111,7 +114,8 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget> implemen
         public TextWidget(int screenSpaceX, int screenSpaceY, int width, int height, String identifier)
         {
             this.identifier = identifier;
-            this.display = Text.literal(identifier);
+            this.display = Text.translatable("gui.morphclient.loading")
+                    .formatted(Formatting.ITALIC, Formatting.GRAY);
 
             this.screenSpaceX = screenSpaceX;
             this.screenSpaceY = screenSpaceY;
@@ -121,6 +125,9 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget> implemen
 
             selectedIdentifier.bindTo(manager.selectedIdentifier);
             currentIdentifier.bindTo(manager.currentIdentifier);
+
+            if (currentIdentifier.get().equals(identifier))
+                setupEntity(identifier);
 
             selectedIdentifier.onValueChanged((o, n) ->
             {
@@ -165,7 +172,12 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget> implemen
                         }
                     }
 
-                    if (entity == null) return; //没有和此ID匹配的实体
+                    //没有和此ID匹配的实体
+                    if (entity == null)
+                    {
+                        this.display = Text.literal(identifier);
+                        return;
+                    }
 
                     living = entity;
                 }
@@ -228,7 +240,7 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget> implemen
         public void render(MatrixStack matrices, int mouseX, int mouseY, float delta)
         {
             if (entity == null)
-                this.setupEntity(identifier);
+                CompletableFuture.runAsync(() -> this.setupEntity(identifier));
 
             if (focusType != FocusType.NONE)
             {
