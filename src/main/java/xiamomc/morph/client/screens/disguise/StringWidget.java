@@ -126,7 +126,7 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget> implemen
             selectedIdentifier.bindTo(manager.selectedIdentifier);
             currentIdentifier.bindTo(manager.currentIdentifier);
 
-            if (currentIdentifier.get().equals(identifier))
+            if (identifier.equals(currentIdentifier.get()) || identifier.equals("morph:unmorph"))
                 setupEntity(identifier);
 
             selectedIdentifier.onValueChanged((o, n) ->
