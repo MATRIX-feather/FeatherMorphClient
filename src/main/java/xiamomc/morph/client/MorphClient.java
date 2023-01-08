@@ -1,9 +1,5 @@
 package xiamomc.morph.client;
 
-import com.google.gson.JsonParser;
-import com.mojang.serialization.JsonOps;
-import io.netty.buffer.ByteBuf;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.ConfigHolder;
@@ -16,47 +12,28 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtHelper;
-import net.minecraft.nbt.StringNbtReader;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xiamomc.morph.client.bindables.Bindable;
 import xiamomc.morph.client.config.ModConfigData;
 import xiamomc.morph.client.graphics.ModelWorkarounds;
 import xiamomc.morph.client.screens.disguise.DisguiseScreen;
+import xiamomc.morph.network.commands.C2S.*;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 
 @Environment(EnvType.CLIENT)
 public class MorphClient implements ClientModInitializer
 {
-    private static final String morphNameSpace = "morphplugin";
-
-    public static Identifier initializeChannelIdentifier = new Identifier(morphNameSpace, "init");
-    public static Identifier versionChannelIdentifier = new Identifier(morphNameSpace, "version");
-    public static Identifier commandChannelIdentifier = new Identifier(morphNameSpace, "commands");
-
     private static MorphClient instance;
 
     public static MorphClient getInstance()
@@ -64,19 +41,9 @@ public class MorphClient implements ClientModInitializer
         return instance;
     }
 
-    public static final Bindable<String> selectedIdentifier = new Bindable<>(null);
+    public static DisguiseSyncer DISGUISE_SYNCER;
 
-    public static final Bindable<String> currentIdentifier = new Bindable<>(null);
-
-    public static final Bindable<String> selfViewIdentifier = new Bindable<>(null);
-
-    public static final Bindable<NbtCompound> currentNbtCompound = new Bindable<>(null);
-
-    public static final Bindable<Boolean> equipOverriden = new Bindable<>(false);
-
-    public static final DisguiseSyncer DISGUISE_SYNCER = new DisguiseSyncer();
-
-    private final Logger logger = LoggerFactory.getLogger("MorphClient");
+    public static final Logger LOGGER = LoggerFactory.getLogger("MorphClient");
 
     private KeyBinding toggleselfKeyBind;
     private KeyBinding executeSkillKeyBind;
@@ -88,6 +55,9 @@ public class MorphClient implements ClientModInitializer
     {
         instance = this;
     }
+
+    public ClientMorphManager morphManager;
+    public ServerHandler serverHandler;
 
     @Override
     public void onInitializeClient()
@@ -129,77 +99,38 @@ public class MorphClient implements ClientModInitializer
             modConfigData = configHolder.getConfig();
         }
 
-        initializeNetwork();
+        morphManager = new ClientMorphManager();
+        serverHandler = new ServerHandler(this);
+        DISGUISE_SYNCER = new DisguiseSyncer();
+
+        serverHandler.initializeNetwork();
 
         ClientTickEvents.END_CLIENT_TICK.register(this::tick);
         ClientTickEvents.END_WORLD_TICK.register(this::postWorldTick);
 
-        ModelWorkarounds.getInstance().initWorkarounds();
+        modelWorkarounds = ModelWorkarounds.getInstance();
     }
+
+    private ModelWorkarounds modelWorkarounds;
 
     private void postWorldTick(ClientWorld clientWorld)
     {
         DISGUISE_SYNCER.onGameTick();
     }
 
-    public final Bindable<Boolean> selfVisibleToggled = new Bindable<>(false);
-
-    private final List<String> avaliableMorphs = new ObjectArrayList<>();
-
-    public List<String> getAvaliableMorphs()
-    {
-        return new ObjectArrayList<>(avaliableMorphs);
-    }
-
-    private final List<Function<List<String>, Boolean>> onGrantConsumers = new ObjectArrayList<>();
-    public void onMorphGrant(Function<List<String>, Boolean> consumer)
-    {
-        onGrantConsumers.add(consumer);
-    }
-
-    private final List<Function<List<String>, Boolean>> onRevokeConsumers = new ObjectArrayList<>();
-    public void onMorphRevoke(Function<List<String>, Boolean> consumer)
-    {
-        onRevokeConsumers.add(consumer);
-    }
-
-    private void invokeRevoke(List<String> diff)
-    {
-        var tobeRemoved = new ObjectArrayList<Function<List<String>, Boolean>>();
-
-        onRevokeConsumers.forEach(f ->
-        {
-            if (!f.apply(diff)) tobeRemoved.add(f);
-        });
-
-        onRevokeConsumers.removeAll(tobeRemoved);
-    }
-
-    private void invokeGrant(List<String> diff)
-    {
-        var tobeRemoved = new ObjectArrayList<Function<List<String>, Boolean>>();
-
-        onGrantConsumers.forEach(f ->
-        {
-            if (!f.apply(diff)) tobeRemoved.add(f);
-        });
-
-        onGrantConsumers.removeAll(tobeRemoved);
-    }
-
     private void updateKeys(MinecraftClient client)
     {
         if (executeSkillKeyBind.wasPressed())
-            sendCommand("skill");
+            serverHandler.sendCommand(new C2SSkillCommand());
 
         if (unMorphKeyBind.wasPressed())
-            sendCommand("unmorph");
+            serverHandler.sendCommand(new C2SUnmorphCommand());
 
         if (toggleselfKeyBind.wasPressed())
         {
             var config = getModConfigData();
 
-            boolean val = !selfVisibleToggled.get();
+            boolean val = !morphManager.selfVisibleToggled.get();
 
             updateClientView(config.allowClientView, val);
         }
@@ -210,7 +141,7 @@ public class MorphClient implements ClientModInitializer
 
             if (player != null && player.input != null && player.input.sneaking)
             {
-                sendCommand("morph");
+                serverHandler.sendCommand(new C2SMorphCommand());
             }
             else if (client.currentScreen == null)
             {
@@ -220,7 +151,7 @@ public class MorphClient implements ClientModInitializer
 
         if (resetCacheKeybind.wasPressed())
         {
-            ModelWorkarounds.getInstance().initWorkarounds();
+            modelWorkarounds.initWorkarounds();
         }
     }
 
@@ -231,11 +162,11 @@ public class MorphClient implements ClientModInitializer
     {
         if (lastClientView == null || clientViewEnabled != lastClientView)
         {
-            sendCommand("toggleself client " + clientViewEnabled);
+            serverHandler.sendCommand(new C2SToggleSelfCommand("client", clientViewEnabled + ""));
             lastClientView = clientViewEnabled;
         }
 
-        sendCommand("toggleself " + selfViewVisible);
+        serverHandler.sendCommand(new C2SToggleSelfCommand(selfViewVisible + ""));
 
         modConfigData.allowClientView = clientViewEnabled;
     }
@@ -245,9 +176,9 @@ public class MorphClient implements ClientModInitializer
         if (id == null) id = "morph:unmorph";
 
         if ("morph:unmorph".equals(id))
-            sendCommand("unmorph");
+            serverHandler.sendCommand(new C2SUnmorphCommand());
         else
-            sendCommand("morph " + id);
+            serverHandler.sendCommand(new C2SMorphCommand(id));
     }
 
     //region Config
@@ -287,8 +218,8 @@ public class MorphClient implements ClientModInitializer
                         {
                             modConfigData.allowClientView = v;
 
-                            if (serverReady.get())
-                                updateClientView(v, selfVisibleToggled.get());
+                            if (serverHandler.serverReady())
+                                updateClientView(v, morphManager.selfVisibleToggled.get());
                         })
                         .build()
         );
@@ -301,8 +232,8 @@ public class MorphClient implements ClientModInitializer
                         {
                             modConfigData.displayDisguiseOnHud = v;
 
-                            if (serverReady.get())
-                                sendCommand("option actionbar " + v);
+                            if (serverHandler.serverReady())
+                                serverHandler.sendCommand(new C2SOptionCommand(C2SOptionCommand.ClientOptions.HUD).setValue(v));
                         })
                         .build()
         );
@@ -329,341 +260,6 @@ public class MorphClient implements ClientModInitializer
 
     //endregion Config
 
-    //region Network
-
-    private int serverVersion = -1;
-    private final int clientVersion = 3;
-
-    public int getServerVersion()
-    {
-        return serverVersion;
-    }
-
-    public boolean serverApiMatch()
-    {
-        return this.getServerVersion() == clientVersion;
-    }
-
-    public int getClientVersion()
-    {
-        return clientVersion;
-    }
-
-    private String readStringfromByte(ByteBuf buf)
-    {
-        return buf.resetReaderIndex().readCharSequence(buf.readableBytes(), StandardCharsets.UTF_8).toString();
-    }
-
-    private PacketByteBuf fromString(String str)
-    {
-        var packet = PacketByteBufs.create();
-
-        packet.writeCharSequence(str, StandardCharsets.UTF_8);
-        return packet;
-    }
-
-    public void sendCommand(String command)
-    {
-        if (command == null || command.isEmpty() || command.isBlank()) return;
-
-        ClientPlayNetworking.send(commandChannelIdentifier, fromString(command));
-    }
-
-    public static final Bindable<Boolean> serverReady = new Bindable<>(false);
-    private boolean handshakeReceived;
-    private boolean apiVersionChecked;
-
-    public void resetServerStatus()
-    {
-        handshakeReceived = false;
-        apiVersionChecked = false;
-
-        var list = new ObjectArrayList<>(avaliableMorphs);
-        this.avaliableMorphs.clear();
-        selectedIdentifier.set(null);
-        currentIdentifier.set(null);
-        selfViewIdentifier.set(null);
-
-        updateServerStatus();
-
-        invokeGrant(list);
-    }
-
-    private void updateServerStatus()
-    {
-        serverReady.set(handshakeReceived && apiVersionChecked);
-    }
-
-    public void initializeClientData()
-    {
-        this.resetServerStatus();
-
-        ClientPlayNetworking.send(initializeChannelIdentifier, PacketByteBufs.create());
-    }
-
-    private void initializeNetwork()
-    {
-        ClientPlayConnectionEvents.INIT.register((handler, client) ->
-        {
-        });
-
-        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) ->
-        {
-            initializeClientData();
-        });
-
-        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) ->
-        {
-            resetServerStatus();
-        });
-
-        //初始化网络
-        ClientPlayNetworking.registerGlobalReceiver(initializeChannelIdentifier, (client, handler, buf, responseSender) ->
-        {
-            if (this.readStringfromByte(buf).equalsIgnoreCase("no"))
-            {
-                logger.error("初始化失败：被服务器拒绝");
-                return;
-            }
-
-            handshakeReceived = true;
-            updateServerStatus();
-
-            ClientPlayNetworking.send(versionChannelIdentifier, fromString("" + clientVersion));
-            sendCommand("initial");
-            sendCommand("option clientview " + modConfigData.allowClientView);
-            sendCommand("option hud " + modConfigData.displayDisguiseOnHud);
-        });
-
-        ClientPlayNetworking.registerGlobalReceiver(versionChannelIdentifier, (client, handler, buf, responseSender) ->
-        {
-            try
-            {
-                serverVersion = buf.readInt();
-                apiVersionChecked = true;
-                updateServerStatus();
-            }
-            catch (Exception e)
-            {
-                logger.error("未能获取服务器API版本：" + e.getMessage());
-                e.printStackTrace();
-            }
-
-            logger.info("服务器API版本：" + serverVersion);
-        });
-
-        ClientPlayNetworking.registerGlobalReceiver(commandChannelIdentifier, (client, handler, buf, responseSender) ->
-        {
-            var str = readStringfromByte(buf).split(" ", 3);
-
-            if (!serverReady.get() && (str.length != 1 || !str[0].equals("reauth")))
-            {
-                if (modConfigData.verbosePackets)
-                    logger.warn("在初始化完成前收到了客户端指令：" + readStringfromByte(buf) + "，将不会执行任何动作");
-
-                return;
-            }
-
-            try
-            {
-                if (modConfigData.verbosePackets)
-                    logger.info("收到了客户端指令：" + readStringfromByte(buf));
-
-                if (str.length < 1) return;
-
-                var baseName = str[0];
-
-                switch (baseName)
-                {
-                    case "swap" ->
-                    {
-                        var mainHand = equipmentSlotItemStackMap.get(EquipmentSlot.MAINHAND);
-                        equipmentSlotItemStackMap.put(EquipmentSlot.MAINHAND, equipmentSlotItemStackMap.get(EquipmentSlot.OFFHAND));
-                        equipmentSlotItemStackMap.put(EquipmentSlot.OFFHAND, mainHand);
-                    }
-                    case "query" ->
-                    {
-                        if (str.length < 2) return;
-
-                        var subCmdName = str[1];
-
-                        var diff = new ObjectArrayList<>(str[2].split(" "));
-                        diff.removeIf(String::isEmpty);
-
-                        switch (subCmdName) {
-                            case "add" ->
-                            {
-                                diff.removeIf(avaliableMorphs::contains);
-                                avaliableMorphs.addAll(diff);
-                                invokeGrant(diff);
-                            }
-                            case "remove" ->
-                            {
-                                avaliableMorphs.removeAll(diff);
-                                invokeRevoke(diff);
-                            }
-                            case "set" ->
-                            {
-                                invokeRevoke(avaliableMorphs);
-
-                                this.avaliableMorphs.clear();
-                                this.avaliableMorphs.addAll(diff);
-
-                                invokeGrant(diff);
-                            }
-                            default -> logger.warn("未知的Query指令：" + subCmdName);
-                        }
-                    }
-                    case "set" ->
-                    {
-                        if (str.length < 2) return;
-
-                        var subCmdName = str[1];
-
-                        switch (subCmdName)
-                        {
-                            case "toggleself" ->
-                            {
-                                if (str.length < 3) return;
-
-                                var val = Boolean.parseBoolean(str[2]);
-
-                                selfVisibleToggled.set(val);
-                            }
-                            case "selfview" ->
-                            {
-                                if (str.length < 3) return;
-
-                                var identifier = str[2];
-
-                                selfViewIdentifier.set(identifier);
-                            }
-                            case "fake_equip" ->
-                            {
-                                if (str.length < 3) return;
-
-                                var value = Boolean.valueOf(str[2]);
-
-                                equipOverriden.set(value);
-                            }
-                            case "equip" ->
-                            {
-                                if (str.length < 3) return;
-
-                                var dat = str[2].split(" ", 2);
-
-                                if (dat.length != 2) return;
-                                var currentMob = DisguiseSyncer.currentEntity.get();
-
-                                if (currentMob == null) return;
-
-                                var stack = jsonToStack(dat[1]);
-
-                                if (stack == null) return;
-
-                                switch (dat[0])
-                                {
-                                    case "mainhand" -> equipmentSlotItemStackMap.put(EquipmentSlot.MAINHAND, stack);
-                                    case "off_hand" -> equipmentSlotItemStackMap.put(EquipmentSlot.OFFHAND, stack);
-
-                                    case "helmet" -> equipmentSlotItemStackMap.put(EquipmentSlot.HEAD, stack);
-                                    case "chestplate" -> equipmentSlotItemStackMap.put(EquipmentSlot.CHEST, stack);
-                                    case "leggings" -> equipmentSlotItemStackMap.put(EquipmentSlot.LEGS, stack);
-                                    case "boots" -> equipmentSlotItemStackMap.put(EquipmentSlot.FEET, stack);
-                                }
-                            }
-                            case "nbt" ->
-                            {
-                                if (str.length < 3) return;
-
-                                var nbt = StringNbtReader.parse(str[2].replace("\\u003d", "="));
-
-                                currentNbtCompound.set(nbt);
-                            }
-                            case "profile" ->
-                            {
-                                if (str.length < 3) return;
-
-                                var nbt = StringNbtReader.parse(str[2]);
-                                var profile = NbtHelper.toGameProfile(nbt);
-
-                                if (profile != null)
-                                    this.schedule(() -> DISGUISE_SYNCER.updateSkin(profile));
-                            }
-                            case "sneaking" ->
-                            {
-                                if (str.length < 3) return;
-
-                                serverSideSneaking = Boolean.valueOf(str[2]);
-                            }
-                        }
-                    }
-                    case "reauth" ->
-                    {
-                        initializeClientData();
-                    }
-                    case "unauth" ->
-                    {
-                        resetServerStatus();
-                    }
-                    case "current" ->
-                    {
-                        var val = str.length == 2 ? str[1] : null;
-                        currentIdentifier.set(val);
-
-                        equipOverriden.set(false);
-                        selfViewIdentifier.set(null);
-                        equipmentSlotItemStackMap.clear();
-                    }
-                    case "deny" ->
-                    {
-                        if (str.length < 2) return;
-
-                        var subCmdName = str[1];
-
-                        if (subCmdName.equals("morph"))
-                        {
-                            selectedIdentifier.triggerChange();
-                            currentIdentifier.triggerChange();
-                        }
-                        else
-                            logger.warn("未知的Deny指令：" + subCmdName);
-                    }
-                    default -> logger.warn("未知的客户端指令：" + baseName);
-                }
-            }
-            catch (Exception e)
-            {
-                logger.error("发生异常：" + e.getMessage());
-                e.printStackTrace();
-            }
-        });
-    }
-
-    public static Boolean serverSideSneaking;
-
-    private final ItemStack air = ItemStack.EMPTY;
-
-    private final Map<EquipmentSlot, ItemStack> equipmentSlotItemStackMap = new Object2ObjectOpenHashMap<>();
-
-    public ItemStack getOverridedItemStackOn(EquipmentSlot slot)
-    {
-        return equipmentSlotItemStackMap.getOrDefault(slot, air);
-    }
-
-    @Nullable
-    private ItemStack jsonToStack(String rawJson)
-    {
-        var item = ItemStack.CODEC.decode(JsonOps.INSTANCE, JsonParser.parseString(rawJson));
-
-        if (item.result().isPresent())
-            return item.result().get().getFirst();
-
-        return null;
-    }
-
-    //endregion Network
-
     //region tick相关
 
     private long currentTick = 0;
@@ -683,7 +279,7 @@ public class MorphClient implements ClientModInitializer
 
                 if (c.isCanceled()) return;
 
-                //logger.info("执行：" + c + "，当前TICK：" + currentTick);\
+                //LOGGER.info("执行：" + c + "，当前TICK：" + currentTick);\
                 if (c.isAsync)
                     throw new NotImplementedException();
                 else
@@ -725,12 +321,12 @@ public class MorphClient implements ClientModInitializer
 
         exceptionCaught += 1;
 
-        logger.warn("执行" + scheduleInfo + "时捕获到未处理的异常：");
+        LOGGER.warn("执行" + scheduleInfo + "时捕获到未处理的异常：");
         exception.printStackTrace();
 
         if (exceptionCaught >= exceptionLimit)
         {
-            logger.error("可接受异常已到达最大限制");
+            LOGGER.error("可接受异常已到达最大限制");
             this.shouldAbortTicking = true;
         }
     }

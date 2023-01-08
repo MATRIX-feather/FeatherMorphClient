@@ -19,6 +19,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
+import xiamomc.morph.client.ClientMorphManager;
 import xiamomc.morph.client.EntityCache;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.bindables.Bindable;
@@ -117,8 +118,8 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget> implemen
             this.width = width;
             this.height = height;
 
-            selectedIdentifier.bindTo(MorphClient.selectedIdentifier);
-            currentIdentifier.bindTo(MorphClient.currentIdentifier);
+            selectedIdentifier.bindTo(ClientMorphManager.selectedIdentifier);
+            currentIdentifier.bindTo(ClientMorphManager.currentIdentifier);
 
             selectedIdentifier.onValueChanged((o, n) ->
             {
@@ -302,8 +303,8 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget> implemen
 
                     case CURRENT ->
                     {
-                        if (MorphClient.selectedIdentifier.get() != null)
-                            MorphClient.selectedIdentifier.set(null);
+                        if (ClientMorphManager.selectedIdentifier.get() != null)
+                            ClientMorphManager.selectedIdentifier.set(null);
                     }
 
                     case WAITING ->
@@ -315,7 +316,7 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget> implemen
                         if (mouseX < this.screenSpaceX + width && mouseX > this.screenSpaceX
                                 && mouseY < this.screenSpaceY + height && mouseY > this.screenSpaceY)
                         {
-                            MorphClient.selectedIdentifier.set(this.identifier);
+                            ClientMorphManager.selectedIdentifier.set(this.identifier);
                             focusType = FocusType.SELECTED;
                         }
                     }
@@ -327,7 +328,7 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget> implemen
             {
                 if (focusType == FocusType.SELECTED)
                 {
-                    MorphClient.selectedIdentifier.set(null);
+                    ClientMorphManager.selectedIdentifier.set(null);
                 }
                 else if (focusType == FocusType.CURRENT)
                 {

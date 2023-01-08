@@ -6,8 +6,10 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import xiamomc.morph.client.ClientMorphManager;
 import xiamomc.morph.client.EntityCache;
 import xiamomc.morph.client.MorphClient;
+import xiamomc.morph.client.ServerHandler;
 import xiamomc.morph.client.bindables.Bindable;
 import xiamomc.morph.client.graphics.DrawableText;
 import xiamomc.morph.client.graphics.ToggleSelfButton;
@@ -19,7 +21,11 @@ public class DisguiseScreen extends Screen
         super(Text.literal("选择界面"));
 
         var morphClient = MorphClient.getInstance();
-        morphClient.onMorphGrant(c ->
+
+        var manager = morphClient.morphManager;
+        var serverHandler = morphClient.serverHandler;
+
+        manager.onMorphGrant(c ->
         {
             if (!this.isCurrent()) return false;
 
@@ -28,7 +34,7 @@ public class DisguiseScreen extends Screen
             return true;
         });
 
-        morphClient.onMorphRevoke(c ->
+        manager.onMorphRevoke(c ->
         {
             if (!this.isCurrent()) return false;
 
@@ -39,18 +45,18 @@ public class DisguiseScreen extends Screen
 
         list.children().add(new StringWidget("morph:unmorph"));
 
-        morphClient.getAvaliableMorphs().forEach(s -> list.children().add(new StringWidget(s)));
+        manager.getAvailableMorphs().forEach(s -> list.children().add(new StringWidget(s)));
 
-        selectedIdentifier.bindTo(MorphClient.selectedIdentifier);
-        selectedIdentifier.set(MorphClient.currentIdentifier.get());
+        selectedIdentifier.bindTo(ClientMorphManager.selectedIdentifier);
+        selectedIdentifier.set(ClientMorphManager.currentIdentifier.get());
 
-        MorphClient.serverReady.onValueChanged((o, n) ->
+        ServerHandler.serverReady.onValueChanged((o, n) ->
         {
             MorphClient.getInstance().schedule(this::clearAndInit);
         });
 
         //初始化文本
-        MorphClient.currentIdentifier.onValueChanged((o, n) ->
+        ClientMorphManager.currentIdentifier.onValueChanged((o, n) ->
         {
             Text display = null;
 
@@ -70,7 +76,7 @@ public class DisguiseScreen extends Screen
             selectedIdentifierText.setText(text);
         }, true);
 
-        serverAPIText.setText("Client " + morphClient.getClientVersion() + " :: " + "Server " + morphClient.getServerVersion());
+        serverAPIText.setText("Client " + serverHandler.getClientVersion() + " :: " + "Server " + serverHandler.getServerVersion());
         serverAPIText.setColor(0x99ffffff);
 
         titleText.setWidth(200);
@@ -89,7 +95,7 @@ public class DisguiseScreen extends Screen
             MinecraftClient.getInstance().setScreen(screen);
         }));
 
-        selfVisibleToggle = new ToggleSelfButton(0, 0, 20, 20, morphClient.selfVisibleToggled.get(), this);
+        selfVisibleToggle = new ToggleSelfButton(0, 0, 20, 20, manager.selfVisibleToggled.get(), this);
     }
 
     private ButtonWidget buildWidget(int x, int y, int width, int height, Text text, ButtonWidget.PressAction action)
@@ -138,7 +144,7 @@ public class DisguiseScreen extends Screen
         super.init();
         assert this.client != null;
 
-        if (MorphClient.serverReady.get())
+        if (ServerHandler.serverReady.get())
         {
             //列表
             list.updateSize(width, this.height, textRenderer.fontHeight * 2 + fontMargin * 2, this.height - 30);
@@ -146,7 +152,7 @@ public class DisguiseScreen extends Screen
             if (isInitialCall)
             {
                 //第一次打开时滚动到当前伪装
-                var current = MorphClient.currentIdentifier.get();
+                var current = ClientMorphManager.currentIdentifier.get();
 
                 if (current != null)
                 {
@@ -164,7 +170,7 @@ public class DisguiseScreen extends Screen
             this.addDrawable(selectedIdentifierText);
             this.addDrawable(serverAPIText);
 
-            if (!MorphClient.getInstance().serverApiMatch())
+            if (!MorphClient.getInstance().serverHandler.serverApiMatch())
                 this.addDrawable(outdatedText);
 
             //顶端文本

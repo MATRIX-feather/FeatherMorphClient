@@ -23,18 +23,22 @@ public class DisguiseSyncer
 {
     public DisguiseSyncer()
     {
-        MorphClient.selfViewIdentifier.onValueChanged(this::refreshClientViewEntity);
+        var selfViewIdentifier = ClientMorphManager.selfViewIdentifier;
+        var currentNbtCompound = ClientMorphManager.currentNbtCompound;
+        var serverHandler = MorphClient.getInstance().serverHandler;
 
-        MorphClient.currentNbtCompound.onValueChanged((o, n) ->
+        selfViewIdentifier.onValueChanged(this::refreshClientViewEntity);
+
+        currentNbtCompound.onValueChanged((o, n) ->
         {
             if (n != null) MorphClient.getInstance().schedule(() -> this.mergeNbt(n));
         });
 
         ClientTickEvents.END_WORLD_TICK.register((w) ->
         {
-            if (w != prevWorld && MorphClient.serverReady.get() && prevWorld != null)
+            if (w != prevWorld && serverHandler.serverReady() && prevWorld != null)
             {
-                var id = MorphClient.selfViewIdentifier.get();
+                var id = ClientMorphManager.selfViewIdentifier.get();
 
                 refreshClientViewEntity(id, id);
             }
@@ -95,7 +99,7 @@ public class DisguiseSyncer
         {
             client.schedule(() -> clientWorld.addEntity(entity.getId(), entity));
 
-            var nbt = MorphClient.currentNbtCompound.get();
+            var nbt = ClientMorphManager.currentNbtCompound.get();
             if (nbt != null)
                 client.schedule(() -> mergeNbt(nbt));
         }
@@ -163,7 +167,7 @@ public class DisguiseSyncer
         assert clientPlayer != null;
 
         MorphClient.getInstance().updateClientView(true, false);
-        MorphClient.selfViewIdentifier.set(null);
+        ClientMorphManager.selfViewIdentifier.set(null);
 
         clientPlayer.sendMessage(Text.literal("更新当前实体时出现错误。"));
         clientPlayer.sendMessage(Text.literal("在当前伪装变更前客户端预览将被禁用以避免游戏崩溃。"));
@@ -201,7 +205,7 @@ public class DisguiseSyncer
         {
             LoggerFactory.getLogger("MorphClient").warn("正试图更新一个已被移除的客户端预览实体");
 
-            var id = MorphClient.selfViewIdentifier.get();
+            var id = ClientMorphManager.selfViewIdentifier.get();
             this.refreshClientViewEntity(id, id);
             return;
         }
@@ -279,7 +283,7 @@ public class DisguiseSyncer
         ((EntityAccessor) entity).setTouchingWater(clientPlayer.isTouchingWater());
 
         //同步装备
-        if (!MorphClient.equipOverriden.get())
+        if (!ClientMorphManager.equipOverriden.get())
         {
             entity.equipStack(EquipmentSlot.MAINHAND, clientPlayer.getEquippedStack(EquipmentSlot.MAINHAND));
             entity.equipStack(EquipmentSlot.OFFHAND, clientPlayer.getEquippedStack(EquipmentSlot.OFFHAND));
@@ -291,15 +295,15 @@ public class DisguiseSyncer
         }
         else
         {
-            var client = MorphClient.getInstance();
+            var manager = MorphClient.getInstance().morphManager;
 
-            entity.equipStack(EquipmentSlot.MAINHAND, client.getOverridedItemStackOn(EquipmentSlot.MAINHAND));
-            entity.equipStack(EquipmentSlot.OFFHAND, client.getOverridedItemStackOn(EquipmentSlot.OFFHAND));
+            entity.equipStack(EquipmentSlot.MAINHAND, manager.getOverridedItemStackOn(EquipmentSlot.MAINHAND));
+            entity.equipStack(EquipmentSlot.OFFHAND, manager.getOverridedItemStackOn(EquipmentSlot.OFFHAND));
 
-            entity.equipStack(EquipmentSlot.HEAD, client.getOverridedItemStackOn(EquipmentSlot.HEAD));
-            entity.equipStack(EquipmentSlot.CHEST, client.getOverridedItemStackOn(EquipmentSlot.CHEST));
-            entity.equipStack(EquipmentSlot.LEGS, client.getOverridedItemStackOn(EquipmentSlot.LEGS));
-            entity.equipStack(EquipmentSlot.FEET, client.getOverridedItemStackOn(EquipmentSlot.FEET));
+            entity.equipStack(EquipmentSlot.HEAD, manager.getOverridedItemStackOn(EquipmentSlot.HEAD));
+            entity.equipStack(EquipmentSlot.CHEST, manager.getOverridedItemStackOn(EquipmentSlot.CHEST));
+            entity.equipStack(EquipmentSlot.LEGS, manager.getOverridedItemStackOn(EquipmentSlot.LEGS));
+            entity.equipStack(EquipmentSlot.FEET, manager.getOverridedItemStackOn(EquipmentSlot.FEET));
         }
 
         //同步Pose

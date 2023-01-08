@@ -20,6 +20,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
+import xiamomc.morph.client.ClientMorphManager;
 import xiamomc.morph.client.MorphLocalPlayer;
 import xiamomc.morph.client.mixin.accessors.LivingRendererAccessor;
 import xiamomc.morph.client.DisguiseSyncer;
@@ -70,7 +71,7 @@ public class PlayerRenderHelper
         assert clientPlayer != null;
 
         MorphClient.getInstance().updateClientView(true, false);
-        MorphClient.selfViewIdentifier.set(null);
+        ClientMorphManager.selfViewIdentifier.set(null);
 
         clientPlayer.sendMessage(Text.literal("渲染当前实体时出现错误。"));
         clientPlayer.sendMessage(Text.literal("在当前伪装变更前客户端预览将被禁用以避免游戏崩溃。"));

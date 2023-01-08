@@ -15,7 +15,7 @@ public abstract class EntityMixin
     private int id;
 
     @Inject(method = "squaredDistanceTo(Lnet/minecraft/entity/Entity;)D", at = @At("HEAD"), cancellable = true)
-    private void onSquaredDistanceToCall(CallbackInfoReturnable<Double> cir)
+    private void morphClient$onSquaredDistanceToCall(CallbackInfoReturnable<Double> cir)
     {
         if (EntityCache.containsId(id))
             cir.setReturnValue(1d);

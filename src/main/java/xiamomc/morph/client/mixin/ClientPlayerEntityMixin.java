@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xiamomc.morph.client.MorphClient;
+import xiamomc.morph.client.ServerHandler;
 
 @Mixin(ClientPlayerEntity.class)
 public class ClientPlayerEntityMixin
@@ -23,7 +24,7 @@ public class ClientPlayerEntityMixin
     @Inject(method = "isSneaking", at = @At("HEAD"), cancellable = true)
     private void onSneakingCall(CallbackInfoReturnable<Boolean> cir)
     {
-        var serverSideSneaking = MorphClient.serverSideSneaking;
+        var serverSideSneaking = ServerHandler.serverSideSneaking;
 
         //如果input的下蹲状态发生变化，则重置服务器状态并返回input的当前状态
         if (input != null && (inputLastValue == null || input.sneaking != inputLastValue))
@@ -31,7 +32,7 @@ public class ClientPlayerEntityMixin
             inputLastValue = input.sneaking;
 
             cir.setReturnValue(input.sneaking);
-            MorphClient.serverSideSneaking = serverSideSneaking = null;
+            ServerHandler.serverSideSneaking = serverSideSneaking = null;
             return;
         }
 
