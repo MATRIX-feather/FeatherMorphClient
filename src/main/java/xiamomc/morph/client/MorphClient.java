@@ -75,6 +75,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
 
     public ClientMorphManager morphManager;
     public ServerHandler serverHandler;
+    private ClientSkillHandler skillHandler;
 
     @Override
     public void onInitializeClient()
@@ -120,6 +121,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
         dependencyManager.cache(morphManager = new ClientMorphManager());
         dependencyManager.cache(serverHandler = new ServerHandler(this));
         dependencyManager.cache(disguiseSyncer = new DisguiseSyncer());
+        dependencyManager.cache(skillHandler = new ClientSkillHandler());
         dependencyManager.cache(modConfigData);
 
         serverHandler.initializeNetwork();
@@ -139,8 +141,11 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
 
     private void updateKeys(MinecraftClient client)
     {
-        if (executeSkillKeyBind.wasPressed())
+        if (executeSkillKeyBind.wasPressed() && skillHandler.getCurrentCooldown() == 0)
+        {
+            skillHandler.setSkillCooldown(skillHandler.getSkillCooldown());
             serverHandler.sendCommand(new C2SSkillCommand());
+        }
 
         if (unMorphKeyBind.wasPressed())
             serverHandler.sendCommand(new C2SUnmorphCommand());

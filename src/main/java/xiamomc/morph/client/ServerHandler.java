@@ -49,6 +49,9 @@ public class ServerHandler extends MorphClientObject
     @Resolved
     private ModConfigData config;
 
+    @Resolved
+    private ClientSkillHandler skillHandler;
+
     //endregion
 
     //region Network
@@ -239,6 +242,22 @@ public class ServerHandler extends MorphClientObject
 
                         switch (subCmdName)
                         {
+                            case "cd" ->
+                            {
+                                if (str.length < 3) return;
+
+                                long val = -1;
+
+                                try
+                                {
+                                    val = Math.max(0L, Long.parseLong(str[2]));
+                                }
+                                catch (Throwable ignored)
+                                {
+                                }
+
+                                skillHandler.setSkillCooldown(val);
+                            }
                             case "toggleself" ->
                             {
                                 if (str.length < 3) return;
