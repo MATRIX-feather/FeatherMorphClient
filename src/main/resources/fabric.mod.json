@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "client",
+  "id": "feathermorph-client",
   "version": "${version}",
   "name": "MorphClient",
   "description": "变形插件的客户端模组",
