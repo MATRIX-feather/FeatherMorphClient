@@ -111,6 +111,7 @@ public class ServerHandler extends MorphClientObject
         handshakeReceived = false;
         apiVersionChecked = false;
 
+        morphManager.reset();
         updateServerStatus();
     }
 

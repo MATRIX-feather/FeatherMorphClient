@@ -160,7 +160,7 @@ public class ClientMorphManager extends MorphClientObject
 
         selectedIdentifier.set(null);
         currentIdentifier.set(null);
-        selectedIdentifier.set(null);
+        selfViewIdentifier.set(null);
     }
 
     public void setCurrent(String val)
