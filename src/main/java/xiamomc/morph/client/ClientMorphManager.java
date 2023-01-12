@@ -1,24 +1,25 @@
 package xiamomc.morph.client;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import xiamomc.pluginbase.Bindables.Bindable;
-import xiamomc.pluginbase.Bindables.BindableList;
 
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
 import java.util.function.Function;
 
 public class ClientMorphManager extends MorphClientObject
 {
-    private final BindableList<String> availableMorphs = new BindableList<>();
+    private final SortedSet<String> availableMorphs = new ObjectAVLTreeSet<>();
 
     public List<String> getAvailableMorphs()
     {
-        return availableMorphs;
+        return availableMorphs.stream().toList();
     }
 
     public void clearAvailableDisguises()
@@ -85,7 +86,7 @@ public class ClientMorphManager extends MorphClientObject
 
     public void setDisguises(List<String> identifiers)
     {
-        invokeRevoke(availableMorphs);
+        invokeRevoke(availableMorphs.stream().toList());
 
         availableMorphs.clear();
 

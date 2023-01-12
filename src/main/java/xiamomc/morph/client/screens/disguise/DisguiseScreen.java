@@ -29,7 +29,8 @@ public class DisguiseScreen extends Screen
         {
             if (!this.isCurrent()) return false;
 
-            c.forEach(s -> list.children().add(new StringWidget(s)));
+            var availableMorphs = manager.getAvailableMorphs();
+            c.forEach(s -> list.children().add(availableMorphs.indexOf(s), new StringWidget(s)));
 
             return true;
         });
