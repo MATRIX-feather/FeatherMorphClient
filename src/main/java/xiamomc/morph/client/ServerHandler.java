@@ -8,6 +8,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.mob.GhastEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.StringNbtReader;
@@ -332,6 +333,15 @@ public class ServerHandler extends MorphClientObject
                                 if (str.length < 3) return;
 
                                 serverSideSneaking = Boolean.valueOf(str[2]);
+                            }
+                            case "aggressive" ->
+                            {
+                                if (str.length < 3) return;
+
+                                var aggressive = Boolean.valueOf(str[2]);
+
+                                if (syncer.entity instanceof GhastEntity ghastEntity)
+                                    ghastEntity.setShooting(aggressive);
                             }
                         }
                     }
