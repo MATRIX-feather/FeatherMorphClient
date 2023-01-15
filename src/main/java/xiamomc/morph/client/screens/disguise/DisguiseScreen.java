@@ -10,11 +10,12 @@ import xiamomc.morph.client.ClientMorphManager;
 import xiamomc.morph.client.EntityCache;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.ServerHandler;
+import xiamomc.morph.client.screens.FeatherScreen;
 import xiamomc.pluginbase.Bindables.Bindable;
 import xiamomc.morph.client.graphics.DrawableText;
 import xiamomc.morph.client.graphics.ToggleSelfButton;
 
-public class DisguiseScreen extends Screen
+public class DisguiseScreen extends FeatherScreen
 {
     public DisguiseScreen()
     {
@@ -77,7 +78,6 @@ public class DisguiseScreen extends Screen
             selectedIdentifierText.setText(text);
         }, true);
 
-        serverAPIText.setText("Client " + serverHandler.getClientVersion() + " :: " + "Server " + serverHandler.getServerVersion());
         serverAPIText.setColor(0x99ffffff);
 
         titleText.setWidth(200);
@@ -124,28 +124,51 @@ public class DisguiseScreen extends Screen
     private final DrawableText notReadyText = new DrawableText(Text.translatable("gui.morphclient.waiting_for_server"));
     private final DrawableText outdatedText = new DrawableText(Text.translatable("gui.morphclient.version_mismatch").formatted(Formatting.GOLD).formatted(Formatting.BOLD));
 
-    private boolean isCurrent()
-    {
-        return MinecraftClient.getInstance().currentScreen == this;
-    }
+    private final int fontMargin = 4;
 
     @Override
-    public void close()
+    protected void onScreenExit()
     {
+        super.onScreenExit();
+
         //workaround: Bindable在界面关闭后还是会保持引用，得手动把字段设置为null
         list.clearChildren();
-
-        super.close();
     }
 
-    private boolean isInitialCall = true;
+    @Override
+    protected void onScreenEnter()
+    {
+        super.onScreenEnter();
+
+        list.updateSize(width, this.height, textRenderer.fontHeight * 2 + fontMargin * 2, this.height - 30);
+
+        //第一次打开时滚动到当前伪装
+        var current = manager.currentIdentifier.get();
+
+        if (current != null)
+        {
+            list.scrollTo(list.children().stream()
+                    .filter(w -> current.equals(w.getIdentifier())).findFirst().orElse(null));
+        }
+
+        this.addDrawableChild(list);
+
+        //侧边显示
+        this.addDrawable(titleText);
+        this.addDrawable(selectedIdentifierText);
+        this.addDrawable(serverAPIText);
+
+        if (!MorphClient.getInstance().serverHandler.serverApiMatch())
+            this.addDrawable(outdatedText);
+
+        this.addDrawableChild(closeButton);
+        this.addDrawableChild(selfVisibleToggle);
+        this.addDrawableChild(configMenuButton);
+    }
 
     @Override
-    protected void init()
+    protected void onScreenResize()
     {
-        int fontMargin = 4;
-
-        super.init();
         assert this.client != null;
 
         if (serverHandler.serverReady.get())
@@ -153,29 +176,7 @@ public class DisguiseScreen extends Screen
             //列表
             list.updateSize(width, this.height, textRenderer.fontHeight * 2 + fontMargin * 2, this.height - 30);
 
-            if (isInitialCall)
-            {
-                //第一次打开时滚动到当前伪装
-                var current = manager.currentIdentifier.get();
-
-                if (current != null)
-                {
-                    list.scrollTo(list.children().stream()
-                            .filter(w -> current.equals(w.getIdentifier())).findFirst().orElse(null));
-                }
-
-                isInitialCall = false;
-            }
-
-            this.addDrawableChild(list);
-
-            //侧边显示
-            this.addDrawable(titleText);
-            this.addDrawable(selectedIdentifierText);
-            this.addDrawable(serverAPIText);
-
-            if (!MorphClient.getInstance().serverHandler.serverApiMatch())
-                this.addDrawable(outdatedText);
+            serverAPIText.setText("Client " + serverHandler.getClientVersion() + " :: " + "Server " + serverHandler.getServerVersion());
 
             //顶端文本
             var screenX = 30;
@@ -194,13 +195,8 @@ public class DisguiseScreen extends Screen
             //按钮
             var baseX = this.width - closeButton.getWidth() - 20;
 
-            this.addDrawableChild(closeButton);
             closeButton.setX(baseX);
-
-            this.addDrawableChild(selfVisibleToggle);
             selfVisibleToggle.setX(baseX - selfVisibleToggle.getWidth() - 5);
-
-            this.addDrawableChild(configMenuButton);
             configMenuButton.setX(baseX - selfVisibleToggle.getWidth() - 5 - configMenuButton.getWidth() - 5);
 
             var bottomY = this.height - 25;
