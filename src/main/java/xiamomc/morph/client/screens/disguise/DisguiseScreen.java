@@ -1,7 +1,8 @@
 package xiamomc.morph.client.screens.disguise;
 
+import me.shedaniel.math.Color;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
@@ -10,10 +11,14 @@ import xiamomc.morph.client.ClientMorphManager;
 import xiamomc.morph.client.EntityCache;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.ServerHandler;
+import xiamomc.morph.client.graphics.transforms.Transformer;
+import xiamomc.morph.client.graphics.transforms.easings.Easing;
 import xiamomc.morph.client.screens.FeatherScreen;
+import xiamomc.pluginbase.Annotations.Resolved;
 import xiamomc.pluginbase.Bindables.Bindable;
 import xiamomc.morph.client.graphics.DrawableText;
 import xiamomc.morph.client.graphics.ToggleSelfButton;
+import xiamomc.pluginbase.Managers.DependencyManager;
 
 public class DisguiseScreen extends FeatherScreen
 {
@@ -31,7 +36,7 @@ public class DisguiseScreen extends FeatherScreen
             if (!this.isCurrent()) return false;
 
             var availableMorphs = manager.getAvailableMorphs();
-            c.forEach(s -> list.children().add(availableMorphs.indexOf(s), new StringWidget(s)));
+            c.forEach(s -> list.children().add(availableMorphs.indexOf(s), new LivingEntityDisguiseWidget(s)));
 
             return true;
         });
@@ -45,17 +50,17 @@ public class DisguiseScreen extends FeatherScreen
             return true;
         });
 
-        list.children().add(new StringWidget("morph:unmorph"));
-
-        manager.getAvailableMorphs().forEach(s -> list.children().add(new StringWidget(s)));
-
         selectedIdentifier.bindTo(manager.selectedIdentifier);
         selectedIdentifier.set(manager.currentIdentifier.get());
 
         serverHandler.serverReady.onValueChanged((o, n) ->
         {
-            MorphClient.getInstance().schedule(this::clearAndInit);
-        });
+            MorphClient.getInstance().schedule(() ->
+            {
+                if (this.isCurrent() && !n)
+                    this.push(new WaitingForServerScreen());
+            });
+        }, true);
 
         //初始化文本
         manager.currentIdentifier.onValueChanged((o, n) ->
@@ -99,15 +104,6 @@ public class DisguiseScreen extends FeatherScreen
         selfVisibleToggle = new ToggleSelfButton(0, 0, 20, 20, manager.selfVisibleToggled.get(), this);
     }
 
-    private ButtonWidget buildWidget(int x, int y, int width, int height, Text text, ButtonWidget.PressAction action)
-    {
-        var builder = ButtonWidget.builder(text, action);
-
-        builder.dimensions(x, y, width, height);
-
-        return builder.build();
-    }
-
     private final Bindable<String> selectedIdentifier = new Bindable<>();
 
     private final ButtonWidget closeButton;
@@ -117,39 +113,73 @@ public class DisguiseScreen extends FeatherScreen
     private final ClientMorphManager manager;
     private final ServerHandler serverHandler;
 
-    private final IdentifierDrawableList list = new IdentifierDrawableList(client, 200, 0, 20, 0, 22);
+    private final DisguiseList list = new DisguiseList(client, 200, 0, 20, 0, 22);
     private final DrawableText titleText = new DrawableText(Text.translatable("gui.morphclient.select_disguise"));
     private final DrawableText selectedIdentifierText = new DrawableText();
     private final DrawableText serverAPIText = new DrawableText();
-    private final DrawableText notReadyText = new DrawableText(Text.translatable("gui.morphclient.waiting_for_server"));
     private final DrawableText outdatedText = new DrawableText(Text.translatable("gui.morphclient.version_mismatch").formatted(Formatting.GOLD).formatted(Formatting.BOLD));
 
     private final int fontMargin = 4;
 
     @Override
-    protected void onScreenExit()
+    protected void onScreenExit(FeatherScreen next)
     {
-        super.onScreenExit();
+        super.onScreenExit(next);
 
-        //workaround: Bindable在界面关闭后还是会保持引用，得手动把字段设置为null
-        list.clearChildren();
+        if (next == null)
+        {
+            //workaround: Bindable在界面关闭后还是会保持引用，得手动把字段设置为null
+            list.clearChildren();
+        }
+    }
+
+    private final Bindable<Integer> topHeight = new Bindable<>(0);
+    private final Bindable<Integer> bottomHeight = new Bindable<>(0);
+    private final Bindable<Float> backgroundDim = new Bindable<>(0f);
+
+    public float getBackgroundDim()
+    {
+        return backgroundDim.get();
     }
 
     @Override
-    protected void onScreenEnter()
+    protected void onScreenEnter(FeatherScreen last)
     {
-        super.onScreenEnter();
+        super.onScreenEnter(last);
 
-        list.updateSize(width, this.height, textRenderer.fontHeight * 2 + fontMargin * 2, this.height - 30);
-
-        //第一次打开时滚动到当前伪装
-        var current = manager.currentIdentifier.get();
-
-        if (current != null)
+        if (last == null || last instanceof WaitingForServerScreen)
         {
-            list.scrollTo(list.children().stream()
-                    .filter(w -> current.equals(w.getIdentifier())).findFirst().orElse(null));
+            list.children().add(new LivingEntityDisguiseWidget("morph:unmorph"));
+
+            manager.getAvailableMorphs().forEach(s -> list.children().add(new LivingEntityDisguiseWidget(s)));
+
+            //第一次打开时滚动到当前伪装
+            var current = manager.currentIdentifier.get();
+
+            if (current != null)
+            {
+                list.scrollTo(list.children().stream()
+                        .filter(w -> current.equals(w.getIdentifier())).findFirst().orElse(null));
+            }
         }
+
+        if (last instanceof WaitingForServerScreen waitingForServerScreen)
+            backgroundDim.set(waitingForServerScreen.getCurrentDim());
+
+        list.updateSize(width, this.height, 0, 0);
+
+        var duration = MorphClient.getInstance().getModConfigData().duration;
+        var easing = MorphClient.getInstance().getModConfigData().easing;
+
+        topHeight.onValueChanged((o, n) ->
+        {
+            list.setTopPadding(n);
+            list.setHeaderHeight(textRenderer.fontHeight * 2 + fontMargin * 2 - n);
+        }, true);
+        bottomHeight.onValueChanged((o, n) -> list.setBottomPadding(this.height - n));
+        Transformer.transformBindable(topHeight, textRenderer.fontHeight * 2 + fontMargin * 2, duration, easing);
+        Transformer.transformBindable(bottomHeight, 30, duration, easing);
+        Transformer.transformBindable(backgroundDim, 0.7f, duration, easing);
 
         this.addDrawableChild(list);
 
@@ -171,51 +201,25 @@ public class DisguiseScreen extends FeatherScreen
     {
         assert this.client != null;
 
-        if (serverHandler.serverReady.get())
-        {
-            //列表
-            list.updateSize(width, this.height, textRenderer.fontHeight * 2 + fontMargin * 2, this.height - 30);
+        //列表
+        list.updateSize(width, this.height, list.getTopPadding(), this.height - bottomHeight.get());
 
-            serverAPIText.setText("Client " + serverHandler.getClientVersion() + " :: " + "Server " + serverHandler.getServerVersion());
+        //顶端文本
+        var screenX = 30;
 
-            //顶端文本
-            var screenX = 30;
+        outdatedText.setScreenX(screenX);
+        titleText.setScreenX(screenX);
+        selectedIdentifierText.setScreenX(screenX);
+        serverAPIText.setScreenX(screenX);
 
-            serverAPIText.setScreenX(screenX);
-            serverAPIText.setScreenY(this.height - textRenderer.fontHeight - fontMargin);
+        serverAPIText.setText("Client " + serverHandler.getClientVersion() + " :: " + "Server " + serverHandler.getServerVersion());
 
-            outdatedText.setScreenX(screenX);
-            outdatedText.setScreenY(this.height - textRenderer.fontHeight * 2 - fontMargin - 2);
+        //按钮
+        var baseX = this.width - closeButton.getWidth() - 20;
 
-            titleText.setScreenX(screenX);
-            titleText.setScreenY(fontMargin);
-            selectedIdentifierText.setScreenX(screenX);
-            selectedIdentifierText.setScreenY(fontMargin + 2 + textRenderer.fontHeight);
-
-            //按钮
-            var baseX = this.width - closeButton.getWidth() - 20;
-
-            closeButton.setX(baseX);
-            selfVisibleToggle.setX(baseX - selfVisibleToggle.getWidth() - 5);
-            configMenuButton.setX(baseX - selfVisibleToggle.getWidth() - 5 - configMenuButton.getWidth() - 5);
-
-            var bottomY = this.height - 25;
-            selfVisibleToggle.setY(bottomY);
-            closeButton.setY(bottomY);
-            configMenuButton.setY(bottomY);
-        }
-        else
-        {
-            this.addDrawable(notReadyText);
-
-            notReadyText.setScreenY(this.height / 2);
-            notReadyText.setScreenX(this.width / 2 - 32);
-
-            this.addDrawableChild(this.buildWidget(this.width / 2 - 75, this.height - 29, 150, 20, Text.translatable("gui.back"), (button) ->
-            {
-                this.close();
-            }));
-        }
+        closeButton.setX(baseX);
+        selfVisibleToggle.setX(baseX - selfVisibleToggle.getWidth() - 5);
+        configMenuButton.setX(baseX - selfVisibleToggle.getWidth() - 5 - configMenuButton.getWidth() - 5);
     }
 
     @Override
@@ -227,7 +231,22 @@ public class DisguiseScreen extends FeatherScreen
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta)
     {
-        this.renderBackground(matrices);
+        var dim = (int) (255 * backgroundDim.get());
+        var color = Color.ofRGBA(0, 0, 0, dim);
+
+        var bottomMargin = (30 - this.bottomHeight.get());
+        titleText.setScreenY(this.topHeight.get() - (textRenderer.fontHeight + 2) * 2);
+        selectedIdentifierText.setScreenY(this.topHeight.get() - (textRenderer.fontHeight + 2));
+
+        var bottomY = this.height - 25 + bottomMargin;
+        selfVisibleToggle.setY(bottomY);
+        closeButton.setY(bottomY);
+        configMenuButton.setY(bottomY);
+
+        serverAPIText.setScreenY(this.height - textRenderer.fontHeight - fontMargin + bottomMargin);
+        outdatedText.setScreenY(this.height - textRenderer.fontHeight * 2 - fontMargin - 2 + bottomMargin);
+
+        this.fillGradient(matrices, 0, 0, this.width, this.height, color.getColor(), color.getColor());
         super.render(matrices, mouseX, mouseY, delta);
     }
 

@@ -10,6 +10,7 @@
     "CreativeInventoryMixin",
     "EntityMixin",
     "InventoryScreenMixin",
+    "MinecraftClientMixin",
     "PlayerEntityRendererMixin",
     "accessors.ArmorStandEntityAccessor",
     "accessors.DragonEntityRendererAccessor",

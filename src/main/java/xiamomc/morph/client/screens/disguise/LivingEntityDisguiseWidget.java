@@ -16,7 +16,6 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.MagmaCubeEntity;
 import net.minecraft.registry.Registries;
-import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +29,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-public class StringWidget extends ElementListWidget.Entry<StringWidget> implements Comparable<StringWidget>
+public class LivingEntityDisguiseWidget extends ElementListWidget.Entry<LivingEntityDisguiseWidget> implements Comparable<LivingEntityDisguiseWidget>
 {
     private TextWidget field;
 
@@ -54,7 +53,7 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget> implemen
     }
     private final List<TextWidget> children = new ObjectArrayList<>();
 
-    public StringWidget(String name)
+    public LivingEntityDisguiseWidget(String name)
     {
         initFields(name);
     }
@@ -62,6 +61,7 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget> implemen
     public void clearChildren()
     {
         children.forEach(TextWidget::dispose);
+        children.clear();
     }
 
     private void initFields(String name)
@@ -79,9 +79,9 @@ public class StringWidget extends ElementListWidget.Entry<StringWidget> implemen
     }
 
     @Override
-    public int compareTo(@NotNull StringWidget stringWidget)
+    public int compareTo(@NotNull LivingEntityDisguiseWidget livingEntityDisguiseWidget)
     {
-        return identifier.compareTo(stringWidget.identifier);
+        return identifier.compareTo(livingEntityDisguiseWidget.identifier);
     }
 
     private static class TextWidget extends MorphClientObject implements Selectable, Drawable, Element

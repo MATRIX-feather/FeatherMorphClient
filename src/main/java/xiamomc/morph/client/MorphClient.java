@@ -23,7 +23,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.config.ModConfigData;
 import xiamomc.morph.client.graphics.ModelWorkarounds;
+import xiamomc.morph.client.graphics.transforms.easings.Easing;
 import xiamomc.morph.client.screens.disguise.DisguiseScreen;
+import xiamomc.morph.client.screens.disguise.WaitingForServerScreen;
 import xiamomc.morph.network.commands.C2S.*;
 import xiamomc.pluginbase.AbstractSchedulablePlugin;
 import xiamomc.pluginbase.ScheduleInfo;
@@ -169,7 +171,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
             }
             else if (client.currentScreen == null)
             {
-                client.setScreen(new DisguiseScreen());
+                client.setScreen(new WaitingForServerScreen());
             }
         }
 
@@ -270,6 +272,28 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
                         .setSaveConsumer(v ->
                         {
                             modConfigData.verbosePackets = v;
+                        })
+                        .build()
+        );
+
+        categoryGeneral.addEntry(
+                entryBuilder.startEnumSelector(Text.translatable("option.morphclient.easing.name"), Easing.class, modConfigData.easing)
+                        .setTooltip(Text.translatable("option.morphclient.easing.description"))
+                        .setDefaultValue(Easing.OutQuint)
+                        .setSaveConsumer(v ->
+                        {
+                            modConfigData.easing = v;
+                        })
+                        .build()
+        );
+
+        categoryGeneral.addEntry(
+                entryBuilder.startIntField(Text.translatable("option.morphclient.animationTime.name"), modConfigData.duration)
+                        .setTooltip(Text.translatable("option.morphclient.animationTime.description"))
+                        .setDefaultValue(450)
+                        .setSaveConsumer(v ->
+                        {
+                            modConfigData.duration = v;
                         })
                         .build()
         );

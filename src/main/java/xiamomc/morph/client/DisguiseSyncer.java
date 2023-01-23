@@ -8,6 +8,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.attribute.EntityAttribute;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.passive.CamelEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -253,6 +255,13 @@ public class DisguiseSyncer extends MorphClientObject
             entity.setSleepingPosition(sleepPos);
         else
             entity.clearSleepingPosition();
+
+        var attribute = entity.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH);
+
+        if (attribute != null)
+            attribute.setBaseValue(clientPlayer.getMaxHealth());
+
+        entity.setHealth(clientPlayer.getHealth());
 
         entity.handSwinging = clientPlayer.handSwinging;
         entity.handSwingProgress = clientPlayer.handSwingProgress;

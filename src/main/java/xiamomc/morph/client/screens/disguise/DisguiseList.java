@@ -3,17 +3,19 @@ package xiamomc.morph.client.screens.disguise;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.ElementListWidget;
 import net.minecraft.client.util.math.MatrixStack;
+import xiamomc.morph.client.MorphClient;
 
-public class IdentifierDrawableList extends ElementListWidget<StringWidget>
+public class DisguiseList extends ElementListWidget<LivingEntityDisguiseWidget>
 {
-    public IdentifierDrawableList(MinecraftClient minecraftClient, int i, int j, int k, int l, int m)
+    public DisguiseList(MinecraftClient minecraftClient, int width, int height, int topPadding, int bottomPadding, int itemHeight)
     {
-        super(minecraftClient, i, j, k, l, m);
+        super(minecraftClient, width, height, topPadding, bottomPadding, itemHeight);
     }
 
     public void clearChildren()
     {
-        children().forEach(StringWidget::clearChildren);
+        children().forEach(LivingEntityDisguiseWidget::clearChildren);
+        clearEntries();
     }
 
     public void setHeight(int nH)
@@ -26,12 +28,27 @@ public class IdentifierDrawableList extends ElementListWidget<StringWidget>
         this.width = w;
     }
 
-    public void setBottom(int b)
+    public void setBottomPadding(int b)
     {
         this.bottom = b;
     }
 
-    public void scrollTo(StringWidget widget)
+    public int getBottomPadding()
+    {
+        return this.bottom;
+    }
+
+    public int getTopPadding()
+    {
+        return this.top;
+    }
+
+    public void setTopPadding(int newPadding)
+    {
+        this.top = newPadding;
+    }
+
+    public void scrollTo(LivingEntityDisguiseWidget widget)
     {
         if (widget == null || !children().contains(widget)) return;
 
@@ -48,11 +65,15 @@ public class IdentifierDrawableList extends ElementListWidget<StringWidget>
         return 200;
     }
 
+    public void setHeaderHeight(int newHeaderHeight)
+    {
+        this.setRenderHeader(true, newHeaderHeight);
+    }
+
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta)
     {
         this.setRenderBackground(false);
-        this.setRenderHeader(false, 0);
 
         super.render(matrices, mouseX, mouseY, delta);
     }

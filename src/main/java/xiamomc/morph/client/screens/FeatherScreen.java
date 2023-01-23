@@ -7,7 +7,9 @@ import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -24,7 +26,10 @@ public abstract class FeatherScreen extends Screen
     {
         if (isInitialInitialize)
         {
-            this.onScreenEnter();
+            var last = lastScreen;
+            lastScreen = null;
+
+            this.onScreenEnter(last);
             this.onScreenResize();
             isInitialInitialize = false;
         }
@@ -53,8 +58,16 @@ public abstract class FeatherScreen extends Screen
     @Override
     public void removed()
     {
-        this.onScreenExit();
+        isInitialInitialize = true;
 
+        var next = nextScreen;
+        nextScreen = null;
+
+        this.onScreenExit(next);
+
+        this.drawables.clear();
+        this.elements.clear();
+        this.clearChildren();
         super.removed();
     }
 
@@ -126,11 +139,31 @@ public abstract class FeatherScreen extends Screen
     {
     }
 
-    protected void onScreenEnter()
+    private FeatherScreen lastScreen;
+    private FeatherScreen nextScreen;
+
+    protected void onScreenEnter(@Nullable FeatherScreen lastScreen)
     {
     }
 
-    protected void onScreenExit()
+    protected void onScreenExit(@Nullable FeatherScreen nextScreen)
     {
+    }
+
+    protected ButtonWidget buildWidget(int x, int y, int width, int height, Text text, ButtonWidget.PressAction action)
+    {
+        var builder = ButtonWidget.builder(text, action);
+
+        builder.dimensions(x, y, width, height);
+
+        return builder.build();
+    }
+
+    protected void push(FeatherScreen screen)
+    {
+        screen.lastScreen = this;
+        this.nextScreen = screen;
+
+        MinecraftClient.getInstance().setScreen(screen);
     }
 }
