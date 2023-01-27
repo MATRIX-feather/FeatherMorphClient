@@ -3,7 +3,6 @@ package xiamomc.morph.client.screens.disguise;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.ElementListWidget;
 import net.minecraft.client.util.math.MatrixStack;
-import xiamomc.morph.client.MorphClient;
 
 public class DisguiseList extends ElementListWidget<LivingEntityDisguiseWidget>
 {
@@ -52,8 +51,15 @@ public class DisguiseList extends ElementListWidget<LivingEntityDisguiseWidget>
     {
         if (widget == null || !children().contains(widget)) return;
 
+        //top和bottom此时可能正处于动画中，因此需要我们自己确定最终屏幕的可用空间大小
+        //在界面Header和Footer替换成我们自己的实现之前先这样
+        var fontMargin = 4;
+        var topPadding = MinecraftClient.getInstance().textRenderer.fontHeight * 2 + fontMargin * 2;
+        var bottomPadding = 30;
+        var finalScreenSpaceHeight = this.height - topPadding - bottomPadding;
+
         var amount = children().indexOf(widget) * itemHeight - itemHeight * 3;
-        var maxScroll = this.getMaxScroll();
+        var maxScroll = this.getEntryCount() * this.itemHeight - finalScreenSpaceHeight + 4;
         if (amount > maxScroll) amount = maxScroll;
 
         this.setScrollAmount(amount);

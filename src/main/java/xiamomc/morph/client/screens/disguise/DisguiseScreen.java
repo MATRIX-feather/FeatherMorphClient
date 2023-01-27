@@ -147,6 +147,8 @@ public class DisguiseScreen extends FeatherScreen
     {
         super.onScreenEnter(last);
 
+        list.updateSize(width, this.height, 0, 0);
+
         if (last == null || last instanceof WaitingForServerScreen)
         {
             list.children().add(new LivingEntityDisguiseWidget("morph:unmorph"));
@@ -165,8 +167,6 @@ public class DisguiseScreen extends FeatherScreen
 
         if (last instanceof WaitingForServerScreen waitingForServerScreen)
             backgroundDim.set(waitingForServerScreen.getCurrentDim());
-
-        list.updateSize(width, this.height, 0, 0);
 
         var duration = MorphClient.getInstance().getModConfigData().duration;
         var easing = MorphClient.getInstance().getModConfigData().easing;
