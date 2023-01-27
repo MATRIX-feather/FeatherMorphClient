@@ -4,6 +4,7 @@
   "package": "xiamomc.morph.client.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "accessors.AbstractHorseEntityMixin"
   ],
   "client": [
     "ClientPlayerEntityMixin",

@@ -8,20 +8,22 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.passive.CamelEntity;
+import net.minecraft.entity.passive.HorseEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.slf4j.LoggerFactory;
+import xiamomc.morph.client.mixin.accessors.AbstractHorseEntityMixin;
+import xiamomc.morph.client.mixin.accessors.EntityAccessor;
 import xiamomc.pluginbase.Annotations.Initializer;
 import xiamomc.pluginbase.Annotations.Resolved;
 import xiamomc.pluginbase.Bindables.Bindable;
-import xiamomc.morph.client.mixin.accessors.EntityAccessor;
 
 public class DisguiseSyncer extends MorphClientObject
 {
@@ -38,7 +40,7 @@ public class DisguiseSyncer extends MorphClientObject
 
         currentNbtCompound.onValueChanged((o, n) ->
         {
-            if (n != null) MorphClient.getInstance().schedule(() -> this.mergeNbt(n));
+            if (n != null) MorphClient.getInstance().schedule(() -> this.mergeNbt(entity, n));
         });
 
         ClientTickEvents.END_WORLD_TICK.register((w) ->
@@ -110,7 +112,7 @@ public class DisguiseSyncer extends MorphClientObject
 
             var nbt = morphManager.currentNbtCompound.get();
             if (nbt != null)
-                client.schedule(() -> mergeNbt(nbt));
+                client.schedule(() -> mergeNbt(entity, nbt));
         }
     }
 
@@ -182,10 +184,37 @@ public class DisguiseSyncer extends MorphClientObject
         clientPlayer.sendMessage(Text.literal("在当前伪装变更前客户端预览将被禁用以避免游戏崩溃。"));
     }
 
-    private void mergeNbt(NbtCompound nbtCompound)
+    private void mergeNbt(LivingEntity entity, NbtCompound nbtCompound)
     {
         if (entity != null)
+        {
             entity.readCustomDataFromNbt(nbtCompound);
+
+            if (entity instanceof HorseEntity horse)
+            {
+                var haveSaddle = nbtCompound.contains("SaddleItem", 10);
+
+                if (haveSaddle)
+                {
+                    ItemStack itemStack = ItemStack.fromNbt(nbtCompound.getCompound("SaddleItem"));
+                    var isSaddle = itemStack.isOf(Items.SADDLE);
+
+                    ((AbstractHorseEntityMixin) horse).callSetHorseFlag(4, isSaddle);
+                }
+
+                //Doesn't work for unknown reason
+                if (nbtCompound.contains("ArmorItem", 10))
+                {
+                    ItemStack armorItem = ItemStack.fromNbt(nbtCompound.getCompound("ArmorItem"))
+                            .getItem().getDefaultStack().copyWithCount(1);
+
+                    //horse.equipHorseArmor(MinecraftClient.getInstance().player, armorItem);
+
+                    horse.equipStack(EquipmentSlot.CHEST, armorItem);
+                    ((AbstractHorseEntityMixin) horse).getItems().setStack(1, armorItem);
+                }
+            }
+        }
     }
 
     private void syncDraw(LivingEntity entity, PlayerEntity clientPlayer)

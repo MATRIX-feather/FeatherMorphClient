@@ -174,5 +174,6 @@ public class ClientMorphManager extends MorphClientObject
         equipOverriden.set(false);
         selfViewIdentifier.set(null);
         equipmentSlotItemStackMap.clear();
+        currentNbtCompound.set(null);
     }
 }
