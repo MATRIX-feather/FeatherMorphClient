@@ -1,6 +1,6 @@
 package xiamomc.morph.client.screens;
 
-import com.google.common.collect.Lists;
+import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Drawable;
@@ -10,6 +10,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
+import xiamomc.morph.client.MorphClient;
 
 import java.util.List;
 
@@ -39,16 +40,15 @@ public abstract class FeatherScreen extends Screen
 
             drawables.forEach(d ->
             {
-                if (d instanceof Element || d instanceof Selectable)
-                    super.addDrawableChild((Element & Drawable & Selectable) d);
-                else
-                    super.addDrawable(d);
+                super.addDrawable(d);
             });
 
             elements.forEach(e ->
             {
                 if (e instanceof Selectable selectable)
+                {
                     super.addSelectableChild((Element & Selectable) selectable);
+                }
             });
         }
 
