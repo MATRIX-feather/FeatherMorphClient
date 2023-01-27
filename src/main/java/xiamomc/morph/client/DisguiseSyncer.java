@@ -231,7 +231,7 @@ public class DisguiseSyncer extends MorphClientObject
         var playerPos = clientPlayer.getPos();
         entity.setPosition(playerPos.x, playerPos.y - 4096, playerPos.z);
 
-        if (entity.getType() != EntityType.ENDER_DRAGON)
+        if (!entity.ignoreCameraFrustum)
             entity.tick();
 
         if (entity instanceof CamelEntity camelEntity)
