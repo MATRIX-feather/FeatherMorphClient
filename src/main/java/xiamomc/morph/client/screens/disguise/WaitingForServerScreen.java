@@ -78,7 +78,7 @@ public class WaitingForServerScreen extends FeatherScreen
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta)
     {
         notReadyText.setScreenY(this.height / 2);
-        notReadyText.setScreenX(this.width / 2 - 32);
+        notReadyText.setScreenX((this.width -textRenderer.getWidth(notReadyText.getText()))  / 2);
 
         closeButton.setX(this.width / 2 - 75);
         closeButton.setY(this.height - 29);
