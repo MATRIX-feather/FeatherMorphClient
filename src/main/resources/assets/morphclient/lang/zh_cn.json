@@ -1,5 +1,5 @@
 {
-  "category.morphclient.keybind": "变形",
+  "category.morphclient.keybind": "FeatherMorph",
   "gui.morphclient.current_disguise": "当前伪装: %s",
   "gui.morphclient.loading": "加载中...",
   "gui.morphclient.no_disguise": "暂无",
@@ -24,5 +24,5 @@
   "option.morphclient.previewInInventory.name": "总是在背包中显示伪装预览",
   "option.morphclient.verbosePackets.description": "",
   "option.morphclient.verbosePackets.name": "（调试）记录发包",
-  "title.morphclient.config": "MorphClient设置"
+  "title.morphclient.config": "FeatherMorph客户端设置"
 }
