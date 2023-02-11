@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "id": "feathermorph-client",
   "version": "${version}",
-  "name": "MorphClient",
-  "description": "变形插件的客户端模组",
+  "name": "FeatherMorph",
+  "description": "Client mod for the FeatherMorph plugin",
   "authors": ["MATRIX-feather"],
   "contact":
   {
@@ -11,7 +11,7 @@
     "homepage": "https://github.com/XiaMoZhiShi"
   },
   "license": "MIT",
-  "icon": "assets/client/icon.png",
+  "icon": "assets/morphclient/icon.png",
   "environment": "client",
   "entrypoints": {
     "client": [
