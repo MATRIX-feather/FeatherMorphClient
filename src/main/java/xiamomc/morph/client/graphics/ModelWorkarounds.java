@@ -68,7 +68,7 @@ public class ModelWorkarounds
                 WorkaroundMeta.of(new Vec3d(0, -0.57f, 0.5f), Vec3dUtils.ONE()));
 
         addWorkaround(EntityType.IRON_GOLEM, (l, r) ->
-                new WorkaroundMeta(Vec3dUtils.of(0, -.2, 0), Vec3dUtils.of(.75)));
+                WorkaroundMeta.of(Vec3dUtils.of(0, -0.2, 0), Vec3dUtils.of(.75)));
 
         addWorkaround(EntityType.ALLAY, (l, r) ->
         {
@@ -87,9 +87,13 @@ public class ModelWorkarounds
         */
 
         addWorkaround(EntityType.BLAZE, (l, r) ->
-                new WorkaroundMeta(Vec3dUtils.of(0, -0.1, 0.2), Vec3dUtils.ONE()));
+                WorkaroundMeta.of(Vec3dUtils.of(0, -0.1, 0.2), Vec3dUtils.ONE()));
 
-        addWorkaround(EntityType.CAMEL, (l, r) -> WorkaroundMeta.of(new Vec3d(0, -0.6, 0.7), Vec3dUtils.ONE()));
+        addWorkaround(EntityType.CAMEL, (l, r) ->
+                WorkaroundMeta.of(new Vec3d(0, -0.6, 0.7), Vec3dUtils.ONE()));
+
+        addWorkaround(EntityType.VILLAGER, (l, r) ->
+                WorkaroundMeta.of(new Vec3d(0, -0.5, 0.3), Vec3dUtils.ONE()));
 
 /*
         addWorkaround(EntityType.ENDER_DRAGON, (l, r) ->
