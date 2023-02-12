@@ -4,8 +4,10 @@
   "package": "xiamomc.morph.client.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "PlayerMixin"
   ],
   "client": [
+    "CameraMixin",
     "ClientPlayerEntityMixin",
     "CreativeInventoryMixin",
     "EntityMixin",

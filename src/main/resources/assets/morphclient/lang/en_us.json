@@ -16,6 +16,8 @@
   "option.morphclient.allowClientView.name": "Display SelfView at client side if supported",
   "option.morphclient.animationTime.description": "Defines how long should the entering animation take (in ms)",
   "option.morphclient.animationTime.name": "(Debug) Animation duration",
+  "option.morphclient.changeCameraHeight.description": "",
+  "option.morphclient.changeCameraHeight.name": "Change camera height to match current disguise",
   "option.morphclient.displayDisguiseOnHud.description": "",
   "option.morphclient.displayDisguiseOnHud.name": "Display current disguise on HUD",
   "option.morphclient.easing.description": "For more information, please check https://easings.net",

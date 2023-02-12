@@ -238,6 +238,17 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
         );
 
         categoryGeneral.addEntry(
+                entryBuilder.startBooleanToggle(Text.translatable("option.morphclient.changeCameraHeight.name"), modConfigData.changeCameraHeight)
+                        .setTooltip(Text.translatable("option.morphclient.changeCameraHeight.description"))
+                        .setDefaultValue(false)
+                        .setSaveConsumer(v ->
+                        {
+                            modConfigData.changeCameraHeight = v;
+                        })
+                        .build()
+        );
+
+        categoryGeneral.addEntry(
                 entryBuilder.startBooleanToggle(Text.translatable("option.morphclient.allowClientView.name"), modConfigData.allowClientView)
                         .setTooltip(Text.translatable("option.morphclient.allowClientView.description"))
                         .setDefaultValue(true)

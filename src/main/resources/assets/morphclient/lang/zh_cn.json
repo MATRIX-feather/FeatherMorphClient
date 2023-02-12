@@ -16,6 +16,8 @@
   "option.morphclient.allowClientView.name": "在客户端显示自身可见（如果支持）",
   "option.morphclient.animationTime.description": "设定进入动画要持续多久（单位：毫秒）",
   "option.morphclient.animationTime.name": "（调试）动画时长",
+  "option.morphclient.changeCameraHeight.description": "",
+  "option.morphclient.changeCameraHeight.name": "调整视角高度以匹配伪装",
   "option.morphclient.displayDisguiseOnHud.description": "启用后，将在HUD显示当前伪装",
   "option.morphclient.displayDisguiseOnHud.name": "在HUD上显示伪装",
   "option.morphclient.easing.description": "更多信息请参考 https://easings.net",

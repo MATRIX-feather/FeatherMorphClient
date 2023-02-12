@@ -99,6 +99,14 @@ public class DisguiseSyncer extends MorphClientObject
             prevEntity.hurtTime = 0;
 
             EntityCache.discardEntity(prevIdentifier);
+
+            var clientPlayer = MinecraftClient.getInstance().player;
+
+            if (clientPlayer != null)
+            {
+                var box = EntityType.PLAYER.createSimpleBoundingBox(clientPlayer.getX(), clientPlayer.getY(), clientPlayer.getZ());
+                clientPlayer.setBoundingBox(box);
+            }
         }
 
         entity = EntityCache.getEntity(newIdentifier);
@@ -109,6 +117,14 @@ public class DisguiseSyncer extends MorphClientObject
         if (entity != null)
         {
             client.schedule(() -> clientWorld.addEntity(entity.getId(), entity));
+
+            var clientPlayer = MinecraftClient.getInstance().player;
+
+            if (clientPlayer != null)
+            {
+                var box = entity.getType().createSimpleBoundingBox(clientPlayer.getX(), clientPlayer.getY(), clientPlayer.getZ());
+                clientPlayer.setBoundingBox(box);
+            }
 
             var nbt = morphManager.currentNbtCompound.get();
             if (nbt != null)

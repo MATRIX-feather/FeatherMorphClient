@@ -16,7 +16,10 @@ public class ModConfigData implements ConfigData
 
     public boolean displayDisguiseOnHud = true;
 
+    public boolean changeCameraHeight = false;
+
     public Easing easing = Easing.OutQuint;
+
     public int duration = 450;
 
     public boolean clientViewVisible()
