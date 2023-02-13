@@ -1,13 +1,10 @@
 package xiamomc.morph.client.graphics;
 
-import net.fabricmc.tinyremapper.extension.mixin.common.Logger;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.RaycastContext;
-import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.DisguiseSyncer;
 import xiamomc.morph.client.MorphClient;
 
@@ -19,8 +16,6 @@ public class CameraHelper
 
         var current = DisguiseSyncer.currentEntity.get();
         var client = MorphClient.getInstance();
-
-        var pos = instance.getEyePos();
 
         if (current != null && client.morphManager.selfVisibleToggled.get() && client.getModConfigData().changeCameraHeight)
         {
@@ -36,6 +31,7 @@ public class CameraHelper
                 return current.getStandingEyeHeight();
             }
 
+            var pos = instance.getEyePos();
             var targetPos = pos.add(0, current.getStandingEyeHeight() - instance.getStandingEyeHeight(), 0);
 
             var rayCastContext = new RaycastContext(pos, targetPos,
@@ -44,8 +40,11 @@ public class CameraHelper
             var rayCast = area.raycast(rayCastContext);
 
             double distance = current.getStandingEyeHeight();
-            if (rayCast.getType() != HitResult.Type.MISS)
-                distance = instance.getStandingEyeHeight() + rayCast.getPos().distanceTo(pos) - 0.375f;
+            if (rayCast.getType() == HitResult.Type.BLOCK)
+            {
+                distance = instance.getStandingEyeHeight();
+                //distance = instance.getStandingEyeHeight() + rayCast.getPos().distanceTo(pos) - 0.375f;
+            }
 
             //LoggerFactory.getLogger("dddd").info("type? " + (rayCast.getType()) + " :: distance? " + distance);
 
