@@ -21,12 +21,10 @@ public class CameraHelper
         {
             if (current.getStandingEyeHeight() <= instance.getStandingEyeHeight())
             {
-                if (current.getStandingEyeHeight() <= instance.getY())
-                {
-                    var vehicle = instance.getVehicle();
+                var vehicle = instance.getVehicle();
 
-                    return (vehicle == null ? 0.4f : vehicle.getStandingEyeHeight()) + 0.15f;
-                }
+                if (vehicle != null)
+                    return Math.max(current.getStandingEyeHeight(), vehicle.getStandingEyeHeight() + 0.15f);
 
                 return current.getStandingEyeHeight();
             }

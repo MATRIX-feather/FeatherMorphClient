@@ -364,7 +364,7 @@ public class DisguiseSyncer extends MorphClientObject
         entity.setSwimming(clientPlayer.isSwimming());
 
         if (clientPlayer.hasVehicle())
-            entity.startRiding(clientPlayer);
+            entity.startRiding(clientPlayer, true);
         else if (entity.hasVehicle())
             entity.stopRiding();
 
