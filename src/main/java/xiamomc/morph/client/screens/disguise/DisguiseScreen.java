@@ -36,7 +36,7 @@ public class DisguiseScreen extends FeatherScreen
             if (!this.isCurrent()) return false;
 
             var availableMorphs = manager.getAvailableMorphs();
-            c.forEach(s -> list.children().add(availableMorphs.indexOf(s), new LivingEntityDisguiseWidget(s)));
+            c.forEach(s -> list.children().add(availableMorphs.indexOf(s) + 1, new LivingEntityDisguiseWidget(s)));
 
             return true;
         });
