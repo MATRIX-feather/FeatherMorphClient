@@ -5,17 +5,12 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.boss.dragon.EnderDragonEntity;
-import net.minecraft.entity.boss.dragon.phase.PhaseType;
-import net.minecraft.entity.decoration.ArmorStandEntity;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
-import xiamomc.morph.client.mixin.accessors.ArmorStandEntityAccessor;
+import xiamomc.morph.client.entities.MorphLocalPlayer;
 
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 
 public class EntityCache
 {

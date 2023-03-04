@@ -14,12 +14,12 @@
     "InventoryScreenMixin",
     "MinecraftClientMixin",
     "PlayerEntityRendererMixin",
+    "accessors.AbstractHorseEntityMixin",
     "accessors.ArmorStandEntityAccessor",
     "accessors.DragonEntityRendererAccessor",
     "accessors.EntityAccessor",
     "accessors.LivingRendererAccessor",
-    "accessors.UtilAccessor",
-    "accessors.AbstractHorseEntityMixin"
+    "accessors.UtilAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

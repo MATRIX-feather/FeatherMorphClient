@@ -21,6 +21,7 @@ import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.*;
+import xiamomc.morph.client.entities.MorphLocalPlayer;
 import xiamomc.pluginbase.Annotations.Resolved;
 import xiamomc.pluginbase.Bindables.Bindable;
 import xiamomc.morph.client.graphics.InventoryRenderHelper;

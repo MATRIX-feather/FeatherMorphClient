@@ -1,4 +1,4 @@
-package xiamomc.morph.client;
+package xiamomc.morph.client.entities;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;

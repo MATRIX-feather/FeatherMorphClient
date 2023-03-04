@@ -14,11 +14,15 @@ import net.minecraft.entity.passive.HorseEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.nbt.AbstractNbtNumber;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
+import xiamomc.morph.client.entities.MorphLocalPlayer;
 import xiamomc.morph.client.mixin.accessors.AbstractHorseEntityMixin;
 import xiamomc.morph.client.mixin.accessors.EntityAccessor;
 import xiamomc.pluginbase.Annotations.Initializer;
@@ -96,6 +100,8 @@ public class DisguiseSyncer extends MorphClientObject
             prevEntity.equipStack(EquipmentSlot.LEGS, ItemStack.EMPTY);
             prevEntity.equipStack(EquipmentSlot.FEET, ItemStack.EMPTY);
 
+            beamTarget = null;
+
             prevEntity.hurtTime = 0;
 
             EntityCache.discardEntity(prevIdentifier);
@@ -116,7 +122,8 @@ public class DisguiseSyncer extends MorphClientObject
 
         if (entity != null)
         {
-            client.schedule(() -> clientWorld.addEntity(entity.getId(), entity));
+            var entityToRemove = entity;
+            client.schedule(() -> clientWorld.addEntity(entityToRemove.getId(), entityToRemove));
 
             var clientPlayer = MinecraftClient.getInstance().player;
 
@@ -231,6 +238,58 @@ public class DisguiseSyncer extends MorphClientObject
                 }
             }
         }
+
+        var crystalPosition = nbtCompound.getList("BeamTarget", NbtElement.DOUBLE_TYPE);
+
+        if (crystalPosition != null)
+        {
+            this.beamTarget = null;
+
+            if (crystalPosition.size() >= 3)
+            {
+                var x = ((AbstractNbtNumber) crystalPosition.get(0)).doubleValue();
+                var y = ((AbstractNbtNumber) crystalPosition.get(1)).doubleValue();
+                var z = ((AbstractNbtNumber) crystalPosition.get(2)).doubleValue();
+
+                this.beamTarget = findCrystalAt(x, y, z);
+            }
+        }
+    }
+
+    @Nullable
+    private Entity findCrystalAt(double x, double y, double z)
+    {
+        var world = MinecraftClient.getInstance().player.world;
+        if (world == null) return null;
+
+        var vec3 = new Vec3d(x, y, z);
+
+        var boundingBox = EntityType.ENDER_DRAGON.getDimensions().getBoxAt(vec3);
+        var entities = world.getOtherEntities(MinecraftClient.getInstance().player, boundingBox.expand(32.0));
+
+        Entity targetCrystal = null;
+        double distance = Double.MAX_VALUE;
+
+        for (Entity entity : entities)
+        {
+            var dis = entity.squaredDistanceTo(vec3);
+
+            if (dis < distance)
+            {
+                targetCrystal = entity;
+                distance = dis;
+            }
+        }
+
+        return targetCrystal;
+    }
+
+    private Entity beamTarget;
+
+    @Nullable
+    public Entity getBeamTarget()
+    {
+        return beamTarget;
     }
 
     private void syncDraw(LivingEntity entity, PlayerEntity clientPlayer)
@@ -272,6 +331,9 @@ public class DisguiseSyncer extends MorphClientObject
             this.refreshClientViewEntity(id, id);
             return;
         }
+
+        if (beamTarget != null && beamTarget.isRemoved())
+            beamTarget = null;
 
         var playerPos = clientPlayer.getPos();
         entity.setPosition(playerPos.x, playerPos.y - 4096, playerPos.z);

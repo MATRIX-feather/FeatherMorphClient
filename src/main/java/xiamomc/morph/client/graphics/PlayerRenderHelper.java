@@ -7,22 +7,23 @@ import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.EntityRenderer;
-import net.minecraft.client.render.entity.LivingEntityRenderer;
-import net.minecraft.client.render.entity.PlayerEntityRenderer;
+import net.minecraft.client.render.entity.*;
 import net.minecraft.client.render.entity.model.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.boss.dragon.EnderDragonEntity;
+import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.*;
+import xiamomc.morph.client.entities.MorphLocalPlayer;
 import xiamomc.morph.client.mixin.accessors.LivingRendererAccessor;
-import xiamomc.pluginbase.Annotations.Initializer;
 import xiamomc.pluginbase.Annotations.Resolved;
 
 import java.util.List;
@@ -97,6 +98,9 @@ public class PlayerRenderHelper extends MorphClientObject
 
             //LoggerFactory.getLogger("d").info(player.getName() + " :: " + player.getDataTracker().get(MorphLocalPlayer.getPMPMask()));
             disguiseRenderer.render(entity, f, g, matrixStack, vertexConsumerProvider, i);
+
+            if (entity instanceof EnderDragonEntity)
+                renderCrystalBeam(f, g, matrixStack, vertexConsumerProvider, i);
         }
         catch (Exception e)
         {
@@ -105,6 +109,32 @@ public class PlayerRenderHelper extends MorphClientObject
         }
 
         return true;
+    }
+
+    public void renderCrystalBeam(float f, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i)
+    {
+        var connectedCrystal = syncer.getBeamTarget();
+
+        if (connectedCrystal != null)
+        {
+            var targetEntity = MinecraftClient.getInstance().player;
+
+            float l = (float)(connectedCrystal.getX() - MathHelper.lerp(tickDelta, targetEntity.prevX, targetEntity.getX()));
+            float m = (float)(connectedCrystal.getY() - MathHelper.lerp(tickDelta, targetEntity.prevY, targetEntity.getY()));
+            float r = (float)(connectedCrystal.getZ() - MathHelper.lerp(tickDelta, targetEntity.prevZ, targetEntity.getZ()));
+
+            EnderDragonEntityRenderer.renderCrystalBeam(l, m + getCrystalYOffsetCopy(connectedCrystal, tickDelta), r, tickDelta, targetEntity.age, matrixStack, vertexConsumerProvider, i);
+        }
+    }
+
+    private float getCrystalYOffsetCopy(Entity entity, float tickDelta)
+    {
+        var age = entity instanceof EndCrystalEntity endCrystalEntity ? endCrystalEntity.endCrystalAge : 0;
+
+        float f = age + tickDelta;
+        float g = MathHelper.sin(f * 0.2f) / 2.0f + 0.5f;
+        g = (g * g + g) * 0.4f;
+        return g - 1.4f;
     }
 
     private boolean allowRender = true;
