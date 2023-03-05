@@ -11,6 +11,7 @@
     "ClientPlayerEntityMixin",
     "CreativeInventoryMixin",
     "EntityMixin",
+    "WorldRendererMixin",
     "InventoryScreenMixin",
     "MinecraftClientMixin",
     "PlayerEntityRendererMixin",

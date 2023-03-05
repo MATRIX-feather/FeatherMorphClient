@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -28,6 +29,7 @@ import xiamomc.pluginbase.Annotations.Resolved;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 public class PlayerRenderHelper extends MorphClientObject
 {
@@ -84,23 +86,24 @@ public class PlayerRenderHelper extends MorphClientObject
 
     private Entity entity = null;
 
-    public boolean onDrawCall(LivingEntity player, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i)
+    public boolean onDrawCall(LivingEntity player, float yaw, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light)
     {
         if (!allowRender || syncer == null) return false;
 
         try
         {
-            if (entity == null || player != MinecraftClient.getInstance().player || !MorphClient.getInstance().getModConfigData().clientViewVisible()) return false;
+            if (entity == null || player != MinecraftClient.getInstance().player || !MorphClient.getInstance().getModConfigData().clientViewVisible())
+                return false;
 
             var disguiseRenderer = MinecraftClient.getInstance().getEntityRenderDispatcher().getRenderer(entity);
 
             syncer.onGameRender();
 
             //LoggerFactory.getLogger("d").info(player.getName() + " :: " + player.getDataTracker().get(MorphLocalPlayer.getPMPMask()));
-            disguiseRenderer.render(entity, f, g, matrixStack, vertexConsumerProvider, i);
+            disguiseRenderer.render(entity, yaw, tickDelta, matrixStack, vertexConsumerProvider, light);
 
             if (entity instanceof EnderDragonEntity)
-                renderCrystalBeam(f, g, matrixStack, vertexConsumerProvider, i);
+                renderCrystalBeam(null, tickDelta, matrixStack, vertexConsumerProvider, light);
         }
         catch (Exception e)
         {
@@ -111,19 +114,54 @@ public class PlayerRenderHelper extends MorphClientObject
         return true;
     }
 
-    public void renderCrystalBeam(float f, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i)
+    public void renderCrystalBeam(@Nullable Camera camera, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i)
     {
         var connectedCrystal = syncer.getBeamTarget();
 
         if (connectedCrystal != null)
         {
+            if (camera != null && camera.isThirdPerson()) return;
+
+            //光柱目标的Y轴位移，数值越大最终的位置相较于相机越低
+            //1.8(玩家高度) + 1(位移)
+            var targetOffset = camera != null ? 1.8f + 1f : 0f;
+
+            //若启用了客户端预览，则确保光柱最终位置在为未启用时的位置附近
+            if (entity != null && camera != null && MorphClient.getInstance().getModConfigData().clientViewVisible())
+            {
+                var diff = entity.getStandingEyeHeight() - 1.8f;
+                targetOffset += diff;
+            }
+
+            targetOffset = -targetOffset;
+
             var targetEntity = MinecraftClient.getInstance().player;
+            assert targetEntity != null;
 
-            float l = (float)(connectedCrystal.getX() - MathHelper.lerp(tickDelta, targetEntity.prevX, targetEntity.getX()));
-            float m = (float)(connectedCrystal.getY() - MathHelper.lerp(tickDelta, targetEntity.prevY, targetEntity.getY()));
-            float r = (float)(connectedCrystal.getZ() - MathHelper.lerp(tickDelta, targetEntity.prevZ, targetEntity.getZ()));
+            var x = camera != null ? camera.getPos().x : targetEntity.getX();
+            var y = camera != null ? camera.getPos().y + targetOffset : targetEntity.getY();
+            var z = camera != null ? camera.getPos().z : targetEntity.getZ();
 
-            EnderDragonEntityRenderer.renderCrystalBeam(l, m + getCrystalYOffsetCopy(connectedCrystal, tickDelta), r, tickDelta, targetEntity.age, matrixStack, vertexConsumerProvider, i);
+            var prevX = camera != null ? x : targetEntity.prevX;
+            var prevY = camera != null ? y : targetEntity.prevY;
+            var prevZ = camera != null ? z : targetEntity.prevZ;
+
+            //相对位置，光柱从这里出发
+            var relativeX = (float)(connectedCrystal.getX() - MathHelper.lerp(tickDelta, prevX, x));
+            var relativeY = (float)(connectedCrystal.getY() - MathHelper.lerp(tickDelta, prevY, y));
+            var relativeZ = (float)(connectedCrystal.getZ() - MathHelper.lerp(tickDelta, prevZ, z));
+
+            //对matrixStack进行位移，使光柱终点停留在相机Y轴下方
+            matrixStack.translate(0, targetOffset, 0);
+
+            //渲染光柱
+            EnderDragonEntityRenderer.renderCrystalBeam(relativeX,
+                    relativeY + getCrystalYOffsetCopy(connectedCrystal, tickDelta),
+                    relativeZ,
+                    tickDelta, targetEntity.age, matrixStack, vertexConsumerProvider, i);
+
+            //撤销位移
+            matrixStack.translate(-0, -targetOffset, 0);
         }
     }
 
