@@ -25,6 +25,6 @@ public abstract class WorldRendererMixin
     private void onRender(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f positionMatrix, CallbackInfo ci)
     {
         var featherMorph$vertex = this.bufferBuilders.getEntityVertexConsumers();
-        rendererHelper.renderCrystalBeam(camera, tickDelta, matrices, featherMorph$vertex, 0xFFFFFF);
+        rendererHelper.renderCrystalBeam(tickDelta, matrices, featherMorph$vertex, 0xFFFFFF);
     }
 }

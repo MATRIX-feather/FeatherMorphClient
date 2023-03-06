@@ -29,7 +29,6 @@ import xiamomc.pluginbase.Annotations.Resolved;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
 
 public class PlayerRenderHelper extends MorphClientObject
 {
@@ -101,9 +100,6 @@ public class PlayerRenderHelper extends MorphClientObject
 
             //LoggerFactory.getLogger("d").info(player.getName() + " :: " + player.getDataTracker().get(MorphLocalPlayer.getPMPMask()));
             disguiseRenderer.render(entity, yaw, tickDelta, matrixStack, vertexConsumerProvider, light);
-
-            if (entity instanceof EnderDragonEntity)
-                renderCrystalBeam(null, tickDelta, matrixStack, vertexConsumerProvider, light);
         }
         catch (Exception e)
         {
@@ -114,55 +110,58 @@ public class PlayerRenderHelper extends MorphClientObject
         return true;
     }
 
-    public void renderCrystalBeam(@Nullable Camera camera, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i)
+    private final Camera camera = MinecraftClient.getInstance().gameRenderer.getCamera();
+
+    /**
+     * 在玩家位置渲染通向 {@link DisguiseSyncer#getBeamTarget()} 的光柱
+     * @param tickDelta tickDelta
+     * @param matrixStack {@link MatrixStack}
+     * @param vertexConsumerProvider {@link VertexConsumerProvider}
+     * @param light 光照等级
+     */
+    public void renderCrystalBeam(float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light)
     {
         var connectedCrystal = syncer.getBeamTarget();
 
-        if (connectedCrystal != null)
-        {
-            if (camera != null && camera.isThirdPerson()) return;
+        if (connectedCrystal == null) return;
 
-            //光柱目标的Y轴位移，数值越大最终的位置相较于相机越低
-            //1.8(玩家高度) + 1(位移)
-            var targetOffset = camera != null ? 1.8f + 1f : 0f;
+        matrixStack.push();
 
-            //若启用了客户端预览，则确保光柱最终位置在为未启用时的位置附近
-            if (entity != null && camera != null && MorphClient.getInstance().getModConfigData().clientViewVisible())
-            {
-                var diff = entity.getStandingEyeHeight() - 1.8f;
-                targetOffset += diff;
-            }
+        var cameraPos = camera.getPos();
 
-            targetOffset = -targetOffset;
+        //相机XYZ
+        var cameraX = cameraPos.x;
+        var cameraY = cameraPos.y;
+        var cameraZ = cameraPos.z;
 
-            var targetEntity = MinecraftClient.getInstance().player;
-            assert targetEntity != null;
+        var player = MinecraftClient.getInstance().player;
+        assert player != null;
 
-            var x = camera != null ? camera.getPos().x : targetEntity.getX();
-            var y = camera != null ? camera.getPos().y + targetOffset : targetEntity.getY();
-            var z = camera != null ? camera.getPos().z : targetEntity.getZ();
+        //通过插值的方式获取玩家XYZ可以避免让渲染出来的光柱看起来非常卡顿
+        var lerpPlayerX = MathHelper.lerp(tickDelta, player.prevX, player.getX());
+        var lerpPlayerY = MathHelper.lerp(tickDelta, player.prevY, player.getY());
+        var lerpPlayerZ = MathHelper.lerp(tickDelta, player.prevZ, player.getZ());
 
-            var prevX = camera != null ? x : targetEntity.prevX;
-            var prevY = camera != null ? y : targetEntity.prevY;
-            var prevZ = camera != null ? z : targetEntity.prevZ;
+        //光柱目标的Y轴位移，数值越大最终的位置相较于相机越低
+        var yOffset = 1f;
 
-            //相对位置，光柱从这里出发
-            var relativeX = (float)(connectedCrystal.getX() - MathHelper.lerp(tickDelta, prevX, x));
-            var relativeY = (float)(connectedCrystal.getY() - MathHelper.lerp(tickDelta, prevY, y));
-            var relativeZ = (float)(connectedCrystal.getZ() - MathHelper.lerp(tickDelta, prevZ, z));
+        //相对位置，光柱在这里结束
+        var relativeX = (float)(connectedCrystal.getX() - lerpPlayerX);
+        var relativeY = (float)(connectedCrystal.getY() - lerpPlayerY) + yOffset;
+        var relativeZ = (float)(connectedCrystal.getZ() - lerpPlayerZ);
 
-            //对matrixStack进行位移，使光柱终点停留在相机Y轴下方
-            matrixStack.translate(0, targetOffset, 0);
+        //对matrixStack进行位移，将其中心设定在玩家处
+        //光柱在这里开始
+        //玩家位置 - 相机位置 = 目标位移
+        matrixStack.translate(lerpPlayerX - cameraX, lerpPlayerY - cameraY - yOffset, lerpPlayerZ - cameraZ);
 
-            //渲染光柱
-            EnderDragonEntityRenderer.renderCrystalBeam(relativeX,
-                    relativeY + getCrystalYOffsetCopy(connectedCrystal, tickDelta),
-                    relativeZ,
-                    tickDelta, targetEntity.age, matrixStack, vertexConsumerProvider, i);
+        //渲染光柱
+        EnderDragonEntityRenderer.renderCrystalBeam(relativeX,
+                relativeY + getCrystalYOffsetCopy(connectedCrystal, tickDelta),
+                relativeZ,
+                tickDelta, player.age, matrixStack, vertexConsumerProvider, light);
 
-            //撤销位移
-            matrixStack.translate(-0, -targetOffset, 0);
-        }
+        matrixStack.pop();
     }
 
     private float getCrystalYOffsetCopy(Entity entity, float tickDelta)
