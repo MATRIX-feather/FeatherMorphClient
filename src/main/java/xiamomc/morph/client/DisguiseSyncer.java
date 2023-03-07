@@ -15,6 +15,7 @@ import net.minecraft.nbt.AbstractNbtNumber;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -200,8 +201,8 @@ public class DisguiseSyncer extends MorphClientObject
         MorphClient.getInstance().updateClientView(true, false);
         morphManager.selfViewIdentifier.set(null);
 
-        clientPlayer.sendMessage(Text.literal("更新当前实体时出现错误。"));
-        clientPlayer.sendMessage(Text.literal("在当前伪装变更前客户端预览将被禁用以避免游戏崩溃。"));
+        clientPlayer.sendMessage(Text.translatable("text.morphclient.error.update_disguise1").formatted(Formatting.RED));
+        clientPlayer.sendMessage(Text.translatable("text.morphclient.error.update_disguise2").formatted(Formatting.RED));
     }
 
     private void mergeNbt(LivingEntity entity, NbtCompound nbtCompound)

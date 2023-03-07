@@ -26,5 +26,7 @@
   "option.morphclient.previewInInventory.name": "总是在背包中显示伪装预览",
   "option.morphclient.verbosePackets.description": "",
   "option.morphclient.verbosePackets.name": "（调试）记录发包",
-  "title.morphclient.config": "FeatherMorph客户端设置"
+  "title.morphclient.config": "FeatherMorph客户端设置",
+  "text.morphclient.error.update_disguise1": "更新伪装时出现错误",
+  "text.morphclient.error.update_disguise2": "在当前伪装变更前客户端预览将被禁用以避免游戏崩溃"
 }
