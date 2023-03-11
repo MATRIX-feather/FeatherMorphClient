@@ -3,6 +3,7 @@ package xiamomc.morph.client;
 import com.mojang.authlib.GameProfile;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.fabricmc.loader.impl.lib.sat4j.core.Vec;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.*;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -237,52 +238,37 @@ public class DisguiseSyncer extends MorphClientObject
             }
         }
 
-        var crystalPosition = nbtCompound.getList("BeamTarget", NbtElement.DOUBLE_TYPE);
+        var crystalPosition = nbtCompound.getInt("BeamTarget");
+        crystalId = crystalPosition;
+        this.beamTarget = findCrystalBy(crystalPosition);
 
-        if (crystalPosition != null)
-        {
-            this.beamTarget = null;
+        if (beamTarget == null)
+            this.scheduleCrystalSearch();
+    }
 
-            if (crystalPosition.size() >= 3)
-            {
-                var x = ((AbstractNbtNumber) crystalPosition.get(0)).doubleValue();
-                var y = ((AbstractNbtNumber) crystalPosition.get(1)).doubleValue();
-                var z = ((AbstractNbtNumber) crystalPosition.get(2)).doubleValue();
+    private int crystalId;
 
-                this.beamTarget = findCrystalAt(x, y, z);
-            }
-        }
+    private Entity beamTarget;
+
+    private void scheduleCrystalSearch()
+    {
+        if (beamTarget != null || crystalId == 0) return;
+
+        this.addSchedule(this::scheduleCrystalSearch, 10);
+
+        this.beamTarget = findCrystalBy(crystalId);
     }
 
     @Nullable
-    private Entity findCrystalAt(double x, double y, double z)
+    private Entity findCrystalBy(int id)
     {
+        if (currentEntity == null || id == 0) return null;
+
         var world = MinecraftClient.getInstance().player.world;
         if (world == null) return null;
 
-        var vec3 = new Vec3d(x, y, z);
-
-        var boundingBox = EntityType.ENDER_DRAGON.getDimensions().getBoxAt(vec3);
-        var entities = world.getOtherEntities(MinecraftClient.getInstance().player, boundingBox.expand(32.0));
-
-        Entity targetCrystal = null;
-        double distance = Double.MAX_VALUE;
-
-        for (Entity entity : entities)
-        {
-            var dis = entity.squaredDistanceTo(vec3);
-
-            if (dis < distance)
-            {
-                targetCrystal = entity;
-                distance = dis;
-            }
-        }
-
-        return targetCrystal;
+        return world.getEntityById(id);
     }
-
-    private Entity beamTarget;
 
     @Nullable
     public Entity getBeamTarget()
