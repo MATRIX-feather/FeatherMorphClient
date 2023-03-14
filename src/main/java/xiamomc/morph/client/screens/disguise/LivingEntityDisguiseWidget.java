@@ -283,9 +283,9 @@ public class LivingEntityDisguiseWidget extends ElementListWidget.Entry<LivingEn
                     }
 
                     if (entity == MinecraftClient.getInstance().player)
-                        inventoryRenderHelper.onRenderCall(x, y, entitySize, mX, mY);
+                        inventoryRenderHelper.onRenderCall(matrices, x, y, entitySize, mX, mY);
                     else
-                        InventoryScreen.drawEntity(x, y, entitySize, mX, mY, entity);
+                        InventoryScreen.drawEntity(matrices, x, y, entitySize, mX, mY, entity);
                 }
             }
             catch (Exception e)
@@ -358,6 +358,19 @@ public class LivingEntityDisguiseWidget extends ElementListWidget.Entry<LivingEn
             }
 
             return Element.super.mouseClicked(mouseX, mouseY, button);
+        }
+
+        private boolean focused = false;
+
+        @Override
+        public void setFocused(boolean focused)
+        {
+            this.focused = focused;
+        }
+
+        @Override
+        public boolean isFocused() {
+            return focused;
         }
 
         @Override

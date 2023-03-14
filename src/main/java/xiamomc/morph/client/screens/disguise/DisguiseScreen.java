@@ -3,6 +3,7 @@ package xiamomc.morph.client.screens.disguise;
 import me.shedaniel.math.Color;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
@@ -113,7 +114,7 @@ public class DisguiseScreen extends FeatherScreen
     private final ClientMorphManager manager;
     private final ServerHandler serverHandler;
 
-    private final DisguiseList list = new DisguiseList(client, 200, 0, 20, 0, 22);
+    private final DisguiseList list = new DisguiseList(MinecraftClient.getInstance(), 200, 0, 20, 0, 22);
     private final DrawableText titleText = new DrawableText(Text.translatable("gui.morphclient.select_disguise"));
     private final DrawableText selectedIdentifierText = new DrawableText();
     private final DrawableText serverAPIText = new DrawableText();
@@ -246,13 +247,12 @@ public class DisguiseScreen extends FeatherScreen
         serverAPIText.setScreenY(this.height - textRenderer.fontHeight - fontMargin + bottomMargin);
         outdatedText.setScreenY(this.height - textRenderer.fontHeight * 2 - fontMargin - 2 + bottomMargin);
 
-        this.fillGradient(matrices, 0, 0, this.width, this.height, color.getColor(), color.getColor());
+        DrawableHelper.fillGradient(matrices, 0, 0, this.width, this.height, color.getColor(), color.getColor());
         super.render(matrices, mouseX, mouseY, delta);
     }
 
     @Override
-    public void renderBackground(MatrixStack matrices, int vOffset)
-    {
-        super.renderBackground(matrices, vOffset);
+    public void renderBackground(MatrixStack matrices) {
+        super.renderBackground(matrices);
     }
 }

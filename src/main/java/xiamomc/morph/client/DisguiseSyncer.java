@@ -328,7 +328,7 @@ public class DisguiseSyncer extends MorphClientObject
             camelEntity.dashingAnimationState.setRunning(clientPlayer.isSprinting(), camelEntity.age);
             camelEntity.sittingAnimationState.setRunning(playerHasVehicle, camelEntity.age);
 
-            camelEntity.walkingAnimationState.setRunning(!playerHasVehicle && !playerStanding, camelEntity.age);
+            //camelEntity.walkingAnimationState.setRunning(!playerHasVehicle && !playerStanding, camelEntity.age);
             camelEntity.idlingAnimationState.setRunning(playerStanding, camelEntity.age);
         }
 
@@ -352,10 +352,6 @@ public class DisguiseSyncer extends MorphClientObject
         entity.handSwingTicks = clientPlayer.handSwingTicks;
 
         entity.preferredHand = clientPlayer.preferredHand;
-
-        entity.limbAngle = clientPlayer.limbAngle;
-        entity.limbDistance = clientPlayer.limbDistance;
-        entity.lastLimbDistance = clientPlayer.lastLimbDistance;
 
         entity.setSneaking(clientPlayer.isSneaking());
 
