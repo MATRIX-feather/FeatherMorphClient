@@ -3,7 +3,6 @@ package xiamomc.morph.client;
 import com.mojang.authlib.GameProfile;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.fabricmc.loader.impl.lib.sat4j.core.Vec;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.*;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -12,9 +11,7 @@ import net.minecraft.entity.passive.HorseEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.AbstractNbtNumber;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Vec3d;
@@ -113,16 +110,15 @@ public class DisguiseSyncer extends MorphClientObject
 
         if (entity != null)
         {
-            var entityToRemove = entity;
-            client.schedule(() -> clientWorld.addEntity(entityToRemove.getId(), entityToRemove));
+            var entityToAdd = entity;
+            entityToAdd.setId(entityToAdd.getId() - entityToAdd.getId() * 2);
+
+            client.schedule(() -> clientWorld.addEntity(entityToAdd.getId(), entityToAdd));
 
             var clientPlayer = MinecraftClient.getInstance().player;
 
-            if (clientPlayer != null)
-            {
-                var box = entity.getType().createSimpleBoundingBox(clientPlayer.getX(), clientPlayer.getY(), clientPlayer.getZ());
-                clientPlayer.setBoundingBox(box);
-            }
+            sync(entity, clientPlayer);
+            syncDraw(entity, clientPlayer);
 
             var nbt = morphManager.currentNbtCompound.get();
             if (nbt != null)
@@ -313,6 +309,9 @@ public class DisguiseSyncer extends MorphClientObject
 
         var playerPos = clientPlayer.getPos();
         entity.setPosition(playerPos.x, playerPos.y - 4096, playerPos.z);
+        entity.prevZ = clientPlayer.prevZ;
+        entity.prevX = clientPlayer.prevX;
+        entity.prevY = clientPlayer.prevY - 4096;
 
         if (!entity.ignoreCameraFrustum)
             entity.tick();
