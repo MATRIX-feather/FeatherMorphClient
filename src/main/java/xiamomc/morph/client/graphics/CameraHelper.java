@@ -7,9 +7,12 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.RaycastContext;
 import xiamomc.morph.client.DisguiseSyncer;
 import xiamomc.morph.client.MorphClient;
+import xiamomc.pluginbase.Bindables.Bindable;
 
 public class CameraHelper
 {
+    public static Bindable<Boolean> isThirdPerson = new Bindable<>(false);
+
     public float onEyeHeightCall(Entity instance, BlockView area)
     {
         if (instance == null) return 0f;

@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.entity.*;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.passive.CamelEntity;
@@ -19,6 +20,7 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.entities.MorphLocalPlayer;
+import xiamomc.morph.client.graphics.CameraHelper;
 import xiamomc.morph.client.mixin.accessors.AbstractHorseEntityMixin;
 import xiamomc.morph.client.mixin.accessors.EntityAccessor;
 import xiamomc.pluginbase.Annotations.Initializer;
@@ -59,6 +61,8 @@ public class DisguiseSyncer extends MorphClientObject
         {
             prevWorld = null;
         });
+
+        CameraHelper.isThirdPerson.onValueChanged((o, n) -> this.onThirdPersonChange(this.entity, MinecraftClient.getInstance().player));
     }
 
     public void updateSkin(GameProfile profile)
@@ -117,6 +121,7 @@ public class DisguiseSyncer extends MorphClientObject
 
             var clientPlayer = MinecraftClient.getInstance().player;
 
+            initialSync(entity, clientPlayer);
             sync(entity, clientPlayer);
             syncDraw(entity, clientPlayer);
 
@@ -286,8 +291,47 @@ public class DisguiseSyncer extends MorphClientObject
         }
         else
         {
-            entity.bodyYaw = clientPlayer.bodyYaw;
+            entity.setYaw(clientPlayer.getYaw());
+        }
+    }
+
+    private void initialSync(LivingEntity entity, PlayerEntity clientPlayer)
+    {
+        if (entity == null || clientPlayer == null) return;
+
+        //更新prevXYZ和披风
+        entity.prevX = clientPlayer.prevX;
+        entity.prevY = clientPlayer.prevY - 4096;
+        entity.prevZ = clientPlayer.prevZ;
+
+        if (entity instanceof MorphLocalPlayer player)
+        {
+            player.capeX = clientPlayer.capeX;
+            player.capeY = clientPlayer.capeY;
+            player.capeZ = clientPlayer.capeZ;
+
+            player.prevCapeX = clientPlayer.prevCapeX;
+            player.prevCapeY = clientPlayer.prevCapeY;
+            player.prevCapeZ = clientPlayer.prevCapeZ;
+        }
+
+        //更新BodyYaw
+        onThirdPersonChange(entity, clientPlayer);
+    }
+
+    private void onThirdPersonChange(LivingEntity entity, PlayerEntity clientPlayer)
+    {
+        if (entity == null || clientPlayer == null) return;
+
+        if (entity.getType() == EntityType.ARMOR_STAND)
+        {
+            entity.bodyYaw = clientPlayer.headYaw;
+            entity.prevBodyYaw = clientPlayer.prevHeadYaw;
+        }
+        else
+        {
             entity.prevBodyYaw = clientPlayer.prevBodyYaw;
+            entity.bodyYaw = clientPlayer.bodyYaw;
         }
     }
 
@@ -309,9 +353,6 @@ public class DisguiseSyncer extends MorphClientObject
 
         var playerPos = clientPlayer.getPos();
         entity.setPosition(playerPos.x, playerPos.y - 4096, playerPos.z);
-        entity.prevZ = clientPlayer.prevZ;
-        entity.prevX = clientPlayer.prevX;
-        entity.prevY = clientPlayer.prevY - 4096;
 
         if (!entity.ignoreCameraFrustum)
             entity.tick();

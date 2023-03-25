@@ -36,6 +36,12 @@ public abstract class CameraMixin
 
     private boolean featherMorph$isInstantSneak;
 
+    @Inject(method = "update", at = @At("HEAD"))
+    private void onUpdate(BlockView area, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float tickDelta, CallbackInfo ci)
+    {
+        CameraHelper.isThirdPerson.set(thirdPerson);
+    }
+
     @Redirect(method = "updateEyeHeight",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/entity/Entity;getStandingEyeHeight()F"))
