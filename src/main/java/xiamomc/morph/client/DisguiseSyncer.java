@@ -4,7 +4,6 @@ import com.mojang.authlib.GameProfile;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.entity.*;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.passive.CamelEntity;
@@ -23,6 +22,7 @@ import xiamomc.morph.client.entities.MorphLocalPlayer;
 import xiamomc.morph.client.graphics.CameraHelper;
 import xiamomc.morph.client.mixin.accessors.AbstractHorseEntityMixin;
 import xiamomc.morph.client.mixin.accessors.EntityAccessor;
+import xiamomc.morph.client.mixin.accessors.LimbAnimatorAccessor;
 import xiamomc.pluginbase.Annotations.Initializer;
 import xiamomc.pluginbase.Annotations.Resolved;
 import xiamomc.pluginbase.Bindables.Bindable;
@@ -352,6 +352,14 @@ public class DisguiseSyncer extends MorphClientObject
 
         if (!entity.ignoreCameraFrustum)
             entity.tick();
+
+        var entitylimbAnimatorAccessor = (LimbAnimatorAccessor) entity.limbAnimator;
+        var playerLimbAccessor = (LimbAnimatorAccessor)clientPlayer.limbAnimator;
+        var playerLimb = clientPlayer.limbAnimator;
+
+        entitylimbAnimatorAccessor.setPrevSpeed(playerLimbAccessor.getPrevSpeed());
+        entitylimbAnimatorAccessor.setPos(playerLimb.getPos());
+        entitylimbAnimatorAccessor.setSpeed(playerLimb.getSpeed());
 
         if (entity instanceof CamelEntity camelEntity)
         {
