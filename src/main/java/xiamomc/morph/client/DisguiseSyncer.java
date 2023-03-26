@@ -289,10 +289,6 @@ public class DisguiseSyncer extends MorphClientObject
             entity.bodyYaw = clientPlayer.headYaw;
             entity.prevBodyYaw = clientPlayer.prevHeadYaw;
         }
-        else
-        {
-            entity.setYaw(clientPlayer.getYaw());
-        }
     }
 
     private void initialSync(LivingEntity entity, PlayerEntity clientPlayer)
@@ -404,6 +400,8 @@ public class DisguiseSyncer extends MorphClientObject
         //末影龙的Yaw和玩家是反的
         if (entity.getType() == EntityType.ENDER_DRAGON)
             entity.setYaw(180 + clientPlayer.getYaw());
+        else
+            entity.setYaw(clientPlayer.getYaw());
 
         entity.setOnGround(clientPlayer.isOnGround());
 
