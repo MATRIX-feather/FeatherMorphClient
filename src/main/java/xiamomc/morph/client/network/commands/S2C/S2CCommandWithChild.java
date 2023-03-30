@@ -2,6 +2,7 @@ package xiamomc.morph.client.network.commands.S2C;
 
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
+import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.network.commands.S2C.AbstractS2CCommand;
 
 import java.util.List;
@@ -20,13 +21,8 @@ public abstract class S2CCommandWithChild<T> extends AbstractS2CCommand<T>
                 .filter(c -> c.getBaseName().equals(subBaseName))
                 .findFirst().orElse(null);
 
-        LoggerFactory.getLogger("mC").info("SubName: '%s'".formatted(subBaseName));
-        LoggerFactory.getLogger("mC").info("Raw: '%s'".formatted(rawArguments));
-        LoggerFactory.getLogger("mC").info("Passing: '%s'".formatted(arguments.length == 2 ? arguments[1] : ""));
-
         if (subCmd != null)
         {
-            LoggerFactory.getLogger("morphClient").info("Get Subcommand %s <-> %s".formatted(subBaseName, subCmd));
             subCmd.onCommand(arguments.length == 2 ? arguments[1] : "");
             return;
         }
@@ -36,5 +32,6 @@ public abstract class S2CCommandWithChild<T> extends AbstractS2CCommand<T>
 
     protected void onCommandUnknown(String rawArguments)
     {
+        MorphClient.LOGGER.warn("Unknown client command: " + rawArguments);
     }
 }

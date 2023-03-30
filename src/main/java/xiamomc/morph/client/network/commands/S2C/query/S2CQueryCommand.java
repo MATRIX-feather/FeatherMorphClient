@@ -31,12 +31,6 @@ public final class S2CQueryCommand extends S2CCommandWithChild<String>
     }
 
     @Override
-    protected void onCommandUnknown(String rawArguments)
-    {
-        MorphClient.LOGGER.info("Unknown query command");
-    }
-
-    @Override
     public final String getBaseName()
     {
         return "query";

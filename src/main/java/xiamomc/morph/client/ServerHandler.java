@@ -40,8 +40,6 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
     @Initializer
     private void load()
     {
-        Constants.initialize(false);
-
         registries.register(
                 new S2CCurrentCommand(morphManager),
                 new S2CQueryCommand(morphManager),
