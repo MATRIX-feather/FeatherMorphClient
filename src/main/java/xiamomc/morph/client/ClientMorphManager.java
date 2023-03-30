@@ -95,6 +95,8 @@ public class ClientMorphManager extends MorphClientObject
 
     public void addDisguises(List<String> identifiers)
     {
+        identifiers = new ObjectArrayList<>(identifiers);
+
         identifiers.removeIf(availableMorphs::contains);
         identifiers.forEach(this::addDisguisePrivate);
 

@@ -24,9 +24,9 @@ import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.config.ModConfigData;
 import xiamomc.morph.client.graphics.ModelWorkarounds;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
-import xiamomc.morph.client.network.commands.C2S.*;
 import xiamomc.morph.client.screens.disguise.WaitingForServerScreen;
 import xiamomc.morph.network.Constants;
+import xiamomc.morph.network.commands.C2S.*;
 import xiamomc.pluginbase.AbstractSchedulablePlugin;
 import xiamomc.pluginbase.ScheduleInfo;
 
@@ -169,7 +169,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
 
             if (player != null && player.input != null && player.input.sneaking)
             {
-                serverHandler.sendCommand(new C2SMorphCommand());
+                serverHandler.sendCommand(new C2SMorphCommand(null));
             }
             else if (client.currentScreen == null)
             {
@@ -191,11 +191,11 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
     {
         if (lastClientView == null || clientViewEnabled != lastClientView)
         {
-            serverHandler.sendCommand(new C2SToggleSelfCommand("client", clientViewEnabled + ""));
+            serverHandler.sendCommand(new C2SToggleSelfCommand(clientViewEnabled ? C2SToggleSelfCommand.SelfViewMode.CLIENT_ON : C2SToggleSelfCommand.SelfViewMode.CLIENT_OFF));
             lastClientView = clientViewEnabled;
         }
 
-        serverHandler.sendCommand(new C2SToggleSelfCommand(selfViewVisible + ""));
+        serverHandler.sendCommand(new C2SToggleSelfCommand(C2SToggleSelfCommand.SelfViewMode.fromBoolean(selfViewVisible)));
 
         modConfigData.allowClientView = clientViewEnabled;
     }

@@ -1,28 +1,33 @@
 package xiamomc.morph.client;
 
 import com.google.gson.JsonParser;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.JsonOps;
 import io.netty.buffer.ByteBuf;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.mob.GhastEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtHelper;
+import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
-import xiamomc.morph.client.network.commands.S2C.*;
+import xiamomc.morph.client.network.commands.ClientSetEquipCommand;
 import xiamomc.morph.network.BasicServerHandler;
 import xiamomc.morph.network.Constants;
+import xiamomc.morph.network.commands.C2S.*;
 import xiamomc.morph.network.commands.CommandRegistries;
-import xiamomc.morph.client.network.commands.S2C.query.S2CQueryCommand;
+import xiamomc.morph.network.commands.S2C.*;
+import xiamomc.morph.network.commands.S2C.query.S2CQueryCommand;
+import xiamomc.morph.network.commands.S2C.set.*;
 import xiamomc.pluginbase.Annotations.Initializer;
 import xiamomc.pluginbase.Annotations.Resolved;
 import xiamomc.pluginbase.Bindables.Bindable;
 import xiamomc.morph.client.config.ModConfigData;
-import xiamomc.morph.network.commands.C2S.AbstractC2SCommand;
-import xiamomc.morph.client.network.commands.C2S.C2SInitialCommand;
-import xiamomc.morph.client.network.commands.C2S.C2SOptionCommand;
 
 import java.nio.charset.StandardCharsets;
 
@@ -30,24 +35,26 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
 {
     private final MorphClient client;
 
-    private final CommandRegistries<PlayerEntity> registries = new CommandRegistries<>();
+    private final CommandRegistries registries = new CommandRegistries();
 
     public ServerHandler(MorphClient client)
     {
         this.client = client;
     }
 
+    private final S2CSetCommandsAgent agent = new S2CSetCommandsAgent();
+
     @Initializer
     private void load()
     {
-        registries.register(
-                new S2CCurrentCommand(morphManager),
-                new S2CQueryCommand(morphManager),
-                new S2CReAuthCommand(this),
-                new S2CSetCommand(morphManager, skillHandler),
-                new S2CSwapCommand(morphManager),
-                new S2CUnAuthCommand(this)
-        );
+        agent.register(S2CCommandNames.SetFakeEquip, ClientSetEquipCommand::from);
+
+        registries.registerS2C(S2CCommandNames.Current, S2CCurrentCommand::new)
+                .registerS2C(S2CCommandNames.Query, S2CQueryCommand::from)
+                .registerS2C(S2CCommandNames.ReAuth, a -> new S2CReAuthCommand())
+                .registerS2C(S2CCommandNames.UnAuth, a -> new S2CUnAuthCommand())
+                .registerS2C(S2CCommandNames.SwapHands, a -> new S2CSwapCommand())
+                .registerS2C(S2CCommandNames.BaseSet, agent::getCommand);
     }
 
     //region Common
@@ -118,7 +125,7 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
         resetServerStatus();
     }
 
-    public boolean sendCommand(AbstractC2SCommand<PlayerEntity, ?> command)
+    public boolean sendCommand(AbstractC2SCommand<?> command)
     {
         var cmd = command.buildCommand();
         if (cmd == null || cmd.isEmpty() || cmd.isBlank()) return false;
@@ -140,6 +147,132 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
     public int getImplmentingApiVersion()
     {
         return Constants.PROTOCOL_VERSION;
+    }
+
+    @Override
+    public void onCurrentCommand(xiamomc.morph.network.commands.S2C.S2CCurrentCommand s2CCurrentCommand)
+    {
+        var id = s2CCurrentCommand.getDisguiseIdentifier();
+        morphManager.setCurrent(id.equals("null") ? null : id);
+    }
+
+    @Override
+    public void onReAuthCommand(xiamomc.morph.network.commands.S2C.S2CReAuthCommand s2CReAuthCommand)
+    {
+        this.disconnect();
+        this.connect();
+    }
+
+    @Override
+    public void onUnAuthCommand(xiamomc.morph.network.commands.S2C.S2CUnAuthCommand s2CUnAuthCommand)
+    {
+        this.disconnect();
+    }
+
+    @Override
+    public void onSwapCommand(xiamomc.morph.network.commands.S2C.S2CSwapCommand s2CSwapCommand)
+    {
+        morphManager.swapHand();
+    }
+
+    @Override
+    public void onQueryCommand(xiamomc.morph.network.commands.S2C.query.S2CQueryCommand s2CQueryCommand)
+    {
+        var diff = s2CQueryCommand.getDiff();
+        switch (s2CQueryCommand.queryType())
+        {
+            case ADD -> morphManager.addDisguises(diff);
+            case REMOVE -> morphManager.removeDisguises(diff);
+            case SET -> morphManager.setDisguises(diff);
+        }
+    }
+
+    @Override
+    public void onSetAggressiveCommand(S2CSetAggressiveCommand s2CSetAggressiveCommand)
+    {
+        var aggressive = s2CSetAggressiveCommand.getArgumentAt(0, false);
+
+        if (syncer.entity instanceof GhastEntity ghastEntity)
+            ghastEntity.setShooting(aggressive);
+    }
+
+    @Override
+    public void onSetFakeEquipCommand(S2CSetFakeEquipCommand<?> s2CSetEquipCommand)
+    {
+        if (!(s2CSetEquipCommand.getItemStack() instanceof ItemStack stack)) return;
+
+        switch (s2CSetEquipCommand.getSlot())
+        {
+            case MAINHAND -> morphManager.setEquip(EquipmentSlot.MAINHAND, stack);
+            case OFF_HAND -> morphManager.setEquip(EquipmentSlot.OFFHAND, stack);
+
+            case HELMET -> morphManager.setEquip(EquipmentSlot.HEAD, stack);
+            case CHESTPLATE -> morphManager.setEquip(EquipmentSlot.CHEST, stack);
+            case LEGGINGS -> morphManager.setEquip(EquipmentSlot.LEGS, stack);
+            case BOOTS -> morphManager.setEquip(EquipmentSlot.FEET, stack);
+        }
+    }
+
+    @Override
+    public void onSetDisplayingFakeEquipCommand(S2CSetDisplayingFakeEquipCommand s2CSetFakeEquipCommand)
+    {
+        morphManager.equipOverriden.set(s2CSetFakeEquipCommand.getArgumentAt(0, false));
+    }
+
+    @Override
+    public void onSetSNbtCommand(S2CSetSNbtCommand s2CSetSNbtCommand)
+    {
+        try
+        {
+            var nbt = StringNbtReader.parse(s2CSetSNbtCommand.serializeArguments().replace("\\u003d", "="));
+
+            morphManager.currentNbtCompound.set(nbt);
+        }
+        catch (CommandSyntaxException e)
+        {
+            //todo
+        }
+    }
+
+    @Override
+    public void onSetProfileCommand(S2CSetProfileCommand s2CSetProfileCommand)
+    {
+        try
+        {
+            var nbt = StringNbtReader.parse(s2CSetProfileCommand.serializeArguments());
+            var profile = NbtHelper.toGameProfile(nbt);
+
+            if (profile != null)
+                this.client.schedule(() -> syncer.updateSkin(profile));
+        }
+        catch (Exception e)
+        {
+            //todo
+        }
+    }
+
+    @Override
+    public void onSetSelfViewIdentifierCommand(S2CSetSelfViewIdentifierCommand s2CSetSelfViewCommand)
+    {
+        morphManager.selfViewIdentifier.set(s2CSetSelfViewCommand.serializeArguments());
+    }
+
+    @Override
+    public void onSetSkillCooldownCommand(S2CSetSkillCooldownCommand s2CSetSkillCooldownCommand)
+    {
+        skillHandler.setSkillCooldown(s2CSetSkillCooldownCommand.getArgumentAt(0, 0L));
+    }
+
+    @Override
+    public void onSetSneakingCommand(S2CSetSneakingCommand s2CSetSneakingCommand)
+    {
+        serverSideSneaking = s2CSetSneakingCommand.getArgumentAt(0);
+    }
+
+    @Override
+    public void onSetSelfViewingCommand(S2CSetSelfViewingCommand s2CSetToggleSelfCommand)
+    {
+        morphManager.selfVisibleToggled.set(s2CSetToggleSelfCommand.getArgumentAt(0));
     }
 
     public final Bindable<Boolean> serverReady = new Bindable<>(false);
@@ -236,10 +369,10 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
                 if (str.length < 1) return;
 
                 var baseName = str[0];
-                var cmd = registries.getS2CCommand(baseName);
+                var cmd = registries.createS2CCommand(baseName, str.length == 2 ? str[1] : "");
 
                 if (cmd != null)
-                    cmd.onCommand(str.length == 2 ? str[1] : "");
+                    cmd.onCommand(this);
                 else
                     logger.warn("Unknown client command: " + baseName);
             }
@@ -254,17 +387,6 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
     }
 
     public static Boolean serverSideSneaking;
-
-    @Nullable
-    private ItemStack jsonToStack(String rawJson)
-    {
-        var item = ItemStack.CODEC.decode(JsonOps.INSTANCE, JsonParser.parseString(rawJson));
-
-        if (item.result().isPresent())
-            return item.result().get().getFirst();
-
-        return null;
-    }
 
     //endregion Network
 }
