@@ -36,8 +36,11 @@ public class DisguiseScreen extends FeatherScreen
         {
             if (!this.isCurrent()) return false;
 
-            var availableMorphs = manager.getAvailableMorphs();
-            c.forEach(s -> list.children().add(availableMorphs.indexOf(s) + 1, new LivingEntityDisguiseWidget(s)));
+            morphClient.schedule(() ->
+            {
+                var availableMorphs = manager.getAvailableMorphs();
+                c.forEach(s -> list.children().add(availableMorphs.indexOf(s) + 1, new LivingEntityDisguiseWidget(s)));
+            });
 
             return true;
         });
@@ -46,7 +49,8 @@ public class DisguiseScreen extends FeatherScreen
         {
             if (!this.isCurrent()) return false;
 
-            c.forEach(s -> list.children().removeIf(w -> w.getIdentifier().equals(s)));
+            morphClient.schedule(() ->
+                    c.forEach(s -> list.children().removeIf(w -> w.getIdentifier().equals(s))));
 
             return true;
         });
@@ -213,7 +217,7 @@ public class DisguiseScreen extends FeatherScreen
         selectedIdentifierText.setScreenX(screenX);
         serverAPIText.setScreenX(screenX);
 
-        serverAPIText.setText("Client " + serverHandler.getClientVersion() + " :: " + "Server " + serverHandler.getServerVersion());
+        serverAPIText.setText("Client " + serverHandler.getImplmentingApiVersion() + " :: " + "Server " + serverHandler.getServerVersion());
 
         //按钮
         var baseX = this.width - closeButton.getWidth() - 20;

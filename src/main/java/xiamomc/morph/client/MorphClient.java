@@ -24,9 +24,9 @@ import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.config.ModConfigData;
 import xiamomc.morph.client.graphics.ModelWorkarounds;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
-import xiamomc.morph.client.screens.disguise.DisguiseScreen;
+import xiamomc.morph.client.network.commands.C2S.*;
 import xiamomc.morph.client.screens.disguise.WaitingForServerScreen;
-import xiamomc.morph.network.commands.C2S.*;
+import xiamomc.morph.network.Constants;
 import xiamomc.pluginbase.AbstractSchedulablePlugin;
 import xiamomc.pluginbase.ScheduleInfo;
 
@@ -82,6 +82,8 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
     @Override
     public void onInitializeClient()
     {
+        Constants.initialize(false);
+
         //初始化按键
         executeSkillKeyBind = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.morphclient.skill", InputUtil.Type.KEYSYM,

@@ -1,8 +1,10 @@
-package xiamomc.morph.network.commands.C2S;
+package xiamomc.morph.client.network.commands.C2S;
 
+import net.minecraft.entity.player.PlayerEntity;
 import org.jetbrains.annotations.Nullable;
+import xiamomc.morph.network.commands.C2S.AbstractC2SCommand;
 
-public class C2SMorphCommand extends AbstractC2SCommand<String>
+public class C2SMorphCommand extends AbstractC2SCommand<PlayerEntity, String>
 {
     public C2SMorphCommand(@Nullable String argument)
     {
@@ -23,6 +25,6 @@ public class C2SMorphCommand extends AbstractC2SCommand<String>
     @Override
     public String buildCommand()
     {
-        return super.buildCommand() + " " + getArgumentAt(0, "");
+        return super.buildCommand() + " " + getArgumentAt(this.arguments, 0, "");
     }
 }

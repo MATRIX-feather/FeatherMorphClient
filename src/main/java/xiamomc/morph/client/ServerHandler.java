@@ -3,34 +3,53 @@ package xiamomc.morph.client;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
 import io.netty.buffer.ByteBuf;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.mob.GhastEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtHelper;
-import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
+import xiamomc.morph.client.network.commands.S2C.*;
+import xiamomc.morph.network.BasicServerHandler;
+import xiamomc.morph.network.Constants;
+import xiamomc.morph.network.commands.CommandRegistries;
+import xiamomc.morph.client.network.commands.S2C.query.S2CQueryCommand;
+import xiamomc.pluginbase.Annotations.Initializer;
 import xiamomc.pluginbase.Annotations.Resolved;
 import xiamomc.pluginbase.Bindables.Bindable;
 import xiamomc.morph.client.config.ModConfigData;
 import xiamomc.morph.network.commands.C2S.AbstractC2SCommand;
-import xiamomc.morph.network.commands.C2S.C2SInitialCommand;
-import xiamomc.morph.network.commands.C2S.C2SOptionCommand;
+import xiamomc.morph.client.network.commands.C2S.C2SInitialCommand;
+import xiamomc.morph.client.network.commands.C2S.C2SOptionCommand;
 
 import java.nio.charset.StandardCharsets;
 
-public class ServerHandler extends MorphClientObject
+public class ServerHandler extends MorphClientObject implements BasicServerHandler<PlayerEntity>
 {
     private final MorphClient client;
+
+    private final CommandRegistries<PlayerEntity> registries = new CommandRegistries<>();
 
     public ServerHandler(MorphClient client)
     {
         this.client = client;
+    }
+
+    @Initializer
+    private void load()
+    {
+        Constants.initialize(false);
+
+        registries.register(
+                new S2CCurrentCommand(morphManager),
+                new S2CQueryCommand(morphManager),
+                new S2CReAuthCommand(this),
+                new S2CSetCommand(morphManager, skillHandler),
+                new S2CSwapCommand(morphManager),
+                new S2CUnAuthCommand(this)
+        );
     }
 
     //region Common
@@ -63,7 +82,6 @@ public class ServerHandler extends MorphClientObject
     }
 
     private int serverVersion = -1;
-    private final int clientVersion = 3;
 
     public int getServerVersion()
     {
@@ -72,12 +90,7 @@ public class ServerHandler extends MorphClientObject
 
     public boolean serverApiMatch()
     {
-        return this.getServerVersion() == clientVersion;
-    }
-
-    public int getClientVersion()
-    {
-        return clientVersion;
+        return this.getServerVersion() == getImplmentingApiVersion();
     }
 
     private String readStringfromByte(ByteBuf buf)
@@ -93,14 +106,42 @@ public class ServerHandler extends MorphClientObject
         return packet;
     }
 
-    public void sendCommand(AbstractC2SCommand<?> command)
+    @Override
+    public void connect()
+    {
+        this.resetServerStatus();
+
+        ClientPlayNetworking.send(initializeChannelIdentifier, PacketByteBufs.create());
+    }
+
+    @Override
+    public void disconnect()
+    {
+        resetServerStatus();
+    }
+
+    public boolean sendCommand(AbstractC2SCommand<PlayerEntity, ?> command)
     {
         var cmd = command.buildCommand();
-        if (cmd == null || cmd.isEmpty() || cmd.isBlank()) return;
+        if (cmd == null || cmd.isEmpty() || cmd.isBlank()) return false;
 
         cmd = cmd.trim();
 
         ClientPlayNetworking.send(commandChannelIdentifier, fromString(cmd));
+
+        return true;
+    }
+
+    @Override
+    public int getServerApiVersion()
+    {
+        return serverVersion;
+    }
+
+    @Override
+    public int getImplmentingApiVersion()
+    {
+        return Constants.PROTOCOL_VERSION;
     }
 
     public final Bindable<Boolean> serverReady = new Bindable<>(false);
@@ -121,19 +162,12 @@ public class ServerHandler extends MorphClientObject
         serverReady.set(handshakeReceived && apiVersionChecked);
     }
 
-    public void initializeClientData()
-    {
-        this.resetServerStatus();
-
-        ClientPlayNetworking.send(initializeChannelIdentifier, PacketByteBufs.create());
-    }
-
     private boolean networkInitialized;
 
     public void initializeNetwork()
     {
         if (networkInitialized)
-            throw new RuntimeException("网络已经初始化一次了");
+            throw new RuntimeException("The network has been initialized once!");
 
         ClientPlayConnectionEvents.INIT.register((handler, client) ->
         {
@@ -141,12 +175,12 @@ public class ServerHandler extends MorphClientObject
 
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) ->
         {
-            initializeClientData();
+            connect();
         });
 
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) ->
         {
-            resetServerStatus();
+            disconnect();
         });
 
         //初始化网络
@@ -154,14 +188,14 @@ public class ServerHandler extends MorphClientObject
         {
             if (this.readStringfromByte(buf).equalsIgnoreCase("no"))
             {
-                logger.error("初始化失败：被服务器拒绝");
+                logger.error("Initialize failed: Denied by server");
                 return;
             }
 
             handshakeReceived = true;
             updateServerStatus();
 
-            ClientPlayNetworking.send(versionChannelIdentifier, fromString("" + clientVersion));
+            ClientPlayNetworking.send(versionChannelIdentifier, fromString("" + getImplmentingApiVersion()));
             sendCommand(new C2SInitialCommand());
             sendCommand(new C2SOptionCommand(C2SOptionCommand.ClientOptions.CLIENTVIEW).setValue(config.allowClientView));
             sendCommand(new C2SOptionCommand(C2SOptionCommand.ClientOptions.HUD).setValue(config.displayDisguiseOnHud));
@@ -177,21 +211,21 @@ public class ServerHandler extends MorphClientObject
             }
             catch (Exception e)
             {
-                logger.error("未能获取服务器API版本：" + e.getMessage());
+                logger.error("Unable to get server API version: " + e.getMessage());
                 e.printStackTrace();
             }
 
-            logger.info("服务器API版本：" + serverVersion);
+            logger.info("Server API version: " + serverVersion);
         });
 
         ClientPlayNetworking.registerGlobalReceiver(commandChannelIdentifier, (client, handler, buf, responseSender) ->
         {
-            var str = readStringfromByte(buf).split(" ", 3);
+            var str = readStringfromByte(buf).split(" ", 2);
 
-            if (!serverReady.get() && (str.length != 1 || !str[0].equals("reauth")))
+            if (!serverReady.get() && !str[0].equals("reauth"))
             {
                 if (config.verbosePackets)
-                    logger.warn("在初始化完成前收到了客户端指令：" + readStringfromByte(buf) + "，将不会执行任何动作");
+                    logger.warn("Received command before initialize complete, not processing... ('%s')".formatted(readStringfromByte(buf)));
 
                 return;
             }
@@ -199,181 +233,17 @@ public class ServerHandler extends MorphClientObject
             try
             {
                 if (config.verbosePackets)
-                    logger.info("收到了客户端指令：" + readStringfromByte(buf));
+                    logger.info("Received client command: " + readStringfromByte(buf));
 
                 if (str.length < 1) return;
 
                 var baseName = str[0];
+                var cmd = registries.getS2CCommand(baseName);
 
-                switch (baseName)
-                {
-                    case "swap" ->
-                    {
-                        morphManager.swapHand();
-                    }
-                    case "query" ->
-                    {
-                        if (str.length < 2) return;
-
-                        var subCmdName = str[1];
-
-                        var diff = new ObjectArrayList<>(str[2].split(" "));
-                        diff.removeIf(String::isEmpty);
-
-                        switch (subCmdName) {
-                            case "add" ->
-                            {
-                                morphManager.addDisguises(diff);
-                            }
-                            case "remove" ->
-                            {
-                                morphManager.removeDisguises(diff);
-                            }
-                            case "set" ->
-                            {
-                                morphManager.setDisguises(diff);
-                            }
-                            default -> logger.warn("未知的Query指令：" + subCmdName);
-                        }
-                    }
-                    case "set" ->
-                    {
-                        if (str.length < 2) return;
-
-                        var subCmdName = str[1];
-
-                        switch (subCmdName)
-                        {
-                            case "cd" ->
-                            {
-                                if (str.length < 3) return;
-
-                                long val = -1;
-
-                                try
-                                {
-                                    val = Math.max(0L, Long.parseLong(str[2]));
-                                }
-                                catch (Throwable ignored)
-                                {
-                                }
-
-                                skillHandler.setSkillCooldown(val);
-                            }
-                            case "toggleself" ->
-                            {
-                                if (str.length < 3) return;
-
-                                var val = Boolean.parseBoolean(str[2]);
-
-                                morphManager.selfVisibleToggled.set(val);
-                            }
-                            case "selfview" ->
-                            {
-                                if (str.length < 3) return;
-
-                                var identifier = str[2];
-
-                                morphManager.selfViewIdentifier.set(identifier);
-                            }
-                            case "fake_equip" ->
-                            {
-                                if (str.length < 3) return;
-
-                                var value = Boolean.valueOf(str[2]);
-
-                                morphManager.equipOverriden.set(value);
-                            }
-                            case "equip" ->
-                            {
-                                if (str.length < 3) return;
-
-                                var dat = str[2].split(" ", 2);
-
-                                if (dat.length != 2) return;
-                                var currentMob = DisguiseSyncer.currentEntity.get();
-
-                                if (currentMob == null) return;
-
-                                var stack = jsonToStack(dat[1]);
-
-                                if (stack == null) return;
-
-                                switch (dat[0])
-                                {
-                                    case "mainhand" -> morphManager.setEquip(EquipmentSlot.MAINHAND, stack);
-                                    case "off_hand" -> morphManager.setEquip(EquipmentSlot.OFFHAND, stack);
-
-                                    case "helmet" -> morphManager.setEquip(EquipmentSlot.HEAD, stack);
-                                    case "chestplate" -> morphManager.setEquip(EquipmentSlot.CHEST, stack);
-                                    case "leggings" -> morphManager.setEquip(EquipmentSlot.LEGS, stack);
-                                    case "boots" -> morphManager.setEquip(EquipmentSlot.FEET, stack);
-                                }
-                            }
-                            case "nbt" ->
-                            {
-                                if (str.length < 3) return;
-
-                                var nbt = StringNbtReader.parse(str[2].replace("\\u003d", "="));
-
-                                morphManager.currentNbtCompound.set(nbt);
-                            }
-                            case "profile" ->
-                            {
-                                if (str.length < 3) return;
-
-                                var nbt = StringNbtReader.parse(str[2]);
-                                var profile = NbtHelper.toGameProfile(nbt);
-
-                                if (profile != null)
-                                    this.client.schedule(() -> syncer.updateSkin(profile));
-                            }
-                            case "sneaking" ->
-                            {
-                                if (str.length < 3) return;
-
-                                serverSideSneaking = Boolean.valueOf(str[2]);
-                            }
-                            case "aggressive" ->
-                            {
-                                if (str.length < 3) return;
-
-                                var aggressive = Boolean.valueOf(str[2]);
-
-                                if (syncer.entity instanceof GhastEntity ghastEntity)
-                                    ghastEntity.setShooting(aggressive);
-                            }
-                        }
-                    }
-                    case "reauth" ->
-                    {
-                        initializeClientData();
-                    }
-                    case "unauth" ->
-                    {
-                        resetServerStatus();
-                    }
-                    case "current" ->
-                    {
-                        var val = str.length == 2 ? str[1] : null;
-                        morphManager.setCurrent(val);
-                    }
-                    case "deny" ->
-                    {
-                        if (str.length < 2) return;
-
-                        var subCmdName = str[1];
-
-                        if (subCmdName.equals("morph"))
-                        {
-                            morphManager.selectedIdentifier.triggerChange();
-                            morphManager.currentIdentifier.triggerChange();
-                        }
-                        else
-                            logger.warn("未知的Deny指令：" + subCmdName);
-                    }
-                    default -> logger.warn("未知的客户端指令：" + baseName);
-                }
+                if (cmd != null)
+                    cmd.onCommand(str.length == 2 ? str[1] : "");
+                else
+                    logger.warn("Unknown client command: " + baseName);
             }
             catch (Exception e)
             {

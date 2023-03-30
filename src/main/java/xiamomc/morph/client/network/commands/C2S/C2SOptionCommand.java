@@ -1,9 +1,10 @@
-package xiamomc.morph.network.commands.C2S;
+package xiamomc.morph.client.network.commands.C2S;
 
+import net.minecraft.entity.player.PlayerEntity;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import xiamomc.morph.network.commands.C2S.AbstractC2SCommand;
 
-public class C2SOptionCommand extends AbstractC2SCommand<C2SOptionCommand.ClientOptions>
+public class C2SOptionCommand extends AbstractC2SCommand<PlayerEntity, C2SOptionCommand.ClientOptions>
 {
     public C2SOptionCommand(@NotNull ClientOptions option)
     {
@@ -28,7 +29,7 @@ public class C2SOptionCommand extends AbstractC2SCommand<C2SOptionCommand.Client
     @Override
     public String buildCommand()
     {
-        return super.buildCommand() + " " + getArgumentAt(0).networkName + " " + value;
+        return super.buildCommand() + " " + getArgumentAt(this.arguments, 0).networkName + " " + value;
     }
 
     public enum ClientOptions
