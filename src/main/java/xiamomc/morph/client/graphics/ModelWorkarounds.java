@@ -70,7 +70,7 @@ public class ModelWorkarounds
         addWorkaround(EntityType.IRON_GOLEM, (l, r) ->
                 WorkaroundMeta.of(Vec3dUtils.of(0, -0.2, 0), Vec3dUtils.of(.75)));
 
-        addWorkaround(EntityType.ALLAY, (l, r) ->
+        addWorkaround(List.of(EntityType.ALLAY, EntityType.VEX), (l, r) ->
         {
             l.roll = r.roll = 0;
             return new WorkaroundMeta(Vec3dUtils.of(0, .25, .1), Vec3dUtils.of(1.5));

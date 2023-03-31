@@ -4,10 +4,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.*;
 import net.minecraft.client.render.entity.*;
 import net.minecraft.client.render.entity.model.*;
 import net.minecraft.client.util.math.MatrixStack;
@@ -24,6 +21,8 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.*;
 import xiamomc.morph.client.entities.MorphLocalPlayer;
+import xiamomc.morph.client.mixin.EntityMixin;
+import xiamomc.morph.client.mixin.accessors.DragonEntityRendererAccessor;
 import xiamomc.morph.client.mixin.accessors.LivingRendererAccessor;
 import xiamomc.pluginbase.Annotations.Resolved;
 
@@ -97,6 +96,10 @@ public class PlayerRenderHelper extends MorphClientObject
             var disguiseRenderer = MinecraftClient.getInstance().getEntityRenderDispatcher().getRenderer(entity);
 
             syncer.onGameRender();
+
+            light = (entity.getType() == EntityType.ALLAY || entity.getType() == EntityType.VEX)
+                    ? LightmapTextureManager.MAX_LIGHT_COORDINATE
+                    : light;
 
             //LoggerFactory.getLogger("d").info(player.getName() + " :: " + player.getDataTracker().get(MorphLocalPlayer.getPMPMask()));
             disguiseRenderer.render(entity, yaw, tickDelta, matrixStack, vertexConsumerProvider, light);
@@ -280,7 +283,7 @@ public class PlayerRenderHelper extends MorphClientObject
         return part;
     }
 
-    private final RenderLayer dragonLayer = RenderLayer.getEntityCutoutNoCull(new Identifier("textures/entity/enderdragon/dragon.png"));
+    //private final RenderLayer dragonLayer = RenderLayer.getEntityCutoutNoCull(new Identifier("textures/entity/enderdragon/dragon.png"));
 
     @SuppressWarnings("rawtypes")
     public boolean onArmDrawCall(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, AbstractClientPlayerEntity player, ModelPart arm, ModelPart sleeve)
@@ -340,6 +343,10 @@ public class PlayerRenderHelper extends MorphClientObject
 
                 var offset = modelInfo.offset;
                 matrices.translate(offset.getX(), offset.getY(), offset.getZ());
+
+                light = (entity.getType() == EntityType.ALLAY || entity.getType() == EntityType.VEX)
+                        ? LightmapTextureManager.MAX_LIGHT_COORDINATE
+                        : light;
 
                 targetArm.pitch = 0;
                 targetArm.render(matrices, vertexConsumers.getBuffer(layer), light, OverlayTexture.DEFAULT_UV);
