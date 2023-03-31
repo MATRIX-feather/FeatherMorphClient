@@ -29,7 +29,7 @@ dependencies {
         exclude(group: "net.fabricmc.fabric-api")
     }
 
-    String protocolVersion = project.protocols_use_local_build
+    String protocolVersion = project.protocols_use_local_build == "true"
             ? project.protocols_local_version
             : project.protocols_version;
 
