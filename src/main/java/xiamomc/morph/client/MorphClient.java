@@ -145,7 +145,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
 
     private void updateKeys(MinecraftClient client)
     {
-        if (executeSkillKeyBind.wasPressed() && skillHandler.getCurrentCooldown() == 0)
+        if (executeSkillKeyBind.wasPressed() && skillHandler.getCurrentCooldown() <= 0)
         {
             skillHandler.setSkillCooldown(skillHandler.getSkillCooldown());
             serverHandler.sendCommand(new C2SSkillCommand());
