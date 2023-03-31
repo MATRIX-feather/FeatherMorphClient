@@ -29,8 +29,12 @@ dependencies {
         exclude(group: "net.fabricmc.fabric-api")
     }
 
-    modImplementation "com.github.XiaMoZhiShi:feathermorph-protocols:${project.protocols_version}"
-    include "com.github.XiaMoZhiShi:feathermorph-protocols:${project.protocols_version}"
+    String protocolVersion = project.protocols_use_local_build
+            ? project.protocols_local_version
+            : project.protocols_version;
+
+    modImplementation "com.github.XiaMoZhiShi:feathermorph-protocols:${protocolVersion}"
+    include "com.github.XiaMoZhiShi:feathermorph-protocols:${protocolVersion}"
 
     include "me.shedaniel.cloth:cloth-config-fabric:${project.clothconfig_version}"
 
