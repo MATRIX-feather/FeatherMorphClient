@@ -112,14 +112,14 @@ public class DisguiseSyncer extends MorphClientObject
 
         allowTick = true;
 
+        var clientPlayer = MinecraftClient.getInstance().player;
+
         if (entity != null)
         {
             var entityToAdd = entity;
             entityToAdd.setId(entityToAdd.getId() - entityToAdd.getId() * 2);
 
             client.schedule(() -> clientWorld.addEntity(entityToAdd.getId(), entityToAdd));
-
-            var clientPlayer = MinecraftClient.getInstance().player;
 
             initialSync(entity, clientPlayer);
             sync(entity, clientPlayer);
@@ -129,6 +129,9 @@ public class DisguiseSyncer extends MorphClientObject
             if (nbt != null)
                 client.schedule(() -> mergeNbt(entity, nbt));
         }
+
+        if (clientPlayer != null)
+            clientPlayer.calculateDimensions();
     }
 
     public LivingEntity entity;

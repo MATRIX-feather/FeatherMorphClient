@@ -14,6 +14,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xiamomc.morph.client.DisguiseSyncer;
+import xiamomc.morph.client.ServerHandler;
 
 @Mixin(PlayerEntity.class)
 public class PlayerMixin
@@ -29,7 +30,7 @@ public class PlayerMixin
     @Inject(method = "getDimensions", at = @At("HEAD"), cancellable = true)
     private void featherMorph$overrideDimensions(EntityPose pose, CallbackInfoReturnable<EntityDimensions> cir)
     {
-        if (featherMorph$playerInstance == MinecraftClient.getInstance().player && false)
+        if (featherMorph$playerInstance == MinecraftClient.getInstance().player && ServerHandler.modifyBoundingBox)
         {
             var entity = DisguiseSyncer.currentEntity.get();
 

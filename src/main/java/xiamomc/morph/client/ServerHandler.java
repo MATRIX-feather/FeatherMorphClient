@@ -7,6 +7,7 @@ import io.netty.buffer.ByteBuf;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.mob.GhastEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -274,6 +275,18 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
     {
         morphManager.selfVisibleToggled.set(s2CSetToggleSelfCommand.getArgumentAt(0));
     }
+
+    @Override
+    public void onSetModifyBoundingBox(S2CSetModifyBoundingBoxCommand s2CSetModifyBoundingBoxCommand)
+    {
+        modifyBoundingBox = s2CSetModifyBoundingBoxCommand.getModifyBoundingBox();
+
+        var clientPlayer = MinecraftClient.getInstance().player;
+        if (clientPlayer != null)
+            clientPlayer.calculateDimensions();
+    }
+
+    public static boolean modifyBoundingBox = false;
 
     public final Bindable<Boolean> serverReady = new Bindable<>(false);
     private boolean handshakeReceived;
