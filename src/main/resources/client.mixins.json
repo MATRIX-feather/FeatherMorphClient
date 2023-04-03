@@ -6,22 +6,23 @@
   "mixins": [
   ],
   "client": [
-    "PlayerMixin",
     "CameraMixin",
     "ClientPlayerEntityMixin",
+    "ClientPlayerInteractionManagerMixin",
     "CreativeInventoryMixin",
     "EntityMixin",
     "InventoryScreenMixin",
     "MinecraftClientMixin",
     "PlayerEntityRendererMixin",
+    "PlayerMixin",
     "WorldRendererMixin",
     "accessors.AbstractHorseEntityMixin",
     "accessors.ArmorStandEntityAccessor",
     "accessors.DragonEntityRendererAccessor",
     "accessors.EntityAccessor",
+    "accessors.LimbAnimatorAccessor",
     "accessors.LivingRendererAccessor",
-    "accessors.UtilAccessor",
-    "accessors.LimbAnimatorAccessor"
+    "accessors.UtilAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

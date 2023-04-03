@@ -288,6 +288,14 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
 
     public static boolean modifyBoundingBox = false;
 
+    @Override
+    public void onSetReach(S2CSetReachCommand s2CSetReachCommand)
+    {
+        reach = (float) (s2CSetReachCommand.getReach() / 10);
+    }
+
+    public static float reach = -1;
+
     public final Bindable<Boolean> serverReady = new Bindable<>(false);
     private boolean handshakeReceived;
     private boolean apiVersionChecked;
