@@ -112,6 +112,14 @@ public class Bindable<T> implements IBindable<T>
         binds.removeNull();
     }
 
+    public void dispose()
+    {
+        this.binds.forEach(ref ->
+        {
+            ref.binds.remove(this);
+        });
+    }
+
     /**
      * 将此Bindable和另外一个Bindable绑定
      * @apiNote 目前一旦绑定将不能解绑

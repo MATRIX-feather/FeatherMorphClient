@@ -43,6 +43,8 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
         return instance;
     }
 
+    public static final String UNMORPH_STIRNG = "morph:unmorph";
+
     public DisguiseSyncer disguiseSyncer;
 
     public static final Logger LOGGER = LoggerFactory.getLogger("MorphClient");
@@ -202,9 +204,9 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
 
     public void sendMorphCommand(String id)
     {
-        if (id == null) id = "morph:unmorph";
+        if (id == null) id = UNMORPH_STIRNG;
 
-        if ("morph:unmorph".equals(id))
+        if (UNMORPH_STIRNG.equals(id))
             serverHandler.sendCommand(new C2SUnmorphCommand());
         else
             serverHandler.sendCommand(new C2SMorphCommand(id));

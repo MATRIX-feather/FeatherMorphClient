@@ -2,7 +2,6 @@ package xiamomc.morph.client.screens.disguise;
 
 import me.shedaniel.math.Color;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
@@ -13,13 +12,10 @@ import xiamomc.morph.client.EntityCache;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.ServerHandler;
 import xiamomc.morph.client.graphics.transforms.Transformer;
-import xiamomc.morph.client.graphics.transforms.easings.Easing;
 import xiamomc.morph.client.screens.FeatherScreen;
-import xiamomc.pluginbase.Annotations.Resolved;
 import xiamomc.pluginbase.Bindables.Bindable;
 import xiamomc.morph.client.graphics.DrawableText;
 import xiamomc.morph.client.graphics.ToggleSelfButton;
-import xiamomc.pluginbase.Managers.DependencyManager;
 
 public class DisguiseScreen extends FeatherScreen
 {
@@ -39,7 +35,7 @@ public class DisguiseScreen extends FeatherScreen
             morphClient.schedule(() ->
             {
                 var availableMorphs = manager.getAvailableMorphs();
-                c.forEach(s -> list.children().add(availableMorphs.indexOf(s) + 1, new LivingEntityDisguiseWidget(s)));
+                c.forEach(s -> list.children().add(availableMorphs.indexOf(s) + 1, new EntityDisplayWidget(s)));
             });
 
             return true;
@@ -156,9 +152,9 @@ public class DisguiseScreen extends FeatherScreen
 
         if (last == null || last instanceof WaitingForServerScreen)
         {
-            list.children().add(new LivingEntityDisguiseWidget("morph:unmorph"));
+            list.children().add(new EntityDisplayWidget(MorphClient.UNMORPH_STIRNG));
 
-            manager.getAvailableMorphs().forEach(s -> list.children().add(new LivingEntityDisguiseWidget(s)));
+            manager.getAvailableMorphs().forEach(s -> list.children().add(new EntityDisplayWidget(s)));
 
             //第一次打开时滚动到当前伪装
             var current = manager.currentIdentifier.get();

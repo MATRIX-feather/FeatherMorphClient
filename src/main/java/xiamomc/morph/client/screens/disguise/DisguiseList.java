@@ -4,7 +4,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.ElementListWidget;
 import net.minecraft.client.util.math.MatrixStack;
 
-public class DisguiseList extends ElementListWidget<LivingEntityDisguiseWidget>
+public class DisguiseList extends ElementListWidget<EntityDisplayWidget>
 {
     public DisguiseList(MinecraftClient minecraftClient, int width, int height, int topPadding, int bottomPadding, int itemHeight)
     {
@@ -13,7 +13,7 @@ public class DisguiseList extends ElementListWidget<LivingEntityDisguiseWidget>
 
     public void clearChildren()
     {
-        children().forEach(LivingEntityDisguiseWidget::clearChildren);
+        children().forEach(EntityDisplayWidget::clearChildren);
         clearEntries();
     }
 
@@ -47,7 +47,7 @@ public class DisguiseList extends ElementListWidget<LivingEntityDisguiseWidget>
         this.top = newPadding;
     }
 
-    public void scrollTo(LivingEntityDisguiseWidget widget)
+    public void scrollTo(EntityDisplayWidget widget)
     {
         if (widget == null || !children().contains(widget)) return;
 
