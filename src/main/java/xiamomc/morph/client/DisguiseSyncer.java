@@ -313,9 +313,6 @@ public class DisguiseSyncer extends MorphClientObject
             player.prevCapeY = clientPlayer.prevCapeY;
             player.prevCapeZ = clientPlayer.prevCapeZ;
         }
-
-        //更新BodyYaw
-        onThirdPersonChange(entity, clientPlayer);
     }
 
     private void onThirdPersonChange(LivingEntity entity, PlayerEntity clientPlayer)
@@ -413,6 +410,8 @@ public class DisguiseSyncer extends MorphClientObject
             entity.setYaw(180 + clientPlayer.getYaw());
         else
             entity.setYaw(clientPlayer.getYaw());
+
+        entity.setVelocity(clientPlayer.getVelocity());
 
         entity.setOnGround(clientPlayer.isOnGround());
 
