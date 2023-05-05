@@ -9,6 +9,8 @@ public class DisguiseList extends ElementListWidget<EntityDisplayWidget>
     public DisguiseList(MinecraftClient minecraftClient, int width, int height, int topPadding, int bottomPadding, int itemHeight)
     {
         super(minecraftClient, width, height, topPadding, bottomPadding, itemHeight);
+
+        this.setRenderBackground(false);
     }
 
     public void clearChildren()
@@ -79,8 +81,6 @@ public class DisguiseList extends ElementListWidget<EntityDisplayWidget>
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta)
     {
-        this.setRenderBackground(false);
-
         super.render(matrices, mouseX, mouseY, delta);
     }
 

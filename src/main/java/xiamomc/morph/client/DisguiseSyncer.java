@@ -35,7 +35,7 @@ public class DisguiseSyncer extends MorphClientObject
     @Initializer
     private void load(ServerHandler serverHandler)
     {
-        var selfViewIdentifier = morphManager.selfViewIdentifier;
+        var selfViewIdentifier = morphManager.currentIdentifier;
         var currentNbtCompound = morphManager.currentNbtCompound;
 
         selfViewIdentifier.onValueChanged(this::refreshClientViewEntity);

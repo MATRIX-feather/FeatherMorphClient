@@ -143,17 +143,23 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
 
             selectedIdentifier.onValueChanged((o, n) ->
             {
-                if (!identifier.equals(n) && focusType != FocusType.CURRENT && focusType != FocusType.WAITING)
-                    focusType = FocusType.NONE;
+                if (!identifier.equals(n) && activationState != ActivationState.CURRENT && activationState != ActivationState.WAITING)
+                    activationState = ActivationState.NONE;
             }, true);
 
             currentIdentifier.onValueChanged((o, n) ->
             {
                 n = n == null ? MorphClient.UNMORPH_STIRNG : n;
 
-                if (identifier.equals(o) && entity != null) entity = EntityCache.getEntity(identifier);
+                var isCurrent = identifier.equals(n);
+                var prevIsCurrent = identifier.equals(o);
 
-                focusType = identifier.equals(n) ? FocusType.CURRENT : FocusType.NONE;
+                if (prevIsCurrent && entity != null)
+                    entity = EntityCache.getEntity(identifier);
+
+                activationState = isCurrent
+                        ? ActivationState.CURRENT
+                        : (prevIsCurrent ? ActivationState.NONE : activationState);
             }, true);
         }
 
@@ -215,6 +221,7 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
             return switch (type.toString())
                     {
                         case "minecraft:squid", "minecraft:glow_squid" -> -6;
+                        case "minecraft:ghast" -> -3;
                         default -> 0;
                     };
         }
@@ -225,7 +232,7 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
 
             return switch (type.toString())
                     {
-                        case "minecraft:ender_dragon" -> 2;
+                        case "minecraft:ender_dragon" -> 3;
                         case "minecraft:squid", "minecraft:glow_squid" -> 10;
                         case "minecraft:magma_cube" ->
                         {
@@ -264,9 +271,9 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
                 borderColor = 0xff999999;
             }
 
-            if (focusType != FocusType.NONE)
+            if (activationState != ActivationState.NONE)
             {
-                borderColor = switch (focusType)
+                borderColor = switch (activationState)
                         {
                             //ARGB color
                             case SELECTED -> 0xffffaa00;
@@ -275,24 +282,29 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
                             default -> 0x00000000;
                         };
 
-                contentColor = 0x00333333 + (focusType == FocusType.CURRENT ? 0xc9000000 : 0xb5000000);
+                contentColor = 0x00333333 + (activationState == ActivationState.CURRENT ? 0xc9000000 : 0xb5000000);
 
                 if (hovered)
                     contentColor += 0x00333333;
             }
 
-            DrawableHelper.fill(matrices, screenSpaceX + 1, screenSpaceY + 1,
-                    screenSpaceX + width - 1, screenSpaceY + height - 1,
-                    contentColor);
-
-            DrawableHelper.drawBorder(matrices, screenSpaceX, screenSpaceY,
-                    width, height, borderColor);
-
-            textRenderer.draw(matrices, display,
-                    screenSpaceX + 5, screenSpaceY + ((height - textRenderer.fontHeight) / 2f), 0xffffffff);
-
             try
             {
+                matrices.push();
+
+                if (this.hovered)
+                    matrices.translate(0, 0, 512);
+
+                if (activationState == ActivationState.CURRENT)
+                    matrices.translate(0, 0, 256);
+
+                DrawableHelper.fill(matrices, screenSpaceX + 1, screenSpaceY + 1,
+                        screenSpaceX + width - 1, screenSpaceY + height - 1,
+                        contentColor);
+
+                DrawableHelper.drawBorder(matrices, screenSpaceX, screenSpaceY,
+                        width, height, borderColor);
+
                 if (entity != null && allowER)
                 {
                     var x = screenSpaceX + width - 5;
@@ -300,10 +312,10 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
                     var mX = 30;
                     var mY = 0;
 
-                    if (focusType == FocusType.CURRENT || entity == MinecraftClient.getInstance().player)
+                    if (activationState == ActivationState.CURRENT || entity == MinecraftClient.getInstance().player)
                         entitySize = this.getEntitySize(entity);
 
-                    if (focusType != FocusType.NONE)
+                    if (activationState != ActivationState.NONE)
                     {
                         mX = x - mouseX;
                         mY = y -mouseY;
@@ -321,6 +333,13 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
                 LoggerFactory.getLogger("morph").error(e.getMessage());
                 e.printStackTrace();
             }
+            finally
+            {
+                textRenderer.drawWithShadow(matrices, display,
+                        screenSpaceX + 5, screenSpaceY + ((height - textRenderer.fontHeight) / 2f), 0xffffffff);
+
+                matrices.pop();
+            }
         }
 
         private boolean hovered;
@@ -328,18 +347,18 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
         @Override
         public boolean isMouseOver(double mouseX, double mouseY)
         {
-            return isHovered(mouseX, mouseY);
+            return isHovered();
         }
 
         private boolean allowER = true;
 
         @Override
-        public SelectionType getType()
+        public Selectable.SelectionType getType()
         {
-            return (focusType == FocusType.CURRENT ? SelectionType.FOCUSED : SelectionType.NONE);
+            return (activationState == ActivationState.CURRENT ? Selectable.SelectionType.FOCUSED : Selectable.SelectionType.NONE);
         }
 
-        private FocusType focusType;
+        private ActivationState activationState;
 
         private void playClickSound()
         {
@@ -349,21 +368,21 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button)
         {
-            if (!isHovered(mouseX, mouseY)) return false;
+            if (!isHovered()) return false;
 
             manager.selectedIdentifier.set(this.identifier);
 
             if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT)
             {
-                var lastFocusType = focusType;
+                var lastFocusType = activationState;
 
                 switch (lastFocusType)
                 {
                     case SELECTED ->
                     {
-                        focusType = isPlayerItSelf && manager.currentIdentifier.get() == null
-                                ? FocusType.NONE
-                                : FocusType.WAITING;
+                        activationState = isPlayerItSelf && manager.currentIdentifier.get() == null
+                                ? ActivationState.NONE
+                                : ActivationState.WAITING;
 
                         MorphClient.getInstance().sendMorphCommand(this.identifier);
                         playClickSound();
@@ -375,7 +394,7 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
 
                     default ->
                     {
-                        focusType = FocusType.SELECTED;
+                        activationState = ActivationState.SELECTED;
                         playClickSound();
                     }
                 }
@@ -384,14 +403,14 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
             }
             else if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT) //Selected + 右键 -> 取消选择
             {
-                if (focusType == FocusType.SELECTED)
+                if (activationState == ActivationState.SELECTED)
                 {
                     manager.selectedIdentifier.set(null);
                     playClickSound();
                 }
-                else if (focusType == FocusType.CURRENT && !isPlayerItSelf)
+                else if (activationState == ActivationState.CURRENT && !isPlayerItSelf)
                 {
-                    focusType = FocusType.WAITING;
+                    activationState = ActivationState.WAITING;
                     MorphClient.getInstance().sendMorphCommand(null);
                     playClickSound();
                 }
@@ -400,7 +419,7 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
             return Element.super.mouseClicked(mouseX, mouseY, button);
         }
 
-        private boolean isHovered(double mouseX, double mouseY)
+        private boolean isHovered()
         {
             return this.hovered;
         }
@@ -424,12 +443,12 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
             builder.nextMessage().put(NarrationPart.HINT, Text.literal("Disguise of").append(this.display));
         }
 
-        private enum FocusType
+        private enum ActivationState
         {
             NONE,
             SELECTED,
             WAITING,
-            CURRENT
+            CURRENT;
         }
     }
 }
