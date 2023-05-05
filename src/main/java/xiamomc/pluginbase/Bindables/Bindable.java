@@ -114,6 +114,12 @@ public class Bindable<T> implements IBindable<T>
 
     public void dispose()
     {
+        if (bindTarget != null)
+        {
+            bindTarget.binds.remove(this);
+            bindTarget = null;
+        }
+
         this.binds.forEach(ref ->
         {
             ref.binds.remove(this);

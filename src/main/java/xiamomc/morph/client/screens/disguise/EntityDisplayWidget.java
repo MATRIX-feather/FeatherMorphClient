@@ -150,6 +150,7 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
             currentIdentifier.onValueChanged((o, n) ->
             {
                 n = n == null ? MorphClient.UNMORPH_STIRNG : n;
+                o = o == null ? MorphClient.UNMORPH_STIRNG : o;
 
                 var isCurrent = identifier.equals(n);
                 var prevIsCurrent = identifier.equals(o);
