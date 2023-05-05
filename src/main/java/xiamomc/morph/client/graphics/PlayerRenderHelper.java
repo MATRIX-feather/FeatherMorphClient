@@ -17,6 +17,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.*;
@@ -86,9 +87,14 @@ public class PlayerRenderHelper extends MorphClientObject
 
     private Entity entity = null;
 
+    @ApiStatus.Internal
+    public boolean skipRender = false;
+
+    public boolean skipRenderExternal = false;
+
     public boolean onDrawCall(LivingEntity player, float yaw, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light)
     {
-        if (!allowRender || syncer == null) return false;
+        if (!allowRender || syncer == null || skipRender || skipRenderExternal) return false;
 
         try
         {
@@ -179,7 +185,7 @@ public class PlayerRenderHelper extends MorphClientObject
         return g - 1.4f;
     }
 
-    public boolean allowRender = true;
+    private boolean allowRender = true;
 
     public boolean renderingLeftPart;
 

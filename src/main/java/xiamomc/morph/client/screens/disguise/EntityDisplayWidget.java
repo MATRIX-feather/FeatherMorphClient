@@ -251,6 +251,9 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
                             ((MagmaCubeEntity) entity).setSize(4, false);
                             yield 8;
                         }
+                        case "minecraft:player" -> {
+                            yield 8;
+                        }
                         default ->
                         {
                             var size = (int) (15 / Math.max(entity.getHeight(), entity.getWidth()));
@@ -333,11 +336,11 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
                     }
 
                     if (entity == MinecraftClient.getInstance().player)
-                        PlayerRenderHelper.instance.allowRender = false;
+                        PlayerRenderHelper.instance.skipRender = true;
 
                     InventoryScreen.drawEntity(matrices, x, y, entitySize, mX, mY, entity);
 
-                    PlayerRenderHelper.instance.allowRender = true;
+                    PlayerRenderHelper.instance.skipRender = false;
                 }
             }
             catch (Exception e)
