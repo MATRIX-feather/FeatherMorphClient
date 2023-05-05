@@ -26,6 +26,7 @@ import org.lwjgl.glfw.GLFW;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.*;
 import xiamomc.morph.client.entities.MorphLocalPlayer;
+import xiamomc.morph.client.graphics.PlayerRenderHelper;
 import xiamomc.pluginbase.Annotations.Resolved;
 import xiamomc.pluginbase.Bindables.Bindable;
 import xiamomc.morph.client.graphics.InventoryRenderHelper;
@@ -155,7 +156,7 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
                 var isCurrent = identifier.equals(n);
                 var prevIsCurrent = identifier.equals(o);
 
-                if (prevIsCurrent && entity != null)
+                if (prevIsCurrent && entity != null && !isPlayerItSelf)
                     entity = EntityCache.getEntity(identifier);
 
                 activationState = isCurrent
@@ -313,19 +314,20 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
                     var mX = 30;
                     var mY = 0;
 
-                    if (activationState == ActivationState.CURRENT || entity == MinecraftClient.getInstance().player)
-                        entitySize = this.getEntitySize(entity);
-
-                    if (activationState != ActivationState.NONE)
+                    if (activationState == ActivationState.CURRENT)
                     {
+                        //entitySize = this.getEntitySize(entity);
+
                         mX = x - mouseX;
                         mY = y - mouseY - (this.height / 2);
                     }
 
                     if (entity == MinecraftClient.getInstance().player)
-                        inventoryRenderHelper.onRenderCall(matrices, x, y, entitySize, mX, mY);
-                    else
-                        InventoryScreen.drawEntity(matrices, x, y, entitySize, mX, mY, entity);
+                        PlayerRenderHelper.instance.allowRender = false;
+
+                    InventoryScreen.drawEntity(matrices, x, y, entitySize, mX, mY, entity);
+
+                    PlayerRenderHelper.instance.allowRender = true;
                 }
             }
             catch (Exception e)

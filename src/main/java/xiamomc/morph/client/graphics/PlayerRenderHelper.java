@@ -31,6 +31,8 @@ import java.util.Map;
 
 public class PlayerRenderHelper extends MorphClientObject
 {
+    public static final PlayerRenderHelper instance = new PlayerRenderHelper();
+
     public PlayerRenderHelper()
     {
         DisguiseSyncer.currentEntity.onValueChanged((o, n) ->
@@ -177,7 +179,7 @@ public class PlayerRenderHelper extends MorphClientObject
         return g - 1.4f;
     }
 
-    private boolean allowRender = true;
+    public boolean allowRender = true;
 
     public boolean renderingLeftPart;
 

@@ -21,7 +21,7 @@ import xiamomc.morph.client.graphics.PlayerRenderHelper;
 @Mixin(PlayerEntityRenderer.class)
 public abstract class PlayerEntityRendererMixin extends LivingEntityRenderer<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>>
 {
-    private static final PlayerRenderHelper rendererHelper = new PlayerRenderHelper();
+    private static final PlayerRenderHelper rendererHelper = PlayerRenderHelper.instance;
 
     public PlayerEntityRendererMixin(EntityRendererFactory.Context ctx, PlayerEntityModel<AbstractClientPlayerEntity> model, float shadowRadius) {
         super(ctx, model, shadowRadius);
