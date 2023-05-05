@@ -151,7 +151,7 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
             {
                 n = n == null ? MorphClient.UNMORPH_STIRNG : n;
 
-                if (identifier.equals(o) && entity != null) entity = EntityCache.getEntity(n);
+                if (identifier.equals(o) && entity != null) entity = EntityCache.getEntity(identifier);
 
                 focusType = identifier.equals(n) ? FocusType.CURRENT : FocusType.NONE;
             }, true);
