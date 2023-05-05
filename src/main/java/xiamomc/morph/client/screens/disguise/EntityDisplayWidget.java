@@ -19,6 +19,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.MagmaCubeEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.NotNull;
@@ -165,6 +166,15 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
             }, true);
         }
 
+        private void trimDisplay(StringVisitable text)
+        {
+            var targetMultiplier = entity == null ? 0.9 : 0.7;
+            var toDisplay = textRenderer.trimToWidth(text, (int)Math.round(this.width * targetMultiplier));
+            var trimmed = !toDisplay.getString().equals(text.getString());
+
+            this.display = Text.literal(toDisplay.getString() + (trimmed ? "..." : ""));
+        }
+
         private void setupEntity(String identifier)
         {
             try
@@ -193,7 +203,7 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
                     //没有和此ID匹配的实体
                     if (entity == null)
                     {
-                        this.display = Text.literal(identifier);
+                        this.trimDisplay(Text.literal(identifier));
                         return;
                     }
 
@@ -201,7 +211,7 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
                 }
 
                 this.entity = living;
-                this.display = entity.getDisplayName();
+                this.trimDisplay(entity.getDisplayName());
 
                 entitySize = getEntitySize(entity);
                 entityYOffset = getEntityYOffset(entity);
