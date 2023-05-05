@@ -319,7 +319,7 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
                     if (activationState != ActivationState.NONE)
                     {
                         mX = x - mouseX;
-                        mY = y -mouseY;
+                        mY = y - mouseY - (this.height / 2);
                     }
 
                     if (entity == MinecraftClient.getInstance().player)
