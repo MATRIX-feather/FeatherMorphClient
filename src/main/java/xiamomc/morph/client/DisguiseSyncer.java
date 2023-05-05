@@ -20,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.entities.MorphLocalPlayer;
 import xiamomc.morph.client.graphics.CameraHelper;
+import xiamomc.morph.client.mixin.MinecraftClientMixin;
 import xiamomc.morph.client.mixin.accessors.AbstractHorseEntityMixin;
 import xiamomc.morph.client.mixin.accessors.EntityAccessor;
 import xiamomc.morph.client.mixin.accessors.LimbAnimatorAccessor;
@@ -231,6 +232,12 @@ public class DisguiseSyncer extends MorphClientObject
                     horse.equipStack(EquipmentSlot.CHEST, armorItem);
                     ((AbstractHorseEntityMixin) horse).getItems().setStack(1, armorItem);
                 }
+            }
+
+            if (entity == currentEntity.get())
+            {
+                if (nbtCompound.contains("Age") || nbtCompound.contains("IsBaby"))
+                    MinecraftClient.getInstance().player.calculateDimensions();
             }
         }
 
