@@ -30,7 +30,6 @@ import xiamomc.morph.client.entities.MorphLocalPlayer;
 import xiamomc.morph.client.graphics.PlayerRenderHelper;
 import xiamomc.pluginbase.Annotations.Resolved;
 import xiamomc.pluginbase.Bindables.Bindable;
-import xiamomc.morph.client.graphics.InventoryRenderHelper;
 
 import java.util.List;
 import java.util.UUID;
@@ -266,8 +265,6 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
 
         private final static TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 
-        private final InventoryRenderHelper inventoryRenderHelper = InventoryRenderHelper.getInstance();
-
         @Override
         public void render(MatrixStack matrices, int mouseX, int mouseY, float delta)
         {
@@ -374,7 +371,8 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
             return (activationState == ActivationState.CURRENT ? Selectable.SelectionType.FOCUSED : Selectable.SelectionType.NONE);
         }
 
-        private ActivationState activationState;
+        @NotNull
+        private ActivationState activationState = ActivationState.NONE;
 
         private void playClickSound()
         {

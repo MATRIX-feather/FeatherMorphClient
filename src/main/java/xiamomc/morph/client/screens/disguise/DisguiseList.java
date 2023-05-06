@@ -1,11 +1,20 @@
 package xiamomc.morph.client.screens.disguise;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.widget.ElementListWidget;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.math.MathHelper;
+import xiamomc.morph.client.MorphClient;
+import xiamomc.morph.client.graphics.transforms.Transformer;
+import xiamomc.morph.client.graphics.transforms.easings.Easing;
+import xiamomc.morph.client.utilties.TransformUtils;
+import xiamomc.pluginbase.Bindables.Bindable;
 
 public class DisguiseList extends ElementListWidget<EntityDisplayWidget>
 {
+    private final Bindable<Double> scrollAmount = new Bindable<>(0d);
+
     public DisguiseList(MinecraftClient minecraftClient, int width, int height, int topPadding, int bottomPadding, int itemHeight)
     {
         super(minecraftClient, width, height, topPadding, bottomPadding, itemHeight);
@@ -67,6 +76,52 @@ public class DisguiseList extends ElementListWidget<EntityDisplayWidget>
         this.setScrollAmount(amount);
     }
 
+    private long duration = 525;
+
+    @Override
+    public void setScrollAmount(double targetAmount)
+    {
+        targetAmount = MathHelper.clamp(targetAmount, 0, getMaxScroll());
+
+        //this.diff = targetAmount - this.scrollAmount.get();
+        this.targetAmount = targetAmount;
+
+        Transformer.transformBindable(this.scrollAmount, targetAmount, duration, Easing.OutExpo);
+    }
+
+    private boolean returnEasing = true;
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY)
+    {
+        duration = 125;
+
+        this.returnEasing = false;
+        var result = super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+        this.returnEasing = true;
+
+        return result;
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double amount)
+    {
+        duration = 300;
+
+        amount *= 3.5f;
+        return super.mouseScrolled(mouseX, mouseY, amount);
+    }
+
+    @Override
+    public double getScrollAmount()
+    {
+        return returnEasing ? this.scrollAmount.get() : targetAmount;
+    }
+
+    //private double diff;
+
+    private double targetAmount;
+
     @Override
     public int getRowWidth()
     {
@@ -81,6 +136,19 @@ public class DisguiseList extends ElementListWidget<EntityDisplayWidget>
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta)
     {
+        /*
+        var textRenderer = MinecraftClient.getInstance().textRenderer;
+
+        var textY = this.getTopPadding() + textRenderer.fontHeight;
+        textRenderer.drawWithShadow(matrices, "Current: %s".formatted(this.scrollAmount.get()), 0, textY, 0xffffff);
+
+        textY += textRenderer.fontHeight;
+        textRenderer.drawWithShadow(matrices, "Target: %s".formatted(targetAmount), 0, textY, 0xffffff);
+
+        textY += textRenderer.fontHeight;
+        textRenderer.drawWithShadow(matrices, "Diff: %s".formatted(diff), 0, textY, 0xffffff);
+        */
+
         super.render(matrices, mouseX, mouseY, delta);
     }
 
