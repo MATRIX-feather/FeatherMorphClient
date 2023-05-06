@@ -11,6 +11,7 @@ import xiamomc.morph.client.entities.MorphLocalPlayer;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -61,6 +62,8 @@ public class EntityCache
     private static final Lock readLock = rwLock.readLock();
     private static final Lock writeLock = rwLock.writeLock();
 
+    private static final long lockWait = 10;
+
     @Nullable
     public static LivingEntity getEntity(String identifier)
     {
@@ -68,7 +71,22 @@ public class EntityCache
 
         LivingEntity cache;
 
-        readLock.lock();
+        boolean locked;
+        try
+        {
+            locked = readLock.tryLock(lockWait, TimeUnit.MILLISECONDS);
+        }
+        catch (Throwable t)
+        {
+            MorphClient.LOGGER.warn("Unable to lock entity cache for read: " + t.getMessage());
+            locked = false;
+        }
+
+        if (!locked)
+        {
+            MorphClient.LOGGER.warn("Unable to lock entity cache for read: Timed out.");
+            return null;
+        }
 
         try
         {
@@ -111,7 +129,23 @@ public class EntityCache
 
         if (living == null) return null;
 
-        writeLock.lock();
+        try
+        {
+            locked = writeLock.tryLock(lockWait, TimeUnit.MILLISECONDS);
+        }
+        catch (Throwable t)
+        {
+            MorphClient.LOGGER.warn("Unable to lock entity cache for write: " + t.getMessage());
+            t.printStackTrace();
+
+            return null;
+        }
+
+        if (!locked)
+        {
+            MorphClient.LOGGER.warn("Unable to lock entity cache for write: Timed out");
+            return null;
+        }
 
         try
         {
