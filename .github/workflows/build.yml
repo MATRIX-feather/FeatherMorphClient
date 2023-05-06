@@ -1,6 +1,6 @@
-name: CI
+name: Build
 
-on: [push, release]
+on: [push]
 
 jobs:
   build:
@@ -15,7 +15,7 @@ jobs:
           distribution: 'adopt'
           cache: 'gradle'
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew reobfJar
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
