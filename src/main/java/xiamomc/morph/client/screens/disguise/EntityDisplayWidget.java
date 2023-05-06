@@ -167,11 +167,16 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
 
         private void trimDisplay(StringVisitable text)
         {
-            var targetMultiplier = entity == null ? 0.9 : 0.7;
-            var toDisplay = textRenderer.trimToWidth(text, (int)Math.round(this.width * targetMultiplier));
-            var trimmed = !toDisplay.getString().equals(text.getString());
+            this.display = Text.literal(text.getString());
 
-            this.display = Text.literal(toDisplay.getString() + (trimmed ? "..." : ""));
+            this.addSchedule(() ->
+            {
+                var targetMultiplier = entity == null ? 0.9 : 0.7;
+                var toDisplay = textRenderer.trimToWidth(text, (int)Math.round(this.width * targetMultiplier));
+                var trimmed = !toDisplay.getString().equals(text.getString());
+
+                this.display = Text.literal(toDisplay.getString() + (trimmed ? "..." : ""));
+            });
         }
 
         private void setupEntity(String identifier)
