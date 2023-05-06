@@ -11,6 +11,8 @@ import xiamomc.morph.client.entities.MorphLocalPlayer;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class EntityCache
 {
@@ -55,14 +57,27 @@ public class EntityCache
         }
     }
 
+    private static final ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock();
+    private static final Lock readLock = rwLock.readLock();
+    private static final Lock writeLock = rwLock.writeLock();
+
     @Nullable
-    public synchronized static LivingEntity getEntity(String identifier)
+    public static LivingEntity getEntity(String identifier)
     {
         if (identifier == null) return null;
 
-        var cache = cacheMap.getOrDefault(identifier, null);
+        LivingEntity cache;
 
-        //LoggerFactory.getLogger("morph").info("Cache of " + identifier + " is " + cache);
+        readLock.lock();
+
+        try
+        {
+            cache = cacheMap.getOrDefault(identifier, null);
+        }
+        finally
+        {
+            readLock.unlock();
+        }
 
         if (cache != null && !cache.isRemoved()) return cache;
 
@@ -94,8 +109,18 @@ public class EntityCache
             living = new MorphLocalPlayer(MinecraftClient.getInstance().world, profile);
         }
 
-        if (living != null)
+        if (living == null) return null;
+
+        writeLock.lock();
+
+        try
+        {
             cacheMap.put(identifier, living);
+        }
+        finally
+        {
+            writeLock.unlock();
+        }
 
         //LoggerFactory.getLogger("morph").info("Pushing " + identifier + " into EntityCache.");
 
