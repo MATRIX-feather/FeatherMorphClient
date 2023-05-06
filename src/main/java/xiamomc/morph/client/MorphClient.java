@@ -28,6 +28,7 @@ import xiamomc.morph.client.screens.disguise.WaitingForServerScreen;
 import xiamomc.morph.network.Constants;
 import xiamomc.morph.network.commands.C2S.*;
 import xiamomc.pluginbase.AbstractSchedulablePlugin;
+import xiamomc.pluginbase.Bindables.Bindable;
 import xiamomc.pluginbase.ScheduleInfo;
 
 import java.util.ArrayList;
@@ -239,20 +240,13 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
                         .setDefaultValue(false)
                         .setSaveConsumer(v -> modConfigData.alwaysShowPreviewInInventory = v)
                         .build()
-        );
-
-        categoryGeneral.addEntry(
+        ).addEntry(
                 entryBuilder.startBooleanToggle(Text.translatable("option.morphclient.changeCameraHeight.name"), modConfigData.changeCameraHeight)
                         .setTooltip(Text.translatable("option.morphclient.changeCameraHeight.description"))
                         .setDefaultValue(false)
-                        .setSaveConsumer(v ->
-                        {
-                            modConfigData.changeCameraHeight = v;
-                        })
+                        .setSaveConsumer(v -> modConfigData.changeCameraHeight = v)
                         .build()
-        );
-
-        categoryGeneral.addEntry(
+        ).addEntry(
                 entryBuilder.startBooleanToggle(Text.translatable("option.morphclient.allowClientView.name"), modConfigData.allowClientView)
                         .setTooltip(Text.translatable("option.morphclient.allowClientView.description"))
                         .setDefaultValue(true)
@@ -264,9 +258,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
                                 updateClientView(v, morphManager.selfVisibleToggled.get());
                         })
                         .build()
-        );
-
-        categoryGeneral.addEntry(
+        ).addEntry(
                 entryBuilder.startBooleanToggle(Text.translatable("option.morphclient.displayDisguiseOnHud.name"), modConfigData.displayDisguiseOnHud)
                         .setTooltip(Text.translatable("option.morphclient.displayDisguiseOnHud.description"))
                         .setDefaultValue(true)
@@ -278,40 +270,34 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
                                 serverHandler.sendCommand(new C2SOptionCommand(C2SOptionCommand.ClientOptions.HUD).setValue(v));
                         })
                         .build()
-        );
-
-        categoryGeneral.addEntry(
+        ).addEntry(
+                entryBuilder.startFloatField(Text.translatable("option.morphclient.scrollSpeed.name"), modConfigData.scrollSpeed)
+                        .setTooltip(Text.translatable("option.morphclient.scrollSpeed.description"))
+                        .setMax(4F)
+                        .setMin(0.5F)
+                        .setDefaultValue(1)
+                        .setSaveConsumer(v -> modConfigData.scrollSpeed = v)
+                        .build()
+        ).addEntry(
                 entryBuilder.startBooleanToggle(Text.translatable("option.morphclient.verbosePackets.name"), modConfigData.verbosePackets)
                         .setTooltip(Text.translatable("option.morphclient.verbosePackets.description"))
                         .setDefaultValue(false)
-                        .setSaveConsumer(v ->
-                        {
-                            modConfigData.verbosePackets = v;
-                        })
+                        .setSaveConsumer(v -> modConfigData.verbosePackets = v)
                         .build()
         );
-
-        categoryGeneral.addEntry(
+                /*.addEntry(
                 entryBuilder.startEnumSelector(Text.translatable("option.morphclient.easing.name"), Easing.class, modConfigData.easing)
                         .setTooltip(Text.translatable("option.morphclient.easing.description"))
                         .setDefaultValue(Easing.OutQuint)
-                        .setSaveConsumer(v ->
-                        {
-                            modConfigData.easing = v;
-                        })
+                        .setSaveConsumer(v -> modConfigData.easing = v)
                         .build()
-        );
-
-        categoryGeneral.addEntry(
+        ).addEntry(
                 entryBuilder.startIntField(Text.translatable("option.morphclient.animationTime.name"), modConfigData.duration)
                         .setTooltip(Text.translatable("option.morphclient.animationTime.description"))
                         .setDefaultValue(450)
-                        .setSaveConsumer(v ->
-                        {
-                            modConfigData.duration = v;
-                        })
+                        .setSaveConsumer(v -> modConfigData.duration = v)
                         .build()
-        );
+        );*/
 
         builder.setParentScreen(parent)
                 .setTitle(Text.translatable("title.morphclient.config"))

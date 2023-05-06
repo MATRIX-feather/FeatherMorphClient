@@ -1,5 +1,6 @@
 package xiamomc.morph.client.screens.disguise;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import me.shedaniel.math.Color;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
@@ -13,6 +14,7 @@ import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.ServerHandler;
 import xiamomc.morph.client.graphics.transforms.Recorder;
 import xiamomc.morph.client.graphics.transforms.Transformer;
+import xiamomc.morph.client.graphics.transforms.easings.Easing;
 import xiamomc.morph.client.screens.FeatherScreen;
 import xiamomc.pluginbase.Bindables.Bindable;
 import xiamomc.morph.client.graphics.DrawableText;
@@ -170,8 +172,8 @@ public class DisguiseScreen extends FeatherScreen
         if (last instanceof WaitingForServerScreen waitingForServerScreen)
             backgroundDim.set(waitingForServerScreen.getCurrentDim());
 
-        var duration = MorphClient.getInstance().getModConfigData().duration;
-        var easing = MorphClient.getInstance().getModConfigData().easing;
+        var duration = 450; //MorphClient.getInstance().getModConfigData().duration;
+        var easing = Easing.OutQuint; //MorphClient.getInstance().getModConfigData().easing;
 
         topHeight.onValueChanged((o, n) ->
         {
@@ -234,6 +236,9 @@ public class DisguiseScreen extends FeatherScreen
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta)
     {
+        if (!RenderSystem.isOnRenderThread())
+            throw new RuntimeException("Not on render thread");
+
         var dim = (int) (255 * backgroundDim.get());
         var color = Color.ofRGBA(0, 0, 0, dim);
 

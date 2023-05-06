@@ -4,6 +4,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.ElementListWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.MathHelper;
+import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.graphics.transforms.Recorder;
 import xiamomc.morph.client.graphics.transforms.Transformer;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
@@ -105,7 +106,7 @@ public class DisguiseList extends ElementListWidget<EntityDisplayWidget>
     {
         duration = 300;
 
-        amount *= 3.5f;
+        amount *= 3f * MorphClient.getInstance().getModConfigData().scrollSpeed;
         return super.mouseScrolled(mouseX, mouseY, amount);
     }
 

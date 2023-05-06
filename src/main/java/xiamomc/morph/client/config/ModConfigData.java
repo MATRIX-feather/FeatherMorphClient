@@ -22,6 +22,8 @@ public class ModConfigData implements ConfigData
 
     public int duration = 450;
 
+    public float scrollSpeed = 1f;
+
     public boolean clientViewVisible()
     {
         return MorphClient.getInstance().morphManager.selfVisibleToggled.get() && allowClientView;
