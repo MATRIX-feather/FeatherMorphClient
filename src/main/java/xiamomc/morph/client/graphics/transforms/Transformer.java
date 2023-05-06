@@ -22,29 +22,30 @@ public class Transformer
             if (t.aborted)
             {
                 transforms.remove(t);
+                continue;
             }
-            else
+
+            double timeProgress = (currentTime - t.startTime) * 1d / t.duration;
+
+            t.applyProgress(timeProgress);
+
+            //如果进度不等于1，那么继续
+            if (timeProgress < 1) continue;
+
+            transforms.remove(t);
+
+            if (t.onFinish == null) continue;
+
+            for (Runnable onFinish : t.onFinish)
             {
-                double timeProgress = (currentTime - t.startTime) * 1d / t.duration;
-
-                t.applyProgress(timeProgress);
-
-                if (timeProgress >= 1)
+                try
                 {
-                    transforms.remove(t);
-
-                    if (t.onComplete != null)
-                    {
-                        try
-                        {
-                            t.onComplete.run();
-                        }
-                        catch (Throwable throwable)
-                        {
-                            MorphClient.LOGGER.warn(throwable.getMessage());
-                            throwable.printStackTrace();
-                        }
-                    }
+                    onFinish.run();
+                }
+                catch (Throwable throwable)
+                {
+                    MorphClient.LOGGER.warn(throwable.getMessage());
+                    throwable.printStackTrace();
                 }
             }
         }
@@ -57,21 +58,40 @@ public class Transformer
         transforms.add(info);
     }
 
-    public static <T> TransformBindable<T> transformBindable(Bindable<T> bindable, T endValue, long duration, Easing easing)
+    public static <T> GenericTransform<T> transform(Recorder<T> recorder, T endValue, long duration, Easing easing)
     {
-        var prevTransform = transforms.stream()
-                .filter(t -> (t instanceof TransformBindable<?> tB && tB.bindable == bindable))
+        var prevTransform = (GenericTransform<T>) transforms.stream()
+                .filter(t -> (t instanceof GenericTransform<?> tB && tB.val == recorder))
                 .findFirst().orElse(null);
 
         if (prevTransform != null)
         {
-            ((TransformBindable) prevTransform).update(bindable, currentTime, duration, endValue, easing);
-
-            return (TransformBindable<T>) prevTransform;
+            prevTransform.update(recorder, currentTime, duration, endValue, easing);
+            return prevTransform;
         }
         else
         {
-            var info = new TransformBindable<>(bindable, currentTime, duration, endValue, easing);
+            var transform = new GenericTransform<>(recorder, currentTime, duration, endValue, easing);
+            startTransform(transform);
+            return transform;
+        }
+    }
+
+    public static <T> BindableTransform<T> transform(Bindable<T> bindable, T endValue, long duration, Easing easing)
+    {
+        var prevTransform = (BindableTransform<T>) transforms.stream()
+                .filter(t -> (t instanceof BindableTransform<?> tB && tB.bindable == bindable))
+                .findFirst().orElse(null);
+
+        if (prevTransform != null)
+        {
+            prevTransform.update(bindable, currentTime, duration, endValue, easing);
+
+            return prevTransform;
+        }
+        else
+        {
+            var info = new BindableTransform<>(bindable, currentTime, duration, endValue, easing);
             startTransform(info);
             return info;
         }

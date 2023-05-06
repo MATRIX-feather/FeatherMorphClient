@@ -1,9 +1,12 @@
 package xiamomc.morph.client.utilties;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import org.apache.commons.lang3.NotImplementedException;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Map;
 
 public class TransformUtils
 {
@@ -43,11 +46,22 @@ public class TransformUtils
             return (short) Math.round(valueAt(progress, (double) startVal, endVal, easing));
         }
 
+        private static final Map<Class<?>, Method> clazzMethodMap = new Object2ObjectArrayMap<>();
+
         public static <TValue> TValue create(double progress, TValue startVal, TValue endVal, Easing easing)
         {
-            var method = Arrays.stream(ValueTransformer.class.getMethods())
-                    .filter(m -> m.getReturnType() == startVal.getClass())
-                    .findFirst().orElse(null);
+            var valType = startVal.getClass();
+            Method method = clazzMethodMap.get(valType);
+
+            if (method == null)
+            {
+                var mm = Arrays.stream(ValueTransformer.class.getMethods())
+                        .filter(m -> m.getReturnType() == valType)
+                        .findFirst().orElse(null);
+
+                clazzMethodMap.put(valType, mm);
+                method = mm;
+            }
 
             if (method == null)
                 throw new NotImplementedException("No such transform method for type " + startVal.getClass());

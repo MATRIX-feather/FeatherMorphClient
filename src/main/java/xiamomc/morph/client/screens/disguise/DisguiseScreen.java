@@ -11,6 +11,7 @@ import xiamomc.morph.client.ClientMorphManager;
 import xiamomc.morph.client.EntityCache;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.ServerHandler;
+import xiamomc.morph.client.graphics.transforms.Recorder;
 import xiamomc.morph.client.graphics.transforms.Transformer;
 import xiamomc.morph.client.screens.FeatherScreen;
 import xiamomc.pluginbase.Bindables.Bindable;
@@ -136,7 +137,7 @@ public class DisguiseScreen extends FeatherScreen
 
     private final Bindable<Integer> topHeight = new Bindable<>(0);
     private final Bindable<Integer> bottomHeight = new Bindable<>(0);
-    private final Bindable<Float> backgroundDim = new Bindable<>(0f);
+    private final Recorder<Float> backgroundDim = new Recorder<>(0f);
 
     public float getBackgroundDim()
     {
@@ -178,9 +179,10 @@ public class DisguiseScreen extends FeatherScreen
             list.setHeaderHeight(textRenderer.fontHeight * 2 + fontMargin * 2 - n);
         }, true);
         bottomHeight.onValueChanged((o, n) -> list.setBottomPadding(this.height - n));
-        Transformer.transformBindable(topHeight, textRenderer.fontHeight * 2 + fontMargin * 2, duration, easing);
-        Transformer.transformBindable(bottomHeight, 30, duration, easing);
-        Transformer.transformBindable(backgroundDim, 0.7f, duration, easing);
+
+        Transformer.transform(topHeight, textRenderer.fontHeight * 2 + fontMargin * 2, duration, easing);
+        Transformer.transform(bottomHeight, 30, duration, easing);
+        Transformer.transform(backgroundDim, 0.7f, duration, easing);
 
         this.addDrawableChild(list);
 

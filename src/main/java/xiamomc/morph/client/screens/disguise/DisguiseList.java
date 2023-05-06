@@ -1,20 +1,15 @@
 package xiamomc.morph.client.screens.disguise;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.widget.ElementListWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.MathHelper;
-import xiamomc.morph.client.MorphClient;
+import xiamomc.morph.client.graphics.transforms.Recorder;
 import xiamomc.morph.client.graphics.transforms.Transformer;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
-import xiamomc.morph.client.utilties.TransformUtils;
-import xiamomc.pluginbase.Bindables.Bindable;
 
 public class DisguiseList extends ElementListWidget<EntityDisplayWidget>
 {
-    private final Bindable<Double> scrollAmount = new Bindable<>(0d);
-
     public DisguiseList(MinecraftClient minecraftClient, int width, int height, int topPadding, int bottomPadding, int itemHeight)
     {
         super(minecraftClient, width, height, topPadding, bottomPadding, itemHeight);
@@ -86,8 +81,10 @@ public class DisguiseList extends ElementListWidget<EntityDisplayWidget>
         //this.diff = targetAmount - this.scrollAmount.get();
         this.targetAmount = targetAmount;
 
-        Transformer.transformBindable(this.scrollAmount, targetAmount, duration, Easing.OutExpo);
+        Transformer.transform(this.scrollAmount, targetAmount, duration, Easing.OutExpo);
     }
+
+    private final Recorder<Double> scrollAmount = new Recorder<>(0D);
 
     private boolean returnEasing = true;
 

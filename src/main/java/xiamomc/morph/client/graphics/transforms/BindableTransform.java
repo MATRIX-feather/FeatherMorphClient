@@ -1,15 +1,14 @@
 package xiamomc.morph.client.graphics.transforms;
 
-import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
 import xiamomc.morph.client.utilties.TransformUtils;
 import xiamomc.pluginbase.Bindables.Bindable;
 
-public class TransformBindable<TValue> extends Transform<TValue>
+public class BindableTransform<TValue> extends Transform<TValue>
 {
     public final Bindable<TValue> bindable;
 
-    protected TransformBindable(Bindable<TValue> bindable, long startTime, long duration, TValue endValue, Easing easing)
+    protected BindableTransform(Bindable<TValue> bindable, long startTime, long duration, TValue endValue, Easing easing)
     {
         super(startTime, duration, bindable.get(), endValue, easing);
 

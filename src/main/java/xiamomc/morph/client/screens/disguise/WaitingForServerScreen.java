@@ -1,7 +1,6 @@
 package xiamomc.morph.client.screens.disguise;
 
 import me.shedaniel.math.Color;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
@@ -11,8 +10,6 @@ import xiamomc.morph.client.graphics.transforms.Transformer;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
 import xiamomc.morph.client.screens.FeatherScreen;
 import xiamomc.pluginbase.Bindables.Bindable;
-
-import java.awt.*;
 
 public class WaitingForServerScreen extends FeatherScreen
 {
@@ -70,7 +67,7 @@ public class WaitingForServerScreen extends FeatherScreen
             if (last instanceof DisguiseScreen disguiseScreen)
                 backgroundDim.set(disguiseScreen.getBackgroundDim());
 
-            Transformer.transformBindable(backgroundDim, 0.5f, 300, Easing.OutQuint);
+            Transformer.transform(backgroundDim, 0.5f, 300, Easing.OutQuint);
         }
     }
 

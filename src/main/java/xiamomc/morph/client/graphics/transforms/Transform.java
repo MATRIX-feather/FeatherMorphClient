@@ -1,7 +1,10 @@
 package xiamomc.morph.client.graphics.transforms;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.Nullable;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
+
+import java.util.List;
 
 public abstract class Transform<TValue>
 {
@@ -32,12 +35,25 @@ public abstract class Transform<TValue>
     public TValue startValue;
     public TValue endValue;
 
-    @Nullable
-    public Runnable onComplete;
-
     public Easing easing;
 
     public boolean aborted;
 
+    /**
+     * Applies a time point to this transformation
+     * @param timeProgress The time progress (From 0 to 1)
+     * @apiNote The value should be capped within the range (0% ~ 100%) if it exceeds.
+     */
     public abstract void applyProgress(double timeProgress);
+
+    public List<Runnable> onFinish;
+
+    public Transform<TValue> then(Runnable runnable)
+    {
+        if (this.onFinish == null) onFinish = new ObjectArrayList<>();
+
+        this.onFinish.add(runnable);
+
+        return this;
+    }
 }
