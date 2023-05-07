@@ -10,6 +10,8 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import xiamomc.morph.client.MorphClientObject;
 import xiamomc.morph.client.graphics.EntityDisplay;
+import xiamomc.morph.client.graphics.color.ColorUtils;
+import xiamomc.morph.client.graphics.color.MaterialColors;
 import xiamomc.morph.client.graphics.transforms.Recorder;
 import xiamomc.morph.client.graphics.transforms.Transformer;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
@@ -66,9 +68,6 @@ public class DisguiseEntryToast extends MorphClientObject implements Toast
 
     private final Bindable<Visibility> visibility = new Bindable<>(Visibility.HIDE);
 
-    private static final int colorGrant = Color.ofRGBA(75, 103, 16, 255).getColor();
-    private static final int colorLost = Color.ofRGBA(179, 39, 33, 255).getColor();
-
     @Override
     public Visibility draw(MatrixStack matrices, ToastManager manager, long startTime)
     {
@@ -86,9 +85,9 @@ public class DisguiseEntryToast extends MorphClientObject implements Toast
         textRenderer.draw(matrices, entityDisplay.getDisplayName(), textStartX, textStartY + textRenderer.fontHeight + 1, 0xffffffff);
 
         // Draw CoverLine
-        var color = isGrant ? colorGrant : colorLost;
+        var color = isGrant ? MaterialColors.Green500 : MaterialColors.Amber500;
         var lineWidth = outlineWidth.get();
-        DrawableHelper.fill(matrices, 0, 0, lineWidth, this.getHeight(), color);
+        DrawableHelper.fill(matrices, 0, 0, lineWidth, this.getHeight(), color.getColor());
 
 /*
         var visibility = this.isGrant
