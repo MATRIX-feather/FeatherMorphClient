@@ -55,7 +55,7 @@ public class LinedToast extends MorphClientObject implements Toast
 
     private final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 
-    private final Bindable<Visibility> visibility = new Bindable<>(Visibility.HIDE);
+    protected final Bindable<Visibility> visibility = new Bindable<>(Visibility.HIDE);
 
     protected void postTextDrawing(MatrixStack matrices, ToastManager manager, long startTime)
     {
@@ -70,7 +70,7 @@ public class LinedToast extends MorphClientObject implements Toast
     }
 
     @Override
-    public final Visibility draw(MatrixStack matrices, ToastManager manager, long startTime)
+    public Visibility draw(MatrixStack matrices, ToastManager manager, long startTime)
     {
         // Draw background
         DrawableHelper.fill(matrices, 0, 0, this.getWidth(), this.getHeight(), 0xFF333333);

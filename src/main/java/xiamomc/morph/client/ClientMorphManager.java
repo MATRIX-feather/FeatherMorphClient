@@ -100,6 +100,8 @@ public class ClientMorphManager extends MorphClientObject
 
         this.addDisguises(identifiers, false);
 
+        DisguiseEntryToast.invalidateAll();
+
         if (displayToasts)
         {
             var toast = new NewDisguiseSetToast();

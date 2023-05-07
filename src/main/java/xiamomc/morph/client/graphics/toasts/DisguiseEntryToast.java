@@ -10,11 +10,29 @@ import xiamomc.morph.client.graphics.EntityDisplay;
 import xiamomc.morph.client.graphics.color.MaterialColors;
 import xiamomc.pluginbase.Annotations.Initializer;
 
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class DisguiseEntryToast extends LinedToast
 {
     private final String rawIdentifier;
 
     private final boolean isGrant;
+
+    public static final ConcurrentLinkedQueue<DisguiseEntryToast> instances = new ConcurrentLinkedQueue<>();
+
+    public static void invalidateAll()
+    {
+        instances.forEach(DisguiseEntryToast::invalidate);
+    }
+
+    private final AtomicBoolean isValid = new AtomicBoolean(true);
+
+    public void invalidate()
+    {
+        isValid.set(false);
+        instances.remove(this);
+    }
 
     public DisguiseEntryToast(String rawIdentifier, boolean isGrant)
     {
@@ -28,6 +46,13 @@ public class DisguiseEntryToast extends LinedToast
         entityDisplay.x = 512;
 
         entityDisplay.postEntitySetup = () -> trimDisplay(entityDisplay.getDisplayName());
+
+        instances.add(this);
+
+        visibility.onValueChanged((o, n) ->
+        {
+            if (n == Visibility.HIDE) instances.remove(this);
+        });
     }
 
     @Initializer
@@ -88,5 +113,13 @@ public class DisguiseEntryToast extends LinedToast
         matrices.pop();
 
         description = display == null ? entityDisplay.getDisplayName() : display;
+    }
+
+    @Override
+    public Visibility draw(MatrixStack matrices, ToastManager manager, long startTime)
+    {
+        if (!isValid.get()) return Visibility.HIDE;
+
+        return super.draw(matrices, manager, startTime);
     }
 }
