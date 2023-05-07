@@ -44,7 +44,7 @@ public class DisguiseEntryToast extends MorphClientObject implements Toast
             if (visible == Visibility.SHOW)
                 Transformer.delay(250).then(() -> Transformer.transform(outlineWidth, 2, 600, Easing.OutQuint));
             else
-                Transformer.transform(outlineWidth, this.getWidth(), 600, Easing.OutQuint);
+                Transformer.transform(outlineWidth, this.getWidth(), 600, Easing.OutQuad);
         }, true);
 
         entityDisplay.x = 20;
