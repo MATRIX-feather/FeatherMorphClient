@@ -8,6 +8,7 @@ import net.minecraft.client.toast.Toast;
 import net.minecraft.client.toast.ToastManager;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.MathHelper;
 import xiamomc.morph.client.MorphClientObject;
 import xiamomc.morph.client.graphics.EntityDisplay;
 import xiamomc.morph.client.graphics.color.ColorUtils;
@@ -74,6 +75,12 @@ public class DisguiseEntryToast extends MorphClientObject implements Toast
         // Draw background
         DrawableHelper.fill(matrices, 0, 0, this.getWidth(), this.getHeight(), 0xFF333333);
 
+        // Draw progress
+        var progress = Math.min(1, startTime / (3000.0 * manager.getNotificationDisplayTimeMultiplier()));
+        var progressDisplay = Math.max(0, 0.95 - progress);
+
+        DrawableHelper.fill(matrices, 0, 0, (int)(this.getWidth() * progressDisplay), this.getHeight(), (int)(0x40 * progressDisplay) << 24 | 0x00FFFFFF);
+
         // Draw entity
         entityDisplay.render(matrices, -30, 0);
 
@@ -81,8 +88,8 @@ public class DisguiseEntryToast extends MorphClientObject implements Toast
         var textStartX = this.getWidth() * 0.25F - 4;
         var textStartY = this.getHeight() / 2 - textRenderer.fontHeight;
 
-        textRenderer.draw(matrices, Text.translatable("text.morphclient.toast.disguise_%s".formatted(isGrant ? "grant" : "lost")), textStartX, textStartY - 1, 0xffffffff);
-        textRenderer.draw(matrices, entityDisplay.getDisplayName(), textStartX, textStartY + textRenderer.fontHeight + 1, 0xffffffff);
+        textRenderer.drawWithShadow(matrices, Text.translatable("text.morphclient.toast.disguise_%s".formatted(isGrant ? "grant" : "lost")), textStartX, textStartY - 1, 0xffffffff);
+        textRenderer.drawWithShadow(matrices, entityDisplay.getDisplayName(), textStartX, textStartY + textRenderer.fontHeight + 1, 0xffffffff);
 
         // Draw CoverLine
         var color = isGrant ? MaterialColors.Green500 : MaterialColors.Amber500;
@@ -96,7 +103,7 @@ public class DisguiseEntryToast extends MorphClientObject implements Toast
 */
 
         // Update visibility
-        var visibility = (double)startTime >= 3000.0 * manager.getNotificationDisplayTimeMultiplier() ? Visibility.HIDE : Visibility.SHOW;
+        var visibility = progress >= 1 ? Visibility.HIDE : Visibility.SHOW;
         this.visibility.set(visibility);
 
         return visibility;
