@@ -11,6 +11,7 @@ import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xiamomc.morph.client.MorphClientObject;
+import xiamomc.morph.client.graphics.color.ColorUtils;
 import xiamomc.morph.client.graphics.transforms.Recorder;
 import xiamomc.morph.client.graphics.transforms.Transformer;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
@@ -69,17 +70,26 @@ public class LinedToast extends MorphClientObject implements Toast
     {
     }
 
+    protected boolean drawProgress()
+    {
+        return false;
+    }
+
     @Override
     public Visibility draw(MatrixStack matrices, ToastManager manager, long startTime)
     {
         // Draw background
         DrawableHelper.fill(matrices, 0, 0, this.getWidth(), this.getHeight(), 0xFF333333);
 
-        // Draw progress bar
         var progress = Math.min(1, startTime / (5000.0 * manager.getNotificationDisplayTimeMultiplier()));
-        var progressDisplay = Math.max(0, 0.95 - progress);
 
-        DrawableHelper.fill(matrices, 0, 0, (int)(this.getWidth() * progressDisplay), this.getHeight(), (int)(0x40 * progressDisplay) << 24 | 0x00FFFFFF);
+        // Draw progress bar
+        if (drawProgress())
+        {
+            var progressDisplay = Math.max(0, 0.95 - progress);
+
+            DrawableHelper.fill(matrices, 0, 0, (int)(this.getWidth() * progressDisplay), this.getHeight(), (int)(0x40 * progressDisplay) << 24 | 0x00FFFFFF);
+        }
 
         postBackgroundDrawing(matrices, manager, startTime);
 
@@ -99,6 +109,9 @@ public class LinedToast extends MorphClientObject implements Toast
         // Draw CoverLine
         var lineWidth = outlineWidth.get();
         DrawableHelper.fill(matrices, 0, 0, lineWidth, this.getHeight(), lineColor.getColor());
+
+        //var borderColor = ColorUtils.fromHex("#222222");
+        //DrawableHelper.drawBorder(matrices, 0, 0, this.getWidth(), this.getHeight(), borderColor.getColor());
 
         // Update visibility
         var visibility = progress >= 1 ? Visibility.HIDE : Visibility.SHOW;
