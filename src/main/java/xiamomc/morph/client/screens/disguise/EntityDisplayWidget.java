@@ -27,6 +27,7 @@ import org.lwjgl.glfw.GLFW;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.*;
 import xiamomc.morph.client.entities.MorphLocalPlayer;
+import xiamomc.morph.client.graphics.EntityDisplay;
 import xiamomc.morph.client.graphics.PlayerRenderHelper;
 import xiamomc.pluginbase.Annotations.Resolved;
 import xiamomc.pluginbase.Bindables.Bindable;
@@ -101,9 +102,6 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
         int width = 0;
         int height = 0;
 
-        private LivingEntity entity;
-        private int entitySize;
-        private int entityYOffset;
 
         private final boolean isPlayerItSelf;
 
@@ -139,8 +137,11 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
             selectedIdentifier.bindTo(manager.selectedIdentifier);
             currentIdentifier.bindTo(manager.currentIdentifier);
 
+            this.entityDisplay = new EntityDisplay(identifier);
+            entityDisplay.onEntitySetup = () -> this.trimDisplay(entityDisplay.getDisplayName());
+
             if (identifier.equals(currentIdentifier.get()) || isPlayerItSelf)
-                setupEntity(identifier);
+                entityDisplay.doSetupImmedately();
 
             selectedIdentifier.onValueChanged((o, n) ->
             {
@@ -156,8 +157,8 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
                 var isCurrent = identifier.equals(n);
                 var prevIsCurrent = identifier.equals(o);
 
-                if (prevIsCurrent && entity != null && !isPlayerItSelf)
-                    entity = EntityCache.getEntity(identifier);
+                if (prevIsCurrent)
+                    entityDisplay.resetEntity();
 
                 activationState = isCurrent
                         ? ActivationState.CURRENT
@@ -171,7 +172,7 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
 
             this.addSchedule(() ->
             {
-                var targetMultiplier = entity == null ? 0.9 : 0.7;
+                var targetMultiplier = entityDisplay.getDisplayingEntity() == null ? 0.85 : 0.7;
                 var toDisplay = textRenderer.trimToWidth(text, (int)Math.round(this.width * targetMultiplier));
                 var trimmed = !toDisplay.getString().equals(text.getString());
 
@@ -179,94 +180,7 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
             });
         }
 
-        private void setupEntity(String identifier)
-        {
-            try
-            {
-                LivingEntity living = EntityCache.getEntity(identifier);
-
-                if (living == null)
-                {
-                    LivingEntity entity = null;
-
-                    if (isPlayerItSelf)
-                    {
-                        entity = MinecraftClient.getInstance().player;
-                    }
-                    else if (identifier.startsWith("player:"))
-                    {
-                        var nameSplited = identifier.split(":", 2);
-
-                        if (nameSplited.length == 2)
-                        {
-                            entity = new MorphLocalPlayer(MinecraftClient.getInstance().world,
-                                    new GameProfile(UUID.randomUUID(), nameSplited[1]));
-                        }
-                    }
-
-                    //没有和此ID匹配的实体
-                    if (entity == null)
-                    {
-                        this.trimDisplay(Text.literal(identifier));
-                        return;
-                    }
-
-                    living = entity;
-                }
-
-                this.entity = living;
-                this.trimDisplay(entity.getDisplayName());
-
-                entitySize = getEntitySize(entity);
-                entityYOffset = getEntityYOffset(entity);
-
-                if (entity.getType() == EntityType.MAGMA_CUBE)
-                    ((MagmaCubeEntity) living).setSize(4, false);
-            }
-            catch (Exception e)
-            {
-                logger.error(e.getMessage());
-                e.printStackTrace();
-            }
-        }
-
-        private int getEntityYOffset(LivingEntity entity)
-        {
-            var type = Registries.ENTITY_TYPE.getId(entity.getType());
-
-            return switch (type.toString())
-                    {
-                        case "minecraft:squid", "minecraft:glow_squid" -> -6;
-                        case "minecraft:ghast" -> -3;
-                        default -> 0;
-                    };
-        }
-
-        private int getEntitySize(LivingEntity entity)
-        {
-            var type = Registries.ENTITY_TYPE.getId(entity.getType());
-
-            return switch (type.toString())
-                    {
-                        case "minecraft:ender_dragon" -> 3;
-                        case "minecraft:squid", "minecraft:glow_squid" -> 10;
-                        case "minecraft:magma_cube" ->
-                        {
-                            ((MagmaCubeEntity) entity).setSize(4, false);
-                            yield 8;
-                        }
-                        case "minecraft:player" -> {
-                            yield 8;
-                        }
-                        default ->
-                        {
-                            var size = (int) (15 / Math.max(entity.getHeight(), entity.getWidth()));
-                            size = Math.max(1, size);
-
-                            yield size;
-                        }
-                    };
-        }
+        private final EntityDisplay entityDisplay;
 
         private final static TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 
@@ -275,9 +189,6 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
         {
             this.hovered = mouseX < this.screenSpaceX + width && mouseX > this.screenSpaceX
                     && mouseY < this.screenSpaceY + height && mouseY > this.screenSpaceY;
-
-            if (entity == null)
-                CompletableFuture.runAsync(() -> this.setupEntity(identifier));
 
             var borderColor = 0x00000000;
             var contentColor = 0x00000000;
@@ -322,32 +233,24 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
                 DrawableHelper.drawBorder(matrices, screenSpaceX, screenSpaceY,
                         width, height, borderColor);
 
-                if (entity != null && allowER)
+                var x = screenSpaceX + width - 5;
+                var y = screenSpaceY + height - 2;
+                var mX = 30;
+                var mY = 0;
+
+                if (activationState == ActivationState.CURRENT)
                 {
-                    var x = screenSpaceX + width - 5;
-                    var y = screenSpaceY + height - 2 + entityYOffset;
-                    var mX = 30;
-                    var mY = 0;
-
-                    if (activationState == ActivationState.CURRENT)
-                    {
-                        //entitySize = this.getEntitySize(entity);
-
-                        mX = x - mouseX;
-                        mY = y - mouseY - (this.height / 2);
-                    }
-
-                    if (entity == MinecraftClient.getInstance().player)
-                        PlayerRenderHelper.instance.skipRender = true;
-
-                    InventoryScreen.drawEntity(matrices, x, y, entitySize, mX, mY, entity);
-
-                    PlayerRenderHelper.instance.skipRender = false;
+                    mX = x - mouseX;
+                    mY = y - mouseY - (this.height / 2);
                 }
+
+                entityDisplay.x = x;
+                entityDisplay.y = y;
+
+                entityDisplay.render(matrices, mX, mY);
             }
             catch (Exception e)
             {
-                allowER = false;
                 LoggerFactory.getLogger("morph").error(e.getMessage());
                 e.printStackTrace();
             }
@@ -367,8 +270,6 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
         {
             return isHovered();
         }
-
-        private boolean allowER = true;
 
         @Override
         public Selectable.SelectionType getType()

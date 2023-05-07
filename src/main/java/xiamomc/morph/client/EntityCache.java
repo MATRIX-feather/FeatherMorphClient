@@ -1,6 +1,7 @@
 package xiamomc.morph.client;
 
 import com.mojang.authlib.GameProfile;
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EntityType;
@@ -64,6 +65,13 @@ public class EntityCache
 
     private static final long lockWait = 10;
 
+    private static final Map<String, Boolean> isLivingMap = new Object2ObjectArrayMap<>();
+
+    public static boolean isLiving(String identifier)
+    {
+        return isLivingMap.getOrDefault(identifier, false);
+    }
+
     @Nullable
     public static LivingEntity getEntity(String identifier)
     {
@@ -114,7 +122,11 @@ public class EntityCache
 
             var instance = type.create(world);
 
-            if (!(instance instanceof LivingEntity le)) return null;
+            if (!(instance instanceof LivingEntity le))
+            {
+                isLivingMap.put(identifier, false);
+                return null;
+            }
 
             living = le;
         }
@@ -125,6 +137,8 @@ public class EntityCache
             if (splitedId.length != 2) return null;
             var profile = new GameProfile(UUID.randomUUID(), splitedId[1]);
             living = new MorphLocalPlayer(MinecraftClient.getInstance().world, profile);
+
+            isLivingMap.put(identifier, true);
         }
 
         if (living == null) return null;
@@ -149,6 +163,7 @@ public class EntityCache
 
         try
         {
+            isLivingMap.put(identifier, true);
             cacheMap.put(identifier, living);
         }
         finally
