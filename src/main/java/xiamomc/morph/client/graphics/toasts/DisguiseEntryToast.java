@@ -76,7 +76,7 @@ public class DisguiseEntryToast extends MorphClientObject implements Toast
         DrawableHelper.fill(matrices, 0, 0, this.getWidth(), this.getHeight(), 0xFF333333);
 
         // Draw progress
-        var progress = Math.min(1, startTime / (3000.0 * manager.getNotificationDisplayTimeMultiplier()));
+        var progress = Math.min(1, startTime / (5000.0 * manager.getNotificationDisplayTimeMultiplier()));
         var progressDisplay = Math.max(0, 0.95 - progress);
 
         DrawableHelper.fill(matrices, 0, 0, (int)(this.getWidth() * progressDisplay), this.getHeight(), (int)(0x40 * progressDisplay) << 24 | 0x00FFFFFF);
