@@ -186,12 +186,12 @@ public class EntityDisplay extends MorphClientObject
 
     private boolean allowRender;
 
+    private static final Identifier LOADING_TEX = new Identifier("morphclient", "textures/gui/loading.png");
+
     private void renderLoading(MatrixStack matrices)
     {
-        var tex = new Identifier("morphclient", "textures/gui/loading.png");
-
         RenderSystem.enableBlend();
-        RenderSystem.setShaderTexture(0, tex);
+        RenderSystem.setShaderTexture(0, LOADING_TEX);
         int offset = (int)plugin.getCurrentTick() / 4;
 
         DrawableHelper.drawTexture(matrices, x - 8, y - 16, 0, 16 * offset, 16, 16, 16, 128);

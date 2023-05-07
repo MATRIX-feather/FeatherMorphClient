@@ -20,4 +20,12 @@ public class MaterialColors
     public static Color Amber500 = ColorUtils.fromHex("#FFC107");
 
     public static Color Yellow500 = ColorUtils.fromHex("#FFEB3B");
+
+    public static Color Indigo500 = ColorUtils.fromHex("#3F51B5");
+
+    public static Color Blue500 = ColorUtils.fromHex("#2196F3");
+
+    public static Color Teal500 = ColorUtils.fromHex("#009688");
+
+    public static Color Cyan500 = ColorUtils.fromHex("#00BCD4");
 }

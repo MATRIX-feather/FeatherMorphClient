@@ -1,8 +1,6 @@
 package xiamomc.morph.client;
 
-import com.google.gson.JsonParser;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.serialization.JsonOps;
 import io.netty.buffer.ByteBuf;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -23,6 +21,7 @@ import xiamomc.morph.network.Constants;
 import xiamomc.morph.network.commands.C2S.*;
 import xiamomc.morph.network.commands.CommandRegistries;
 import xiamomc.morph.network.commands.S2C.*;
+import xiamomc.morph.network.commands.S2C.query.QueryType;
 import xiamomc.morph.network.commands.S2C.query.S2CQueryCommand;
 import xiamomc.morph.network.commands.S2C.set.*;
 import xiamomc.pluginbase.Annotations.Initializer;
@@ -31,6 +30,7 @@ import xiamomc.pluginbase.Bindables.Bindable;
 import xiamomc.morph.client.config.ModConfigData;
 
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ServerHandler extends MorphClientObject implements BasicServerHandler<PlayerEntity>
 {
@@ -45,13 +45,23 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
 
     private final S2CSetCommandsAgent agent = new S2CSetCommandsAgent();
 
+    @Nullable
+    public S2CQueryCommand queryFrom(String rawArg)
+    {
+        var spilt = rawArg.split(" ", 2);
+        if (spilt.length < 1) return null;
+
+        var type = QueryType.tryValueOf(spilt[0].toUpperCase());
+        return new S2CQueryCommand(type, spilt.length == 2 ? spilt[1].split(" ") : new String[]{});
+    }
+
     @Initializer
     private void load()
     {
         agent.register(S2CCommandNames.SetFakeEquip, ClientSetEquipCommand::from);
 
         registries.registerS2C(S2CCommandNames.Current, S2CCurrentCommand::new)
-                .registerS2C(S2CCommandNames.Query, S2CQueryCommand::from)
+                .registerS2C(S2CCommandNames.Query, this::queryFrom)
                 .registerS2C(S2CCommandNames.ReAuth, a -> new S2CReAuthCommand())
                 .registerS2C(S2CCommandNames.UnAuth, a -> new S2CUnAuthCommand())
                 .registerS2C(S2CCommandNames.SwapHands, a -> new S2CSwapCommand())
@@ -176,6 +186,8 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
         morphManager.swapHand();
     }
 
+    private final AtomicBoolean displaySetToast = new AtomicBoolean();
+
     @Override
     public void onQueryCommand(xiamomc.morph.network.commands.S2C.query.S2CQueryCommand s2CQueryCommand)
     {
@@ -184,7 +196,11 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
         {
             case ADD -> morphManager.addDisguises(diff, true);
             case REMOVE -> morphManager.removeDisguises(diff, true);
-            case SET -> morphManager.setDisguises(diff);
+            case SET ->
+            {
+                morphManager.setDisguises(diff, displaySetToast.get());
+                displaySetToast.set(true);
+            }
         }
     }
 
@@ -312,6 +328,7 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
     private void updateServerStatus()
     {
         serverReady.set(handshakeReceived && apiVersionChecked);
+        displaySetToast.set(false);
     }
 
     private boolean networkInitialized;

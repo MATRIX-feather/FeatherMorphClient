@@ -24,6 +24,9 @@ public class ModConfigData implements ConfigData
 
     public float scrollSpeed = 1f;
 
+    public boolean displayGrantRevokeToast = true;
+    public boolean displayQuerySetToast = true;
+
     public boolean clientViewVisible()
     {
         return MorphClient.getInstance().morphManager.selfVisibleToggled.get() && allowClientView;

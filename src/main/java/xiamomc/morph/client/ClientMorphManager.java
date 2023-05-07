@@ -9,7 +9,11 @@ import net.minecraft.client.toast.ToastManager;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+import xiamomc.morph.client.graphics.color.ColorUtils;
 import xiamomc.morph.client.graphics.toasts.DisguiseEntryToast;
+import xiamomc.morph.client.graphics.toasts.NewDisguiseSetToast;
 import xiamomc.pluginbase.Bindables.Bindable;
 
 import java.util.List;
@@ -88,13 +92,25 @@ public class ClientMorphManager extends MorphClientObject
         onGrantConsumers.removeAll(tobeRemoved);
     }
 
-    public void setDisguises(List<String> identifiers)
+    public void setDisguises(List<String> identifiers, boolean displayToasts)
     {
         invokeRevoke(availableMorphs.stream().toList());
 
         availableMorphs.clear();
 
         this.addDisguises(identifiers, false);
+
+        if (displayToasts)
+        {
+            var toast = new NewDisguiseSetToast();
+
+            var transId = "text.morphclient.toast.new_disguises";
+            toast.title = Text.translatable(transId);
+            toast.description = Text.translatable(transId + (availableMorphs.size() > 0 ? ".desc" : ".all_gone"), Text.keybind("key.morphclient.morph").formatted(Formatting.ITALIC));
+            toast.setLineColor(ColorUtils.fromHex("#009688"));
+
+            toastManager.add(toast);
+        }
     }
 
     private final ToastManager toastManager = MinecraftClient.getInstance().getToastManager();
@@ -128,6 +144,8 @@ public class ClientMorphManager extends MorphClientObject
 
     private void addDisguisePrivate(String identifier, boolean displayToasts)
     {
+        if (identifier.isEmpty()) return;
+
         availableMorphs.add(identifier);
 
         if (displayToasts)

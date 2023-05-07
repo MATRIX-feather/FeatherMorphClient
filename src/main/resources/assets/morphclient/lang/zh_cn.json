@@ -32,5 +32,8 @@
   "text.morphclient.toast.disguise_grant": "伪装已解锁！",
   "text.morphclient.toast.disguise_lost": "伪装已失去！",
   "option.morphclient.scrollSpeed.name": "伪装列表滚动速度",
-  "option.morphclient.scrollSpeed.description": "设置伪装列表的滚动速度"
+  "option.morphclient.scrollSpeed.description": "设置伪装列表的滚动速度",
+  "text.morphclient.toast.new_disguises": "伪装已更新！",
+  "text.morphclient.toast.new_disguises.desc": "按下 %s 键查看",
+  "text.morphclient.toast.new_disguises.all_gone": "然而列表里一个都没有..."
 }
