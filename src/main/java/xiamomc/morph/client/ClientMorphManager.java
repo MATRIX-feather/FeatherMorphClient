@@ -3,9 +3,13 @@ package xiamomc.morph.client;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.toast.Toast;
+import net.minecraft.client.toast.ToastManager;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import xiamomc.morph.client.graphics.toasts.DisguiseEntryToast;
 import xiamomc.pluginbase.Bindables.Bindable;
 
 import java.util.List;
@@ -90,43 +94,52 @@ public class ClientMorphManager extends MorphClientObject
 
         availableMorphs.clear();
 
-        this.addDisguises(identifiers);
+        this.addDisguises(identifiers, false);
     }
 
-    public void addDisguises(List<String> identifiers)
+    private final ToastManager toastManager = MinecraftClient.getInstance().getToastManager();
+
+    public void addDisguises(List<String> identifiers, boolean displayToasts)
     {
         identifiers = new ObjectArrayList<>(identifiers);
 
         identifiers.removeIf(availableMorphs::contains);
-        identifiers.forEach(this::addDisguisePrivate);
+        identifiers.forEach(i -> addDisguisePrivate(i, displayToasts));
 
         invokeGrant(identifiers);
     }
 
-    public void addDisguise(String identifier)
+    public void addDisguise(String identifier, boolean displayToasts)
     {
-        addDisguisePrivate(identifier);
+        addDisguisePrivate(identifier, displayToasts);
     }
 
-    public void removeDisguises(List<String> identifiers)
+    public void removeDisguises(List<String> identifiers, boolean displayToasts)
     {
-        identifiers.forEach(this::removeDisguisePrivate);
+        identifiers.forEach(i -> removeDisguisePrivate(i, displayToasts));
+
         invokeRevoke(identifiers);
     }
 
-    public void removeDisguise(String identifier)
+    public void removeDisguise(String identifier, boolean displayToasts)
     {
-        availableMorphs.remove(identifier);
+        removeDisguisePrivate(identifier, displayToasts);
     }
 
-    private void addDisguisePrivate(String identifier)
+    private void addDisguisePrivate(String identifier, boolean displayToasts)
     {
         availableMorphs.add(identifier);
+
+        if (displayToasts)
+            toastManager.add(new DisguiseEntryToast(identifier, true));
     }
 
-    private void removeDisguisePrivate(String identifier)
+    private void removeDisguisePrivate(String identifier, boolean displayToasts)
     {
         availableMorphs.remove(identifier);
+
+        if (displayToasts)
+            toastManager.add(new DisguiseEntryToast(identifier, false));
     }
 
     //endregion Add/Remove/Set disguises

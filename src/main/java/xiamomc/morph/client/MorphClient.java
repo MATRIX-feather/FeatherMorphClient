@@ -17,12 +17,14 @@ import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.random.Random;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.config.ModConfigData;
 import xiamomc.morph.client.graphics.ModelWorkarounds;
+import xiamomc.morph.client.graphics.toasts.DisguiseEntryToast;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
 import xiamomc.morph.client.screens.disguise.WaitingForServerScreen;
 import xiamomc.morph.network.Constants;
@@ -55,6 +57,8 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
     private KeyBinding unMorphKeyBind;
     private KeyBinding morphKeyBind;
     private KeyBinding resetCacheKeybind;
+    private KeyBinding testKeyBindGrant;
+    private KeyBinding testKeyBindLost;
 
     @Override
     public String getNameSpace()
@@ -82,6 +86,8 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
     public ServerHandler serverHandler;
     private ClientSkillHandler skillHandler;
 
+    private final boolean debugToasts = false;
+
     @Override
     public void onInitializeClient()
     {
@@ -97,6 +103,19 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
                 "key.morphclient.unmorph", InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_DOWN, "category.morphclient.keybind"
         ));
+
+        if (debugToasts)
+        {
+            testKeyBindGrant = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                    "key.morphclient.testToastGrant", InputUtil.Type.KEYSYM,
+                    GLFW.GLFW_KEY_Z, "category.morphclient.keybind"
+            ));
+
+            testKeyBindLost = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                    "key.morphclient.testToastLost", InputUtil.Type.KEYSYM,
+                    GLFW.GLFW_KEY_X, "category.morphclient.keybind"
+            ));
+        }
 
         morphKeyBind = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.morphclient.morph", InputUtil.Type.KEYSYM,
@@ -156,6 +175,30 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
 
         if (unMorphKeyBind.wasPressed())
             serverHandler.sendCommand(new C2SUnmorphCommand());
+
+        if (debugToasts)
+        {
+            if (testKeyBindGrant.wasPressed())
+            {
+                var toasts = client.getToastManager();
+                var morphs = morphManager.getAvailableMorphs();
+                var random = Random.create();
+                var id = morphs.get(random.nextBetween(0, morphs.size() - 1));
+
+                toasts.add(new DisguiseEntryToast(id, true));
+            }
+
+            if (testKeyBindLost.wasPressed())
+            {
+                var toasts = client.getToastManager();
+                var morphs = morphManager.getAvailableMorphs();
+                var random = Random.create();
+                var id = morphs.get(random.nextBetween(0, morphs.size() - 1));
+
+                toasts.add(new DisguiseEntryToast(id, false));
+            }
+
+        }
 
         if (toggleselfKeyBind.wasPressed())
         {

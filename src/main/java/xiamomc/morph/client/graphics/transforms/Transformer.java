@@ -77,6 +77,14 @@ public class Transformer
         }
     }
 
+    public static DelayTransform delay(int duration)
+    {
+        var transform = new DelayTransform(currentTime, duration);
+        startTransform(transform);
+
+        return transform;
+    }
+
     public static <T> BindableTransform<T> transform(Bindable<T> bindable, T endValue, long duration, Easing easing)
     {
         var prevTransform = (BindableTransform<T>) transforms.stream()

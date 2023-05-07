@@ -182,8 +182,8 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
         var diff = s2CQueryCommand.getDiff();
         switch (s2CQueryCommand.queryType())
         {
-            case ADD -> morphManager.addDisguises(diff);
-            case REMOVE -> morphManager.removeDisguises(diff);
+            case ADD -> morphManager.addDisguises(diff, true);
+            case REMOVE -> morphManager.removeDisguises(diff, true);
             case SET -> morphManager.setDisguises(diff);
         }
     }

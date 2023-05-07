@@ -30,5 +30,7 @@
   "option.morphclient.verbosePackets.description": "",
   "title.morphclient.config": "FeatherMorph client settings",
   "text.morphclient.error.update_disguise1": "Error occurred while updating disguise at client side.",
-  "text.morphclient.error.update_disguise2": "SelfView has been disabled until the current disguise has been changed!"
+  "text.morphclient.error.update_disguise2": "SelfView has been disabled until the current disguise has been changed!",
+  "text.morphclient.toast.disguise_grant": "Disguise unlocked!",
+  "text.morphclient.toast.disguise_lost": "Disguise lost!"
 }
