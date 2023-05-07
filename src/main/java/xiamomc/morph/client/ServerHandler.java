@@ -192,13 +192,14 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
     public void onQueryCommand(xiamomc.morph.network.commands.S2C.query.S2CQueryCommand s2CQueryCommand)
     {
         var diff = s2CQueryCommand.getDiff();
+        var modConfig = MorphClient.getInstance().getModConfigData();
         switch (s2CQueryCommand.queryType())
         {
-            case ADD -> morphManager.addDisguises(diff, true);
-            case REMOVE -> morphManager.removeDisguises(diff, true);
+            case ADD -> morphManager.addDisguises(diff, modConfig.displayGrantRevokeToast);
+            case REMOVE -> morphManager.removeDisguises(diff, modConfig.displayGrantRevokeToast);
             case SET ->
             {
-                morphManager.setDisguises(diff, displaySetToast.get());
+                morphManager.setDisguises(diff, displaySetToast.get() && modConfig.displayQuerySetToast);
                 displaySetToast.set(true);
             }
         }

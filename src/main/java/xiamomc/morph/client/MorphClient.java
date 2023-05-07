@@ -332,19 +332,20 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
                         .setSaveConsumer(v -> modConfigData.verbosePackets = v)
                         .build()
         );
-                /*.addEntry(
-                entryBuilder.startEnumSelector(Text.translatable("option.morphclient.easing.name"), Easing.class, modConfigData.easing)
-                        .setTooltip(Text.translatable("option.morphclient.easing.description"))
-                        .setDefaultValue(Easing.OutQuint)
-                        .setSaveConsumer(v -> modConfigData.easing = v)
+
+        ConfigCategory categoryToast = builder.getOrCreateCategory(Text.translatable("category.morphclient.config_toasts"));
+
+        categoryToast.addEntry(
+                entryBuilder.startBooleanToggle(Text.translatable("option.morphclient.grant_revoke_toasts"), modConfigData.displayGrantRevokeToast)
+                        .setDefaultValue(true)
+                        .setSaveConsumer(v -> modConfigData.displayGrantRevokeToast = v)
                         .build()
         ).addEntry(
-                entryBuilder.startIntField(Text.translatable("option.morphclient.animationTime.name"), modConfigData.duration)
-                        .setTooltip(Text.translatable("option.morphclient.animationTime.description"))
-                        .setDefaultValue(450)
-                        .setSaveConsumer(v -> modConfigData.duration = v)
-                        .build()
-        );*/
+                entryBuilder.startBooleanToggle(Text.translatable("option.morphclient.query_set_toasts"), modConfigData.displayQuerySetToast)
+                        .setTooltip(Text.translatable("option.morphclient.query_set_toasts.desc"))
+                        .setDefaultValue(true)
+                        .setSaveConsumer(v -> modConfigData.displayQuerySetToast = v)
+                        .build());
 
         builder.setParentScreen(parent)
                 .setTitle(Text.translatable("title.morphclient.config"))

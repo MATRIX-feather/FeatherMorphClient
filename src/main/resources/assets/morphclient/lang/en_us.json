@@ -1,5 +1,6 @@
 {
   "category.morphclient.keybind": "FeatherMorph",
+  "category.morphclient.config_toasts": "Toasts",
   "gui.morphclient.current_disguise": "Current disguise: %s",
   "gui.morphclient.loading": "Loading...",
   "gui.morphclient.no_disguise": "None",
@@ -28,6 +29,9 @@
   "option.morphclient.easing.description": "For more information, please check https://easings.net",
   "option.morphclient.verbosePackets.name": "(Debug) Log packets",
   "option.morphclient.verbosePackets.description": "",
+  "option.morphclient.grant_revoke_toasts": "Disguise Unlock/Lost toasts",
+  "option.morphclient.query_set_toasts": "Disguise update toasts",
+  "option.morphclient.query_set_toasts.desc": "Pops up when the entire disguise list gets updated",
   "title.morphclient.config": "FeatherMorph client settings",
   "text.morphclient.error.update_disguise1": "Error occurred while updating disguise at client side.",
   "text.morphclient.error.update_disguise2": "SelfView has been disabled until the current disguise has been changed!",
