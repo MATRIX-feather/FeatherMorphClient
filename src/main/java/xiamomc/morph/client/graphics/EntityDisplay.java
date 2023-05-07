@@ -19,7 +19,6 @@ import xiamomc.morph.client.EntityCache;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.MorphClientObject;
 import xiamomc.morph.client.entities.MorphLocalPlayer;
-import xiamomc.pluginbase.Annotations.Initializer;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -146,8 +145,8 @@ public class EntityDisplay extends MorphClientObject
                 {
                     this.displayName = Text.literal(rawIdentifier);
 
-                    if (onEntitySetup != null)
-                        onEntitySetup.run();
+                    if (postEntitySetup != null)
+                        postEntitySetup.run();
 
                     loadingEntity.set(false);
                     return;
@@ -168,8 +167,8 @@ public class EntityDisplay extends MorphClientObject
             if (displayingEntity.getType() == EntityType.MAGMA_CUBE)
                 ((MagmaCubeEntity) living).setSize(4, false);
 
-            if (onEntitySetup != null)
-                onEntitySetup.run();
+            if (postEntitySetup != null)
+                postEntitySetup.run();
         }
         catch (Exception e)
         {
@@ -183,7 +182,7 @@ public class EntityDisplay extends MorphClientObject
     public int x;
     public int y;
 
-    public Runnable onEntitySetup;
+    public Runnable postEntitySetup;
 
     private boolean allowRender;
 

@@ -1,17 +1,15 @@
 package xiamomc.morph.client.graphics.toasts;
 
-import me.shedaniel.math.Color;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.toast.Toast;
 import net.minecraft.client.toast.ToastManager;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.MathHelper;
 import xiamomc.morph.client.MorphClientObject;
 import xiamomc.morph.client.graphics.EntityDisplay;
-import xiamomc.morph.client.graphics.color.ColorUtils;
 import xiamomc.morph.client.graphics.color.MaterialColors;
 import xiamomc.morph.client.graphics.transforms.Recorder;
 import xiamomc.morph.client.graphics.transforms.Transformer;
@@ -35,6 +33,8 @@ public class DisguiseEntryToast extends MorphClientObject implements Toast
 
         this.entityDisplay = new EntityDisplay(rawIdentifier);
         entityDisplay.x = 512;
+
+        entityDisplay.postEntitySetup = () -> trimDisplay(entityDisplay.getDisplayName());
     }
 
     private final Recorder<Integer> outlineWidth = Recorder.of(this.getWidth());
@@ -50,7 +50,7 @@ public class DisguiseEntryToast extends MorphClientObject implements Toast
                 Transformer.transform(outlineWidth, this.getWidth(), 600, Easing.OutQuad);
         }, true);
 
-        entityDisplay.x = 20;
+        entityDisplay.x = Math.round((float) this.getWidth() / 8);
         entityDisplay.y = this.getHeight() / 2 + 7;
 
         if (rawIdentifier.equals("minecraft:horse"))
@@ -58,7 +58,25 @@ public class DisguiseEntryToast extends MorphClientObject implements Toast
             entityDisplay.x -= 1;
             entityDisplay.y += 2;
         }
+        else if (rawIdentifier.equals("minecraft:axolotl"))
+        {
+            entityDisplay.x -= 2;
+        }
     }
+
+    private void trimDisplay(StringVisitable text)
+    {
+        this.addSchedule(() ->
+        {
+            var targetMultiplier = 0.65;
+            var toDisplay = textRenderer.trimToWidth(text, (int)Math.round(this.getWidth() * targetMultiplier));
+            var trimmed = !toDisplay.getString().equals(text.getString());
+
+            this.display = Text.literal(toDisplay.getString() + (trimmed ? "..." : ""));
+        });
+    }
+
+    private Text display;
 
     private final EntityDisplay entityDisplay;
 
@@ -75,21 +93,31 @@ public class DisguiseEntryToast extends MorphClientObject implements Toast
         // Draw background
         DrawableHelper.fill(matrices, 0, 0, this.getWidth(), this.getHeight(), 0xFF333333);
 
-        // Draw progress
+        // Draw progress bar
         var progress = Math.min(1, startTime / (5000.0 * manager.getNotificationDisplayTimeMultiplier()));
         var progressDisplay = Math.max(0, 0.95 - progress);
 
         DrawableHelper.fill(matrices, 0, 0, (int)(this.getWidth() * progressDisplay), this.getHeight(), (int)(0x40 * progressDisplay) << 24 | 0x00FFFFFF);
 
+        // Push a new entry to allow us to do some tricks
+        matrices.push();
+
         // Draw entity
+        // Make entity display more pixel-perfect
+        matrices.translate(0, 0.5, 0);
         entityDisplay.render(matrices, -30, 0);
 
         // Draw text
         var textStartX = this.getWidth() * 0.25F - 4;
         var textStartY = this.getHeight() / 2 - textRenderer.fontHeight;
 
+        // Always draw texts on top of the entity
+        matrices.translate(0, 0, 128);
         textRenderer.drawWithShadow(matrices, Text.translatable("text.morphclient.toast.disguise_%s".formatted(isGrant ? "grant" : "lost")), textStartX, textStartY - 1, 0xffffffff);
-        textRenderer.drawWithShadow(matrices, entityDisplay.getDisplayName(), textStartX, textStartY + textRenderer.fontHeight + 1, 0xffffffff);
+        textRenderer.drawWithShadow(matrices, display == null ? entityDisplay.getDisplayName() : display, textStartX, textStartY + textRenderer.fontHeight + 1, 0xffffffff);
+
+        // Pop back
+        matrices.pop();
 
         // Draw CoverLine
         var color = isGrant ? MaterialColors.Green500 : MaterialColors.Amber500;

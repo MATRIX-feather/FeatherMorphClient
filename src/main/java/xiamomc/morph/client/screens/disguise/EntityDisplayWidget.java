@@ -1,6 +1,5 @@
 package xiamomc.morph.client.screens.disguise;
 
-import com.mojang.authlib.GameProfile;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -8,33 +7,23 @@ import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.Selectable;
-import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.screen.narration.NarrationPart;
 import net.minecraft.client.gui.widget.ElementListWidget;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.mob.MagmaCubeEntity;
-import net.minecraft.registry.Registries;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.*;
-import xiamomc.morph.client.entities.MorphLocalPlayer;
 import xiamomc.morph.client.graphics.EntityDisplay;
-import xiamomc.morph.client.graphics.PlayerRenderHelper;
 import xiamomc.pluginbase.Annotations.Resolved;
 import xiamomc.pluginbase.Bindables.Bindable;
 
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWidget> implements Comparable<EntityDisplayWidget>
 {
@@ -136,7 +125,7 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
             currentIdentifier.bindTo(manager.currentIdentifier);
 
             this.entityDisplay = new EntityDisplay(identifier);
-            entityDisplay.onEntitySetup = () -> this.trimDisplay(entityDisplay.getDisplayName());
+            entityDisplay.postEntitySetup = () -> this.trimDisplay(entityDisplay.getDisplayName());
             this.display = entityDisplay.getDisplayName();
 
             if (identifier.equals(currentIdentifier.get()) || isPlayerItSelf)
