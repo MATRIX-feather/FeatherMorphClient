@@ -123,8 +123,6 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
         public TextWidget(int screenSpaceX, int screenSpaceY, int width, int height, String identifier)
         {
             this.identifier = identifier;
-            this.display = Text.translatable("gui.morphclient.loading")
-                    .formatted(Formatting.ITALIC, Formatting.GRAY);
 
             this.isPlayerItSelf = identifier.equals(MorphClient.UNMORPH_STIRNG);
 
@@ -139,6 +137,7 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
 
             this.entityDisplay = new EntityDisplay(identifier);
             entityDisplay.onEntitySetup = () -> this.trimDisplay(entityDisplay.getDisplayName());
+            this.display = entityDisplay.getDisplayName();
 
             if (identifier.equals(currentIdentifier.get()) || isPlayerItSelf)
                 entityDisplay.doSetupImmedately();

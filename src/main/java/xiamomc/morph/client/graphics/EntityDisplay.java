@@ -11,6 +11,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.MagmaCubeEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
@@ -35,7 +36,8 @@ public class EntityDisplay extends MorphClientObject
         this.rawIdentifier = rawIdentifier;
         this.isPlayerItSelf = rawIdentifier.equals(MorphClient.UNMORPH_STIRNG);
 
-        this.displayName = Text.literal(rawIdentifier);
+        this.displayName = Text.translatable("gui.morphclient.loading")
+                .formatted(Formatting.ITALIC, Formatting.GRAY);
     }
 
     @Nullable
