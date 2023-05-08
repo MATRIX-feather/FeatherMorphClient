@@ -45,23 +45,13 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
 
     private final S2CSetCommandsAgent agent = new S2CSetCommandsAgent();
 
-    @Nullable
-    public S2CQueryCommand queryFrom(String rawArg)
-    {
-        var spilt = rawArg.split(" ", 2);
-        if (spilt.length < 1) return null;
-
-        var type = QueryType.tryValueOf(spilt[0].toUpperCase());
-        return new S2CQueryCommand(type, spilt.length == 2 ? spilt[1].split(" ") : new String[]{});
-    }
-
     @Initializer
     private void load()
     {
         agent.register(S2CCommandNames.SetFakeEquip, ClientSetEquipCommand::from);
 
         registries.registerS2C(S2CCommandNames.Current, S2CCurrentCommand::new)
-                .registerS2C(S2CCommandNames.Query, this::queryFrom)
+                .registerS2C(S2CCommandNames.Query, S2CQueryCommand::from)
                 .registerS2C(S2CCommandNames.ReAuth, a -> new S2CReAuthCommand())
                 .registerS2C(S2CCommandNames.UnAuth, a -> new S2CUnAuthCommand())
                 .registerS2C(S2CCommandNames.SwapHands, a -> new S2CSwapCommand())
