@@ -42,7 +42,7 @@ public class DisguiseEntryToast extends LinedToast
         this.rawIdentifier = rawIdentifier;
         this.isGrant = isGrant;
 
-        this.entityDisplay = new EntityDisplay(rawIdentifier);
+        this.entityDisplay = new EntityDisplay(rawIdentifier, true);
         entityDisplay.x = 512;
 
         entityDisplay.postEntitySetup = () -> trimDisplay(entityDisplay.getDisplayName());
@@ -118,8 +118,10 @@ public class DisguiseEntryToast extends LinedToast
     @Override
     public Visibility draw(MatrixStack matrices, ToastManager manager, long startTime)
     {
-        if (!isValid.get()) return Visibility.HIDE;
+        var result = super.draw(matrices, manager, startTime);
+        result = isValid.get() ? result : Visibility.HIDE;
 
-        return super.draw(matrices, manager, startTime);
+        this.visibility.set(result);
+        return result;
     }
 }

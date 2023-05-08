@@ -4,6 +4,7 @@ import me.shedaniel.math.Color;
 
 public class MaterialColors
 {
+    public static Color Red100 = ColorUtils.fromHex("#FFCDD2");
     public static Color Red400 = ColorUtils.fromHex("#EF5350");
     public static Color Red500 = ColorUtils.fromHex("#F44336");
     public static Color Red600 = ColorUtils.fromHex("#E53935");

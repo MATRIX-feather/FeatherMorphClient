@@ -28,15 +28,24 @@ public class EntityDisplay extends MorphClientObject
 {
     private final String rawIdentifier;
 
-    private final Boolean isPlayerItSelf;
+    private final boolean isPlayerItSelf;
 
-    public EntityDisplay(String rawIdentifier)
+    private final boolean displayLoadingIfInvalid;
+
+    public EntityDisplay(String rawIdentifier, boolean displayLoadingIfNotValid)
     {
         this.rawIdentifier = rawIdentifier;
         this.isPlayerItSelf = rawIdentifier.equals(MorphClient.UNMORPH_STIRNG);
 
         this.displayName = Text.translatable("gui.morphclient.loading")
                 .formatted(Formatting.ITALIC, Formatting.GRAY);
+
+        this.displayLoadingIfInvalid = displayLoadingIfNotValid;
+    }
+
+    public EntityDisplay(String id)
+    {
+        this(id, false);
     }
 
     @Nullable
@@ -195,6 +204,7 @@ public class EntityDisplay extends MorphClientObject
         int offset = (int)plugin.getCurrentTick() / 4;
 
         DrawableHelper.drawTexture(matrices, x - 8, y - 16, 0, 16 * offset, 16, 16, 16, 128);
+        RenderSystem.setShaderColor(1, 1, 1, 1);
     }
 
     public void render(MatrixStack matrices, int mouseX, int mouseY)
@@ -208,7 +218,13 @@ public class EntityDisplay extends MorphClientObject
             return;
         }
 
-        if (!allowRender || !isLiving) return;
+        if (!allowRender || !isLiving)
+        {
+            if (displayLoadingIfInvalid)
+                renderLoading(matrices);
+
+            return;
+        }
 
         try
         {

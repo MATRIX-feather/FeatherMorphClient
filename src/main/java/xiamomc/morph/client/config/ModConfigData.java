@@ -26,6 +26,7 @@ public class ModConfigData implements ConfigData
 
     public boolean displayGrantRevokeToast = true;
     public boolean displayQuerySetToast = true;
+    public boolean displayToastProgress = false;
 
     public boolean clientViewVisible()
     {

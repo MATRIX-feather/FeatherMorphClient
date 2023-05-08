@@ -10,6 +10,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.MorphClientObject;
 import xiamomc.morph.client.graphics.color.ColorUtils;
 import xiamomc.morph.client.graphics.transforms.Recorder;
@@ -72,7 +73,7 @@ public class LinedToast extends MorphClientObject implements Toast
 
     protected boolean drawProgress()
     {
-        return false;
+        return MorphClient.getInstance().getModConfigData().displayToastProgress;
     }
 
     @Override

@@ -345,7 +345,12 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
                         .setTooltip(Text.translatable("option.morphclient.query_set_toasts.desc"))
                         .setDefaultValue(true)
                         .setSaveConsumer(v -> modConfigData.displayQuerySetToast = v)
-                        .build());
+                        .build())
+                .addEntry(
+                        entryBuilder.startBooleanToggle(Text.translatable("option.morphclient.toast_progress"), modConfigData.displayToastProgress)
+                                .setDefaultValue(false)
+                                .setSaveConsumer(v -> modConfigData.displayToastProgress = v)
+                                .build());
 
         builder.setParentScreen(parent)
                 .setTitle(Text.translatable("title.morphclient.config"))
