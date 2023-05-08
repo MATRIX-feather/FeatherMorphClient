@@ -90,7 +90,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
     public ServerHandler serverHandler;
     private ClientSkillHandler skillHandler;
 
-    private final boolean debugToasts = true;
+    private final boolean debugToasts = false;
 
     @Override
     public void onInitializeClient()

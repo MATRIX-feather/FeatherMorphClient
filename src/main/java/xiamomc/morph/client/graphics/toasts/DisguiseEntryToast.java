@@ -36,9 +36,6 @@ public class DisguiseEntryToast extends LinedToast
 
     public DisguiseEntryToast(String rawIdentifier, boolean isGrant)
     {
-        if (isGrant) grantInstance = this;
-        else lostInstance = this;
-
         this.rawIdentifier = rawIdentifier;
         this.isGrant = isGrant;
 
@@ -92,9 +89,6 @@ public class DisguiseEntryToast extends LinedToast
     private final EntityDisplay entityDisplay;
 
     private final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-
-    private static DisguiseEntryToast grantInstance;
-    private static DisguiseEntryToast lostInstance;
 
     @Override
     protected void postBackgroundDrawing(MatrixStack matrices, ToastManager manager, long startTime)
