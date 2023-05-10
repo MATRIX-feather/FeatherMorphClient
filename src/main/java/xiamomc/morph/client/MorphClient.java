@@ -343,7 +343,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
         ).addEntry(
                 entryBuilder.startBooleanToggle(Text.translatable("option.morphclient.query_set_toasts"), modConfigData.displayQuerySetToast)
                         .setTooltip(Text.translatable("option.morphclient.query_set_toasts.desc"))
-                        .setDefaultValue(true)
+                        .setDefaultValue(false)
                         .setSaveConsumer(v -> modConfigData.displayQuerySetToast = v)
                         .build())
                 .addEntry(

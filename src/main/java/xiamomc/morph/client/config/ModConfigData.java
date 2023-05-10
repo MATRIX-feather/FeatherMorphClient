@@ -25,7 +25,7 @@ public class ModConfigData implements ConfigData
     public float scrollSpeed = 1f;
 
     public boolean displayGrantRevokeToast = true;
-    public boolean displayQuerySetToast = true;
+    public boolean displayQuerySetToast = false;
     public boolean displayToastProgress = false;
 
     public boolean clientViewVisible()
