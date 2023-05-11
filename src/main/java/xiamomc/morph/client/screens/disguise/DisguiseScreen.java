@@ -12,15 +12,12 @@ import xiamomc.morph.client.ClientMorphManager;
 import xiamomc.morph.client.EntityCache;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.ServerHandler;
-import xiamomc.morph.client.graphics.Anchor;
-import xiamomc.morph.client.graphics.Margin;
+import xiamomc.morph.client.graphics.*;
 import xiamomc.morph.client.graphics.transforms.Recorder;
 import xiamomc.morph.client.graphics.transforms.Transformer;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
 import xiamomc.morph.client.screens.FeatherScreen;
 import xiamomc.pluginbase.Bindables.Bindable;
-import xiamomc.morph.client.graphics.DrawableText;
-import xiamomc.morph.client.graphics.ToggleSelfButton;
 
 public class DisguiseScreen extends FeatherScreen
 {
@@ -119,6 +116,9 @@ public class DisguiseScreen extends FeatherScreen
     private final ClientMorphManager manager;
     private final ServerHandler serverHandler;
 
+    private final Container topTextContainer = new Container();
+    private final Container bottomTextContainer = new Container();
+
     private final DisguiseList list = new DisguiseList(MinecraftClient.getInstance(), 200, 0, 20, 0, 22);
     private final DrawableText titleText = new DrawableText(Text.translatable("gui.morphclient.select_disguise"));
     private final DrawableText selectedIdentifierText = new DrawableText();
@@ -188,38 +188,34 @@ public class DisguiseScreen extends FeatherScreen
         Transformer.transform(bottomHeight, 30, duration, easing);
         Transformer.transform(backgroundDim, 0.7f, duration, easing);
 
+        topTextContainer.addRange(titleText, selectedIdentifierText);
+        topTextContainer.setY(-40);
+        topTextContainer.setPadding(new Margin(0, 0, fontMargin - 1, 0));
+
+        if (!MorphClient.getInstance().serverHandler.serverApiMatch())
+            bottomTextContainer.add(outdatedText);
+
+        bottomTextContainer.add(serverAPIText);
+        bottomTextContainer.setAnchor(Anchor.BottomLeft);
+        bottomTextContainer.setY(40);
+        bottomTextContainer.setPadding(new Margin(0, 0, fontMargin + 1, 0));
+
         // Apply transforms
+        topTextContainer.moveToY(0, duration, easing);
+        bottomTextContainer.moveToY(0, duration, easing);
+
         var fontHeight = textRenderer.fontHeight;
-        titleText.setY(-40);
-        selectedIdentifierText.setY(-40);
+        serverAPIText.setMargin(new Margin(0, 0, fontHeight + 2, 0));
+        selectedIdentifierText.setMargin(new Margin(0, 0, fontHeight + 2, 0));
 
-        titleText.setMargin(new Margin(0, 0, fontMargin, 0));
-        selectedIdentifierText.setMargin(new Margin(0, 0,  fontMargin + fontHeight + 2, 0));
-
-        titleText.moveToY(0, duration, easing);
-        selectedIdentifierText.moveToY(0, duration, easing);
-
-        serverAPIText.setAnchor(Anchor.BottomLeft);
-        outdatedText.setAnchor(Anchor.BottomLeft);
-
-        serverAPIText.setY(40);
-        outdatedText.setY(40);
-
-        outdatedText.setMargin(new Margin(0, 0, 0, fontMargin + fontHeight + 2));
-        serverAPIText.setMargin(new Margin(0, 0, 0, fontMargin));
-
-        serverAPIText.moveToY(0, duration, easing);
-        outdatedText.moveToY(0, duration, easing);
+        var containerHeight = 30;
+        bottomTextContainer.setHeight(containerHeight);
+        topTextContainer.setHeight(containerHeight);
 
         this.addDrawableChild(list);
 
-        //侧边显示
-        this.addDrawable(titleText);
-        this.addDrawable(selectedIdentifierText);
-        this.addDrawable(serverAPIText);
-
-        if (!MorphClient.getInstance().serverHandler.serverApiMatch())
-            this.addDrawable(outdatedText);
+        this.addDrawable(topTextContainer);
+        this.addDrawable(bottomTextContainer);
 
         this.addDrawableChild(closeButton);
         this.addDrawableChild(selfVisibleToggle);
@@ -237,10 +233,8 @@ public class DisguiseScreen extends FeatherScreen
         //顶端文本
         var screenX = 30;
 
-        outdatedText.setX(screenX);
-        titleText.setX(screenX);
-        selectedIdentifierText.setX(screenX);
-        serverAPIText.setX(screenX);
+        topTextContainer.setX(screenX);
+        bottomTextContainer.setX(screenX);
 
         serverAPIText.setText("Client " + serverHandler.getImplmentingApiVersion() + " :: " + "Server " + serverHandler.getServerVersion());
 

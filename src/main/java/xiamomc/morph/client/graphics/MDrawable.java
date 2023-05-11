@@ -2,6 +2,8 @@ package xiamomc.morph.client.graphics;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Drawable;
+import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.util.math.Vector2f;
 import org.jetbrains.annotations.NotNull;
@@ -13,7 +15,7 @@ import xiamomc.morph.client.graphics.transforms.easings.Easing;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class MDrawable extends MorphClientObject implements Drawable
+public class MDrawable extends MorphClientObject implements Drawable, Element
 {
     @NotNull
     protected Anchor anchor = Anchor.TopLeft;
@@ -30,6 +32,21 @@ public class MDrawable extends MorphClientObject implements Drawable
 
         this.anchor = anchor;
         invalidatePosition();
+    }
+
+    protected MDrawable parent;
+
+    public void setParent(MDrawable parent)
+    {
+        if (this.parent != null)
+            throw new RuntimeException("A drawable may not have multiple parents.");
+
+        this.parent = parent;
+    }
+
+    public MDrawable getParent()
+    {
+        return parent;
     }
 
     //region Position validation
@@ -58,22 +75,30 @@ public class MDrawable extends MorphClientObject implements Drawable
 
         var maskX = (anchor.posMask << 4) >> 4;
         if ((maskX & PosMask.x1) == PosMask.x1)
-            xOffset += margin.left - margin.right;
+            xOffset += margin.left;
         else if ((maskX & PosMask.x2) == PosMask.x2)
             xOffset += margin.left - margin.right + (screenCentre.getX() - this.width / 2);
         else if ((maskX & PosMask.x3) == PosMask.x3)
-            xOffset += margin.left - margin.right + (screenWidth - this.width);
+            xOffset += -margin.right + (screenWidth - this.width);
 
         var maskY = (anchor.posMask >> 4) << 4;
         if ((maskY & PosMask.y1) == PosMask.y1)
-            yOffset += margin.top - margin.bottom;
+            yOffset += margin.top;
         else if ((maskY & PosMask.y2) == PosMask.y2)
             yOffset += margin.top - margin.bottom + (screenCentre.getY() - this.height / 2);
         else if ((maskY & PosMask.y3) == PosMask.y3)
-            yOffset += margin.top - margin.bottom + (screenHeight - this.height);
+            yOffset += - margin.bottom + (screenHeight - this.height);
+
+        xOffset += parentX;
+        yOffset += parentY;
 
         this.xOffset = xOffset;
         this.yOffset = yOffset;
+
+        this.screenSpaceX = xOffset;
+        this.screenSpaceY = yOffset;
+
+        posValid.set(true);
     }
 
     private float xOffset;
@@ -118,6 +143,36 @@ public class MDrawable extends MorphClientObject implements Drawable
 
     private int x;
     private int y;
+
+    private float screenSpaceX;
+    private float screenSpaceY;
+
+    public float getScreenSpaceX()
+    {
+        return screenSpaceX;
+    }
+
+    public float getScreenSpaceY()
+    {
+        return screenSpaceY;
+    }
+
+    private float parentX;
+    private float parentY;
+
+    public void applyParentX(float parentX)
+    {
+        this.parentX = parentX;
+
+        invalidatePosition();
+    }
+
+    public void applyParentY(float parentY)
+    {
+        this.parentY = parentY;
+
+        invalidatePosition();
+    }
 
     public int getX()
     {
@@ -171,15 +226,22 @@ public class MDrawable extends MorphClientObject implements Drawable
     {
     }
 
+    private boolean hovered;
+
     @Override
     public final void render(MatrixStack matrices, int mouseX, int mouseY, float delta)
     {
         matrices.push();
 
+        this.hovered = mouseX < this.screenSpaceX + width && mouseX > this.screenSpaceX
+                && mouseY < this.screenSpaceY + height && mouseY > this.screenSpaceY;
+
         try
         {
             if (!posValid()) updatePosition();
             matrices.translate(xOffset, yOffset, 0);
+            //MinecraftClient.getInstance().textRenderer.draw(matrices, "sY" + screenSpaceY, 0, 0, 0xffffffff);
+            //MinecraftClient.getInstance().textRenderer.draw(matrices, "sX" + screenSpaceX, 0, 14, 0xffffffff);
 
             this.onRender(matrices, mouseX, mouseY, delta);
         }
@@ -251,5 +313,27 @@ public class MDrawable extends MorphClientObject implements Drawable
     }
 
     //endregion Transforms
+
+    public void dispose()
+    {
+    }
+
+    //region Element
+
+    private boolean focused;
+
+    @Override
+    public void setFocused(boolean focused)
+    {
+        this.focused = focused;
+    }
+
+    @Override
+    public boolean isFocused()
+    {
+        return focused;
+    }
+
+    //endregion Element
 }
 
