@@ -220,6 +220,8 @@ public class DisguiseScreen extends FeatherScreen
         this.addDrawableChild(closeButton);
         this.addDrawableChild(selfVisibleToggle);
         this.addDrawableChild(configMenuButton);
+
+        serverAPIText.setText("Client " + serverHandler.getImplmentingApiVersion() + " :: " + "Server " + serverHandler.getServerVersion());
     }
 
     @Override
@@ -235,8 +237,6 @@ public class DisguiseScreen extends FeatherScreen
 
         topTextContainer.setX(screenX);
         bottomTextContainer.setX(screenX);
-
-        serverAPIText.setText("Client " + serverHandler.getImplmentingApiVersion() + " :: " + "Server " + serverHandler.getServerVersion());
 
         //按钮
         var baseX = this.width - closeButton.getWidth() - 20;

@@ -6,6 +6,7 @@ import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.util.math.Vector2f;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import xiamomc.morph.client.MorphClientObject;
 import xiamomc.morph.client.graphics.transforms.Recorder;
@@ -53,7 +54,8 @@ public class MDrawable extends MorphClientObject implements Drawable, Element
 
     private final AtomicBoolean posValid = new AtomicBoolean(false);
 
-    protected void invalidatePosition()
+    @ApiStatus.Internal
+    public void invalidatePosition()
     {
         posValid.set(false);
     }

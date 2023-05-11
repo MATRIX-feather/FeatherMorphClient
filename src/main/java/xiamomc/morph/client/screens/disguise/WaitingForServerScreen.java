@@ -10,6 +10,7 @@ import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.graphics.Anchor;
 import xiamomc.morph.client.graphics.DrawableText;
 import xiamomc.morph.client.graphics.LoadingSpinner;
+import xiamomc.morph.client.graphics.Margin;
 import xiamomc.morph.client.graphics.transforms.Transformer;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
 import xiamomc.morph.client.screens.FeatherScreen;
@@ -73,6 +74,7 @@ public class WaitingForServerScreen extends FeatherScreen
             this.addDrawableChild(closeButton);
             this.addDrawable(loadingSpinner);
 
+            loadingSpinner.setAnchor(Anchor.Centre);
             loadingSpinner.setY(40);
             notReadyText.setAnchor(Anchor.Centre);
 
@@ -81,6 +83,14 @@ public class WaitingForServerScreen extends FeatherScreen
 
             Transformer.transform(backgroundDim, 0.5f, 300, Easing.OutQuint);
         }
+    }
+
+    @Override
+    protected void onScreenResize()
+    {
+        loadingSpinner.invalidatePosition();
+        notReadyText.invalidatePosition();
+        super.onScreenResize();
     }
 
     @Override

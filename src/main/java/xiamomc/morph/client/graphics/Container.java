@@ -2,6 +2,7 @@ package xiamomc.morph.client.graphics;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.util.math.MatrixStack;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -32,7 +33,8 @@ public class Container extends MDrawable
     //region Layout Validation
 
     @Override
-    protected void invalidatePosition()
+    @ApiStatus.Internal
+    public void invalidatePosition()
     {
         invalidateLayout();
         super.invalidatePosition();

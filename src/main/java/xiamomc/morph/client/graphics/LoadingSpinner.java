@@ -13,9 +13,8 @@ public class LoadingSpinner extends MDrawable
     @Initializer
     private void load()
     {
-        this.anchor = Anchor.Centre;
-        this.width = 16;
-        this.height = 16;
+        this.setWidth(16);
+        this.setHeight(16);
     }
 
     @Override

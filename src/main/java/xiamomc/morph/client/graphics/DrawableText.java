@@ -66,7 +66,7 @@ public class DrawableText extends MDrawable
     {
         renderer.draw(matrices, text, 0, 0, color);
 
-        this.width = renderer.getWidth(text);
-        this.height = renderer.fontHeight;
+        this.setWidth(renderer.getWidth(text));
+        this.setHeight(renderer.fontHeight);
     }
 }
