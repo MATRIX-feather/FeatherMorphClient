@@ -18,11 +18,21 @@ public class DrawableText extends MDrawable
     public void setText(Text text)
     {
         this.text = text;
+        updateTextWidth();
     }
 
     public void setText(String text)
     {
         this.text = Text.literal(text);
+        updateTextWidth();
+    }
+
+    private void updateTextWidth()
+    {
+        if (RenderSystem.isOnRenderThread())
+            this.setWidth(renderer.getWidth(text));
+        else
+            this.addSchedule(() -> this.setWidth(renderer.getWidth(text)));
     }
 
     public Text getText()
@@ -32,16 +42,19 @@ public class DrawableText extends MDrawable
 
     public DrawableText(String text)
     {
+        this();
         this.setText(text);
     }
 
     public DrawableText(Text text)
     {
+        this();
         this.setText(text);
     }
 
     public DrawableText()
     {
+        this.setHeight(renderer.fontHeight);
     }
 
     private int color = 0xffffffff;
@@ -56,17 +69,9 @@ public class DrawableText extends MDrawable
         return color;
     }
 
-    @Initializer
-    private void load()
-    {
-    }
-
     @Override
     public void onRender(MatrixStack matrices, int mouseX, int mouseY, float delta)
     {
         renderer.draw(matrices, text, 0, 0, color);
-
-        this.setWidth(renderer.getWidth(text));
-        this.setHeight(renderer.fontHeight);
     }
 }

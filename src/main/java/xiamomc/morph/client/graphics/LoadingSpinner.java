@@ -10,8 +10,7 @@ public class LoadingSpinner extends MDrawable
 {
     private static final Identifier LOADING_TEX = new Identifier("morphclient", "textures/gui/loading.png");
 
-    @Initializer
-    private void load()
+    public LoadingSpinner()
     {
         this.setWidth(16);
         this.setHeight(16);
