@@ -12,6 +12,8 @@ import xiamomc.morph.client.ClientMorphManager;
 import xiamomc.morph.client.EntityCache;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.ServerHandler;
+import xiamomc.morph.client.graphics.Anchor;
+import xiamomc.morph.client.graphics.Margin;
 import xiamomc.morph.client.graphics.transforms.Recorder;
 import xiamomc.morph.client.graphics.transforms.Transformer;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
@@ -186,6 +188,29 @@ public class DisguiseScreen extends FeatherScreen
         Transformer.transform(bottomHeight, 30, duration, easing);
         Transformer.transform(backgroundDim, 0.7f, duration, easing);
 
+        // Apply transforms
+        var fontHeight = textRenderer.fontHeight;
+        titleText.setY(-40);
+        selectedIdentifierText.setY(-40);
+
+        titleText.setMargin(new Margin(0, 0, fontMargin, 0));
+        selectedIdentifierText.setMargin(new Margin(0, 0,  fontMargin + fontHeight + 2, 0));
+
+        titleText.moveToY(0, duration, easing);
+        selectedIdentifierText.moveToY(0, duration, easing);
+
+        serverAPIText.setAnchor(Anchor.BottomLeft);
+        outdatedText.setAnchor(Anchor.BottomLeft);
+
+        serverAPIText.setY(40);
+        outdatedText.setY(40);
+
+        outdatedText.setMargin(new Margin(0, 0, 0, fontMargin + fontHeight + 2));
+        serverAPIText.setMargin(new Margin(0, 0, 0, fontMargin));
+
+        serverAPIText.moveToY(0, duration, easing);
+        outdatedText.moveToY(0, duration, easing);
+
         this.addDrawableChild(list);
 
         //侧边显示
@@ -212,10 +237,10 @@ public class DisguiseScreen extends FeatherScreen
         //顶端文本
         var screenX = 30;
 
-        outdatedText.setScreenX(screenX);
-        titleText.setScreenX(screenX);
-        selectedIdentifierText.setScreenX(screenX);
-        serverAPIText.setScreenX(screenX);
+        outdatedText.setX(screenX);
+        titleText.setX(screenX);
+        selectedIdentifierText.setX(screenX);
+        serverAPIText.setX(screenX);
 
         serverAPIText.setText("Client " + serverHandler.getImplmentingApiVersion() + " :: " + "Server " + serverHandler.getServerVersion());
 
@@ -243,16 +268,11 @@ public class DisguiseScreen extends FeatherScreen
         var color = Color.ofRGBA(0, 0, 0, dim);
 
         var bottomMargin = (30 - this.bottomHeight.get());
-        titleText.setScreenY(this.topHeight.get() - (textRenderer.fontHeight + 2) * 2);
-        selectedIdentifierText.setScreenY(this.topHeight.get() - (textRenderer.fontHeight + 2));
 
         var bottomY = this.height - 25 + bottomMargin;
         selfVisibleToggle.setY(bottomY);
         closeButton.setY(bottomY);
         configMenuButton.setY(bottomY);
-
-        serverAPIText.setScreenY(this.height - textRenderer.fontHeight - fontMargin + bottomMargin);
-        outdatedText.setScreenY(this.height - textRenderer.fontHeight * 2 - fontMargin - 2 + bottomMargin);
 
         DrawableHelper.fillGradient(matrices, 0, 0, this.width, this.height, color.getColor(), color.getColor());
         super.render(matrices, mouseX, mouseY, delta);

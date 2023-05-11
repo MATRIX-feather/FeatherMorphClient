@@ -6,59 +6,14 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
+import xiamomc.pluginbase.Annotations.Initializer;
 
-public class DrawableText implements Drawable
+public class DrawableText extends MDrawable
 {
     private static final Text defaultText = Text.literal("");
     private static final TextRenderer renderer = MinecraftClient.getInstance().textRenderer;
 
     private Text text = defaultText;
-
-    private int screenX;
-    private int screenY;
-
-    public int getScreenX()
-    {
-        return screenX;
-    }
-
-    public void setScreenX(int x)
-    {
-        this.screenX = x;
-    }
-
-    public int getScreenY()
-    {
-        return screenY;
-    }
-
-    public void setScreenY(int y)
-    {
-        this.screenY = y;
-    }
-
-    private int width;
-    private int height;
-
-    public int getWidth()
-    {
-        return width;
-    }
-
-    public void setWidth(int w)
-    {
-        this.width = w;
-    }
-
-    public int getHeight()
-    {
-        return height;
-    }
-
-    public void setHeight(int h)
-    {
-        this.height = h;
-    }
 
     public void setText(Text text)
     {
@@ -101,10 +56,17 @@ public class DrawableText implements Drawable
         return color;
     }
 
-    @Override
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta)
+    @Initializer
+    private void load()
     {
-        RenderSystem.enableBlend();
-        renderer.draw(matrices, text, this.screenX, this.screenY, color);
+    }
+
+    @Override
+    public void onRender(MatrixStack matrices, int mouseX, int mouseY, float delta)
+    {
+        renderer.draw(matrices, text, 0, 0, color);
+
+        this.width = renderer.getWidth(text);
+        this.height = renderer.fontHeight;
     }
 }

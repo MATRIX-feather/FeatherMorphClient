@@ -1,11 +1,15 @@
 package xiamomc.morph.client.screens.disguise;
 
 import me.shedaniel.math.Color;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
+import org.jetbrains.annotations.Nullable;
 import xiamomc.morph.client.MorphClient;
+import xiamomc.morph.client.graphics.Anchor;
 import xiamomc.morph.client.graphics.DrawableText;
+import xiamomc.morph.client.graphics.LoadingSpinner;
 import xiamomc.morph.client.graphics.transforms.Transformer;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
 import xiamomc.morph.client.screens.FeatherScreen;
@@ -38,13 +42,17 @@ public class WaitingForServerScreen extends FeatherScreen
         return backgroundDim.get();
     }
 
+    private final Bindable<Boolean> serverReady = new Bindable<>();
+
+    private final LoadingSpinner loadingSpinner = new LoadingSpinner();
+
     @Override
     protected void onScreenEnter(FeatherScreen last)
     {
         super.onScreenEnter(last);
 
         var morphClient = MorphClient.getInstance();
-        var serverReady = morphClient.serverHandler.serverReady;
+        this.serverReady.bindTo(morphClient.serverHandler.serverReady);
 
         if (serverReady.get())
         {
@@ -63,6 +71,10 @@ public class WaitingForServerScreen extends FeatherScreen
 
             this.addDrawable(notReadyText);
             this.addDrawableChild(closeButton);
+            this.addDrawable(loadingSpinner);
+
+            loadingSpinner.setY(40);
+            notReadyText.setAnchor(Anchor.Centre);
 
             if (last instanceof DisguiseScreen disguiseScreen)
                 backgroundDim.set(disguiseScreen.getBackgroundDim());
@@ -72,16 +84,25 @@ public class WaitingForServerScreen extends FeatherScreen
     }
 
     @Override
+    protected void onScreenExit(@Nullable FeatherScreen nextScreen)
+    {
+        serverReady.dispose();
+
+        super.onScreenExit(nextScreen);
+    }
+
+    @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta)
     {
-        notReadyText.setScreenY(this.height / 2);
-        notReadyText.setScreenX((this.width -textRenderer.getWidth(notReadyText.getText()))  / 2);
+        var color = Color.ofRGBA(0, 0, 0, backgroundDim.get());
+        this.fillGradient(matrices, 0, 0, this.width, this.height, color.getColor(), color.getColor());
+
+        //notReadyText.setScreenY(this.height / 2);
+        //notReadyText.setScreenX((this.width -textRenderer.getWidth(notReadyText.getText()))  / 2);
 
         closeButton.setX(this.width / 2 - 75);
         closeButton.setY(this.height - 29);
 
-        var color = Color.ofRGBA(0, 0, 0, backgroundDim.get());
-        this.fillGradient(matrices, 0, 0, this.width, this.height, color.getColor(), color.getColor());
         super.render(matrices, mouseX, mouseY, delta);
     }
 }
