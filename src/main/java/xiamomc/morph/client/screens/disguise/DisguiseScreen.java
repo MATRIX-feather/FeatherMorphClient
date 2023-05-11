@@ -221,6 +221,12 @@ public class DisguiseScreen extends FeatherScreen
         this.addDrawableChild(selfVisibleToggle);
         this.addDrawableChild(configMenuButton);
 
+        //顶端文本
+        var screenX = 30;
+
+        topTextContainer.setX(screenX);
+        bottomTextContainer.setX(screenX);
+
         serverAPIText.setText("Client " + serverHandler.getImplmentingApiVersion() + " :: " + "Server " + serverHandler.getServerVersion());
     }
 
@@ -232,11 +238,8 @@ public class DisguiseScreen extends FeatherScreen
         //列表
         list.updateSize(width, this.height, list.getTopPadding(), this.height - bottomHeight.get());
 
-        //顶端文本
-        var screenX = 30;
-
-        topTextContainer.setX(screenX);
-        bottomTextContainer.setX(screenX);
+        bottomTextContainer.invalidatePosition();
+        topTextContainer.invalidatePosition();
 
         //按钮
         var baseX = this.width - closeButton.getWidth() - 20;
