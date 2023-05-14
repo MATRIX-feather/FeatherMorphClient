@@ -55,7 +55,8 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
                 .registerS2C(S2CCommandNames.ReAuth, a -> new S2CReAuthCommand())
                 .registerS2C(S2CCommandNames.UnAuth, a -> new S2CUnAuthCommand())
                 .registerS2C(S2CCommandNames.SwapHands, a -> new S2CSwapCommand())
-                .registerS2C(S2CCommandNames.BaseSet, agent::getCommand);
+                .registerS2C(S2CCommandNames.BaseSet, agent::getCommand)
+                .registerS2C(S2CCommandNames.Request, S2CRequestCommand::new);
     }
 
     //region Common
@@ -299,6 +300,18 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
     public void onSetReach(S2CSetReachCommand s2CSetReachCommand)
     {
         reach = (float) (s2CSetReachCommand.getReach() / 10);
+    }
+
+    @Resolved
+    private ClientRequestManager requestManager;
+
+    @Override
+    public void onExchangeRequestReceive(S2CRequestCommand s2CRequestCommand)
+    {
+        if (s2CRequestCommand.type == S2CRequestCommand.Type.Unknown)
+            logger.warn("Received an invalid exchange request");
+
+        requestManager.addRequest(s2CRequestCommand.type, s2CRequestCommand.sourcePlayer);
     }
 
     public static float reach = -1;

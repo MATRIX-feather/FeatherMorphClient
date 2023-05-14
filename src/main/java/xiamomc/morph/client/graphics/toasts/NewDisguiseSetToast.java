@@ -15,8 +15,8 @@ public class NewDisguiseSetToast extends LinedToast
     @Override
     public int getWidth()
     {
-        var descLength = description == null ? 0 : textRenderer.getWidth(description);
-        var titleLength = title == null ? 0 : textRenderer.getWidth(title);
+        var descLength = textRenderer.getWidth(getDescription());
+        var titleLength = textRenderer.getWidth(getTitle());
         var max1 = Math.max(descLength, titleLength) + 20;
 
         return Math.max(super.getWidth(), max1);

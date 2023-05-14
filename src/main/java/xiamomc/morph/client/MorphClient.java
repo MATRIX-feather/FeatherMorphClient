@@ -29,10 +29,12 @@ import xiamomc.morph.client.graphics.color.MaterialColors;
 import xiamomc.morph.client.graphics.toasts.DisguiseEntryToast;
 import xiamomc.morph.client.graphics.toasts.LinedToast;
 import xiamomc.morph.client.graphics.toasts.NewDisguiseSetToast;
+import xiamomc.morph.client.graphics.toasts.RequestToast;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
 import xiamomc.morph.client.screens.disguise.WaitingForServerScreen;
 import xiamomc.morph.network.Constants;
 import xiamomc.morph.network.commands.C2S.*;
+import xiamomc.morph.network.commands.S2C.S2CRequestCommand;
 import xiamomc.pluginbase.AbstractSchedulablePlugin;
 import xiamomc.pluginbase.Bindables.Bindable;
 import xiamomc.pluginbase.ScheduleInfo;
@@ -90,7 +92,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
     public ServerHandler serverHandler;
     private ClientSkillHandler skillHandler;
 
-    private final boolean debugToasts = false;
+    private final boolean debugToasts = true;
 
     @Override
     public void onInitializeClient()
@@ -153,6 +155,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
         dependencyManager.cache(disguiseSyncer = new DisguiseSyncer());
         dependencyManager.cache(skillHandler = new ClientSkillHandler());
         dependencyManager.cache(modConfigData);
+        dependencyManager.cache(new ClientRequestManager());
 
         serverHandler.initializeNetwork();
 
@@ -189,7 +192,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
                 var random = Random.create();
                 var id = morphs.get(random.nextBetween(0, morphs.size() - 1));
 
-                toasts.add(new DisguiseEntryToast(id, true));
+                toasts.add(new RequestToast(S2CRequestCommand.Type.NewRequest, "RandomPlayer"));
             }
 
             if (testKeyBindLost.wasPressed())
@@ -199,7 +202,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
                 var random = Random.create();
                 var id = morphs.get(random.nextBetween(0, morphs.size() - 1));
 
-                toasts.add(new DisguiseEntryToast(id, false));
+                toasts.add(new RequestToast(S2CRequestCommand.Type.RequestExpired, "Very_Loooong_Nammmmmme"));
             }
 
         }

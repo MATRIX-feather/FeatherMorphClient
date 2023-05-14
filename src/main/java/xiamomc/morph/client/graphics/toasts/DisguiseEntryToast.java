@@ -1,10 +1,7 @@
 package xiamomc.morph.client.graphics.toasts;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.toast.ToastManager;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
 import xiamomc.morph.client.graphics.EntityDisplay;
 import xiamomc.morph.client.graphics.color.MaterialColors;
@@ -42,7 +39,7 @@ public class DisguiseEntryToast extends LinedToast
         this.entityDisplay = new EntityDisplay(rawIdentifier, true);
         entityDisplay.x = 512;
 
-        entityDisplay.postEntitySetup = () -> trimDisplay(entityDisplay.getDisplayName());
+        entityDisplay.postEntitySetup = () -> setDescription(entityDisplay.getDisplayName());
 
         instances.add(this);
 
@@ -68,27 +65,12 @@ public class DisguiseEntryToast extends LinedToast
             entityDisplay.x -= 2;
         }
 
-        title = Text.translatable("text.morphclient.toast.disguise_%s".formatted(isGrant ? "grant" : "lost"));
+        setTitle(Text.translatable("text.morphclient.toast.disguise_%s".formatted(isGrant ? "grant" : "lost")));
         this.setLineColor(isGrant ? MaterialColors.Green500 : MaterialColors.Amber500);
     }
 
-    private void trimDisplay(StringVisitable text)
-    {
-        this.addSchedule(() ->
-        {
-            var targetMultiplier = 0.65;
-            var toDisplay = textRenderer.trimToWidth(text, (int)Math.round(this.getWidth() * targetMultiplier));
-            var trimmed = !toDisplay.getString().equals(text.getString());
-
-            this.display = Text.literal(toDisplay.getString() + (trimmed ? "..." : ""));
-        });
-    }
-
-    private Text display;
 
     private final EntityDisplay entityDisplay;
-
-    private final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 
     @Override
     protected void postBackgroundDrawing(MatrixStack matrices, ToastManager manager, long startTime)
@@ -105,8 +87,6 @@ public class DisguiseEntryToast extends LinedToast
 
         // Pop back
         matrices.pop();
-
-        description = display == null ? entityDisplay.getDisplayName() : display;
     }
 
     @Override

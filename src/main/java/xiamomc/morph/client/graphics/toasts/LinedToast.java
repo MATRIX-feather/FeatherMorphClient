@@ -19,6 +19,8 @@ import xiamomc.morph.client.graphics.transforms.easings.Easing;
 import xiamomc.pluginbase.Annotations.Initializer;
 import xiamomc.pluginbase.Bindables.Bindable;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class LinedToast extends MorphClientObject implements Toast
 {
     public LinedToast()
@@ -39,8 +41,72 @@ public class LinedToast extends MorphClientObject implements Toast
         }, true);
     }
 
-    public Text title;
-    public Text description;
+    private final AtomicBoolean layoutValid = new AtomicBoolean(false);
+
+    protected void invalidateLayout()
+    {
+        layoutValid.set(false);
+    }
+
+    protected void updateLayout()
+    {
+        if (title != null)
+        {
+            Text titleDisplay = Text.literal(textRenderer.trimToWidth(title, this.getTextWidth()).getString());
+
+            if (!titleDisplay.getString().equalsIgnoreCase(title.getString()))
+                titleDisplay = Text.of(titleDisplay.getString() + "...");
+
+            this.titleDisplay = titleDisplay;
+        }
+        else
+            this.titleDisplay = Text.literal("Null title");
+
+        if (description != null)
+        {
+            Text descDisplay = Text.literal(textRenderer.trimToWidth(description, this.getTextWidth()).getString());
+
+            if (!descDisplay.getString().equalsIgnoreCase(description.getString()))
+                descDisplay = Text.of(descDisplay.getString() + "...");
+
+            this.descDisplay = descDisplay;
+        }
+        else
+            this.descDisplay = Text.literal("");
+
+        layoutValid.set(true);
+    }
+
+    public void setTitle(Text text)
+    {
+        this.title = text;
+        this.invalidateLayout();
+    }
+
+    @Nullable
+    public Text getTitle()
+    {
+        return title;
+    }
+
+    public void setDescription(Text text)
+    {
+        this.description = text;
+        this.invalidateLayout();
+    }
+
+    @Nullable
+    public Text getDescription()
+    {
+        return description;
+    }
+
+    private static final Text defaultText = Text.empty();
+
+    private Text title;
+    private Text description;
+    private Text titleDisplay = defaultText;
+    private Text descDisplay = defaultText;
     private Color lineColor = Color.ofRGB(255, 255, 255);
 
     @NotNull
@@ -76,9 +142,22 @@ public class LinedToast extends MorphClientObject implements Toast
         return MorphClient.getInstance().getModConfigData().displayToastProgress;
     }
 
+    protected float getTextStartX()
+    {
+        return this.getWidth() * 0.25F - 4;
+    }
+
+    protected int getTextWidth()
+    {
+        return (int) (this.getWidth() * 0.65F);
+    }
+
     @Override
     public Visibility draw(MatrixStack matrices, ToastManager manager, long startTime)
     {
+        if (!layoutValid.get())
+            updateLayout();
+
         // Draw background
         DrawableHelper.fill(matrices, 0, 0, this.getWidth(), this.getHeight(), 0xFF333333);
 
@@ -95,14 +174,15 @@ public class LinedToast extends MorphClientObject implements Toast
         postBackgroundDrawing(matrices, manager, startTime);
 
         // Draw text
-        var textStartX = this.getWidth() * 0.25F - 4;
+        var textStartX = getTextStartX();
         var textStartY = this.getHeight() / 2 - textRenderer.fontHeight;
 
         // Always draw texts on the top
         matrices.push();
         matrices.translate(0, 0, 128);
-        textRenderer.drawWithShadow(matrices, title == null ? Text.literal("") : title, textStartX, textStartY - 1, 0xffffffff);
-        textRenderer.drawWithShadow(matrices, description == null ? Text.literal("") : description, textStartX, textStartY + textRenderer.fontHeight + 1, 0xffffffff);
+
+        textRenderer.drawWithShadow(matrices, titleDisplay, textStartX, textStartY - 1, 0xffffffff);
+        textRenderer.drawWithShadow(matrices, descDisplay, textStartX, textStartY + textRenderer.fontHeight + 1, 0xffffffff);
         matrices.pop();
 
         postTextDrawing(matrices, manager, startTime);

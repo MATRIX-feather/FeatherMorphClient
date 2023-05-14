@@ -194,7 +194,7 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
                             //ARGB color
                             case SELECTED -> 0xffffaa00;
                             case CURRENT -> 0xffabcdef;
-                            case WAITING -> 0xff694400;
+                            case WAITING -> 0x50ffaa00;
                             default -> 0x00000000;
                         };
 
