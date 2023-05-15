@@ -24,7 +24,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class EntityDisplay extends MorphClientObject
+public class EntityDisplay extends MDrawable
 {
     private final String rawIdentifier;
 
@@ -41,11 +41,21 @@ public class EntityDisplay extends MorphClientObject
                 .formatted(Formatting.ITALIC, Formatting.GRAY);
 
         this.displayLoadingIfInvalid = displayLoadingIfNotValid;
+
+        loadingSpinner.setAnchor(Anchor.Centre);
+        loadingSpinner.setParent(this);
     }
 
     public EntityDisplay(String id)
     {
         this(id, false);
+    }
+
+    @Override
+    public void invalidatePosition()
+    {
+        super.invalidatePosition();
+        loadingSpinner.invalidatePosition();
     }
 
     @Nullable
@@ -99,9 +109,7 @@ public class EntityDisplay extends MorphClientObject
                 ((MagmaCubeEntity) entity).setSize(4, false);
                 yield 8;
             }
-            case "minecraft:player" -> {
-                yield 8;
-            }
+            case "minecraft:horse", "minecraft:player" -> 8;
             default ->
             {
                 var size = (int) (15 / Math.max(entity.getHeight(), entity.getWidth()));
@@ -188,9 +196,6 @@ public class EntityDisplay extends MorphClientObject
 
     private final AtomicBoolean loadingEntity = new AtomicBoolean(false);
 
-    public int x;
-    public int y;
-
     public Runnable postEntitySetup;
 
     private boolean allowRender;
@@ -199,10 +204,11 @@ public class EntityDisplay extends MorphClientObject
 
     private void renderLoading(MatrixStack matrixStack)
     {
-        loadingSpinner.renderLoading(matrixStack, x - 8, y - 16);
+        loadingSpinner.render(matrixStack, 0, 0, 0);
     }
 
-    public void render(MatrixStack matrices, int mouseX, int mouseY)
+    @Override
+    protected void onRender(MatrixStack matrices, int mouseX, int mouseY, float delta)
     {
         if (displayingEntity == null && isLiving)
         {
@@ -226,7 +232,7 @@ public class EntityDisplay extends MorphClientObject
             if (displayingEntity == MinecraftClient.getInstance().player)
                 PlayerRenderHelper.instance.skipRender = true;
 
-            InventoryScreen.drawEntity(matrices, x, y + entityYOffset, entitySize, mouseX, mouseY, displayingEntity);
+            InventoryScreen.drawEntity(matrices, (int)width / 2, (int)height + entityYOffset, entitySize, mouseX, mouseY, displayingEntity);
 
             PlayerRenderHelper.instance.skipRender = false;
         }

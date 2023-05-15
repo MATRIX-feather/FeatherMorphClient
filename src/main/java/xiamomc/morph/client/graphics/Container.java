@@ -1,6 +1,7 @@
 package xiamomc.morph.client.graphics;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.client.gui.ScreenRect;
 import net.minecraft.client.util.math.MatrixStack;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -12,24 +13,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Container extends MDrawable
 {
-    //region Padding
-
-    @NotNull
-    private Margin padding = new Margin();
-
-    public Margin getPadding()
-    {
-        return padding;
-    }
-
-    public void setPadding(Margin padding)
-    {
-        padding = padding == null ? new Margin() : padding;
-        this.padding = padding;
-    }
-
-    //endregion Padding
-
     //region Layout Validation
 
     @Override
@@ -44,34 +27,8 @@ public class Container extends MDrawable
 
     private void updateLayout()
     {
-        var childXOffset = 0;
-        var childYOffset = 0;
-
-        //todo: Padding中的Bottom和Right暂时没有作用，因为：
-        //todo: Anchor & y3 == y3 时没有翻转y轴
-        //todo: Anchor & x3 == x3 时没有翻转x轴
-
-        var maskX = (anchor.posMask << 4) >> 4;
-        if ((maskX & PosMask.x1) == PosMask.x1)
-            childXOffset += padding.left;
-        else if ((maskX & PosMask.x2) == PosMask.x2)
-            childXOffset += padding.left - padding.right;
-        else if ((maskX & PosMask.x3) == PosMask.x3)
-            childXOffset += padding.left;
-
-        var maskY = (anchor.posMask >> 4) << 4;
-        if ((maskY & PosMask.y1) == PosMask.y1)
-            childYOffset += padding.top;
-        else if ((maskY & PosMask.y2) == PosMask.y2)
-            childYOffset += padding.top - padding.bottom;
-        else if ((maskY & PosMask.y3) == PosMask.y3)
-            childYOffset += padding.top;
-
         for (MDrawable child : children)
-        {
-            child.applyParentX(childXOffset);
-            child.applyParentY(childYOffset);
-        }
+            child.setParent(this);
 
         layoutValid.set(true);
     }
@@ -108,7 +65,7 @@ public class Container extends MDrawable
 
     public void remove(MDrawable drawable)
     {
-        children.remove(drawable);
+        drawable.setParent(null);
 
         invalidateLayout();
     }

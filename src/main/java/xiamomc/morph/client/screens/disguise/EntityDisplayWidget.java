@@ -3,15 +3,13 @@ package xiamomc.morph.client.screens.disguise;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.Drawable;
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.Selectable;
+import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.screen.narration.NarrationPart;
 import net.minecraft.client.gui.widget.ElementListWidget;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.util.math.Vector2f;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
@@ -19,6 +17,8 @@ import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.*;
+import xiamomc.morph.client.graphics.Anchor;
+import xiamomc.morph.client.graphics.Container;
 import xiamomc.morph.client.graphics.EntityDisplay;
 import xiamomc.pluginbase.Annotations.Resolved;
 import xiamomc.pluginbase.Bindables.Bindable;
@@ -124,8 +124,17 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
             selectedIdentifier.bindTo(manager.selectedIdentifier);
             currentIdentifier.bindTo(manager.currentIdentifier);
 
+            // Setup drawables
             this.entityDisplay = new EntityDisplay(identifier);
             entityDisplay.postEntitySetup = () -> this.trimDisplay(entityDisplay.getDisplayName());
+
+            displayContainer.add(entityDisplay);
+            displayContainer.setSize(new Vector2f(48, 18));
+            entityDisplay.setSize(new Vector2f(18, 18));
+
+            entityDisplay.setAnchor(Anchor.BottomCentre);
+
+            // Setup display
             this.display = entityDisplay.getDisplayName();
 
             if (identifier.equals(currentIdentifier.get()) || isPlayerItSelf)
@@ -169,6 +178,7 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
         }
 
         private final EntityDisplay entityDisplay;
+        private final Container displayContainer = new Container();
 
         private final static TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 
@@ -221,8 +231,8 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
                 DrawableHelper.drawBorder(matrices, screenSpaceX, screenSpaceY,
                         width, height, borderColor);
 
-                var x = screenSpaceX + width - 5;
-                var y = screenSpaceY + height - 2;
+                var x = screenSpaceX + width - 24 - 5;
+                var y = screenSpaceY + 1;
                 var mX = 30;
                 var mY = 0;
 
@@ -232,10 +242,10 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
                     mY = y - mouseY - (this.height / 2);
                 }
 
-                entityDisplay.x = x;
-                entityDisplay.y = y;
-
-                entityDisplay.render(matrices, mX, mY);
+                displayContainer.setX(x);
+                displayContainer.setY(y);
+                displayContainer.setMasking(!hovered);
+                displayContainer.render(matrices, mX, mY, 0);
             }
             catch (Exception e)
             {

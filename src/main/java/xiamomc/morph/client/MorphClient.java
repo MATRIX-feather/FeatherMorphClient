@@ -192,7 +192,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
                 var random = Random.create();
                 var id = morphs.get(random.nextBetween(0, morphs.size() - 1));
 
-                toasts.add(new RequestToast(S2CRequestCommand.Type.NewRequest, "RandomPlayer"));
+                toasts.add(new DisguiseEntryToast(id, true));
             }
 
             if (testKeyBindLost.wasPressed())

@@ -32,6 +32,16 @@ public class Margin
         this.bottom = bottom;
     }
 
+    public float getCentreOffset()
+    {
+        return top - bottom;
+    }
+
+    public float getCentreOffsetX()
+    {
+        return left - right;
+    }
+
     public boolean equals(Margin other)
     {
         if (other == null) return false;

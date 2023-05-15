@@ -1,8 +1,12 @@
 package xiamomc.morph.client.graphics.toasts;
 
+import net.minecraft.client.gui.ScreenRect;
 import net.minecraft.client.toast.ToastManager;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.util.math.Vector2f;
 import net.minecraft.text.Text;
+import org.joml.Vector3f;
+import xiamomc.morph.client.graphics.Anchor;
 import xiamomc.morph.client.graphics.EntityDisplay;
 import xiamomc.morph.client.graphics.color.MaterialColors;
 import xiamomc.pluginbase.Annotations.Initializer;
@@ -37,7 +41,8 @@ public class DisguiseEntryToast extends LinedToast
         this.isGrant = isGrant;
 
         this.entityDisplay = new EntityDisplay(rawIdentifier, true);
-        entityDisplay.x = 512;
+        entityDisplay.setX(512);
+        entityDisplay.setSize(new Vector2f(32, 16));
 
         entityDisplay.postEntitySetup = () -> setDescription(entityDisplay.getDisplayName());
 
@@ -52,18 +57,23 @@ public class DisguiseEntryToast extends LinedToast
     @Initializer
     private void load()
     {
-        entityDisplay.x = Math.round((float) this.getWidth() / 8);
-        entityDisplay.y = this.getHeight() / 2 + 7;
+        var x = 5;
+        var y = 0;
 
         if (rawIdentifier.equals("minecraft:horse"))
         {
-            entityDisplay.x -= 1;
-            entityDisplay.y += 2;
+            x -= 1;
+            y += 2;
         }
         else if (rawIdentifier.equals("minecraft:axolotl"))
         {
-            entityDisplay.x -= 2;
+            x += 1;
         }
+
+        entityDisplay.setX(x);
+        entityDisplay.setY(y);
+        entityDisplay.setAnchor(Anchor.CentreLeft);
+        entityDisplay.applyParentRect(new ScreenRect(0, 0, this.getWidth(), this.getHeight()));
 
         setTitle(Text.translatable("text.morphclient.toast.disguise_%s".formatted(isGrant ? "grant" : "lost")));
         this.setLineColor(isGrant ? MaterialColors.Green500 : MaterialColors.Amber500);
@@ -83,7 +93,10 @@ public class DisguiseEntryToast extends LinedToast
         // Draw entity
         // Make entity display more pixel-perfect
         matrices.translate(0, 0.5, 0);
-        entityDisplay.render(matrices, -30, 0);
+        var pos = matrices.peek().getPositionMatrix().getTranslation(new Vector3f(0, 0, 0));
+        entityDisplay.applyParentScreenSpaceX(pos.x);
+        entityDisplay.applyParentScreenSpaceY(pos.y);
+        entityDisplay.render(matrices, -30, 0, 0);
 
         // Pop back
         matrices.pop();

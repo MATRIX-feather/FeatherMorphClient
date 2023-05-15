@@ -10,7 +10,7 @@ public enum Anchor
 
     CentreLeft(x1 | y2),
     Centre(x2 | y2),
-    CentreRight(x3 | y3),
+    CentreRight(x3 | y2),
 
     BottomLeft(x1 | y3),
     BottomCentre(x2 | y3),
