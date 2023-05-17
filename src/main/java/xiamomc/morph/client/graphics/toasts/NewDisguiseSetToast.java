@@ -10,11 +10,10 @@ import net.minecraft.util.Identifier;
 
 public class NewDisguiseSetToast extends LinedToast
 {
-    private final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-
     @Override
     public int getWidth()
     {
+        var textRenderer = MinecraftClient.getInstance().textRenderer;
         var descLength = textRenderer.getWidth(getDescription());
         var titleLength = textRenderer.getWidth(getTitle());
         var max1 = Math.max(descLength, titleLength) + 20;
