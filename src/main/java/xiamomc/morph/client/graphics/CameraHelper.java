@@ -20,7 +20,7 @@ public class CameraHelper
         var current = DisguiseSyncer.currentEntity.get();
         var client = MorphClient.getInstance();
 
-        if (current != null && client.morphManager.selfVisibleToggled.get() && client.getModConfigData().changeCameraHeight)
+        if (current != null && client.morphManager.selfVisibleEnabled.get() && client.getModConfigData().changeCameraHeight)
         {
             if (current.getStandingEyeHeight() <= instance.getStandingEyeHeight())
             {

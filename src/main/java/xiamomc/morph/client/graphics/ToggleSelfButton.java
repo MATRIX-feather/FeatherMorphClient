@@ -24,7 +24,7 @@ public class ToggleSelfButton extends ButtonWidget
     {
         super(x, y, width, height, getSwitchTextFrom(toggled), (button) -> {}, ButtonWidget.DEFAULT_NARRATION_SUPPLIER);
         this.toggleBindable.set(toggled);
-        this.toggleBindable.bindTo(MorphClient.getInstance().morphManager.selfVisibleToggled);
+        this.toggleBindable.bindTo(MorphClient.getInstance().morphManager.selfVisibleEnabled);
         this.toggleBindable.onValueChanged((o, n) ->
         {
             this.setMessage(getSwitchTextFrom(n));

@@ -24,19 +24,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.config.ModConfigData;
 import xiamomc.morph.client.graphics.ModelWorkarounds;
-import xiamomc.morph.client.graphics.color.ColorUtils;
-import xiamomc.morph.client.graphics.color.MaterialColors;
 import xiamomc.morph.client.graphics.toasts.DisguiseEntryToast;
-import xiamomc.morph.client.graphics.toasts.LinedToast;
-import xiamomc.morph.client.graphics.toasts.NewDisguiseSetToast;
 import xiamomc.morph.client.graphics.toasts.RequestToast;
-import xiamomc.morph.client.graphics.transforms.easings.Easing;
 import xiamomc.morph.client.screens.disguise.WaitingForServerScreen;
 import xiamomc.morph.network.Constants;
 import xiamomc.morph.network.commands.C2S.*;
 import xiamomc.morph.network.commands.S2C.S2CRequestCommand;
 import xiamomc.pluginbase.AbstractSchedulablePlugin;
-import xiamomc.pluginbase.Bindables.Bindable;
 import xiamomc.pluginbase.ScheduleInfo;
 
 import java.util.ArrayList;
@@ -211,7 +205,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
         {
             var config = getModConfigData();
 
-            boolean val = !morphManager.selfVisibleToggled.get();
+            boolean val = !morphManager.selfVisibleEnabled.get();
 
             updateClientView(config.allowClientView, val);
         }
@@ -305,7 +299,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
                             modConfigData.allowClientView = v;
 
                             if (serverHandler.serverReady())
-                                updateClientView(v, morphManager.selfVisibleToggled.get());
+                                updateClientView(v, morphManager.selfVisibleEnabled.get());
                         })
                         .build()
         ).addEntry(

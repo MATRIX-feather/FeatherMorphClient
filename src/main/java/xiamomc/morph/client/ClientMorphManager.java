@@ -4,7 +4,6 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.toast.Toast;
 import net.minecraft.client.toast.ToastManager;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
@@ -54,7 +53,7 @@ public class ClientMorphManager extends MorphClientObject
 
     //region Add/Remove/Set disguises
 
-    public final Bindable<Boolean> selfVisibleToggled = new Bindable<>(false);
+    public final Bindable<Boolean> selfVisibleEnabled = new Bindable<>(false);
 
     private final List<Function<List<String>, Boolean>> onGrantConsumers = new ObjectArrayList<>();
     public void onMorphGrant(Function<List<String>, Boolean> consumer)

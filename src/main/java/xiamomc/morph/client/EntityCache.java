@@ -72,6 +72,8 @@ public class EntityCache
         return isLivingMap.getOrDefault(identifier, false);
     }
 
+    public static final String tag = "FMC_ClientView";
+
     @Nullable
     public static LivingEntity getEntity(String identifier)
     {
@@ -127,6 +129,8 @@ public class EntityCache
                 isLivingMap.put(identifier, false);
                 return null;
             }
+
+            le.addCommandTag(tag);
 
             living = le;
         }

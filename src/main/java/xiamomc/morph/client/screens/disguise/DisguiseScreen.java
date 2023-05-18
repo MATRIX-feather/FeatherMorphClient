@@ -104,7 +104,7 @@ public class DisguiseScreen extends FeatherScreen
             MinecraftClient.getInstance().setScreen(screen);
         }));
 
-        selfVisibleToggle = new ToggleSelfButton(0, 0, 20, 20, manager.selfVisibleToggled.get(), this);
+        selfVisibleToggle = new ToggleSelfButton(0, 0, 20, 20, manager.selfVisibleEnabled.get(), this);
     }
 
     private final Bindable<String> selectedIdentifier = new Bindable<>();

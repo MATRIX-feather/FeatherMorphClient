@@ -14,14 +14,12 @@ import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.Nullable;
 import xiamomc.morph.client.network.commands.ClientSetEquipCommand;
 import xiamomc.morph.network.BasicServerHandler;
 import xiamomc.morph.network.Constants;
 import xiamomc.morph.network.commands.C2S.*;
 import xiamomc.morph.network.commands.CommandRegistries;
 import xiamomc.morph.network.commands.S2C.*;
-import xiamomc.morph.network.commands.S2C.query.QueryType;
 import xiamomc.morph.network.commands.S2C.query.S2CQueryCommand;
 import xiamomc.morph.network.commands.S2C.set.*;
 import xiamomc.pluginbase.Annotations.Initializer;
@@ -281,7 +279,7 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
     @Override
     public void onSetSelfViewingCommand(S2CSetSelfViewingCommand s2CSetToggleSelfCommand)
     {
-        morphManager.selfVisibleToggled.set(s2CSetToggleSelfCommand.getArgumentAt(0));
+        morphManager.selfVisibleEnabled.set(s2CSetToggleSelfCommand.getArgumentAt(0));
     }
 
     @Override

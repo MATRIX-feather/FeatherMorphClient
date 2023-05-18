@@ -30,6 +30,6 @@ public class ModConfigData implements ConfigData
 
     public boolean clientViewVisible()
     {
-        return MorphClient.getInstance().morphManager.selfVisibleToggled.get() && allowClientView;
+        return MorphClient.getInstance().morphManager.selfVisibleEnabled.get() && allowClientView;
     }
 }
