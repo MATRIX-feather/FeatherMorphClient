@@ -22,6 +22,8 @@ import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import xiamomc.morph.client.config.ModConfigData;
 import xiamomc.morph.client.graphics.ModelWorkarounds;
 import xiamomc.morph.client.graphics.toasts.DisguiseEntryToast;
@@ -370,7 +372,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
 
         if (shouldAbortTicking) return;
 
-        var schedules = new ArrayList<>(this.schedules);
+        var schedules = new ObjectArrayList<>(this.schedules);
         schedules.forEach(c ->
         {
             if (currentTick - c.TickScheduled >= c.Delay)

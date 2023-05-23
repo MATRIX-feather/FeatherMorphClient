@@ -12,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.MorphClientObject;
-import xiamomc.morph.client.graphics.color.ColorUtils;
 import xiamomc.morph.client.graphics.transforms.Recorder;
 import xiamomc.morph.client.graphics.transforms.Transformer;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
@@ -27,12 +26,16 @@ public class LinedToast extends MorphClientObject implements Toast
     {
     }
 
-    private final Recorder<Integer> outlineWidth = Recorder.of(this.getWidth());
+    private final Recorder<Integer> outlineWidth = Recorder.of(0);
+
+    protected final Bindable<Visibility> visibility = new Bindable<Toast.Visibility>(Visibility.HIDE);
 
     @Initializer
     private void load()
     {
-        visibility.onValueChanged((o, visible) ->
+        outlineWidth.set(this.getWidth());
+
+        this.visibility.onValueChanged((o, visible) ->
         {
             if (visible == Visibility.SHOW)
                 Transformer.delay(250).then(() -> Transformer.transform(outlineWidth, 2, 600, Easing.OutQuint));
@@ -122,8 +125,6 @@ public class LinedToast extends MorphClientObject implements Toast
     }
 
     private final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-
-    protected final Bindable<Visibility> visibility = new Bindable<>(Visibility.HIDE);
 
     protected void postTextDrawing(MatrixStack matrices, ToastManager manager, long startTime)
     {

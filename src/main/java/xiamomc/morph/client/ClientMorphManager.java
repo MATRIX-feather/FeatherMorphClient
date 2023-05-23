@@ -102,16 +102,7 @@ public class ClientMorphManager extends MorphClientObject
         DisguiseEntryToast.invalidateAll();
 
         if (displayToasts)
-        {
-            var toast = new NewDisguiseSetToast();
-
-            var transId = "text.morphclient.toast.new_disguises";
-            toast.setTitle(Text.translatable(transId));
-            toast.setDescription(Text.translatable(transId + (availableMorphs.size() > 0 ? ".desc" : ".all_gone"), Text.keybind("key.morphclient.morph").formatted(Formatting.ITALIC)));
-            toast.setLineColor(ColorUtils.fromHex("#009688"));
-
-            toastManager.add(toast);
-        }
+            toastManager.add(new NewDisguiseSetToast(availableMorphs.size() <= 0));
     }
 
     private final ToastManager toastManager = MinecraftClient.getInstance().getToastManager();
