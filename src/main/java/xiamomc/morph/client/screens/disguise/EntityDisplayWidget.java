@@ -163,9 +163,9 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
             }, true);
         }
 
-        private void trimDisplay(StringVisitable text)
+        private void trimDisplay(Text text)
         {
-            this.display = Text.literal(text.getString());
+            this.display = text;
 
             this.addSchedule(() ->
             {
@@ -173,7 +173,8 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
                 var toDisplay = textRenderer.trimToWidth(text, (int)Math.round(this.width * targetMultiplier));
                 var trimmed = !toDisplay.getString().equals(text.getString());
 
-                this.display = Text.literal(toDisplay.getString() + (trimmed ? "..." : ""));
+                if (trimmed)
+                    this.display = Text.literal(toDisplay.getString() + "...");
             });
         }
 
