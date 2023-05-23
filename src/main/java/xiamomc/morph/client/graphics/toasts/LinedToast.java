@@ -32,6 +32,9 @@ public class LinedToast extends MorphClientObject implements Toast
     @Initializer
     private void load()
     {
+        if (this.visibility == null)
+            this.visibility = new Bindable<>(Visibility.HIDE);
+
         visibility.onValueChanged((o, visible) ->
         {
             if (visible == Visibility.SHOW)
@@ -123,7 +126,7 @@ public class LinedToast extends MorphClientObject implements Toast
 
     private final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 
-    protected final Bindable<Visibility> visibility = new Bindable<>(Visibility.HIDE);
+    protected Bindable<Visibility> visibility;
 
     protected void postTextDrawing(MatrixStack matrices, ToastManager manager, long startTime)
     {
