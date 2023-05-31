@@ -64,6 +64,8 @@ public class DisguiseSyncer extends MorphClientObject
         });
 
         CameraHelper.isThirdPerson.onValueChanged((o, n) -> this.onThirdPersonChange(this.entity, MinecraftClient.getInstance().player));
+
+        ServerHandler.spiderEnabled.onValueChanged((o, n) -> this.isSpider = n);
     }
 
     public void updateSkin(GameProfile profile)
@@ -340,6 +342,8 @@ public class DisguiseSyncer extends MorphClientObject
 
     private Vec3d lastPosition = new Vec3d(0, 0, 0);
 
+    private boolean isSpider = false;
+
     private void sync(LivingEntity entity, PlayerEntity clientPlayer)
     {
         if (entity.isRemoved() || entity.world == null)
@@ -471,6 +475,22 @@ public class DisguiseSyncer extends MorphClientObject
             player.setActiveItem(clientPlayer.getActiveItem());
 
             player.setMainArm(clientPlayer.getMainArm());
+        }
+
+        if (isSpider)
+        {
+            var dim = entity.getDimensions(clientPlayer.getPose());
+            var bb = dim.getBoxAt(playerPos).expand(0.02f, 0, 0.02f);
+
+            var collisionsBlock = clientPlayer.world.getBlockCollisions(clientPlayer, bb);
+            var collisionBorder = clientPlayer.world.getWorldBorder().getDistanceInsideBorder(clientPlayer) <= ((dim.width + 0.04f) / 2);
+
+            var hasCollide = collisionsBlock.iterator().hasNext() || collisionBorder;
+            if (hasCollide)
+            {
+                var velocity = clientPlayer.getVelocity();
+                clientPlayer.setVelocity(velocity.getX(), Math.min(0.15f, velocity.getY() + 0.15f), velocity.getZ());
+            }
         }
 
         entity.setInvisible(clientPlayer.isInvisible());

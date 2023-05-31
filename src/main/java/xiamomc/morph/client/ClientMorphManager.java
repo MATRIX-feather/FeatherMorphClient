@@ -200,5 +200,7 @@ public class ClientMorphManager extends MorphClientObject
         selfViewIdentifier.set(null);
         equipmentSlotItemStackMap.clear();
         currentNbtCompound.set(null);
+
+        ServerHandler.spiderEnabled.set(false);
     }
 }

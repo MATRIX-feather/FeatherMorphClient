@@ -300,6 +300,14 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
         reach = (float) (s2CSetReachCommand.getReach() / 10);
     }
 
+    public static Bindable<Boolean> spiderEnabled = new Bindable<>(false);
+
+    @Override
+    public void onSetSpider(S2CSetSpiderCommand s2CSetSpiderCommand)
+    {
+        spiderEnabled.set(s2CSetSpiderCommand.value());
+    }
+
     @Resolved
     private ClientRequestManager requestManager;
 
