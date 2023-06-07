@@ -2,6 +2,7 @@ package xiamomc.morph.client.screens.disguise;
 
 import me.shedaniel.math.Color;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
@@ -102,10 +103,10 @@ public class WaitingForServerScreen extends FeatherScreen
     }
 
     @Override
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta)
+    public void render(DrawContext context, int mouseX, int mouseY, float delta)
     {
         var color = Color.ofRGBA(0, 0, 0, backgroundDim.get());
-        this.fillGradient(matrices, 0, 0, this.width, this.height, color.getColor(), color.getColor());
+        context.fillGradient(0, 0, this.width, this.height, color.getColor(), color.getColor());
 
         //notReadyText.setScreenY(this.height / 2);
         //notReadyText.setScreenX((this.width -textRenderer.getWidth(notReadyText.getText()))  / 2);
@@ -113,6 +114,6 @@ public class WaitingForServerScreen extends FeatherScreen
         closeButton.setX(this.width / 2 - 75);
         closeButton.setY(this.height - 29);
 
-        super.render(matrices, mouseX, mouseY, delta);
+        super.render(context, mouseX, mouseY, delta);
     }
 }

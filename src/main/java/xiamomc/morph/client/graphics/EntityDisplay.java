@@ -3,7 +3,7 @@ package xiamomc.morph.client.graphics;
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.EntityType;
@@ -202,27 +202,27 @@ public class EntityDisplay extends MDrawable
 
     private final LoadingSpinner loadingSpinner = new LoadingSpinner();
 
-    private void renderLoading(MatrixStack matrixStack)
+    private void renderLoading(DrawContext context)
     {
-        loadingSpinner.render(matrixStack, 0, 0, 0);
+        loadingSpinner.render(context, 0, 0, 0);
     }
 
     @Override
-    protected void onRender(MatrixStack matrices, int mouseX, int mouseY, float delta)
+    protected void onRender(DrawContext context, int mouseX, int mouseY, float delta)
     {
         if (displayingEntity == null && isLiving)
         {
             if (!loadingEntity.get())
                 CompletableFuture.runAsync(this::setupEntity);
 
-            renderLoading(matrices);
+            renderLoading(context);
             return;
         }
 
         if (!allowRender || !isLiving)
         {
             if (displayLoadingIfInvalid)
-                renderLoading(matrices);
+                renderLoading(context);
 
             return;
         }
@@ -232,7 +232,7 @@ public class EntityDisplay extends MDrawable
             if (displayingEntity == MinecraftClient.getInstance().player)
                 PlayerRenderHelper.instance.skipRender = true;
 
-            InventoryScreen.drawEntity(matrices, (int)width / 2, (int)height + entityYOffset, entitySize, mouseX, mouseY, displayingEntity);
+            InventoryScreen.drawEntity(context, (int)width / 2, (int)height + entityYOffset, entitySize, mouseX, mouseY, displayingEntity);
 
             PlayerRenderHelper.instance.skipRender = false;
         }

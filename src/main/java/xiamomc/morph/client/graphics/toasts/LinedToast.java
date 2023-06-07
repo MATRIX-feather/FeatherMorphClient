@@ -3,10 +3,9 @@ package xiamomc.morph.client.graphics.toasts;
 import me.shedaniel.math.Color;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.toast.Toast;
 import net.minecraft.client.toast.ToastManager;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -126,15 +125,15 @@ public class LinedToast extends MorphClientObject implements Toast
 
     private final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 
-    protected void postTextDrawing(MatrixStack matrices, ToastManager manager, long startTime)
+    protected void postTextDrawing(DrawContext context, ToastManager manager, long startTime)
     {
     }
 
-    protected void postBackgroundDrawing(MatrixStack matrices, ToastManager manager, long startTime)
+    protected void postBackgroundDrawing(DrawContext context, ToastManager manager, long startTime)
     {
     }
 
-    protected void postDraw(MatrixStack matrices, ToastManager manager, long startTime)
+    protected void postDraw(DrawContext context, ToastManager manager, long startTime)
     {
     }
 
@@ -154,13 +153,13 @@ public class LinedToast extends MorphClientObject implements Toast
     }
 
     @Override
-    public Visibility draw(MatrixStack matrices, ToastManager manager, long startTime)
+    public Visibility draw(DrawContext context, ToastManager manager, long startTime)
     {
         if (!layoutValid.get())
             updateLayout();
 
         // Draw background
-        DrawableHelper.fill(matrices, 0, 0, this.getWidth(), this.getHeight(), 0xFF333333);
+        context.fill(0, 0, this.getWidth(), this.getHeight(), 0xFF333333);
 
         var progress = Math.min(1, startTime / (5000.0 * manager.getNotificationDisplayTimeMultiplier()));
 
@@ -169,28 +168,30 @@ public class LinedToast extends MorphClientObject implements Toast
         {
             var progressDisplay = Math.max(0, 0.95 - progress);
 
-            DrawableHelper.fill(matrices, 0, 0, (int)(this.getWidth() * progressDisplay), this.getHeight(), (int)(0x40 * progressDisplay) << 24 | 0x00FFFFFF);
+            context.fill(0, 0, (int)(this.getWidth() * progressDisplay), this.getHeight(), (int)(0x40 * progressDisplay) << 24 | 0x00FFFFFF);
         }
 
-        postBackgroundDrawing(matrices, manager, startTime);
+        postBackgroundDrawing(context, manager, startTime);
 
         // Draw text
-        var textStartX = getTextStartX();
+        var textStartX = (int)getTextStartX();
         var textStartY = this.getHeight() / 2 - textRenderer.fontHeight;
+
+        var matrices = context.getMatrices();
 
         // Always draw texts on the top
         matrices.push();
         matrices.translate(0, 0, 128);
 
-        textRenderer.drawWithShadow(matrices, titleDisplay, textStartX, textStartY - 1, 0xffffffff);
-        textRenderer.drawWithShadow(matrices, descDisplay, textStartX, textStartY + textRenderer.fontHeight + 1, 0xffffffff);
+        context.drawTextWithShadow(textRenderer, titleDisplay, textStartX, textStartY - 1, 0xffffffff);
+        context.drawTextWithShadow(textRenderer, descDisplay, textStartX, textStartY + textRenderer.fontHeight + 1, 0xffffffff);
         matrices.pop();
 
-        postTextDrawing(matrices, manager, startTime);
+        postTextDrawing(context, manager, startTime);
 
         // Draw CoverLine
         var lineWidth = outlineWidth.get();
-        DrawableHelper.fill(matrices, 0, 0, lineWidth, this.getHeight(), lineColor.getColor());
+        context.fill(0, 0, lineWidth, this.getHeight(), lineColor.getColor());
 
         //var borderColor = ColorUtils.fromHex("#222222");
         //DrawableHelper.drawBorder(matrices, 0, 0, this.getWidth(), this.getHeight(), borderColor.getColor());
@@ -199,7 +200,7 @@ public class LinedToast extends MorphClientObject implements Toast
         var visibility = progress >= 1 ? Visibility.HIDE : Visibility.SHOW;
         this.visibility.set(visibility);
 
-        postDraw(matrices, manager, startTime);
+        postDraw(context, manager, startTime);
 
         return visibility;
     }

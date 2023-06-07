@@ -3,7 +3,7 @@ package xiamomc.morph.client.screens.disguise;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.shedaniel.math.Color;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
@@ -256,7 +256,7 @@ public class DisguiseScreen extends FeatherScreen
     }
 
     @Override
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta)
+    public void render(DrawContext context, int mouseX, int mouseY, float delta)
     {
         if (!RenderSystem.isOnRenderThread())
             throw new RuntimeException("Not on render thread");
@@ -271,12 +271,12 @@ public class DisguiseScreen extends FeatherScreen
         closeButton.setY(bottomY);
         configMenuButton.setY(bottomY);
 
-        DrawableHelper.fillGradient(matrices, 0, 0, this.width, this.height, color.getColor(), color.getColor());
-        super.render(matrices, mouseX, mouseY, delta);
+        context.fillGradient(0, 0, this.width, this.height, color.getColor(), color.getColor());
+        super.render(context, mouseX, mouseY, delta);
     }
 
     @Override
-    public void renderBackground(MatrixStack matrices) {
-        super.renderBackground(matrices);
+    public void renderBackground(DrawContext context) {
+        super.renderBackground(context);
     }
 }

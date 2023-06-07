@@ -321,15 +321,16 @@ public class MDrawable extends MorphClientObject implements Drawable, Element
         this.masking = masking;
     }
 
-    protected void onRender(MatrixStack matrixStack, int mouseX, int mouseY, float delta)
+    protected void onRender(DrawContext context, int mouseX, int mouseY, float delta)
     {
     }
 
     private boolean hovered;
 
     @Override
-    public final void render(MatrixStack matrices, int mouseX, int mouseY, float delta)
+    public final void render(DrawContext context, int mouseX, int mouseY, float delta)
     {
+        var matrices = context.getMatrices();
         matrices.push();
 
         this.hovered = mouseX < this.screenSpaceX + width && mouseX > this.screenSpaceX
@@ -357,17 +358,17 @@ public class MDrawable extends MorphClientObject implements Drawable, Element
 
                 //MinecraftClient.getInstance().textRenderer.draw(matrices, "sX: %s, sY: %s, W: %s, H: %s".formatted(sX, sY, width, height), 0, 0, 0xffffffff);
 
-                DrawableHelper.enableScissor(sX, sY, (int)width + sX, (int)height + sY);
+                context.enableScissor(sX, sY, (int)width + sX, (int)height + sY);
             }
 
-            this.onRender(matrices, mouseX, mouseY, delta);
+            this.onRender(context, mouseX, mouseY, delta);
         }
         finally
         {
             matrices.pop();
 
             if (masking)
-                DrawableHelper.disableScissor();
+                context.disableScissor();
         }
     }
 

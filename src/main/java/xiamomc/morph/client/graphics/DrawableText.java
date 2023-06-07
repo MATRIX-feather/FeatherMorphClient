@@ -3,6 +3,7 @@ package xiamomc.morph.client.graphics;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
@@ -69,9 +70,21 @@ public class DrawableText extends MDrawable
         return color;
     }
 
-    @Override
-    public void onRender(MatrixStack matrices, int mouseX, int mouseY, float delta)
+    private boolean drawShadow = false;
+
+    public boolean drawShadow()
     {
-        renderer.draw(matrices, text, 0, 0, color);
+        return drawShadow;
+    }
+
+    public void setDrawShadow(boolean val)
+    {
+        this.drawShadow = val;
+    }
+
+    @Override
+    public void onRender(DrawContext context, int mouseX, int mouseY, float delta)
+    {
+        context.drawText(renderer, text, 0, 0, color, drawShadow);
     }
 }

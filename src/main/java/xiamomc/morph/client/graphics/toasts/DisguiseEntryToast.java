@@ -1,5 +1,6 @@
 package xiamomc.morph.client.graphics.toasts;
 
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.ScreenRect;
 import net.minecraft.client.toast.ToastManager;
 import net.minecraft.client.util.math.MatrixStack;
@@ -83,9 +84,10 @@ public class DisguiseEntryToast extends LinedToast
     private final EntityDisplay entityDisplay;
 
     @Override
-    protected void postBackgroundDrawing(MatrixStack matrices, ToastManager manager, long startTime)
+    protected void postBackgroundDrawing(DrawContext context, ToastManager manager, long startTime)
     {
-        super.postBackgroundDrawing(matrices, manager, startTime);
+        var matrices = context.getMatrices();
+        super.postBackgroundDrawing(context, manager, startTime);
 
         // Push a new entry to allow us to do some tricks
         matrices.push();
@@ -96,16 +98,16 @@ public class DisguiseEntryToast extends LinedToast
         var pos = matrices.peek().getPositionMatrix().getTranslation(new Vector3f(0, 0, 0));
         entityDisplay.applyParentScreenSpaceX(pos.x);
         entityDisplay.applyParentScreenSpaceY(pos.y);
-        entityDisplay.render(matrices, -30, 0, 0);
+        entityDisplay.render(context, -30, 0, 0);
 
         // Pop back
         matrices.pop();
     }
 
     @Override
-    public Visibility draw(MatrixStack matrices, ToastManager manager, long startTime)
+    public Visibility draw(DrawContext context, ToastManager manager, long startTime)
     {
-        var result = super.draw(matrices, manager, startTime);
+        var result = super.draw(context, manager, startTime);
         result = isValid.get() ? result : Visibility.HIDE;
 
         this.visibility.set(result);

@@ -1,6 +1,7 @@
 package xiamomc.morph.client.graphics;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
@@ -31,7 +32,7 @@ public class InventoryRenderHelper
     public boolean allowRender = true;
     private LivingEntity entity;
 
-    public void onRenderCall(MatrixStack matrixStack, int x, int y, int size, float mouseX, float mouseY)
+    public void onRenderCall(DrawContext context, int x, int y, int size, float mouseX, float mouseY)
     {
         if (!allowRender) return;
         var modConfig = MorphClient.getInstance().getModConfigData();
@@ -40,7 +41,7 @@ public class InventoryRenderHelper
         {
             try
             {
-                InventoryScreen.drawEntity(matrixStack, x, y, size, mouseX, mouseY, entity);
+                InventoryScreen.drawEntity(context, x, y, size, mouseX, mouseY, entity);
             }
             catch (Exception e)
             {
@@ -53,7 +54,7 @@ public class InventoryRenderHelper
             var clientPlayer = MinecraftClient.getInstance().player;
 
             if (clientPlayer != null)
-                InventoryScreen.drawEntity(matrixStack, x, y, size, mouseX, mouseY, clientPlayer);
+                InventoryScreen.drawEntity(context, x, y, size, mouseX, mouseY, clientPlayer);
         }
     }
 }

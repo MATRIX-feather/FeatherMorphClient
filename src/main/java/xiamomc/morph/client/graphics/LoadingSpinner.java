@@ -1,8 +1,7 @@
 package xiamomc.morph.client.graphics;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.Identifier;
 
 public class LoadingSpinner extends MDrawable
@@ -16,13 +15,13 @@ public class LoadingSpinner extends MDrawable
     }
 
     @Override
-    protected void onRender(MatrixStack matrixStack, int mouseX, int mouseY, float delta)
+    protected void onRender(DrawContext context, int mouseX, int mouseY, float delta)
     {
         RenderSystem.enableBlend();
         RenderSystem.setShaderTexture(0, LOADING_TEX);
         int offset = (int)plugin.getCurrentTick() / 4;
 
-        DrawableHelper.drawTexture(matrixStack, 0, 0, 0, 16 * offset, 16, 16, 16, 128);
-        super.onRender(matrixStack, mouseX, mouseY, delta);
+        context.drawTexture(LOADING_TEX, 0, 0, 0, 16 * offset, 16, 16, 16, 128);
+        super.onRender(context, mouseX, mouseY, delta);
     }
 }

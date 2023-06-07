@@ -11,7 +11,6 @@ import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.util.math.Vector2f;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
@@ -67,7 +66,7 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
     }
 
     @Override
-    public void render(MatrixStack matrices, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta)
+    public void render(DrawContext matrices, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta)
     {
         field.screenSpaceY = y;
         field.screenSpaceX = x;
@@ -184,7 +183,7 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
         private final static TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 
         @Override
-        public void render(MatrixStack matrices, int mouseX, int mouseY, float delta)
+        public void render(DrawContext context, int mouseX, int mouseY, float delta)
         {
             this.hovered = mouseX < this.screenSpaceX + width && mouseX > this.screenSpaceX
                     && mouseY < this.screenSpaceY + height && mouseY > this.screenSpaceY;
@@ -215,6 +214,8 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
                     contentColor += 0x00333333;
             }
 
+            var matrices = context.getMatrices();
+
             try
             {
                 matrices.push();
@@ -225,11 +226,11 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
                 if (activationState == ActivationState.CURRENT)
                     matrices.translate(0, 0, 256);
 
-                DrawableHelper.fill(matrices, screenSpaceX + 1, screenSpaceY + 1,
+                context.fill(screenSpaceX + 1, screenSpaceY + 1,
                         screenSpaceX + width - 1, screenSpaceY + height - 1,
                         contentColor);
 
-                DrawableHelper.drawBorder(matrices, screenSpaceX, screenSpaceY,
+                context.drawBorder(screenSpaceX, screenSpaceY,
                         width, height, borderColor);
 
                 var x = screenSpaceX + width - 24 - 5;
@@ -246,7 +247,7 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
                 displayContainer.setX(x);
                 displayContainer.setY(y);
                 displayContainer.setMasking(!hovered);
-                displayContainer.render(matrices, mX, mY, 0);
+                displayContainer.render(context, mX, mY, 0);
             }
             catch (Exception e)
             {
@@ -255,8 +256,8 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
             }
             finally
             {
-                textRenderer.drawWithShadow(matrices, display,
-                        screenSpaceX + 5, screenSpaceY + ((height - textRenderer.fontHeight) / 2f), 0xffffffff);
+                context.drawTextWithShadow(textRenderer, display,
+                        screenSpaceX + 5, (int) (screenSpaceY + ((height - textRenderer.fontHeight) / 2f)), 0xffffffff);
 
                 matrices.pop();
             }

@@ -4,9 +4,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.toast.ToastManager;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.server.rcon.RconCommandOutput;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -49,13 +50,13 @@ public class NewDisguiseSetToast extends LinedToast
     private static final Identifier TEX = Identifier.of(Identifier.DEFAULT_NAMESPACE, "textures/gui/info_icon.png");
 
     @Override
-    protected void postBackgroundDrawing(MatrixStack matrices, ToastManager manager, long startTime)
+    protected void postBackgroundDrawing(DrawContext context, ToastManager manager, long startTime)
     {
-        super.postBackgroundDrawing(matrices, manager, startTime);
+        super.postBackgroundDrawing(context, manager, startTime);
 
         RenderSystem.enableBlend();
         RenderSystem.setShaderTexture(0, TEX);
 
-        DrawableHelper.drawTexture(matrices, this.getWidth() / 16 - 2, 6, 0, 0, 20, 20, 20, 20);
+        context.drawTexture(TEX, this.getWidth() / 16 - 2, 6, 0, 0, 20, 20, 20, 20);
     }
 }

@@ -1,5 +1,6 @@
 package xiamomc.morph.client.mixin;
 
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
@@ -14,8 +15,8 @@ public class InventoryScreenMixin
     private static final InventoryRenderHelper helper = InventoryRenderHelper.getInstance();
 
     @Redirect(method = "drawBackground",
-    at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/ingame/InventoryScreen;drawEntity(Lnet/minecraft/client/util/math/MatrixStack;IIIFFLnet/minecraft/entity/LivingEntity;)V"))
-    public void onBackgroundDrawCall(MatrixStack matrices, int x, int y, int size, float mouseX, float mouseY, LivingEntity entity)
+    at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/ingame/InventoryScreen;drawEntity(Lnet/minecraft/client/gui/DrawContext;IIIFFLnet/minecraft/entity/LivingEntity;)V"))
+    public void onBackgroundDrawCall(DrawContext matrices, int x, int y, int size, float mouseX, float mouseY, LivingEntity entity)
     {
        helper.onRenderCall(matrices, x, y, size, mouseX, mouseY);
     }

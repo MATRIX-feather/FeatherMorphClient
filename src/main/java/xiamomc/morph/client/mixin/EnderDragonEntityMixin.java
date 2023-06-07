@@ -48,7 +48,7 @@ public class EnderDragonEntityMixin
         if (!allowClientView && fmClient.morphManager.selfVisibleEnabled.get()) return;
 
         var playerLoc = MinecraftClient.getInstance().player.getPos();
-        morphClient$entityInstance.world.playSound(playerLoc.x, playerLoc.y, playerLoc.z,
+        morphClient$entityInstance.getWorld().playSound(playerLoc.x, playerLoc.y, playerLoc.z,
                 SoundEvents.ENTITY_ENDER_DRAGON_FLAP, morphClient$entityInstance.getSoundCategory(),
                 5.0F, 0.8F + random.nextFloat() * 0.3F, false);
     }

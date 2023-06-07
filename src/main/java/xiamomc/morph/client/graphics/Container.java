@@ -1,6 +1,7 @@
 package xiamomc.morph.client.graphics;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.ScreenRect;
 import net.minecraft.client.util.math.MatrixStack;
 import org.jetbrains.annotations.ApiStatus;
@@ -98,12 +99,12 @@ public class Container extends MDrawable
     }
 
     @Override
-    protected void onRender(MatrixStack matrixStack, int mouseX, int mouseY, float delta)
+    protected void onRender(DrawContext context, int mouseX, int mouseY, float delta)
     {
         if (!layoutValid.get()) updateLayout();
 
-        super.onRender(matrixStack, mouseX, mouseY, delta);
-        this.children.forEach(d -> d.render(matrixStack, mouseX, mouseY, delta));
+        super.onRender(context, mouseX, mouseY, delta);
+        this.children.forEach(d -> d.render(context, mouseX, mouseY, delta));
     }
 
     @Override

@@ -266,7 +266,7 @@ public class DisguiseSyncer extends MorphClientObject
     {
         if (currentEntity == null || id == 0) return null;
 
-        var world = MinecraftClient.getInstance().player.world;
+        var world = MinecraftClient.getInstance().player.getWorld();
         if (world == null) return null;
 
         return world.getEntityById(id);
@@ -343,7 +343,7 @@ public class DisguiseSyncer extends MorphClientObject
 
     private void sync(LivingEntity entity, PlayerEntity clientPlayer)
     {
-        if (entity.isRemoved() || entity.world == null)
+        if (entity.isRemoved() || entity.getWorld() == null)
         {
             LoggerFactory.getLogger("MorphClient").warn("正试图更新一个已被移除的客户端预览实体");
 
@@ -479,8 +479,8 @@ public class DisguiseSyncer extends MorphClientObject
             var dim = entity.getDimensions(clientPlayer.getPose());
             var bb = dim.getBoxAt(playerPos).expand(0.02f, 0, 0.02f);
 
-            var collisionsBlock = clientPlayer.world.getBlockCollisions(clientPlayer, bb);
-            var collisionBorder = clientPlayer.world.getWorldBorder().getDistanceInsideBorder(clientPlayer) <= ((dim.width + 0.04f) / 2);
+            var collisionsBlock = clientPlayer.getWorld().getBlockCollisions(clientPlayer, bb);
+            var collisionBorder = clientPlayer.getWorld().getWorldBorder().getDistanceInsideBorder(clientPlayer) <= ((dim.width + 0.04f) / 2);
 
             var hasCollide = collisionsBlock.iterator().hasNext() || collisionBorder;
             if (hasCollide)
