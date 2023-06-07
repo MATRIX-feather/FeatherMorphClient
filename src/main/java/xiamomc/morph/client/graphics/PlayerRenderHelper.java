@@ -291,7 +291,7 @@ public class PlayerRenderHelper extends MorphClientObject
         return part;
     }
 
-    //private final RenderLayer dragonLayer = RenderLayer.getEntityCutoutNoCull(new Identifier("textures/entity/enderdragon/dragon.png"));
+    private final RenderLayer dragonLayer = RenderLayer.getEntityCutoutNoCull(new Identifier("textures/entity/enderdragon/dragon.png"));
 
     @SuppressWarnings("rawtypes")
     public boolean onArmDrawCall(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, AbstractClientPlayerEntity player, ModelPart arm, ModelPart sleeve)
@@ -309,13 +309,13 @@ public class PlayerRenderHelper extends MorphClientObject
             RenderLayer layer = null;
             EntityModel model = null;
 
-/*
+
             if (disguiseRenderer instanceof EnderDragonEntityRenderer enderDragonEntityRenderer)
             {
                 model = ((DragonEntityRendererAccessor) enderDragonEntityRenderer).getModel();
                 layer = dragonLayer;
             }
-*/
+
 
             if (disguiseRenderer instanceof LivingEntityRenderer livingEntityRenderer)
             {

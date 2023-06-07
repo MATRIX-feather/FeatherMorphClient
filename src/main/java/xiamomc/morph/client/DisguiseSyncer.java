@@ -12,6 +12,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Vec3d;
@@ -20,9 +21,9 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.entities.MorphLocalPlayer;
 import xiamomc.morph.client.graphics.CameraHelper;
-import xiamomc.morph.client.mixin.MinecraftClientMixin;
 import xiamomc.morph.client.mixin.accessors.AbstractHorseEntityMixin;
 import xiamomc.morph.client.mixin.accessors.EntityAccessor;
+import xiamomc.morph.client.mixin.accessors.HorseEntityMixin;
 import xiamomc.morph.client.mixin.accessors.LimbAnimatorAccessor;
 import xiamomc.pluginbase.Annotations.Initializer;
 import xiamomc.pluginbase.Annotations.Resolved;
@@ -224,15 +225,11 @@ public class DisguiseSyncer extends MorphClientObject
                 }
 
                 //Doesn't work for unknown reason
-                if (nbtCompound.contains("ArmorItem", 10))
+                if (nbtCompound.contains("ArmorItem", NbtElement.COMPOUND_TYPE))
                 {
-                    ItemStack armorItem = ItemStack.fromNbt(nbtCompound.getCompound("ArmorItem"))
-                            .getItem().getDefaultStack().copyWithCount(1);
+                    ItemStack armorItem = ItemStack.fromNbt(nbtCompound.getCompound("ArmorItem"));
 
-                    //horse.equipHorseArmor(MinecraftClient.getInstance().player, armorItem);
-
-                    horse.equipStack(EquipmentSlot.CHEST, armorItem);
-                    ((AbstractHorseEntityMixin) horse).getItems().setStack(1, armorItem);
+                    ((HorseEntityMixin) horse).callEquipArmor(armorItem);
                 }
             }
 
