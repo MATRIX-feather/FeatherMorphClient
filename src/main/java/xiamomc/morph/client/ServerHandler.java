@@ -146,7 +146,7 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
     @Override
     public int getImplmentingApiVersion()
     {
-        return Constants.PROTOCOL_VERSION;
+        return Constants.ApiLevel.REQUEST_HANDLING.protocolVersion;
     }
 
     @Override
