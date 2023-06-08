@@ -177,21 +177,19 @@ public class LinedToast extends MorphClientObject implements Toast
         var textStartX = (int)getTextStartX();
         var textStartY = this.getHeight() / 2 - textRenderer.fontHeight;
 
-        var matrices = context.getMatrices();
-
-        // Always draw texts on the top
-        matrices.push();
-        matrices.translate(0, 0, 128);
-
         context.drawTextWithShadow(textRenderer, titleDisplay, textStartX, textStartY - 1, 0xffffffff);
         context.drawTextWithShadow(textRenderer, descDisplay, textStartX, textStartY + textRenderer.fontHeight + 1, 0xffffffff);
-        matrices.pop();
 
         postTextDrawing(context, manager, startTime);
 
+        var matrices = context.getMatrices();
+
         // Draw CoverLine
+        matrices.push();
+        matrices.translate(0, 0, 128);
         var lineWidth = outlineWidth.get();
         context.fill(0, 0, lineWidth, this.getHeight(), lineColor.getColor());
+        matrices.pop();
 
         //var borderColor = ColorUtils.fromHex("#222222");
         //DrawableHelper.drawBorder(matrices, 0, 0, this.getWidth(), this.getHeight(), borderColor.getColor());
