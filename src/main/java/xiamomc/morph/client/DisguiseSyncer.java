@@ -8,6 +8,7 @@ import net.minecraft.entity.*;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.passive.CamelEntity;
 import net.minecraft.entity.passive.HorseEntity;
+import net.minecraft.entity.passive.SquidEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -66,7 +67,7 @@ public class DisguiseSyncer extends MorphClientObject
 
         CameraHelper.isThirdPerson.onValueChanged((o, n) -> this.onThirdPersonChange(this.entity, MinecraftClient.getInstance().player));
 
-        ServerHandler.spiderEnabled.onValueChanged((o, n) -> this.isSpider = n);
+        //ServerHandler.spiderEnabled.onValueChanged((o, n) -> this.isSpider = n);
     }
 
     public void updateSkin(GameProfile profile)
@@ -278,27 +279,23 @@ public class DisguiseSyncer extends MorphClientObject
         return beamTarget;
     }
 
-    private void syncDraw(LivingEntity entity, PlayerEntity clientPlayer)
+    private void onThirdPersonChange(LivingEntity entity, PlayerEntity clientPlayer)
     {
         if (entity == null || clientPlayer == null) return;
-
-        //幻翼的pitch需要倒转
-        if (entity.getType() == EntityType.PHANTOM)
-            entity.setPitch(-clientPlayer.getPitch());
-        else
-            entity.setPitch(clientPlayer.getPitch());
-
-        entity.prevPitch = clientPlayer.prevPitch;
-
-        entity.headYaw = clientPlayer.headYaw;
-        entity.prevHeadYaw = clientPlayer.prevHeadYaw;
 
         if (entity.getType() == EntityType.ARMOR_STAND)
         {
             entity.bodyYaw = clientPlayer.headYaw;
             entity.prevBodyYaw = clientPlayer.prevHeadYaw;
         }
+        else
+        {
+            entity.prevBodyYaw = clientPlayer.prevBodyYaw;
+            entity.bodyYaw = clientPlayer.bodyYaw;
+        }
     }
+
+    //private boolean isSpider = false;
 
     private void initialSync(LivingEntity entity, PlayerEntity clientPlayer)
     {
@@ -321,31 +318,33 @@ public class DisguiseSyncer extends MorphClientObject
         }
     }
 
-    private void onThirdPersonChange(LivingEntity entity, PlayerEntity clientPlayer)
+    private void syncDraw(LivingEntity entity, PlayerEntity clientPlayer)
     {
         if (entity == null || clientPlayer == null) return;
+
+        //幻翼的pitch需要倒转
+        if (entity.getType() == EntityType.PHANTOM)
+            entity.setPitch(-clientPlayer.getPitch());
+        else
+            entity.setPitch(clientPlayer.getPitch());
+
+        entity.prevPitch = clientPlayer.prevPitch;
+
+        entity.headYaw = clientPlayer.headYaw;
+        entity.prevHeadYaw = clientPlayer.prevHeadYaw;
 
         if (entity.getType() == EntityType.ARMOR_STAND)
         {
             entity.bodyYaw = clientPlayer.headYaw;
             entity.prevBodyYaw = clientPlayer.prevHeadYaw;
         }
-        else
-        {
-            entity.prevBodyYaw = clientPlayer.prevBodyYaw;
-            entity.bodyYaw = clientPlayer.bodyYaw;
-        }
     }
-
-    private Vec3d lastPosition = new Vec3d(0, 0, 0);
-
-    private boolean isSpider = false;
 
     private void sync(LivingEntity entity, PlayerEntity clientPlayer)
     {
         if (entity.isRemoved() || entity.getWorld() == null)
         {
-            LoggerFactory.getLogger("MorphClient").warn("正试图更新一个已被移除的客户端预览实体");
+            logger.warn("Trying to update an removed entity");
 
             var id = morphManager.selfViewIdentifier.get();
             this.refreshClientViewEntity(id, id);
@@ -368,21 +367,6 @@ public class DisguiseSyncer extends MorphClientObject
         entitylimbAnimatorAccessor.setPrevSpeed(playerLimbAccessor.getPrevSpeed());
         entitylimbAnimatorAccessor.setPos(playerLimb.getPos());
         entitylimbAnimatorAccessor.setSpeed(playerLimb.getSpeed());
-
-        if (entity instanceof CamelEntity camelEntity)
-        {
-            var playerHasVehicle = clientPlayer.hasVehicle();
-            var playerStanding = Vec3dUtils.horizontalSquaredDistance(lastPosition, clientPlayer.getPos()) == 0d;
-
-            if (!playerStanding)
-                lastPosition = clientPlayer.getPos();
-
-            camelEntity.dashingAnimationState.setRunning(clientPlayer.isSprinting(), camelEntity.age);
-            camelEntity.sittingAnimationState.setRunning(playerHasVehicle, camelEntity.age);
-
-            //camelEntity.walkingAnimationState.setRunning(!playerHasVehicle && !playerStanding, camelEntity.age);
-            camelEntity.idlingAnimationState.setRunning(playerStanding, camelEntity.age);
-        }
 
         var sleepPos = clientPlayer.getSleepingPosition().orElse(null);
 
@@ -474,6 +458,7 @@ public class DisguiseSyncer extends MorphClientObject
             player.setMainArm(clientPlayer.getMainArm());
         }
 
+        /*
         if (isSpider)
         {
             var dim = entity.getDimensions(clientPlayer.getPose());
@@ -489,6 +474,7 @@ public class DisguiseSyncer extends MorphClientObject
                 clientPlayer.setVelocity(velocity.getX(), Math.min(0.15f, velocity.getY() + 0.15f), velocity.getZ());
             }
         }
+        */
 
         entity.setInvisible(clientPlayer.isInvisible());
     }

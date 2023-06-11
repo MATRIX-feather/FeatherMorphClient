@@ -52,7 +52,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
 
     public DisguiseSyncer disguiseSyncer;
 
-    public static final Logger LOGGER = LoggerFactory.getLogger("MorphClient");
+    public static final Logger LOGGER = LoggerFactory.getLogger("FeatherMorph");
 
     private KeyBinding toggleselfKeyBind;
     private KeyBinding executeSkillKeyBind;
