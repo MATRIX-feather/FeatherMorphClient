@@ -1,6 +1,7 @@
 package xiamomc.morph.client.graphics;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.fabricmc.loader.impl.lib.sat4j.core.Vec;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.entity.EntityType;
 import net.minecraft.util.Identifier;
@@ -76,20 +77,10 @@ public class ModelWorkarounds
             return new WorkaroundMeta(Vec3dUtils.of(0, .25, .1), Vec3dUtils.of(1.5));
         });
 
-        /*
-        addWorkaround(List.of(EntityType.SPIDER, EntityType.CAVE_SPIDER), (l, r) ->
-        {
-            r.yaw = 0f;
-            r.roll = -0.f;
-
-            return new WorkaroundMeta(Vec3dUtils.of(0, 1, .7), Vec3dUtils.ONE());
-        });
-        */
-
         addWorkaround(EntityType.BLAZE, (l, r) ->
                 WorkaroundMeta.of(Vec3dUtils.of(0, -0.1, 0.2), Vec3dUtils.ONE()));
 
-        addWorkaround(EntityType.CAMEL, (l, r) ->
+        addWorkaround(List.of(EntityType.CAMEL, EntityType.SNIFFER), (l, r) ->
                 WorkaroundMeta.of(new Vec3d(0, -0.6, 0.7), Vec3dUtils.ONE()));
 
         addWorkaround(EntityType.VILLAGER, (l, r) ->
