@@ -49,6 +49,8 @@ public class ClientMorphManager extends MorphClientObject
 
     public final Bindable<NbtCompound> currentNbtCompound = new Bindable<>(null);
 
+    public final Bindable<Float> revealingValue = new Bindable<>(0f);
+
     //endregion
 
     //region Add/Remove/Set disguises
@@ -187,6 +189,8 @@ public class ClientMorphManager extends MorphClientObject
         selectedIdentifier.set(null);
         currentIdentifier.set(null);
         selfViewIdentifier.set(null);
+
+        revealingValue.set(0f);
     }
 
     public void setCurrent(String val)
@@ -200,7 +204,5 @@ public class ClientMorphManager extends MorphClientObject
         selfViewIdentifier.set(null);
         equipmentSlotItemStackMap.clear();
         currentNbtCompound.set(null);
-
-        ServerHandler.spiderEnabled.set(false);
     }
 }

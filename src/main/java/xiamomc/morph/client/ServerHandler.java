@@ -4,6 +4,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.netty.buffer.ByteBuf;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EquipmentSlot;
@@ -46,7 +47,22 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
     @Initializer
     private void load()
     {
-        agent.register(S2CCommandNames.SetFakeEquip, ClientSetEquipCommand::from);
+        agent.register(S2CCommandNames.SetFakeEquip, ClientSetEquipCommand::from)
+                .register(S2CCommandNames.SetRevealing, a ->
+        {
+            try
+            {
+                var val = Float.parseFloat(a);
+                return new S2CSetRevealingCommand(val);
+            }
+            catch (Throwable t)
+            {
+                logger.error(t.getMessage());
+                t.printStackTrace();
+            }
+
+            return new S2CSetRevealingCommand(0);
+        });
 
         registries.registerS2C(S2CCommandNames.Current, S2CCurrentCommand::new)
                 .registerS2C(S2CCommandNames.Query, S2CQueryCommand::from)
@@ -146,8 +162,10 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
     @Override
     public int getImplmentingApiVersion()
     {
-        return Constants.ApiLevel.REQUEST_HANDLING.protocolVersion;
+        return Constants.PROTOCOL_VERSION;
     }
+
+    //region Impl of Serverhandler
 
     @Override
     public void onCurrentCommand(xiamomc.morph.network.commands.S2C.S2CCurrentCommand s2CCurrentCommand)
@@ -300,12 +318,10 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
         reach = (float) (s2CSetReachCommand.getReach() / 10);
     }
 
-    public static Bindable<Boolean> spiderEnabled = new Bindable<>(false);
-
     @Override
-    public void onSetSpider(S2CSetSpiderCommand s2CSetSpiderCommand)
+    public void onSetRevealing(S2CSetRevealingCommand command)
     {
-        spiderEnabled.set(s2CSetSpiderCommand.value());
+        morphManager.revealingValue.set(command.getValue());
     }
 
     @Resolved
@@ -319,6 +335,8 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
 
         requestManager.addRequest(s2CRequestCommand.type, s2CRequestCommand.sourcePlayer);
     }
+
+    //endregion Impl of ServerHandler
 
     public static float reach = -1;
 

@@ -1,6 +1,7 @@
 package xiamomc.morph.client.graphics.color;
 
 import me.shedaniel.math.Color;
+import xiamomc.morph.client.utilties.MathUtils;
 
 public class ColorUtils
 {
@@ -20,5 +21,59 @@ public class ColorUtils
         var a = hasAlpha ? rawColor >> 24 & colorMask : 255;
 
         return Color.ofRGBA(r, g, b, a);
+    }
+
+    public static Color forOpacity(Color color, float alpha)
+    {
+        alpha = MathUtils.clamp(0, 1, alpha);
+        return Color.ofRGBA(color.getRed(), color.getGreen(), color.getBlue(), Math.round(255 * alpha));
+    }
+
+    /**
+     * @return The Hue value of the given color (0 ~ 360)
+     */
+    public static float GetHue(Color color)
+    {
+        var r1 = color.getRed() / 255f;
+        var g1 = color.getGreen() / 255f;
+        var b1 = color.getBlue() / 255f;
+
+        var cMax = MathUtils.max(r1, g1, b1);
+        var cMin = MathUtils.min(r1, g1, b1);
+        var cDelta = cMax - cMin;
+
+        if (cDelta == 0) return 0;
+        else if (cMax == r1) return 60 * (((g1 - b1) / cDelta) % 6);
+        else if (cMax == g1) return 60 * ((b1 - r1) / cDelta + 2);
+        else return 60 * ((r1 - g1) / cDelta + 4);
+    }
+
+    /**
+     * @return The Saturation value for the given color (0 ~ 1)
+     */
+    public static float getSaturation(Color color)
+    {
+        var r1 = color.getRed() / 255f;
+        var g1 = color.getGreen() / 255f;
+        var b1 = color.getBlue() / 255f;
+
+        var cMax = MathUtils.max(r1, g1, b1);
+        var cMin = MathUtils.min(r1, g1, b1);
+        var cDelta = cMax - cMin;
+
+        if (cDelta == 0) return 0;
+        else return cDelta / cMax;
+    }
+
+    /**
+     * @return The Brightness value for the given color (0 ~ 1)
+     */
+    public static float getBrightnessOrValue(Color color)
+    {
+        var r1 = color.getRed() / 255f;
+        var g1 = color.getGreen() / 255f;
+        var b1 = color.getBlue() / 255f;
+
+        return MathUtils.max(r1, g1, b1);
     }
 }

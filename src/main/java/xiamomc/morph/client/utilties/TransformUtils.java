@@ -1,7 +1,11 @@
 package xiamomc.morph.client.utilties;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
+import me.shedaniel.math.Color;
 import org.apache.commons.lang3.NotImplementedException;
+import org.slf4j.LoggerFactory;
+import xiamomc.morph.client.graphics.color.ColorUtils;
+import xiamomc.morph.client.graphics.color.MaterialColors;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
 
 import java.lang.reflect.Method;
@@ -44,6 +48,21 @@ public class TransformUtils
         public static Short valueAt(double progress, short startVal, short endVal, Easing easing)
         {
             return (short) Math.round(valueAt(progress, (double) startVal, endVal, easing));
+        }
+
+        public static Color valueAt(double progress, Color startVal, Color endVal, Easing easing)
+        {
+            if (startVal.equals(endVal)) return endVal;
+            if (progress <= 0) return startVal;
+            if (progress >= 1) return endVal;
+
+            var hueProgress = valueAt(progress, ColorUtils.GetHue(startVal), ColorUtils.GetHue(endVal), easing);
+            var satProgress = valueAt(progress, ColorUtils.getSaturation(startVal), ColorUtils.getSaturation(endVal), easing);
+            var valProgress = valueAt(progress, ColorUtils.getBrightnessOrValue(startVal), ColorUtils.getBrightnessOrValue(endVal), easing);
+            var alphaProgress = valueAt(progress, startVal.getAlpha(), endVal.getAlpha(), easing);
+
+            var rawColor = Color.ofHSB(hueProgress / 360, satProgress, valProgress);
+            return Color.ofRGBA(rawColor.getRed(), rawColor.getGreen(), rawColor.getBlue(), alphaProgress);
         }
 
         private static final Map<Class<?>, Method> clazzMethodMap = new Object2ObjectArrayMap<>();

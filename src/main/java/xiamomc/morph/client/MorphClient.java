@@ -11,6 +11,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.option.KeyBinding;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import xiamomc.morph.client.config.ModConfigData;
 import xiamomc.morph.client.graphics.ModelWorkarounds;
+import xiamomc.morph.client.graphics.hud.HudRenderHelper;
 import xiamomc.morph.client.graphics.toasts.DisguiseEntryToast;
 import xiamomc.morph.client.graphics.toasts.RequestToast;
 import xiamomc.morph.client.screens.disguise.WaitingForServerScreen;
@@ -157,9 +159,12 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
 
         ClientTickEvents.END_CLIENT_TICK.register(this::tick);
         ClientTickEvents.END_WORLD_TICK.register(this::postWorldTick);
+        HudRenderCallback.EVENT.register(hudRenderHelper::onRender);
 
         modelWorkarounds = ModelWorkarounds.getInstance();
     }
+
+    private final HudRenderHelper hudRenderHelper = new HudRenderHelper();
 
     private ModelWorkarounds modelWorkarounds;
 
