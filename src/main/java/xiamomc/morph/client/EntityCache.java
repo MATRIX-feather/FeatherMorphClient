@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.entities.MorphLocalPlayer;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -119,20 +120,29 @@ public class EntityCache
 
             var type = typeOptional.get();
 
-            var world = MinecraftClient.getInstance().world;
-            if (world == null) return null;
-
-            var instance = type.create(world);
-
-            if (!(instance instanceof LivingEntity le))
+            try (var world = MinecraftClient.getInstance().world)
             {
-                isLivingMap.put(identifier, false);
+                if (world == null) return null;
+
+                var instance = type.create(world);
+
+                if (!(instance instanceof LivingEntity le))
+                {
+                    isLivingMap.put(identifier, false);
+                    return null;
+                }
+
+                le.addCommandTag(tag);
+
+                living = le;
+            }
+            catch (Throwable t)
+            {
+                MorphClient.LOGGER.error("Error occurred while creating entity: %s".formatted(t.getMessage()));
+                t.printStackTrace();
+
                 return null;
             }
-
-            le.addCommandTag(tag);
-
-            living = le;
         }
         else if (identifier.startsWith("player:"))
         {
@@ -140,7 +150,17 @@ public class EntityCache
 
             if (splitedId.length != 2) return null;
             var profile = new GameProfile(UUID.randomUUID(), splitedId[1]);
-            living = new MorphLocalPlayer(MinecraftClient.getInstance().world, profile);
+
+            try (var world = MinecraftClient.getInstance().world)
+            {
+                living = new MorphLocalPlayer(world, profile);
+            }
+            catch (Throwable t)
+            {
+                MorphClient.LOGGER.error("Error occurred while creating entity: %s".formatted(t.getMessage()));
+                t.printStackTrace();
+                return null;
+            }
 
             isLivingMap.put(identifier, true);
         }
