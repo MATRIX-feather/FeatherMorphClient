@@ -152,8 +152,15 @@ public class EntityDisplay extends MDrawable
 
                     if (nameSplited.length == 2)
                     {
-                        entity = new MorphLocalPlayer(MinecraftClient.getInstance().world,
-                                new GameProfile(UUID.randomUUID(), nameSplited[1]));
+                        try (var world = MinecraftClient.getInstance().world)
+                        {
+                            entity = new MorphLocalPlayer(world,
+                                    new GameProfile(UUID.randomUUID(), nameSplited[1]));
+                        }
+                        catch (Throwable t)
+                        {
+                            entity = null;
+                        }
                     }
                 }
 
