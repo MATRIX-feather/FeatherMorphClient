@@ -75,6 +75,12 @@ public class EntityCache
 
     public static final String tag = "FMC_ClientView";
 
+    public static void dropAll()
+    {
+        cacheMap.forEach((id, entity) -> entity.discard());
+        cacheMap.clear();
+    }
+
     @Nullable
     public static LivingEntity getEntity(String identifier)
     {
