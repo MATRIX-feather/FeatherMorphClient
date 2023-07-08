@@ -52,12 +52,13 @@ public class DisguiseSyncer extends MorphClientObject
         {
             if (w != prevWorld && serverHandler.serverReady() && prevWorld != null)
             {
+                prevWorld = w;
+
                 var id = morphManager.selfViewIdentifier.get();
 
+                EntityCache.dropAll();
                 refreshClientViewEntity(id, id);
             }
-
-            prevWorld = w;
         });
 
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) ->

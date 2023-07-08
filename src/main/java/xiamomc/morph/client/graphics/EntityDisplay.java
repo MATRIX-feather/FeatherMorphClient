@@ -242,6 +242,9 @@ public class EntityDisplay extends MDrawable
             InventoryScreen.drawEntity(context, (int)width / 2, (int)height + entityYOffset, entitySize, mouseX, mouseY, displayingEntity);
 
             PlayerRenderHelper.instance.skipRender = false;
+
+            if (displayingEntity.getRemovalReason() != null)
+                this.displayingEntity = null;
         }
         catch (Throwable t)
         {
