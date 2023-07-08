@@ -221,10 +221,10 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
                 matrices.push();
 
                 if (this.hovered)
-                    matrices.translate(0, 0, 512);
+                    matrices.translate(0, 0, 64);
 
                 if (activationState == ActivationState.CURRENT)
-                    matrices.translate(0, 0, 256);
+                    matrices.translate(0, 0, 64);
 
                 context.fill(screenSpaceX + 1, screenSpaceY + 1,
                         screenSpaceX + width - 1, screenSpaceY + height - 1,
