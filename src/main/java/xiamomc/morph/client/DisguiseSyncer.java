@@ -85,60 +85,70 @@ public class DisguiseSyncer extends MorphClientObject
 
     private void refreshClientViewEntity(String prevIdentifier, String newIdentifier)
     {
-        var clientWorld = MinecraftClient.getInstance().world;
-        if (clientWorld == null)
+        try (var clientWorld = MinecraftClient.getInstance().world)
         {
+            if (clientWorld == null)
+            {
+                entity = null;
+                return;
+            }
+
+            var prevEntity = entity;
+            var client = MorphClient.getInstance();
+
+            if (prevEntity != null)
+            {
+                prevEntity.equipStack(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+                prevEntity.equipStack(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
+
+                prevEntity.equipStack(EquipmentSlot.HEAD, ItemStack.EMPTY);
+                prevEntity.equipStack(EquipmentSlot.CHEST, ItemStack.EMPTY);
+                prevEntity.equipStack(EquipmentSlot.LEGS, ItemStack.EMPTY);
+                prevEntity.equipStack(EquipmentSlot.FEET, ItemStack.EMPTY);
+
+                beamTarget = null;
+
+                prevEntity.hurtTime = 0;
+
+                EntityCache.discardEntity(prevIdentifier);
+            }
+
+            entity = EntityCache.getEntity(newIdentifier);
+            currentEntity.set(entity);
+
+            allowTick = true;
+
+            var clientPlayer = MinecraftClient.getInstance().player;
+
+            if (entity != null)
+            {
+                var entityToAdd = entity;
+                entityToAdd.setId(entityToAdd.getId() - entityToAdd.getId() * 2);
+
+                client.schedule(() -> clientWorld.addEntity(entityToAdd.getId(), entityToAdd));
+
+                initialSync(entity, clientPlayer);
+                sync(entity, clientPlayer);
+                syncDraw(entity, clientPlayer);
+
+                var nbt = morphManager.currentNbtCompound.get();
+                if (nbt != null)
+                    client.schedule(() -> mergeNbt(entity, nbt));
+            }
+
+            if (clientPlayer != null)
+                clientPlayer.calculateDimensions();
+        }
+        catch (Throwable t)
+        {
+            MorphClient.LOGGER.error("Error occurred while refreshing client view: %s".formatted(t.getMessage()));
+            t.printStackTrace();
+
             entity = null;
-            return;
         }
-
-        var prevEntity = entity;
-        var client = MorphClient.getInstance();
-
-        if (prevEntity != null)
-        {
-            prevEntity.equipStack(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
-            prevEntity.equipStack(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
-
-            prevEntity.equipStack(EquipmentSlot.HEAD, ItemStack.EMPTY);
-            prevEntity.equipStack(EquipmentSlot.CHEST, ItemStack.EMPTY);
-            prevEntity.equipStack(EquipmentSlot.LEGS, ItemStack.EMPTY);
-            prevEntity.equipStack(EquipmentSlot.FEET, ItemStack.EMPTY);
-
-            beamTarget = null;
-
-            prevEntity.hurtTime = 0;
-
-            EntityCache.discardEntity(prevIdentifier);
-        }
-
-        entity = EntityCache.getEntity(newIdentifier);
-        currentEntity.set(entity);
-
-        allowTick = true;
-
-        var clientPlayer = MinecraftClient.getInstance().player;
-
-        if (entity != null)
-        {
-            var entityToAdd = entity;
-            entityToAdd.setId(entityToAdd.getId() - entityToAdd.getId() * 2);
-
-            client.schedule(() -> clientWorld.addEntity(entityToAdd.getId(), entityToAdd));
-
-            initialSync(entity, clientPlayer);
-            sync(entity, clientPlayer);
-            syncDraw(entity, clientPlayer);
-
-            var nbt = morphManager.currentNbtCompound.get();
-            if (nbt != null)
-                client.schedule(() -> mergeNbt(entity, nbt));
-        }
-
-        if (clientPlayer != null)
-            clientPlayer.calculateDimensions();
     }
 
+    @Nullable
     public LivingEntity entity;
 
     private boolean allowTick = true;
