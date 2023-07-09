@@ -9,6 +9,7 @@ import net.minecraft.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.entities.MorphLocalPlayer;
+import xiamomc.pluginbase.Bindables.Bindable;
 
 import java.io.IOException;
 import java.util.Map;
@@ -44,6 +45,8 @@ public class EntityCache
         }
     }
 
+    public static final Bindable<Boolean> droppingCaches = new Bindable<>();
+
     public static void discardEntity(String identifier)
     {
         var entity = cacheMap.getOrDefault(identifier, null);
@@ -77,8 +80,16 @@ public class EntityCache
 
     public static void dropAll()
     {
-        cacheMap.forEach((id, entity) -> entity.discard());
+        droppingCaches.set(true);
+        MorphClient.LOGGER.info("清除实体缓存...");
+        cacheMap.forEach((id, entity) ->
+        {
+            entity.discard();
+            cacheMap.remove(id);
+        });
+
         cacheMap.clear();
+        droppingCaches.set(false);
     }
 
     @Nullable
