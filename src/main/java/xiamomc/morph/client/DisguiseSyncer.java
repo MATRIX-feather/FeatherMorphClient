@@ -50,7 +50,7 @@ public class DisguiseSyncer extends MorphClientObject
 
         ClientTickEvents.END_WORLD_TICK.register((w) ->
         {
-            if (w != prevWorld && serverHandler.serverReady() && prevWorld != null)
+            if (w != prevWorld && serverHandler.serverReady())
             {
                 prevWorld = w;
 
@@ -64,6 +64,10 @@ public class DisguiseSyncer extends MorphClientObject
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) ->
         {
             prevWorld = null;
+            EntityCache.dropAll();
+
+            currentEntity.set(null);
+            entity = null;
         });
 
         CameraHelper.isThirdPerson.onValueChanged((o, n) -> this.onThirdPersonChange(this.entity, MinecraftClient.getInstance().player));

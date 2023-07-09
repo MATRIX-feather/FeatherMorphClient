@@ -67,7 +67,7 @@ public class Bindable<T> implements IBindable<T>
     {
         triggers++;
 
-        if (triggers >= 5)
+        if (triggers >= 3)
         {
             removeReleasedRefs();
             triggers = 0;
@@ -150,6 +150,22 @@ public class Bindable<T> implements IBindable<T>
 
         set(other.value);
         bindTarget = other;
+    }
+
+    public void unBindFromTarget()
+    {
+        if (bindTarget == null) return;
+
+        bindTarget.binds.remove(this);
+    }
+
+    public void unBindBindings()
+    {
+        this.binds.forEach(b ->
+                b.binds.remove(this));
+
+        if (bindTarget != null)
+            bindTarget.binds.remove(this);
     }
 
     private final WeakReference<Bindable<T>> weakRef = new WeakReference<>(this);

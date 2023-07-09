@@ -1,26 +1,21 @@
 package xiamomc.morph.client.graphics;
 
-import com.mojang.authlib.GameProfile;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.MagmaCubeEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.EntityCache;
 import xiamomc.morph.client.MorphClient;
-import xiamomc.morph.client.MorphClientObject;
-import xiamomc.morph.client.entities.MorphLocalPlayer;
+import xiamomc.pluginbase.Annotations.Initializer;
+import xiamomc.pluginbase.Bindables.Bindable;
 
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -51,12 +46,27 @@ public class EntityDisplay extends MDrawable
         this(id, false);
     }
 
+    @Initializer
+    private void load()
+    {
+        ecDroppingCache.bindTo(EntityCache.droppingCaches);
+        ecDroppingCache.bindTo(null);
+
+        ecDroppingCache.onValueChanged((o, n) ->
+        {
+            if (n)
+                this.resetEntity();
+        }, true);
+    }
+
     @Override
     public void invalidatePosition()
     {
         super.invalidatePosition();
         loadingSpinner.invalidatePosition();
     }
+
+    private final Bindable<Boolean> ecDroppingCache = new Bindable<>();
 
     @Nullable
     private LivingEntity displayingEntity;
@@ -134,7 +144,7 @@ public class EntityDisplay extends MDrawable
     {
         try
         {
-            LivingEntity living = EntityCache.getEntity(rawIdentifier);
+            var living = EntityCache.getEntity(rawIdentifier);
             isLiving = EntityCache.isLiving(rawIdentifier);
 
             if (living == null)
@@ -145,23 +155,6 @@ public class EntityDisplay extends MDrawable
                 {
                     entity = MinecraftClient.getInstance().player;
                     isLiving = true;
-                }
-                else if (rawIdentifier.startsWith("player:"))
-                {
-                    var nameSplited = rawIdentifier.split(":", 2);
-
-                    if (nameSplited.length == 2)
-                    {
-                        try (var world = MinecraftClient.getInstance().world)
-                        {
-                            entity = new MorphLocalPlayer(world,
-                                    new GameProfile(UUID.randomUUID(), nameSplited[1]));
-                        }
-                        catch (Throwable t)
-                        {
-                            entity = null;
-                        }
-                    }
                 }
 
                 //没有和此ID匹配的实体
@@ -243,8 +236,8 @@ public class EntityDisplay extends MDrawable
 
             PlayerRenderHelper.instance.skipRender = false;
 
-            if (displayingEntity.getRemovalReason() != null)
-                this.displayingEntity = null;
+            if (displayingEntity.isRemoved())
+                resetEntity();
         }
         catch (Throwable t)
         {
