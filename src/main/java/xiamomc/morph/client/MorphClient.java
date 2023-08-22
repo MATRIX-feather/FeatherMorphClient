@@ -64,6 +64,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
     private KeyBinding resetCacheKeybind;
     private KeyBinding testKeyBindGrant;
     private KeyBinding testKeyBindLost;
+    private KeyBinding displayOwnerBind;
 
     @Override
     public String getNameSpace()
@@ -137,6 +138,11 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
                 GLFW.GLFW_KEY_UNKNOWN, "category.morphclient.keybind"
         ));
 
+        displayOwnerBind = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.morphclient.display_name", InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_TAB, "category.morphclient.keybind"
+        ));
+
         //初始化配置
         if (modConfigData == null)
         {
@@ -177,14 +183,17 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
 
     private void updateKeys(MinecraftClient client)
     {
-        if (executeSkillKeyBind.wasPressed() && skillHandler.getCurrentCooldown() <= 0)
+        while (executeSkillKeyBind.wasPressed() && skillHandler.getCurrentCooldown() <= 0)
         {
             skillHandler.setSkillCooldown(skillHandler.getSkillCooldown());
             serverHandler.sendCommand(new C2SSkillCommand());
         }
 
-        if (unMorphKeyBind.wasPressed())
+        while (unMorphKeyBind.wasPressed())
             serverHandler.sendCommand(new C2SUnmorphCommand());
+
+        if (displayOwnerBind.wasPressed())
+            EntityRendererHelper.doRenderRealName = !EntityRendererHelper.doRenderRealName;
 
         if (debugToasts)
         {
@@ -210,7 +219,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
 
         }
 
-        if (toggleselfKeyBind.wasPressed())
+        while (toggleselfKeyBind.wasPressed())
         {
             var config = getModConfigData();
 
@@ -219,7 +228,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
             updateClientView(config.allowClientView, val);
         }
 
-        if (morphKeyBind.wasPressed())
+        while (morphKeyBind.wasPressed())
         {
             var player = client.player;
 
@@ -233,7 +242,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
             }
         }
 
-        if (resetCacheKeybind.wasPressed())
+        while (resetCacheKeybind.wasPressed())
         {
             EntityCache.clearCache();
             modelWorkarounds.initWorkarounds();

@@ -27,8 +27,12 @@ public class EntityRendererHelper
 
     public static EntityRendererHelper instance;
 
+    public static boolean doRenderRealName = false;
+
     public void onRender(EntityRenderDispatcher dispatcher, Entity entity, TextRenderer textRenderer, MatrixStack matrices, VertexConsumerProvider vertexConsumers, CallbackInfo ci)
     {
+        if (!doRenderRealName) return;
+
         var uuid = entity.getId();
 
         var morphManager = MorphClient.getInstance().morphManager;
