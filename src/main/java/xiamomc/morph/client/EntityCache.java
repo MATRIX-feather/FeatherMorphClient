@@ -81,7 +81,7 @@ public class EntityCache
     public static void dropAll()
     {
         droppingCaches.set(true);
-        MorphClient.LOGGER.info("清除实体缓存...");
+        MorphClient.LOGGER.info("Clearing entity caches...");
         cacheMap.forEach((id, entity) ->
         {
             entity.discard();

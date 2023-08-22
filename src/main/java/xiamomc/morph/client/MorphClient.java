@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import xiamomc.morph.client.config.ModConfigData;
+import xiamomc.morph.client.graphics.EntityRendererHelper;
 import xiamomc.morph.client.graphics.ModelWorkarounds;
 import xiamomc.morph.client.graphics.hud.HudRenderHelper;
 import xiamomc.morph.client.graphics.toasts.DisguiseEntryToast;
@@ -154,6 +155,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
         dependencyManager.cache(skillHandler = new ClientSkillHandler());
         dependencyManager.cache(modConfigData);
         dependencyManager.cache(new ClientRequestManager());
+        dependencyManager.cache(new EntityRendererHelper());
 
         serverHandler.initializeNetwork();
 

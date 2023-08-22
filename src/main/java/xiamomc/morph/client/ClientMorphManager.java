@@ -1,5 +1,6 @@
 package xiamomc.morph.client;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -18,6 +19,7 @@ import xiamomc.pluginbase.Bindables.Bindable;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
+import java.util.UUID;
 import java.util.function.Function;
 
 public class ClientMorphManager extends MorphClientObject
@@ -50,6 +52,8 @@ public class ClientMorphManager extends MorphClientObject
     public final Bindable<NbtCompound> currentNbtCompound = new Bindable<>(null);
 
     public final Bindable<Float> revealingValue = new Bindable<>(0f);
+
+    public final Map<Integer, String> playerMap = new Object2ObjectArrayMap<>();
 
     //endregion
 

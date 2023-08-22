@@ -68,6 +68,8 @@ public class DisguiseSyncer extends MorphClientObject
 
             currentEntity.set(null);
             entity = null;
+
+            morphManager.playerMap.clear();
         });
 
         CameraHelper.isThirdPerson.onValueChanged((o, n) -> this.onThirdPersonChange(this.entity, MinecraftClient.getInstance().player));

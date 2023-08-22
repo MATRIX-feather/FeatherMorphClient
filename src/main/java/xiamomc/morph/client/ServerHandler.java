@@ -2,6 +2,7 @@ package xiamomc.morph.client;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
@@ -21,6 +22,10 @@ import xiamomc.morph.network.Constants;
 import xiamomc.morph.network.commands.C2S.*;
 import xiamomc.morph.network.commands.CommandRegistries;
 import xiamomc.morph.network.commands.S2C.*;
+import xiamomc.morph.network.commands.S2C.map.S2CMapClearCommand;
+import xiamomc.morph.network.commands.S2C.map.S2CMapCommand;
+import xiamomc.morph.network.commands.S2C.map.S2CMapRemoveCommand;
+import xiamomc.morph.network.commands.S2C.map.S2CPartialMapCommand;
 import xiamomc.morph.network.commands.S2C.query.S2CQueryCommand;
 import xiamomc.morph.network.commands.S2C.set.*;
 import xiamomc.pluginbase.Annotations.Initializer;
@@ -29,6 +34,7 @@ import xiamomc.pluginbase.Bindables.Bindable;
 import xiamomc.morph.client.config.ModConfigData;
 
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ServerHandler extends MorphClientObject implements BasicServerHandler<PlayerEntity>
@@ -70,7 +76,11 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
                 .registerS2C(S2CCommandNames.UnAuth, a -> new S2CUnAuthCommand())
                 .registerS2C(S2CCommandNames.SwapHands, a -> new S2CSwapCommand())
                 .registerS2C(S2CCommandNames.BaseSet, agent::getCommand)
-                .registerS2C(S2CCommandNames.Request, S2CRequestCommand::new);
+                .registerS2C(S2CCommandNames.Request, S2CRequestCommand::new)
+                .registerS2C(S2CCommandNames.Map, S2CMapCommand::ofStr)
+                .registerS2C(S2CCommandNames.MapPartial, S2CPartialMapCommand::ofStr)
+                .registerS2C(S2CCommandNames.MapClear, a -> new S2CMapClearCommand())
+                .registerS2C(S2CCommandNames.MapRemove, a -> new S2CMapRemoveCommand(Integer.parseInt(a)));
     }
 
     //region Common
@@ -334,6 +344,34 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
             logger.warn("Received an invalid exchange request");
 
         requestManager.addRequest(s2CRequestCommand.type, s2CRequestCommand.sourcePlayer);
+    }
+
+    @Override
+    public void onMapCommand(S2CMapCommand s2CMapCommand)
+    {
+        var map = s2CMapCommand.getMap();
+
+        morphManager.playerMap.clear();
+        morphManager.playerMap.putAll(map);
+    }
+
+    @Override
+    public void onMapPartialCommand(S2CPartialMapCommand s2CPartialMapCommand)
+    {
+        morphManager.playerMap.putAll(s2CPartialMapCommand.getMap());
+    }
+
+    @Override
+    public void onMapClearCommand(S2CMapClearCommand s2CMapClearCommand)
+    {
+        morphManager.playerMap.clear();
+    }
+
+    @Override
+    public void onMapRemoveCommand(S2CMapRemoveCommand s2CMapRemoveCommand)
+    {
+        var id = s2CMapRemoveCommand.getTargetId();
+        morphManager.playerMap.remove(id);
     }
 
     //endregion Impl of ServerHandler
