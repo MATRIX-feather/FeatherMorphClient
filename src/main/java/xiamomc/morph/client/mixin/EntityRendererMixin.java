@@ -22,7 +22,7 @@ public class EntityRendererMixin
     @Shadow @Final protected EntityRenderDispatcher dispatcher;
 
     @Inject(method = "render",
-            at = @At(value = "RETURN"))
+            at = @At(value = "HEAD"))
     public void onRender(Entity entity, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci)
     {
         EntityRendererHelper.instance.onRender(this.dispatcher, entity, textRenderer, matrices, vertexConsumers, ci);
