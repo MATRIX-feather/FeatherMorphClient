@@ -193,7 +193,14 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
             serverHandler.sendCommand(new C2SUnmorphCommand());
 
         if (displayOwnerBind.wasPressed())
-            EntityRendererHelper.doRenderRealName = !EntityRendererHelper.doRenderRealName;
+        {
+            var doRender = !EntityRendererHelper.doRenderRealName;
+            EntityRendererHelper.doRenderRealName = doRender;
+
+            var clientPlayer = client.player;
+            if (clientPlayer != null)
+                clientPlayer.sendMessage(Text.translatable("text.morphclient." + (doRender ? "display_real_names" : "hide_real_names")));
+        }
 
         if (debugToasts)
         {
