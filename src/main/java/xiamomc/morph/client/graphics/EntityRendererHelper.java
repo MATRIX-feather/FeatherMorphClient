@@ -67,13 +67,13 @@ public class EntityRendererHelper
         textRenderer.draw(text, x, 0,
                 textColor, false,
                 positionMatrix, vertexConsumers,
-                TextRenderer.TextLayerType.NORMAL, 0, light);
+                TextRenderer.TextLayerType.NORMAL, 0, LightmapTextureManager.MAX_LIGHT_COORDINATE);
 
         //阴影
         textRenderer.draw(text, x, 0,
                 textColorTransparent, false,
                 positionMatrix, vertexConsumers,
-                TextRenderer.TextLayerType.SEE_THROUGH, finalColor, light);
+                TextRenderer.TextLayerType.SEE_THROUGH, finalColor, LightmapTextureManager.MAX_LIGHT_COORDINATE);
 
         matrices.pop();
     }
