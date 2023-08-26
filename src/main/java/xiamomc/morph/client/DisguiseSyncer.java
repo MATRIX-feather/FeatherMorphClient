@@ -120,7 +120,7 @@ public class DisguiseSyncer extends MorphClientObject
                 EntityCache.discardEntity(prevIdentifier);
             }
 
-            entity = EntityCache.getEntity(newIdentifier);
+            entity =  EntityCache.getEntity(newIdentifier);
             currentEntity.set(entity);
 
             allowTick = true;
@@ -141,6 +141,9 @@ public class DisguiseSyncer extends MorphClientObject
                 var nbt = morphManager.currentNbtCompound.get();
                 if (nbt != null)
                     client.schedule(() -> mergeNbt(entity, nbt));
+
+                if (entity instanceof MorphLocalPlayer localPlayer && prevEntity instanceof MorphLocalPlayer prevPlayer)
+                    localPlayer.copyFrom(prevPlayer);
             }
 
             if (clientPlayer != null)

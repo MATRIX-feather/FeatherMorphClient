@@ -16,6 +16,7 @@ import net.minecraft.text.Text;
 import net.minecraft.world.LightType;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xiamomc.morph.client.MorphClient;
+import xiamomc.morph.client.graphics.color.ColorUtils;
 import xiamomc.morph.client.graphics.color.MaterialColors;
 
 public class EntityRendererHelper
@@ -29,7 +30,10 @@ public class EntityRendererHelper
 
     public static boolean doRenderRealName = false;
 
-    public void onRender(EntityRenderDispatcher dispatcher, Entity entity, TextRenderer textRenderer, MatrixStack matrices, VertexConsumerProvider vertexConsumers, CallbackInfo ci)
+    private final int textColor = MaterialColors.Orange500.getColor();
+    public final int textColorTransparent = ColorUtils.forOpacity(MaterialColors.Orange500, 0).getColor();
+
+    public void onRender(EntityRenderDispatcher dispatcher, Entity entity, TextRenderer textRenderer, MatrixStack matrices, VertexConsumerProvider vertexConsumers, CallbackInfo ci, int light)
     {
         if (!doRenderRealName) return;
 
@@ -56,10 +60,20 @@ public class EntityRendererHelper
         float clientBackgroundOpacity = MinecraftClient.getInstance().options.getTextBackgroundOpacity(0.25F);
         int finalColor = (int)(clientBackgroundOpacity * 255.0f) << 24;
 
-        textRenderer.draw(text, textRenderer.getWidth(text) / -2f, 0,
-                MaterialColors.Yellow500.getColor(), false,
-                matrices.peek().getPositionMatrix(), vertexConsumers,
-                TextRenderer.TextLayerType.SEE_THROUGH, finalColor, LightmapTextureManager.MAX_LIGHT_COORDINATE);
+        var positionMatrix = matrices.peek().getPositionMatrix();
+        var x = textRenderer.getWidth(text) / -2f;
+
+        //文字
+        textRenderer.draw(text, x, 0,
+                textColor, false,
+                positionMatrix, vertexConsumers,
+                TextRenderer.TextLayerType.NORMAL, 0, light);
+
+        //阴影
+        textRenderer.draw(text, x, 0,
+                textColorTransparent, false,
+                positionMatrix, vertexConsumers,
+                TextRenderer.TextLayerType.SEE_THROUGH, finalColor, light);
 
         matrices.pop();
     }

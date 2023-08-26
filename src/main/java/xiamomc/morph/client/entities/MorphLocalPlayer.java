@@ -29,11 +29,19 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
 
     private String model;
 
+    public void copyFrom(MorphLocalPlayer prevPlayer)
+    {
+        requestId++;
+
+        this.capeTextureIdentifier = prevPlayer.capeTextureIdentifier;
+        this.morphTextureIdentifier = prevPlayer.morphTextureIdentifier;
+
+        this.model = prevPlayer.model;
+    }
+
     public MorphLocalPlayer(ClientWorld clientWorld, GameProfile profile)
     {
         super(clientWorld, profile);
-
-        logger.info("Fetching skin for " + profile);
 
         this.playerName = profile.getName();
 
@@ -45,15 +53,17 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
 
     private int requestId = 0;
 
-    private ICapeProvider capeProvider = new KappaCapeProvider();
+    private final static ICapeProvider capeProvider = new KappaCapeProvider();
 
     private static final Logger logger = LoggerFactory.getLogger("MorphClient");
 
     public void updateSkin(GameProfile profile)
     {
+        logger.debug("Fetching skin for " + profile);
+
         if (!profile.getName().equals(playerName))
         {
-            logger.info("Profile player name not match : " + profile.getName() + " <-> " + playerName);
+            logger.debug("Profile player name not match : " + profile.getName() + " <-> " + playerName);
             return;
         }
 
@@ -71,13 +81,13 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
 
                 if (invokeId < currentId)
                 {
-                    logger.warn("Not setting skin for " + this + ": A newer request has been finished! " + invokeId + " <-> " + currentProfilePair.getLeft());
+                    logger.debug("Not setting skin for " + this + ": A newer request has been finished! " + invokeId + " <-> " + currentProfilePair.getLeft());
                     return;
                 }
 
                 if (type == MinecraftProfileTexture.Type.SKIN)
                 {
-                    logger.info("Loading skin for " + playerName + " :: " + id.toString());
+                    logger.debug("Loading skin for " + playerName + " :: " + id.toString());
 
                     currentProfilePair.setLeft(requestId);
                     currentProfilePair.setRight(o);
@@ -96,12 +106,12 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
         //为披风提供器单独创建新的GameProfile以避免影响皮肤功能
         capeProvider.getCape(new GameProfile(profile.getId(), profile.getName()), a ->
         {
-            logger.info("Received custom cape texture from a cape provider!");
+            logger.debug("Received custom cape texture from a cape provider!");
 
             if (this.capeTextureIdentifier == null)
                 this.capeTextureIdentifier = a;
             else
-                logger.info("But capeTextureIdentifier is not null (" + capeTextureIdentifier + "), not setting...");
+                logger.debug("But capeTextureIdentifier is not null (" + capeTextureIdentifier + "), not setting...");
         });
     }
 
