@@ -37,6 +37,9 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
         this.morphTextureIdentifier = prevPlayer.morphTextureIdentifier;
 
         this.model = prevPlayer.model;
+
+        this.currentProfilePair.setLeft(requestId);
+        this.currentProfilePair.setRight(prevPlayer.currentProfilePair.getRight());
     }
 
     public MorphLocalPlayer(ClientWorld clientWorld, GameProfile profile)
