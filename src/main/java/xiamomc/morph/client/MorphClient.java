@@ -140,7 +140,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
 
         displayOwnerBind = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.morphclient.display_name", InputUtil.Type.KEYSYM,
-                GLFW.GLFW_KEY_TAB, "category.morphclient.keybind"
+                GLFW.GLFW_KEY_Z, "category.morphclient.keybind"
         ));
 
         //初始化配置
