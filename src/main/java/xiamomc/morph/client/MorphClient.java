@@ -199,7 +199,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
 
             var clientPlayer = client.player;
             if (clientPlayer != null)
-                clientPlayer.sendMessage(Text.translatable("text.morphclient." + (doRender ? "display_real_names" : "hide_real_names")));
+                clientPlayer.sendMessage(Text.translatable("text.morphclient." + (doRender ? "display" : "hide") + "_real_names"));
         }
 
         if (debugToasts)
