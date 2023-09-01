@@ -142,7 +142,7 @@ public class DisguiseSyncer extends MorphClientObject
                 if (nbt != null)
                     client.schedule(() -> mergeNbt(entity, nbt));
 
-                if (entity instanceof MorphLocalPlayer localPlayer && prevEntity instanceof MorphLocalPlayer prevPlayer)
+                if (entity instanceof MorphLocalPlayer localPlayer && prevEntity instanceof MorphLocalPlayer prevPlayer && prevPlayer.personEquals(localPlayer))
                     localPlayer.copyFrom(prevPlayer);
             }
 

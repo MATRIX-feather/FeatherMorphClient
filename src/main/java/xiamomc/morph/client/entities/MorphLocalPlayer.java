@@ -29,6 +29,11 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
 
     private String model;
 
+    public boolean personEquals(MorphLocalPlayer other)
+    {
+        return other.playerName.equals(this.playerName);
+    }
+
     public void copyFrom(MorphLocalPlayer prevPlayer)
     {
         requestId++;
