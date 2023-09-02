@@ -1,5 +1,6 @@
 package xiamomc.morph.client.graphics.toasts;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import me.shedaniel.math.Color;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -29,17 +30,27 @@ public class LinedToast extends MorphClientObject implements Toast
 
     protected final Bindable<Visibility> visibility = new Bindable<Toast.Visibility>(Visibility.HIDE);
 
+    protected final Recorder<Float> drawAlpha = new Recorder<>(1f);
+
+    protected boolean fadeInOnEnter = false;
+
     @Initializer
     private void load()
     {
         outlineWidth.set(this.getWidth());
 
+        drawAlpha.set(fadeInOnEnter ? 0f : 1f);
+
         this.visibility.onValueChanged((o, visible) ->
         {
+            var isHide = visible == Visibility.HIDE;
+
             if (visible == Visibility.SHOW)
                 Transformer.delay(250).then(() -> Transformer.transform(outlineWidth, 2, 600, Easing.OutQuint));
             else
                 Transformer.transform(outlineWidth, this.getWidth(), 600, Easing.OutQuad);
+
+            Transformer.transform(drawAlpha, isHide ? 0f : 1f, 450, Easing.OutQuint);
         }, true);
     }
 
@@ -155,6 +166,9 @@ public class LinedToast extends MorphClientObject implements Toast
     @Override
     public Visibility draw(DrawContext context, ToastManager manager, long startTime)
     {
+        var shaderColor = RenderSystem.getShaderColor();
+        context.setShaderColor(shaderColor[0], shaderColor[1], shaderColor[2], drawAlpha.get());
+
         if (!layoutValid.get())
             updateLayout();
 
@@ -199,6 +213,8 @@ public class LinedToast extends MorphClientObject implements Toast
         this.visibility.set(visibility);
 
         postDraw(context, manager, startTime);
+
+        context.setShaderColor(shaderColor[0], shaderColor[1], shaderColor[2], shaderColor[3]);
 
         return visibility;
     }

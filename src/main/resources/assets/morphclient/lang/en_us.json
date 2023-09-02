@@ -13,7 +13,7 @@
   "key.morphclient.skill": "Execute skill",
   "key.morphclient.toggle": "Toggle SelfView",
   "key.morphclient.unmorph": "Unmorph",
-  "key.morphclient.display_name": "Display names of players above their disguise",
+  "key.morphclient.display_name": "Display disguises' owner",
   "option.morphclient.allowClientView.description": "",
   "option.morphclient.allowClientView.name": "Display SelfView at client side if supported",
   "option.morphclient.animationTime.description": "Defines how long should the entering animation take (in ms)",

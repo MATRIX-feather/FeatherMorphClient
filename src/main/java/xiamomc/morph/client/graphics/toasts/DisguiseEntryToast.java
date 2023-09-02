@@ -1,15 +1,18 @@
 package xiamomc.morph.client.graphics.toasts;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.ScreenRect;
 import net.minecraft.client.toast.ToastManager;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.util.math.Vector2f;
 import net.minecraft.text.Text;
 import org.joml.Vector3f;
 import xiamomc.morph.client.graphics.Anchor;
 import xiamomc.morph.client.graphics.EntityDisplay;
 import xiamomc.morph.client.graphics.color.MaterialColors;
+import xiamomc.morph.client.graphics.transforms.Recorder;
+import xiamomc.morph.client.graphics.transforms.Transformer;
+import xiamomc.morph.client.graphics.transforms.easings.Easing;
 import xiamomc.pluginbase.Annotations.Initializer;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -44,40 +47,47 @@ public class DisguiseEntryToast extends LinedToast
         this.entityDisplay = new EntityDisplay(rawIdentifier, true);
         entityDisplay.setX(512);
         entityDisplay.setSize(new Vector2f(32, 16));
+        entityDisplay.setMasking(true);
 
         entityDisplay.postEntitySetup = () -> setDescription(entityDisplay.getDisplayName());
 
         instances.add(this);
 
-        visibility.onValueChanged((o, n) ->
-        {
-            if (n == Visibility.HIDE) instances.remove(this);
-        });
+        drawAlpha.set(0f);
     }
 
     @Initializer
     private void load()
     {
-        var x = 5;
+        var x = 4;
         var y = 0;
 
-        if (rawIdentifier.equals("minecraft:horse"))
+        switch (rawIdentifier)
         {
-            x -= 1;
-            y += 2;
-        }
-        else if (rawIdentifier.equals("minecraft:axolotl"))
-        {
-            x += 1;
+            case "minecraft:horse" -> {
+                x -= 1;
+                y += 2;
+            }
+            case "minecraft:axolotl" -> x -= 1;
+            case "minecraft:armor_stand" -> y -= 1;
         }
 
         entityDisplay.setX(x);
         entityDisplay.setY(y);
         entityDisplay.setAnchor(Anchor.CentreLeft);
-        entityDisplay.applyParentRect(new ScreenRect(0, 0, this.getWidth(), this.getHeight()));
+        entityDisplay.setParentRect(new ScreenRect(0, 0, this.getWidth(), this.getHeight()));
 
         setTitle(Text.translatable("text.morphclient.toast.disguise_%s".formatted(isGrant ? "grant" : "lost")));
         this.setLineColor(isGrant ? MaterialColors.Green500 : MaterialColors.Amber500);
+
+        visibility.onValueChanged((o, n) ->
+        {
+            var isHide = n == Visibility.HIDE;
+            if (isHide)
+                instances.remove(this);
+
+            drawEntity = !isHide;
+        }, true);
     }
 
 
@@ -86,6 +96,8 @@ public class DisguiseEntryToast extends LinedToast
     @Override
     protected void postBackgroundDrawing(DrawContext context, ToastManager manager, long startTime)
     {
+        if (!drawEntity) return;
+
         var matrices = context.getMatrices();
         super.postBackgroundDrawing(context, manager, startTime);
 
@@ -96,13 +108,16 @@ public class DisguiseEntryToast extends LinedToast
         // Make entity display more pixel-perfect
         matrices.translate(0, 0.5, 0);
         var pos = matrices.peek().getPositionMatrix().getTranslation(new Vector3f(0, 0, 0));
-        entityDisplay.applyParentScreenSpaceX(pos.x);
-        entityDisplay.applyParentScreenSpaceY(pos.y);
+
+        entityDisplay.setParentScreenSpaceX(pos.x);
+        entityDisplay.setParentScreenSpaceY(pos.y);
         entityDisplay.render(context, -30, 0, 0);
 
         // Pop back
         matrices.pop();
     }
+
+    private boolean drawEntity = true;
 
     @Override
     public Visibility draw(DrawContext context, ToastManager manager, long startTime)
