@@ -19,6 +19,8 @@ public class RequestToast extends LinedToast
             default -> MaterialColors.Indigo500;
         };
 
+        fadeInOnEnter = true;
+
         this.setLineColor(color);
 
         Text text, desc;

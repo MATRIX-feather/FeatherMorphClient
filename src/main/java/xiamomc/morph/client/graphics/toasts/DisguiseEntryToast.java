@@ -51,6 +51,8 @@ public class DisguiseEntryToast extends LinedToast
 
         entityDisplay.postEntitySetup = () -> setDescription(entityDisplay.getDisplayName());
 
+        this.fadeInOnEnter = true;
+
         instances.add(this);
 
         drawAlpha.set(0f);
