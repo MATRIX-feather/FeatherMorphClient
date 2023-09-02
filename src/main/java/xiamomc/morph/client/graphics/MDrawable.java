@@ -2,6 +2,7 @@ package xiamomc.morph.client.graphics;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.util.math.Vector2f;
 import org.jetbrains.annotations.ApiStatus;
@@ -16,7 +17,7 @@ import xiamomc.morph.client.graphics.transforms.easings.Easing;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class MDrawable extends MorphClientObject implements Drawable, Element
+public class MDrawable extends MorphClientObject implements IMDrawable
 {
     @NotNull
     protected Anchor anchor = Anchor.TopLeft;
@@ -456,5 +457,20 @@ public class MDrawable extends MorphClientObject implements Drawable, Element
     }
 
     //endregion Element
+
+    //region Selectable
+
+    @Override
+    public SelectionType getType()
+    {
+        return SelectionType.NONE;
+    }
+
+    @Override
+    public void appendNarrations(NarrationMessageBuilder builder)
+    {
+    }
+
+    //endregion Selectable
 }
 

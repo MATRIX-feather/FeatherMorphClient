@@ -6,11 +6,12 @@ import net.minecraft.client.gui.widget.ElementListWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.MathHelper;
 import xiamomc.morph.client.MorphClient;
+import xiamomc.morph.client.graphics.IMDrawable;
 import xiamomc.morph.client.graphics.transforms.Recorder;
 import xiamomc.morph.client.graphics.transforms.Transformer;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
 
-public class DisguiseList extends ElementListWidget<EntityDisplayWidget>
+public class DisguiseList extends ElementListWidget<EntityDisplayWidget> implements IMDrawable
 {
     public DisguiseList(MinecraftClient minecraftClient, int width, int height, int topPadding, int bottomPadding, int itemHeight)
     {

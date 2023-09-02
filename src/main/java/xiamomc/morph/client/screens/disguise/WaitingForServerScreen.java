@@ -1,17 +1,12 @@
 package xiamomc.morph.client.screens.disguise;
 
 import me.shedaniel.math.Color;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 import xiamomc.morph.client.MorphClient;
-import xiamomc.morph.client.graphics.Anchor;
-import xiamomc.morph.client.graphics.DrawableText;
-import xiamomc.morph.client.graphics.LoadingSpinner;
-import xiamomc.morph.client.graphics.Margin;
+import xiamomc.morph.client.graphics.*;
 import xiamomc.morph.client.graphics.transforms.Transformer;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
 import xiamomc.morph.client.screens.FeatherScreen;
@@ -28,14 +23,14 @@ public class WaitingForServerScreen extends FeatherScreen
     {
         super(title);
 
-        closeButton = this.buildWidget(0, 0, 150, 20, Text.translatable("gui.back"), (button) ->
+        closeButton = this.buildButtonWidget(0, 0, 150, 20, Text.translatable("gui.back"), (button) ->
         {
             this.close();
         });
     }
 
     private final DrawableText notReadyText = new DrawableText(Text.translatable("gui.morphclient.waiting_for_server"));
-    private final ButtonWidget closeButton;
+    private final MButtonWidget closeButton;
 
     private final Bindable<Float> backgroundDim = new Bindable<>(0f);
 
@@ -71,9 +66,12 @@ public class WaitingForServerScreen extends FeatherScreen
                 });
             }, true);
 
-            this.addDrawable(notReadyText);
-            this.addDrawableChild(closeButton);
-            this.addDrawable(loadingSpinner);
+            this.addRange(new IMDrawable[]
+            {
+                notReadyText,
+                closeButton,
+                loadingSpinner
+            });
 
             loadingSpinner.setAnchor(Anchor.Centre);
             loadingSpinner.setY(40);

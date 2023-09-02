@@ -4,8 +4,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import me.shedaniel.math.Color;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import xiamomc.morph.client.ClientMorphManager;
@@ -92,12 +90,12 @@ public class DisguiseScreen extends FeatherScreen
         titleText.setHeight(20);
 
         //初始化按钮
-        closeButton = this.buildWidget(0, 0, 150, 20, Text.translatable("gui.back"), (button) ->
+        closeButton = this.buildButtonWidget(0, 0, 150, 20, Text.translatable("gui.back"), (button) ->
         {
             this.close();
         });
 
-        configMenuButton = this.buildWidget(0, 0, 20, 20, Text.literal("C"), (button ->
+        configMenuButton = this.buildButtonWidget(0, 0, 20, 20, Text.literal("C"), (button ->
         {
             var screen = morphClient.getFactory(this).build();
 
@@ -109,8 +107,8 @@ public class DisguiseScreen extends FeatherScreen
 
     private final Bindable<String> selectedIdentifier = new Bindable<>();
 
-    private final ButtonWidget closeButton;
-    private final ButtonWidget configMenuButton;
+    private final MButtonWidget closeButton;
+    private final MButtonWidget configMenuButton;
     private final ToggleSelfButton selfVisibleToggle;
 
     private final ClientMorphManager manager;
@@ -212,14 +210,15 @@ public class DisguiseScreen extends FeatherScreen
         bottomTextContainer.setHeight(containerHeight);
         topTextContainer.setHeight(containerHeight);
 
-        this.addDrawableChild(list);
-
-        this.addDrawable(topTextContainer);
-        this.addDrawable(bottomTextContainer);
-
-        this.addDrawableChild(closeButton);
-        this.addDrawableChild(selfVisibleToggle);
-        this.addDrawableChild(configMenuButton);
+        this.addRange(new IMDrawable[]
+        {
+            list,
+            topTextContainer,
+            bottomTextContainer,
+            closeButton,
+            selfVisibleToggle,
+            configMenuButton
+        });
 
         //顶端文本
         var screenX = 30;

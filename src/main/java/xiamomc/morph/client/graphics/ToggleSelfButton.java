@@ -14,7 +14,7 @@ import xiamomc.morph.client.screens.disguise.DisguiseScreen;
 
 import java.util.List;
 
-public class ToggleSelfButton extends ButtonWidget
+public class ToggleSelfButton extends ButtonWidget implements IMDrawable
 {
     private static Text getSwitchTextFrom(boolean val)
     {
