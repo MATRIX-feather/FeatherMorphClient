@@ -6,15 +6,10 @@ import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
-import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LightningEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.world.LightType;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import xiamomc.morph.client.DisguiseSyncer;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.graphics.color.ColorUtils;
 import xiamomc.morph.client.graphics.color.MaterialColors;
@@ -49,6 +44,9 @@ public class EntityRendererHelper
         String text = entrySet.getValue();
         if (text.equals(entity.getEntityName())) return;
 
+        if (entity != DisguiseSyncer.currentEntity.get())
+            entity.ignoreCameraFrustum = true;
+
         matrices.push();
 
         var exOffset = (entity.hasCustomName() || entity instanceof OtherClientPlayerEntity) ? 0.25f : -0.25f;
@@ -69,7 +67,7 @@ public class EntityRendererHelper
                 positionMatrix, vertexConsumers,
                 TextRenderer.TextLayerType.NORMAL, 0, LightmapTextureManager.MAX_LIGHT_COORDINATE);
 
-        //阴影
+        //背景
         textRenderer.draw(text, x, 0,
                 textColorTransparent, false,
                 positionMatrix, vertexConsumers,
@@ -77,4 +75,17 @@ public class EntityRendererHelper
 
         matrices.pop();
     }
+
+    /*
+    public boolean isDisguiseEntity(Entity entity)
+    {
+        var uuid = entity.getId();
+        var morphManager = MorphClient.getInstance().morphManager;
+        var entrySet = morphManager.playerMap.entrySet().stream()
+                .filter(set -> set.getKey().equals(uuid))
+                .findFirst().orElse(null);
+
+        return entrySet != null;
+    }
+     */
 }

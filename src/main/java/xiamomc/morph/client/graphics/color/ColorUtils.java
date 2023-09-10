@@ -1,12 +1,42 @@
 package xiamomc.morph.client.graphics.color;
 
 import me.shedaniel.math.Color;
+import net.minecraft.client.gui.DrawContext;
 import xiamomc.morph.client.utilties.MathUtils;
 
 public class ColorUtils
 {
     private static final int colorMask = 0xFF;
 
+    public static Color fromIntRGBA(int color)
+    {
+        //    24 16 8  0
+        //    R  G  B  A
+        // 0x 90 AA BB CC
+        var r = color >> 24 & colorMask;
+        var g = color >> 16 & colorMask;
+        var b = color >> 8 & colorMask;
+        var a = color & colorMask;
+
+        return Color.ofRGBA(r, g, b, a);
+    }
+
+    public static Color fromIntARGB(int color)
+    {
+        //    24 16 8  0
+        //    A  R  G  B
+        // 0x 90 AA BB CC
+        var a = color >> 24 & colorMask;
+        var r = color >> 16 & colorMask;
+        var g = color >> 8 & colorMask;
+        var b = color & colorMask;
+
+        return Color.ofRGBA(r, g, b, a);
+    }
+
+    /**
+     * Hex ARGB
+     */
     public static Color fromHex(String hex)
     {
         if (!hex.startsWith("#"))
@@ -14,11 +44,15 @@ public class ColorUtils
 
         boolean hasAlpha = hex.length() >= 8;
 
+        //    16 8  0
+        //    R  G  B
+        // 0x CC BB AA
         int rawColor = Integer.decode(hex);
+
+        var a = hasAlpha ? rawColor >> 24 & colorMask : 255;
         var r = rawColor >> 16 & colorMask;
         var g = rawColor >> 8 & colorMask;
         var b = rawColor & colorMask;
-        var a = hasAlpha ? rawColor >> 24 & colorMask : 255;
 
         return Color.ofRGBA(r, g, b, a);
     }

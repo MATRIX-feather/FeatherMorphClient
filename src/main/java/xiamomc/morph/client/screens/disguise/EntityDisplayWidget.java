@@ -1,6 +1,7 @@
 package xiamomc.morph.client.screens.disguise;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import me.shedaniel.math.Color;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.*;
@@ -8,7 +9,6 @@ import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.screen.narration.NarrationPart;
 import net.minecraft.client.gui.widget.ElementListWidget;
 import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.util.math.Vector2f;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
@@ -19,6 +19,10 @@ import xiamomc.morph.client.*;
 import xiamomc.morph.client.graphics.Anchor;
 import xiamomc.morph.client.graphics.Container;
 import xiamomc.morph.client.graphics.EntityDisplay;
+import xiamomc.morph.client.graphics.color.ColorUtils;
+import xiamomc.morph.client.graphics.transforms.Recorder;
+import xiamomc.morph.client.graphics.transforms.Transformer;
+import xiamomc.morph.client.graphics.transforms.easings.Easing;
 import xiamomc.pluginbase.Annotations.Resolved;
 import xiamomc.pluginbase.Bindables.Bindable;
 
@@ -188,18 +192,18 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
             this.hovered = mouseX < this.screenSpaceX + width && mouseX > this.screenSpaceX
                     && mouseY < this.screenSpaceY + height && mouseY > this.screenSpaceY;
 
-            var borderColor = 0x00000000;
-            var contentColor = 0x00000000;
+            var contentColorNext = 0x00333333;
+            var borderColorNext = 0x00999999;
 
             if (hovered)
             {
-                contentColor = 0xb5333333;
-                borderColor = 0xff999999;
+                contentColorNext = 0xb5333333;
+                borderColorNext = 0xff999999;
             }
 
             if (activationState != ActivationState.NONE)
             {
-                borderColor = switch (activationState)
+                borderColorNext = switch (activationState)
                         {
                             //ARGB color
                             case SELECTED -> 0xffffaa00;
@@ -208,11 +212,23 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
                             default -> 0x00000000;
                         };
 
-                contentColor = 0x00333333 + (activationState == ActivationState.CURRENT ? 0xc9000000 : 0xb5000000);
+                contentColorNext = 0x00333333 + (activationState == ActivationState.CURRENT ? 0xc9000000 : 0xb5000000);
 
                 if (hovered)
-                    contentColor += 0x00333333;
+                    contentColorNext += 0x00333333;
             }
+
+            if (this.borderColor.get() == null)
+                this.borderColor.set(ColorUtils.fromIntARGB(borderColorNext));
+
+            if (this.contentColor.get() == null)
+                this.contentColor.set(ColorUtils.fromIntARGB(contentColorNext));
+
+            Transformer.transform(this.borderColor, ColorUtils.fromIntARGB(borderColorNext),
+                    200, Easing.OutExpo);
+
+            Transformer.transform(this.contentColor, ColorUtils.fromIntARGB(contentColorNext),
+                    300, Easing.OutExpo);
 
             var matrices = context.getMatrices();
 
@@ -228,10 +244,10 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
 
                 context.fill(screenSpaceX + 1, screenSpaceY + 1,
                         screenSpaceX + width - 1, screenSpaceY + height - 1,
-                        contentColor);
+                        this.contentColor.get().getColor());
 
                 context.drawBorder(screenSpaceX, screenSpaceY,
-                        width, height, borderColor);
+                        width, height, this.borderColor.get().getColor());
 
                 var x = screenSpaceX + width - 24 - 5;
                 var y = screenSpaceY + 1;
@@ -257,11 +273,14 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
             finally
             {
                 context.drawTextWithShadow(textRenderer, display,
-                        screenSpaceX + 5, (int) (screenSpaceY + ((height - textRenderer.fontHeight) / 2f)), 0xffffffff);
+                        screenSpaceX + 5, (screenSpaceY + Math.round((height - textRenderer.fontHeight) / 2f)), 0xffffffff);
 
                 matrices.pop();
             }
         }
+
+        private final Recorder<Color> borderColor = new Recorder<>(null);
+        private final Recorder<Color> contentColor = new Recorder<>(null);
 
         private boolean hovered;
 

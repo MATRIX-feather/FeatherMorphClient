@@ -166,7 +166,16 @@ public class LinedToast extends MorphClientObject implements Toast
     @Override
     public Visibility draw(DrawContext context, ToastManager manager, long startTime)
     {
+        // RenderSystem#getShaderColor -> return shaderColor;
         var shaderColor = RenderSystem.getShaderColor();
+        shaderColor = new float[]
+        {
+                shaderColor[0],
+                shaderColor[1],
+                shaderColor[2],
+                shaderColor[3]
+        };
+
         context.setShaderColor(shaderColor[0], shaderColor[1], shaderColor[2], drawAlpha.get());
 
         if (!layoutValid.get())

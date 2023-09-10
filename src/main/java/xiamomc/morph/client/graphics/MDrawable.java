@@ -11,6 +11,7 @@ import xiamomc.morph.client.MorphClientObject;
 import xiamomc.morph.client.graphics.transforms.Recorder;
 import xiamomc.morph.client.graphics.transforms.Transformer;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
+import xiamomc.morph.client.utilties.MathUtils;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -347,6 +348,8 @@ public class MDrawable extends MorphClientObject implements IMDrawable
         this.hovered = mouseX < this.screenSpaceX + width && mouseX > this.screenSpaceX
                 && mouseY < this.screenSpaceY + height && mouseY > this.screenSpaceY;
 
+        if (this.alpha.get() == 0f) return;
+
         try
         {
             if (!validatePosition()) updatePosition();
@@ -441,6 +444,23 @@ public class MDrawable extends MorphClientObject implements IMDrawable
     {
         this.resizeHeightTo(wH.getX(), duration, easing);
         this.resizeWidthTo(wH.getY(), duration, easing);
+    }
+
+    protected final Recorder<Float> alpha = new Recorder<Float>(1f);
+
+    public void fadeTo(float newVal, long duration, Easing easing)
+    {
+        Transformer.transform(alpha, MathUtils.clamp(0f, 1f, newVal), duration, easing);
+    }
+
+    public void fadeIn(long duration, Easing easing)
+    {
+        this.fadeTo(1, duration, easing);
+    }
+
+    public void fadeOut(long duration, Easing easing)
+    {
+        this.fadeTo(0, duration, easing);
     }
 
     //endregion Transforms
