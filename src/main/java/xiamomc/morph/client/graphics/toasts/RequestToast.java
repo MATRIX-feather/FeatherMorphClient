@@ -9,6 +9,12 @@ import xiamomc.morph.network.commands.S2C.S2CRequestCommand;
 
 public class RequestToast extends LinedToast
 {
+    @Override
+    protected boolean fadeInOnEnter()
+    {
+        return true;
+    }
+
     public RequestToast(S2CRequestCommand.Type type, String sourceName)
     {
         var color = switch (type)
@@ -18,8 +24,6 @@ public class RequestToast extends LinedToast
             case RequestDenied -> MaterialColors.Red400;
             default -> MaterialColors.Indigo500;
         };
-
-        fadeInOnEnter = true;
 
         this.setLineColor(color);
 
@@ -41,6 +45,7 @@ public class RequestToast extends LinedToast
         desc = Text.translatable(type.isRequestOwner()
                 ? "text.morphclient.toast.request.to"
                 : "text.morphclient.toast.request.from", sourceName);
+
         this.setDescription(desc);
     }
 
@@ -53,7 +58,7 @@ public class RequestToast extends LinedToast
     @Override
     protected int getTextWidth()
     {
-        return (int) (this.getWidth() * 0.9F);
+        return (int) (this.getWidth() * 0.85F);
     }
 
     @Override

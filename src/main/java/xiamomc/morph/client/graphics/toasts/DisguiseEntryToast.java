@@ -1,8 +1,12 @@
 package xiamomc.morph.client.graphics.toasts;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.ScreenRect;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.toast.ToastManager;
 import net.minecraft.client.util.math.Vector2f;
 import net.minecraft.text.Text;
@@ -51,11 +55,15 @@ public class DisguiseEntryToast extends LinedToast
 
         entityDisplay.postEntitySetup = () -> setDescription(entityDisplay.getDisplayName());
 
-        this.fadeInOnEnter = true;
-
         instances.add(this);
 
         drawAlpha.set(0f);
+    }
+
+    @Override
+    protected boolean fadeInOnEnter()
+    {
+        return true;
     }
 
     @Initializer
@@ -87,8 +95,6 @@ public class DisguiseEntryToast extends LinedToast
             var isHide = n == Visibility.HIDE;
             if (isHide)
                 instances.remove(this);
-
-            drawEntity = !isHide;
         }, true);
     }
 
@@ -98,6 +104,8 @@ public class DisguiseEntryToast extends LinedToast
     @Override
     protected void postBackgroundDrawing(DrawContext context, ToastManager manager, long startTime)
     {
+        drawEntity = this.drawAlpha.get() > 0.95f;
+
         if (!drawEntity) return;
 
         var matrices = context.getMatrices();

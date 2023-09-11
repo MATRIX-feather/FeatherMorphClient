@@ -217,11 +217,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
             if (testKeyBindLost.wasPressed())
             {
                 var toasts = client.getToastManager();
-                var morphs = morphManager.getAvailableMorphs();
-                var random = Random.create();
-                var id = morphs.get(random.nextBetween(0, morphs.size() - 1));
-
-                toasts.add(new RequestToast(S2CRequestCommand.Type.RequestExpired, "Very_Loooong_Nammmmmme"));
+                toasts.add(new RequestToast(S2CRequestCommand.Type.RequestSend, "Very_Loooong_Nammmmmme"));
             }
 
         }
@@ -370,7 +366,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
                         .build())
                 .addEntry(
                         entryBuilder.startBooleanToggle(Text.translatable("option.morphclient.toast_progress"), modConfigData.displayToastProgress)
-                                .setDefaultValue(false)
+                                .setDefaultValue(true)
                                 .setSaveConsumer(v -> modConfigData.displayToastProgress = v)
                                 .build());
 

@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.MorphClientObject;
+import xiamomc.morph.client.graphics.color.ColorUtils;
 import xiamomc.morph.client.graphics.transforms.Recorder;
 import xiamomc.morph.client.graphics.transforms.Transformer;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
@@ -24,6 +25,7 @@ public class LinedToast extends MorphClientObject implements Toast
 {
     public LinedToast()
     {
+        drawAlpha.set(fadeInOnEnter() ? 0f : 1f);
     }
 
     private final Recorder<Integer> outlineWidth = Recorder.of(0);
@@ -32,27 +34,34 @@ public class LinedToast extends MorphClientObject implements Toast
 
     protected final Recorder<Float> drawAlpha = new Recorder<>(1f);
 
-    protected boolean fadeInOnEnter = false;
+    protected boolean fadeInOnEnter()
+    {
+        return false;
+    }
 
     @Initializer
     private void load()
     {
         outlineWidth.set(this.getWidth());
 
-        drawAlpha.set(fadeInOnEnter ? 0f : 1f);
-
         this.visibility.onValueChanged((o, visible) ->
         {
             var isHide = visible == Visibility.HIDE;
 
             if (visible == Visibility.SHOW)
-                Transformer.delay(250).then(() -> Transformer.transform(outlineWidth, 2, 600, Easing.OutQuint));
+                Transformer.delay(300).then(() ->
+                {
+                    Transformer.transform(outlineWidth, 2, 600, Easing.OutQuint);
+                    renderContent = true;
+                });
             else
                 Transformer.transform(outlineWidth, this.getWidth(), 600, Easing.OutQuad);
 
-            Transformer.transform(drawAlpha, isHide ? 0f : 1f, 450, Easing.OutQuint);
+            Transformer.transform(drawAlpha, isHide ? 0f : 1f, 450, Easing.InOutQuint);
         }, true);
     }
+
+    private boolean renderContent = false;
 
     private final AtomicBoolean layoutValid = new AtomicBoolean(false);
 
@@ -166,6 +175,9 @@ public class LinedToast extends MorphClientObject implements Toast
     @Override
     public Visibility draw(DrawContext context, ToastManager manager, long startTime)
     {
+        if (!layoutValid.get())
+            updateLayout();
+
         // RenderSystem#getShaderColor -> return shaderColor;
         var shaderColor = RenderSystem.getShaderColor();
         shaderColor = new float[]
@@ -178,40 +190,63 @@ public class LinedToast extends MorphClientObject implements Toast
 
         context.setShaderColor(shaderColor[0], shaderColor[1], shaderColor[2], drawAlpha.get());
 
-        if (!layoutValid.get())
-            updateLayout();
-
-        // Draw background
-        context.fill(0, 0, this.getWidth(), this.getHeight(), 0xFF333333);
-
         var progress = Math.min(1, startTime / (5000.0 * manager.getNotificationDisplayTimeMultiplier()));
 
-        // Draw progress bar
-        if (drawProgress())
+        var xRightPadding = 1;
+        var xLeftPadding = 2;
+        var yPadding = 1;
+
+        // Draw background
+        context.fill(xRightPadding, yPadding,
+                this.getWidth() - xLeftPadding, this.getHeight() - yPadding, 0xFF333333);
+
+        if (renderContent)
         {
-            var progressDisplay = Math.max(0, 0.95 - progress);
+            // Draw progress bar
+            if (drawProgress())
+            {
+                var progressDisplay = Math.max(0, 0.95 - progress);
 
-            context.fill(0, 0, (int)(this.getWidth() * progressDisplay), this.getHeight(), (int)(0x40 * progressDisplay) << 24 | 0x00FFFFFF);
+                context.fill(xRightPadding, this.getHeight() - yPadding - 2,
+                        Math.max(xRightPadding, (int)Math.round((this.getWidth() - xRightPadding) * progressDisplay)),
+                        this.getHeight() - yPadding,
+                        ColorUtils.fromHex("666666").getColor());
+            }
+
+            postBackgroundDrawing(context, manager, startTime);
+
+            // Draw text
+            var textStartX = (int)getTextStartX();
+            var textStartY = Math.round((this.getHeight()) / 2f) - textRenderer.fontHeight + yPadding;
+
+            context.drawTextWithShadow(textRenderer, titleDisplay, textStartX, textStartY - 1, 0xffffffff);
+            context.drawTextWithShadow(textRenderer, descDisplay, textStartX, textStartY + textRenderer.fontHeight + 1, 0xffffffff);
+
+            postTextDrawing(context, manager, startTime);
         }
-
-        postBackgroundDrawing(context, manager, startTime);
-
-        // Draw text
-        var textStartX = (int)getTextStartX();
-        var textStartY = this.getHeight() / 2 - textRenderer.fontHeight;
-
-        context.drawTextWithShadow(textRenderer, titleDisplay, textStartX, textStartY - 1, 0xffffffff);
-        context.drawTextWithShadow(textRenderer, descDisplay, textStartX, textStartY + textRenderer.fontHeight + 1, 0xffffffff);
-
-        postTextDrawing(context, manager, startTime);
 
         var matrices = context.getMatrices();
 
         // Draw CoverLine
         matrices.push();
         matrices.translate(0, 0, 128);
-        var lineWidth = outlineWidth.get();
-        context.fill(0, 0, lineWidth, this.getHeight(), lineColor.getColor());
+
+        var lineWidth = Math.min(outlineWidth.get(), this.getWidth() - xRightPadding);
+
+        context.fill(xRightPadding + 1, yPadding + 1,
+                lineWidth, this.getHeight() - yPadding - 1,
+                lineColor.getColor());
+
+        context.drawBorder(xRightPadding + 1, yPadding + 1,
+                this.getWidth() - xLeftPadding - 2, this.getHeight() - yPadding - 2,
+                lineColor.getColor());
+
+        context.drawBorder(xRightPadding, yPadding,
+                this.getWidth() - xLeftPadding, this.getHeight() - yPadding,
+                ColorUtils.fromHex("#444444").getColor());
+
+        //context.fill(1, 1, lineWidth, this.getHeight() - 1, lineColor.getColor());
+
         matrices.pop();
 
         //var borderColor = ColorUtils.fromHex("#222222");
@@ -221,7 +256,8 @@ public class LinedToast extends MorphClientObject implements Toast
         var visibility = progress >= 1 ? Visibility.HIDE : Visibility.SHOW;
         this.visibility.set(visibility);
 
-        postDraw(context, manager, startTime);
+        if (renderContent)
+            postDraw(context, manager, startTime);
 
         context.setShaderColor(shaderColor[0], shaderColor[1], shaderColor[2], shaderColor[3]);
 

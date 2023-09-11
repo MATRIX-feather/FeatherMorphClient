@@ -19,8 +19,12 @@ public class NewDisguiseSetToast extends LinedToast
     public NewDisguiseSetToast(boolean allGone)
     {
         this.allGone.set(allGone);
+    }
 
-        fadeInOnEnter = true;
+    @Override
+    protected boolean fadeInOnEnter()
+    {
+        return true;
     }
 
     private final AtomicBoolean allGone = new AtomicBoolean(false);

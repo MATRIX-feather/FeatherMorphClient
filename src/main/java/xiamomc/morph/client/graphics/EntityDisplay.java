@@ -3,6 +3,7 @@ package xiamomc.morph.client.graphics;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
+import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.MagmaCubeEntity;
@@ -232,7 +233,9 @@ public class EntityDisplay extends MDrawable
             if (displayingEntity == MinecraftClient.getInstance().player)
                 PlayerRenderHelper.instance.skipRender = true;
 
-            InventoryScreen.drawEntity(context, (int)width / 2, (int)height + entityYOffset, entitySize, mouseX, mouseY, displayingEntity);
+            InventoryScreen.drawEntity(context,
+                    (int)width / 2, (int)height + entityYOffset,
+                    entitySize, mouseX, mouseY, displayingEntity);
 
             PlayerRenderHelper.instance.skipRender = false;
 
