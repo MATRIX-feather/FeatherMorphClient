@@ -92,7 +92,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
     public ServerHandler serverHandler;
     private ClientSkillHandler skillHandler;
 
-    private final boolean debugToasts = false;
+    private final boolean debugToasts = true;
 
     @Override
     public void onInitializeClient()
@@ -366,7 +366,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
                         .build())
                 .addEntry(
                         entryBuilder.startBooleanToggle(Text.translatable("option.morphclient.toast_progress"), modConfigData.displayToastProgress)
-                                .setDefaultValue(true)
+                                .setDefaultValue(false)
                                 .setSaveConsumer(v -> modConfigData.displayToastProgress = v)
                                 .build());
 

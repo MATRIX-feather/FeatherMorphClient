@@ -57,7 +57,7 @@ public class LinedToast extends MorphClientObject implements Toast
             else
                 Transformer.transform(outlineWidth, this.getWidth(), 600, Easing.OutQuad);
 
-            Transformer.transform(drawAlpha, isHide ? 0f : 1f, 450, Easing.InOutQuint);
+            Transformer.transform(drawAlpha, isHide ? 0f : 1f, 450, isHide ? Easing.OutQuint : Easing.InOutQuint);
         }, true);
     }
 
