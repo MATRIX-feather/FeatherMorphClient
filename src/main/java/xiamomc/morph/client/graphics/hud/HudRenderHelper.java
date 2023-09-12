@@ -119,7 +119,7 @@ public class HudRenderHelper extends MorphClientObject
         var width = 8;
 
         // 35 * 0.8
-        var height = 32;
+        var height = 28;
         var padding = 1;
 
         var windowHeight = context.getScaledWindowHeight();
