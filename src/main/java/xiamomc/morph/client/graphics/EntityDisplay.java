@@ -234,7 +234,7 @@ public class EntityDisplay extends MDrawable
                 PlayerRenderHelper.instance.skipRender = true;
 
             InventoryScreen.drawEntity(context,
-                    (int)width / 2, (int)height + entityYOffset,
+                    mcWidth / 2,  mcHeight + entityYOffset,
                     entitySize, mouseX, mouseY, displayingEntity);
 
             PlayerRenderHelper.instance.skipRender = false;

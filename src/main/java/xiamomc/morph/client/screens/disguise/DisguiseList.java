@@ -67,7 +67,7 @@ public class DisguiseList extends ElementListWidget<EntityDisplayWidget> impleme
         var bottomPadding = 30;
         var finalScreenSpaceHeight = this.height - topPadding - bottomPadding;
 
-        var amount = children().indexOf(widget) * itemHeight - itemHeight * 3;
+        var amount = children().indexOf(widget) * itemHeight - itemHeight * 4;
         var maxScroll = this.getEntryCount() * this.itemHeight - finalScreenSpaceHeight + 4;
         if (amount > maxScroll) amount = maxScroll;
 

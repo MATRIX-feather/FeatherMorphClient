@@ -22,20 +22,17 @@ public class BasicContainer<T extends MDrawable> extends MDrawable
 
     private final AtomicBoolean layoutValid = new AtomicBoolean(false);
 
-    private void updateLayout() {
+    protected void updateLayout()
+    {
         for (MDrawable child : children)
             child.setParent(this);
 
-        layoutValid.set(true);
-    }
-
-    protected void invalidateLayout() {
-        layoutValid.set(false);
+        super.updateLayout();
     }
 
     //endregion Layout Validation
 
-    private final List<T> children = new ObjectArrayList<>();
+    protected final List<T> children = new ObjectArrayList<>();
 
     public void add(T drawable) {
         children.add(drawable);

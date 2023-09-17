@@ -7,6 +7,7 @@ import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
@@ -16,7 +17,7 @@ import xiamomc.morph.client.graphics.MButtonWidget;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public abstract class FeatherScreen extends Screen
+public abstract class FeatherScreen extends Screen implements IMDrawable
 {
     protected FeatherScreen(Text title) {
         super(title);
@@ -217,4 +218,19 @@ public abstract class FeatherScreen extends Screen
 
         MinecraftClient.getInstance().setScreen(screen);
     }
+
+    //region Narratable Selectable
+
+    @Override
+    public void appendNarrations(NarrationMessageBuilder builder)
+    {
+    }
+
+    @Override
+    public SelectionType getType()
+    {
+        return SelectionType.NONE;
+    }
+
+    //endregion
 }

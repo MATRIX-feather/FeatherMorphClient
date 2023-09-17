@@ -8,6 +8,8 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xiamomc.morph.client.MorphClientObject;
+import xiamomc.morph.client.graphics.color.ColorUtils;
+import xiamomc.morph.client.graphics.color.MaterialColors;
 import xiamomc.morph.client.graphics.transforms.Recorder;
 import xiamomc.morph.client.graphics.transforms.Transformer;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
@@ -60,7 +62,7 @@ public class MDrawable extends MorphClientObject implements IMDrawable
 
     //endregion Parent
 
-    //region Position validation
+    //region Position/Layout validation
 
     private final AtomicBoolean posValid = new AtomicBoolean(false);
 
@@ -68,6 +70,34 @@ public class MDrawable extends MorphClientObject implements IMDrawable
     public void invalidatePosition()
     {
         posValid.set(false);
+    }
+
+    private final AtomicBoolean layoutValid = new AtomicBoolean(false);
+
+    @ApiStatus.Internal
+    public void invalidateLayout()
+    {
+        layoutValid.set(false);
+    }
+
+    protected boolean validateLayout()
+    {
+        return layoutValid.get();
+    }
+
+    protected void updateLayout()
+    {
+        if (relativeSizeAxes.modX)
+            mcWidth = Math.round(width * parentRect.width());
+        else
+            mcWidth = Math.round(width);
+
+        if (relativeSizeAxes.modY)
+            mcHeight = Math.round(height * parentRect.height());
+        else
+            mcHeight = Math.round(height);
+
+        layoutValid.set(true);
     }
 
     protected boolean validatePosition()
@@ -95,8 +125,10 @@ public class MDrawable extends MorphClientObject implements IMDrawable
         }
 
         var windowInstance = MinecraftClient.getInstance().getWindow();
-        float parentRectWidth = parentRect == null ? windowInstance.getScaledWidth() : parentRect.width();
-        float parentRectHeight = parentRect == null ? windowInstance.getScaledHeight() : parentRect.height();
+
+        var isEmptyRect = parentRect == ScreenRect.empty();
+        float parentRectWidth = isEmptyRect ? windowInstance.getScaledWidth() : parentRect.width();
+        float parentRectHeight = isEmptyRect ? windowInstance.getScaledHeight() : parentRect.height();
 
         var rectCentre = new Vector2f(parentRectWidth / 2, parentRectHeight / 2);
 
@@ -149,8 +181,39 @@ public class MDrawable extends MorphClientObject implements IMDrawable
 
     //region W/H
 
-    protected float width;
-    protected float height;
+    protected Axes relativeSizeAxes = Axes.None;
+
+    public Axes getRelativeSizeAxes()
+    {
+        return relativeSizeAxes;
+    }
+
+    public void setRelativeSizeAxes(Axes a)
+    {
+        this.relativeSizeAxes = a;
+
+        invalidatePosition();
+    }
+
+    /**
+     * 此drawable的宽度
+     */
+    protected float width = 1;
+
+    /**
+     * 此drawable的高度
+     */
+    protected float height = 1;
+
+    /**
+     * 此drawable实际绘制和处理时的宽度
+     */
+    protected int mcWidth;
+
+    /**
+     * 此drawable实际绘制和处理时的高度
+     */
+    protected int mcHeight;
 
     public float getWidth()
     {
@@ -163,6 +226,7 @@ public class MDrawable extends MorphClientObject implements IMDrawable
 
         this.width = w;
         invalidatePosition();
+        invalidateLayout();
     }
 
     public float getHeight()
@@ -176,6 +240,7 @@ public class MDrawable extends MorphClientObject implements IMDrawable
 
         this.height = h;
         invalidatePosition();
+        invalidateLayout();
     }
 
     public void setSize(Vector2f vector2f)
@@ -265,10 +330,13 @@ public class MDrawable extends MorphClientObject implements IMDrawable
 
     //endregion X/Y
 
-    @Nullable
-    private ScreenRect parentRect = null;
+    /**
+     * 此Drawable的父级在屏幕上的所有可用空间
+     */
+    @NotNull
+    private ScreenRect parentRect = ScreenRect.empty();
 
-    @Nullable
+    @NotNull
     public ScreenRect getParentRect()
     {
         return parentRect;
@@ -279,7 +347,7 @@ public class MDrawable extends MorphClientObject implements IMDrawable
      */
     public void setParentRect(ScreenRect rect)
     {
-        if (this.parentRect != null && this.parentRect.equals(rect))
+        if (this.parentRect.equals(rect))
             return;
 
         this.parentRect = rect;
@@ -353,26 +421,31 @@ public class MDrawable extends MorphClientObject implements IMDrawable
         try
         {
             if (!validatePosition()) updatePosition();
+            if (!validateLayout()) updateLayout();
 
             // Render parent rect
-            //if (parentRect != null)
-            //{
-            //    DrawableHelper.fill(matrices, parentRect.getLeft(), parentRect.getTop(), parentRect.width(), parentRect.height(), MaterialColors.Orange500.getColor());
-            //}
+            //context.fill(parentRect.getLeft(), parentRect.getTop(),
+            //        parentRect.width(), parentRect.height(),
+            //        ColorUtils.forOpacity(MaterialColors.Orange500, 0.4f).getColor());
 
             matrices.translate(xScreenSpaceOffset, yScreenSpaceOffset, 1);
 
             // Render Self rect
-            //DrawableHelper.fill(matrices, 0, 0, (int)width, (int)height, MaterialColors.Cyan500.getColor());
+            //context.fill(0, 0,
+            //        mcWidth, mcHeight,
+            //        ColorUtils.forOpacity(MaterialColors.Cyan500, 0.4f).getColor());
 
+            // 嵌套遮罩有问题
             if (masking)
             {
-                var sX = (int)getScreenSpaceX();
-                var sY = (int)getScreenSpaceY();
+                var sX = Math.round(getScreenSpaceX());
+                var sY = Math.round(getScreenSpaceY());
 
-                //MinecraftClient.getInstance().textRenderer.draw(matrices, "sX: %s, sY: %s, W: %s, H: %s".formatted(sX, sY, width, height), 0, 0, 0xffffffff);
+                //context.drawText(MinecraftClient.getInstance().textRenderer,
+                //        "sX: %s, sY: %s, W: %s, H: %s".formatted(sX, sY, mcWidth, mcHeight),
+                //        0, 0, 0xffffffff, false);
 
-                context.enableScissor(sX, sY, (int)width + sX, (int)height + sY);
+                context.enableScissor(sX, sY, sX + mcWidth, sY + mcHeight);
             }
 
             this.onRender(context, mouseX, mouseY, delta);
