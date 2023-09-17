@@ -59,6 +59,13 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
         this.updateSkin(profile);
     }
 
+    @Override
+    public void remove(RemovalReason reason)
+    {
+        super.remove(reason);
+        this.setWorld(null);
+    }
+
     private int requestId = 0;
 
     private final static ICapeProvider capeProvider = new KappaCapeProvider();

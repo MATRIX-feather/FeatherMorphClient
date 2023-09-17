@@ -96,6 +96,7 @@ public class DisguiseSyncer extends MorphClientObject
         {
             if (clientWorld == null)
             {
+                currentEntity.set(null);
                 entity = null;
                 return;
             }

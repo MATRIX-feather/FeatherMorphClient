@@ -32,11 +32,11 @@ public class EntityRendererHelper
     {
         if (!doRenderRealName) return;
 
-        var uuid = entity.getId();
+        Integer uuid = entity.getId();
 
         var morphManager = MorphClient.getInstance().morphManager;
         var entrySet = morphManager.playerMap.entrySet().stream()
-                .filter(set -> set.getKey().equals(uuid))
+                .filter(set -> uuid.equals(set.getKey()))
                 .findFirst().orElse(null);
 
         if (entrySet == null) return;
