@@ -104,12 +104,14 @@ public class DisguiseList extends ElementListWidget<EntityDisplayWidget> impleme
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double amount)
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount)
     {
         duration = 300;
 
-        amount *= 3f * MorphClient.getInstance().getModConfigData().scrollSpeed;
-        return super.mouseScrolled(mouseX, mouseY, amount);
+        verticalAmount *= 3f * MorphClient.getInstance().getModConfigData().scrollSpeed;
+        horizontalAmount *= 3f * MorphClient.getInstance().getModConfigData().scrollSpeed;
+
+        return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
     }
 
     @Override
@@ -150,10 +152,5 @@ public class DisguiseList extends ElementListWidget<EntityDisplayWidget> impleme
         */
 
         super.render(context, mouseX, mouseY, delta);
-    }
-
-    @Override
-    protected void renderBackground(DrawContext context)
-    {
     }
 }

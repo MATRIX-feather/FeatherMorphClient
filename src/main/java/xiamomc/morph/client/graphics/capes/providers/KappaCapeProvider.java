@@ -4,7 +4,6 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
-import net.minecraft.client.util.Session;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import xiamomc.morph.client.graphics.capes.ICapeProvider;
@@ -56,20 +55,6 @@ public final class KappaCapeProvider implements ICapeProvider
 		};
 
 		this.getCapeExecutor().execute(runnable);
-	}
-
-	// Gets the URL to change your cape
-	public String getChangeUrl(Session session) {
-		BigInteger intA = new BigInteger(128, new Random());
-		BigInteger intB = new BigInteger(128, new Random(System.identityHashCode(new Object())));
-		String fakeId = intA.xor(intB).toString(16);
-		try {
-			MinecraftClient.getInstance().getSessionService().joinServer(session.getProfile(), session.getAccessToken(),
-					fakeId);
-		} catch (Exception e) {
-			return null;
-		}
-		return "https://optifine.net/capeChange?n=" + session.getUsername() + "&u=" + session.getUuid() + "&s=" + fakeId;
 	}
 
 	public interface CapeTextureAvailableCallback {

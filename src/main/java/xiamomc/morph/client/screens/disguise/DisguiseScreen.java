@@ -273,9 +273,4 @@ public class DisguiseScreen extends FeatherScreen
         context.fillGradient(0, 0, this.width, this.height, color.getColor(), color.getColor());
         super.render(context, mouseX, mouseY, delta);
     }
-
-    @Override
-    public void renderBackground(DrawContext context) {
-        super.renderBackground(context);
-    }
 }

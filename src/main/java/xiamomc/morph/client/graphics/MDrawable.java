@@ -174,8 +174,8 @@ public class MDrawable extends MorphClientObject implements IMDrawable
         posValid.set(true);
     }
 
-    private float xScreenSpaceOffset;
-    private float yScreenSpaceOffset;
+    protected float xScreenSpaceOffset;
+    protected float yScreenSpaceOffset;
 
     //endregion Position validation
 

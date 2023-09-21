@@ -133,7 +133,7 @@ public class DisguiseSyncer extends MorphClientObject
                 var entityToAdd = entity;
                 entityToAdd.setId(entityToAdd.getId() - entityToAdd.getId() * 2);
 
-                client.schedule(() -> clientWorld.addEntity(entityToAdd.getId(), entityToAdd));
+                client.schedule(() -> clientWorld.addEntity(entityToAdd));
 
                 initialSync(entity, clientPlayer);
                 sync(entity, clientPlayer);

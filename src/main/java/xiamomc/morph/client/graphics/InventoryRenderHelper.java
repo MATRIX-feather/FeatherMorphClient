@@ -32,7 +32,7 @@ public class InventoryRenderHelper
     public boolean allowRender = true;
     private LivingEntity entity;
 
-    public void onRenderCall(DrawContext context, int x, int y, int size, float mouseX, float mouseY)
+    public void onRenderCall(DrawContext context, int x1, int y1, int x2, int y2, int size, float f, float mouseX, float mouseY)
     {
         if (!allowRender) return;
         var modConfig = MorphClient.getInstance().getModConfigData();
@@ -41,7 +41,7 @@ public class InventoryRenderHelper
         {
             try
             {
-                InventoryScreen.drawEntity(context, x, y, size, mouseX, mouseY, entity);
+                InventoryScreen.drawEntity(context, x1, y1, x2, y2, size, f, mouseX, mouseY, entity);
             }
             catch (Exception e)
             {
@@ -54,7 +54,7 @@ public class InventoryRenderHelper
             var clientPlayer = MinecraftClient.getInstance().player;
 
             if (clientPlayer != null)
-                InventoryScreen.drawEntity(context, x, y, size, mouseX, mouseY, clientPlayer);
+                InventoryScreen.drawEntity(context, x1, y1, x2, y2, size, f, mouseX, mouseY, clientPlayer);
         }
     }
 }
