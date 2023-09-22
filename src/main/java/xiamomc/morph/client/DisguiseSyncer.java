@@ -379,8 +379,9 @@ public class DisguiseSyncer extends MorphClientObject
         var playerPos = clientPlayer.getPos();
         entity.setPosition(playerPos.x, playerPos.y - 4096, playerPos.z);
 
-        if (!entity.ignoreCameraFrustum)
-            entity.tick();
+        // 因为我们在LivingEntity和PlayerEntity那里都加了阻止伪装实体被世界tick的mixin,
+        // 所以在这里手动调用tick
+        entity.tick();
 
         var entitylimbAnimatorAccessor = (LimbAnimatorAccessor) entity.limbAnimator;
         var playerLimbAccessor = (LimbAnimatorAccessor)clientPlayer.limbAnimator;
