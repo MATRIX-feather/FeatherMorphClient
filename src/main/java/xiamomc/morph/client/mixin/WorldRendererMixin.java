@@ -30,16 +30,4 @@ public abstract class WorldRendererMixin
         var featherMorph$vertex = this.bufferBuilders.getEntityVertexConsumers();
         rendererHelper.renderCrystalBeam(tickDelta, matrices, featherMorph$vertex, 0xFFFFFF);
     }
-
-/*
-    @Inject(method = "renderEntity", at = @At(value = "HEAD"))
-    private void featherMorph$onRenderEntity(Entity entity, double cameraX, double cameraY, double cameraZ, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, CallbackInfo ci)
-    {
-        if (!entity.ignoreCameraFrustum)
-        {
-            if (EntityRendererHelper.instance.isDisguiseEntity(entity))
-                entity.ignoreCameraFrustum = true;
-        }
-    }
- */
 }

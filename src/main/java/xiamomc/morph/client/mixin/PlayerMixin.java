@@ -16,7 +16,7 @@ import xiamomc.morph.client.DisguiseSyncer;
 import xiamomc.morph.client.ServerHandler;
 
 @Mixin(PlayerEntity.class)
-public class PlayerMixin
+public abstract class PlayerMixin
 {
     private PlayerEntity featherMorph$playerInstance;
 

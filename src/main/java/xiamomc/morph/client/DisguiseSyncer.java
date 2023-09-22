@@ -22,10 +22,8 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.entities.MorphLocalPlayer;
 import xiamomc.morph.client.graphics.CameraHelper;
-import xiamomc.morph.client.mixin.accessors.AbstractHorseEntityMixin;
-import xiamomc.morph.client.mixin.accessors.EntityAccessor;
-import xiamomc.morph.client.mixin.accessors.HorseEntityMixin;
-import xiamomc.morph.client.mixin.accessors.LimbAnimatorAccessor;
+import xiamomc.morph.client.mixin.PlayerMixin;
+import xiamomc.morph.client.mixin.accessors.*;
 import xiamomc.pluginbase.Annotations.Initializer;
 import xiamomc.pluginbase.Annotations.Resolved;
 import xiamomc.pluginbase.Bindables.Bindable;
@@ -378,8 +376,7 @@ public class DisguiseSyncer extends MorphClientObject
         var playerPos = clientPlayer.getPos();
         entity.setPosition(playerPos.x, playerPos.y - 4096, playerPos.z);
 
-        if (!entity.ignoreCameraFrustum)
-            entity.tick();
+        entity.bodyYaw = clientPlayer.bodyYaw;
 
         var entitylimbAnimatorAccessor = (LimbAnimatorAccessor) entity.limbAnimator;
         var playerLimbAccessor = (LimbAnimatorAccessor)clientPlayer.limbAnimator;
@@ -389,6 +386,7 @@ public class DisguiseSyncer extends MorphClientObject
         entitylimbAnimatorAccessor.setPos(playerLimb.getPos());
         entitylimbAnimatorAccessor.setSpeed(playerLimb.getSpeed());
 
+        // Sleep Pos
         var sleepPos = clientPlayer.getSleepingPosition().orElse(null);
 
         if (sleepPos != null)
@@ -396,6 +394,7 @@ public class DisguiseSyncer extends MorphClientObject
         else
             entity.clearSleepingPosition();
 
+        // Health
         var attribute = entity.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH);
 
         if (attribute != null)
@@ -403,15 +402,18 @@ public class DisguiseSyncer extends MorphClientObject
 
         entity.setHealth(clientPlayer.getHealth());
 
+        // Hand Swing
         entity.handSwinging = clientPlayer.handSwinging;
         entity.handSwingProgress = clientPlayer.handSwingProgress;
         entity.lastHandSwingProgress = clientPlayer.lastHandSwingProgress;
         entity.handSwingTicks = clientPlayer.handSwingTicks;
 
+        // Hand and sneaking
         entity.preferredHand = clientPlayer.preferredHand;
 
         entity.setSneaking(clientPlayer.isSneaking());
 
+        // Hurt and death
         entity.hurtTime = clientPlayer.hurtTime;
         entity.deathTime = clientPlayer.deathTime;
 
@@ -458,10 +460,14 @@ public class DisguiseSyncer extends MorphClientObject
         entity.setPose(clientPlayer.getPose());
         entity.setSwimming(clientPlayer.isSwimming());
 
-        if (clientPlayer.hasVehicle())
+        if (clientPlayer.hasVehicle() && clientPlayer.getVehicle().equals(entity.getVehicle()))
+        {
             entity.startRiding(clientPlayer, true);
-        else if (entity.hasVehicle())
+        }
+        else if (!clientPlayer.hasVehicle() && entity.hasVehicle())
+        {
             entity.stopRiding();
+        }
 
         entity.setStuckArrowCount(clientPlayer.getStuckArrowCount());
 
@@ -478,24 +484,6 @@ public class DisguiseSyncer extends MorphClientObject
 
             player.setMainArm(clientPlayer.getMainArm());
         }
-
-        /*
-        if (isSpider)
-        {
-            var dim = entity.getDimensions(clientPlayer.getPose());
-            var bb = dim.getBoxAt(playerPos).expand(0.02f, 0, 0.02f);
-
-            var collisionsBlock = clientPlayer.getWorld().getBlockCollisions(clientPlayer, bb);
-            var collisionBorder = clientPlayer.getWorld().getWorldBorder().getDistanceInsideBorder(clientPlayer) <= ((dim.width + 0.04f) / 2);
-
-            var hasCollide = collisionsBlock.iterator().hasNext() || collisionBorder;
-            if (hasCollide)
-            {
-                var velocity = clientPlayer.getVelocity();
-                clientPlayer.setVelocity(velocity.getX(), Math.min(0.15f, velocity.getY() + 0.15f), velocity.getZ());
-            }
-        }
-        */
 
         entity.setInvisible(clientPlayer.isInvisible());
     }
