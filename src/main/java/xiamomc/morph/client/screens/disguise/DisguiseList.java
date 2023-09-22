@@ -2,7 +2,9 @@ package xiamomc.morph.client.screens.disguise;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ElementListWidget;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.math.MathHelper;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.graphics.IMDrawable;
@@ -38,6 +40,12 @@ public class DisguiseList extends ElementListWidget<EntityDisplayWidget> impleme
     public void setBottomPadding(int b)
     {
         this.bottom = b;
+    }
+
+    @Override
+    protected void renderHeader(DrawContext context, int x, int y)
+    {
+        super.renderHeader(context, x, y);
     }
 
     public int getBottomPadding()
@@ -155,6 +163,23 @@ public class DisguiseList extends ElementListWidget<EntityDisplayWidget> impleme
         textRenderer.drawWithShadow(matrices, "Diff: %s".formatted(diff), 0, textY, 0xffffff);
         */
 
+        context.setShaderColor(0.2F, 0.2F, 0.2F, 1.0F);
+
+        context.drawTexture(Screen.OPTIONS_BACKGROUND_TEXTURE,
+                0, 0,
+                (float)this.right, -getTopPadding(),
+                this.right - this.left, this.getTopPadding(), 32, 32);
+
+        context.drawTexture(Screen.OPTIONS_BACKGROUND_TEXTURE,
+                0, this.bottom,
+                (float)this.right, 0,
+                this.right - this.left, this.getBottomPadding(), 32, 32);
+
+        context.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+
         super.render(context, mouseX, mouseY, delta);
+
+        context.fillGradient(RenderLayer.getGuiOverlay(), this.left, this.top, this.right, this.top + 4, -16777216, 0, 0);
+        context.fillGradient(RenderLayer.getGuiOverlay(), this.left, this.bottom - 4, this.right, this.bottom, 0, -16777216, 0);
     }
 }

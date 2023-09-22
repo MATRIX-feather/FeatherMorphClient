@@ -180,7 +180,11 @@ public class DisguiseScreen extends FeatherScreen
             list.setTopPadding(n);
             list.setHeaderHeight(textRenderer.fontHeight * 2 + fontMargin * 2 - n);
         }, true);
-        bottomHeight.onValueChanged((o, n) -> list.setBottomPadding(this.height - n));
+
+        bottomHeight.onValueChanged((o, n) ->
+        {
+            list.setBottomPadding(this.height - n);
+        });
 
         Transformer.transform(topHeight, textRenderer.fontHeight * 2 + fontMargin * 2, duration, easing);
         Transformer.transform(bottomHeight, 30, duration, easing);
@@ -272,5 +276,10 @@ public class DisguiseScreen extends FeatherScreen
 
         context.fillGradient(0, 0, this.width, this.height, color.getColor(), color.getColor());
         super.render(context, mouseX, mouseY, delta);
+    }
+
+    @Override
+    public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
+        
     }
 }
