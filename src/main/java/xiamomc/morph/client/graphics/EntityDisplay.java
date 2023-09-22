@@ -104,8 +104,7 @@ public class EntityDisplay extends MDrawable
 
         return switch (type.toString())
         {
-            case "minecraft:squid", "minecraft:glow_squid" -> -6;
-            case "minecraft:ghast" -> -3;
+            case "minecraft:ender_dragon" -> -1;
             default -> 0;
         };
     }
@@ -236,8 +235,10 @@ public class EntityDisplay extends MDrawable
             if (displayingEntity == MinecraftClient.getInstance().player)
                 PlayerRenderHelper.instance.skipRender = true;
 
+            //context.fill(0, 0, mcWidth, mcHeight, MaterialColors.Red500.getColor());
+
             drawEntity(context,
-                    0, 0, mcWidth / 2, mcHeight,
+                    mcWidth/ 2, 0, mcWidth / 2, mcHeight,
                     entitySize, 0.0625f + entityYOffset, -mouseX, -mouseY, displayingEntity);
 
             PlayerRenderHelper.instance.skipRender = false;

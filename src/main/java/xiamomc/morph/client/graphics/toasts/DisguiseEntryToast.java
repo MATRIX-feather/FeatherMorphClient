@@ -69,7 +69,7 @@ public class DisguiseEntryToast extends LinedToast
     @Initializer
     private void load()
     {
-        var x = 16;
+        var x = 4;
         var y = 0;
 
         switch (rawIdentifier)
@@ -119,9 +119,13 @@ public class DisguiseEntryToast extends LinedToast
         matrices.translate(0, 0.5, 0);
         var pos = matrices.peek().getPositionMatrix().getTranslation(new Vector3f(0, 0, 0));
 
+        var mouseX = -50;
+        if (rawIdentifier.equals("minecraft:axolotl"))
+            mouseX = -100;
+
         entityDisplay.setParentScreenSpaceX(pos.x);
         entityDisplay.setParentScreenSpaceY(pos.y);
-        entityDisplay.render(context, -30, 0, 0);
+        entityDisplay.render(context, mouseX, -10, 0);
 
         // Pop back
         matrices.pop();

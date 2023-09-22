@@ -252,7 +252,7 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
                 var x = screenSpaceX + width - 24 - 5;
                 var y = screenSpaceY + 1;
                 var mX = 30;
-                var mY = 0;
+                var mY = -9;
 
                 if (activationState == ActivationState.CURRENT)
                 {
