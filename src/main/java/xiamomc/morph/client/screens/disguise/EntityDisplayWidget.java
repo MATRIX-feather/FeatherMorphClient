@@ -309,8 +309,6 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
         {
             if (!isHovered()) return false;
 
-            logger.info("on mouse click: " + button);
-
             manager.selectedIdentifier.set(this.identifier);
 
             if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT)
