@@ -37,4 +37,11 @@ public abstract class PlayerMixin
                 cir.setReturnValue(entity.getDimensions(pose));
         }
     }
+
+    @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
+    private void featherMorph$onTick(CallbackInfo ci)
+    {
+        if (this.equals(DisguiseSyncer.currentEntity.get()) && !DisguiseSyncer.syncing)
+            ci.cancel();
+    }
 }

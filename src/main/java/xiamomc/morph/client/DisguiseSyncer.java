@@ -199,6 +199,7 @@ public class DisguiseSyncer extends MorphClientObject
     private void onTickError(Exception e)
     {
         allowTick = false;
+        syncing = false;
         e.printStackTrace();
 
         if (entity != null)
@@ -357,8 +358,12 @@ public class DisguiseSyncer extends MorphClientObject
         }
     }
 
+    public static boolean syncing;
+
     private void sync(LivingEntity entity, PlayerEntity clientPlayer)
     {
+        syncing = true;
+
         if (entity.isRemoved() || entity.getWorld() == null)
         {
             logger.warn("Trying to update an removed entity");
@@ -485,5 +490,7 @@ public class DisguiseSyncer extends MorphClientObject
         }
 
         entity.setInvisible(clientPlayer.isInvisible());
+
+        syncing = false;
     }
 }

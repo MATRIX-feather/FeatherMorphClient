@@ -4,6 +4,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -74,6 +75,11 @@ public abstract class EntityMixin
 
     @Inject(method = "calculateBoundingBox", at = @At("HEAD"), cancellable = true)
     private void featherMorph$onCalcCall(CallbackInfoReturnable<Box> cir)
+    {
+        featherMorph$onCalcCallMthod(cir);
+    }
+
+    private void featherMorph$onCalcCallMthod(CallbackInfoReturnable<Box> cir)
     {
         if (featherMorph$entityInstance == MinecraftClient.getInstance().player && ServerHandler.modifyBoundingBox)
         {
