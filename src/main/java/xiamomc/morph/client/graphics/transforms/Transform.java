@@ -1,7 +1,6 @@
 package xiamomc.morph.client.graphics.transforms;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.jetbrains.annotations.Nullable;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
 
 import java.util.List;

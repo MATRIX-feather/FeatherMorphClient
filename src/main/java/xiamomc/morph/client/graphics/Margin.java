@@ -1,7 +1,5 @@
 package xiamomc.morph.client.graphics;
 
-import java.util.Objects;
-
 public class Margin
 {
     public final float left;

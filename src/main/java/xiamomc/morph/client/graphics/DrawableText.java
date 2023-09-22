@@ -4,10 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.Drawable;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
-import xiamomc.pluginbase.Annotations.Initializer;
 
 public class DrawableText extends MDrawable
 {

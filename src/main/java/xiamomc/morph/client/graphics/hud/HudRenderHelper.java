@@ -14,8 +14,6 @@ import xiamomc.pluginbase.Annotations.Initializer;
 import xiamomc.pluginbase.Annotations.Resolved;
 import xiamomc.pluginbase.Bindables.Bindable;
 
-import java.util.Random;
-
 public class HudRenderHelper extends MorphClientObject
 {
     @Resolved

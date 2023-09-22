@@ -2,12 +2,8 @@ package xiamomc.morph.client.screens.disguise;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.ParentElement;
 import net.minecraft.client.gui.widget.ElementListWidget;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.MathHelper;
-import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.graphics.IMDrawable;
 import xiamomc.morph.client.graphics.transforms.Recorder;

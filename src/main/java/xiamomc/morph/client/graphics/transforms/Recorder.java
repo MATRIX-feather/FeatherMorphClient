@@ -1,6 +1,5 @@
 package xiamomc.morph.client.graphics.transforms;
 
-import java.lang.module.Configuration;
 import java.util.function.Consumer;
 
 public class Recorder<T>

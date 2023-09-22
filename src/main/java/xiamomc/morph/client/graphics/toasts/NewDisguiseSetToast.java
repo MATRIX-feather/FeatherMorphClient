@@ -1,18 +1,16 @@
 package xiamomc.morph.client.graphics.toasts;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.toast.ToastManager;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.server.rcon.RconCommandOutput;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import xiamomc.morph.client.graphics.color.ColorUtils;
 import xiamomc.pluginbase.Annotations.Initializer;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class NewDisguiseSetToast extends LinedToast
 {

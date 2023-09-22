@@ -1,6 +1,5 @@
 package xiamomc.morph.client;
 
-import com.mojang.brigadier.arguments.ArgumentType;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.toast.ToastManager;

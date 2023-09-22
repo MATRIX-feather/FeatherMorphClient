@@ -1,11 +1,8 @@
 package xiamomc.morph.client.mixin;
 
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
-import net.minecraft.block.entity.SkullBlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.ApiServices;
-import net.minecraft.util.crash.CrashReport;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

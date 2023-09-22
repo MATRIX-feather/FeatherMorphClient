@@ -1,7 +1,6 @@
 package xiamomc.morph.client.graphics;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.fabricmc.loader.impl.lib.sat4j.core.Vec;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.entity.EntityType;
 import net.minecraft.util.Identifier;

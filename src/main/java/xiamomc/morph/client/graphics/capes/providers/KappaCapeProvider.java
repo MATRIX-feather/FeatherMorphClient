@@ -10,11 +10,9 @@ import xiamomc.morph.client.graphics.capes.ICapeProvider;
 import xiamomc.morph.client.mixin.accessors.UtilAccessor;
 
 import java.io.FileNotFoundException;
-import java.math.BigInteger;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 

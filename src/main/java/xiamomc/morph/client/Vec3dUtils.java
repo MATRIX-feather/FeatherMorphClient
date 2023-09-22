@@ -1,8 +1,6 @@
 package xiamomc.morph.client;
 
-import net.fabricmc.loader.impl.lib.sat4j.core.Vec;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
 
 public class Vec3dUtils
 {

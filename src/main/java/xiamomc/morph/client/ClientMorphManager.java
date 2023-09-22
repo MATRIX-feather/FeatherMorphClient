@@ -9,9 +9,6 @@ import net.minecraft.client.toast.ToastManager;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import xiamomc.morph.client.graphics.color.ColorUtils;
 import xiamomc.morph.client.graphics.toasts.DisguiseEntryToast;
 import xiamomc.morph.client.graphics.toasts.NewDisguiseSetToast;
 import xiamomc.pluginbase.Bindables.Bindable;
@@ -19,7 +16,6 @@ import xiamomc.pluginbase.Bindables.Bindable;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
-import java.util.UUID;
 import java.util.function.Function;
 
 public class ClientMorphManager extends MorphClientObject

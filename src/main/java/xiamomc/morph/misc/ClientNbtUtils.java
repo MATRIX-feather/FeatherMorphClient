@@ -4,7 +4,6 @@ import net.minecraft.command.EntityDataObject;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.visitor.StringNbtWriter;
-import org.jetbrains.annotations.Nullable;
 
 public class ClientNbtUtils
 {

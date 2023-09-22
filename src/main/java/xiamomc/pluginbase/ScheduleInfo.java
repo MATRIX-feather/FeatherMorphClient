@@ -1,7 +1,5 @@
 package xiamomc.pluginbase;
 
-import java.util.function.Consumer;
-
 public class ScheduleInfo
 {
     public final Runnable Function;

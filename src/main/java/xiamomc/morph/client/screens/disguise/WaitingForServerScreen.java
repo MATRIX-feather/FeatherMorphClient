@@ -2,7 +2,6 @@ package xiamomc.morph.client.screens.disguise;
 
 import me.shedaniel.math.Color;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 import xiamomc.morph.client.MorphClient;

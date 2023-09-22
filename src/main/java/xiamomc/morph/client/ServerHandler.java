@@ -2,10 +2,8 @@ package xiamomc.morph.client;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.netty.buffer.ByteBuf;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EquipmentSlot;
@@ -16,10 +14,13 @@ import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
+import xiamomc.morph.client.config.ModConfigData;
 import xiamomc.morph.client.network.commands.ClientSetEquipCommand;
 import xiamomc.morph.network.BasicServerHandler;
 import xiamomc.morph.network.Constants;
-import xiamomc.morph.network.commands.C2S.*;
+import xiamomc.morph.network.commands.C2S.AbstractC2SCommand;
+import xiamomc.morph.network.commands.C2S.C2SInitialCommand;
+import xiamomc.morph.network.commands.C2S.C2SOptionCommand;
 import xiamomc.morph.network.commands.CommandRegistries;
 import xiamomc.morph.network.commands.S2C.*;
 import xiamomc.morph.network.commands.S2C.map.S2CMapClearCommand;
@@ -31,10 +32,8 @@ import xiamomc.morph.network.commands.S2C.set.*;
 import xiamomc.pluginbase.Annotations.Initializer;
 import xiamomc.pluginbase.Annotations.Resolved;
 import xiamomc.pluginbase.Bindables.Bindable;
-import xiamomc.morph.client.config.ModConfigData;
 
 import java.nio.charset.StandardCharsets;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ServerHandler extends MorphClientObject implements BasicServerHandler<PlayerEntity>

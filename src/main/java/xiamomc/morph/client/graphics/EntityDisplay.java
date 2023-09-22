@@ -3,7 +3,6 @@ package xiamomc.morph.client.graphics;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
-import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.MagmaCubeEntity;
@@ -16,7 +15,6 @@ import org.joml.Vector3f;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.EntityCache;
 import xiamomc.morph.client.MorphClient;
-import xiamomc.morph.client.graphics.color.MaterialColors;
 import xiamomc.pluginbase.Annotations.Initializer;
 import xiamomc.pluginbase.Bindables.Bindable;
 

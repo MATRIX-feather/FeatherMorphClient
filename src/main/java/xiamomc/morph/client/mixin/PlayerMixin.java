@@ -1,7 +1,6 @@
 package xiamomc.morph.client.mixin;
 
 import com.mojang.authlib.GameProfile;
-import net.minecraft.MinecraftVersion;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityPose;

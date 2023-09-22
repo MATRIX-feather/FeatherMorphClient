@@ -1,12 +1,7 @@
 package xiamomc.morph.client.graphics.toasts;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.ScreenRect;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.toast.ToastManager;
 import net.minecraft.client.util.math.Vector2f;
 import net.minecraft.text.Text;
@@ -14,9 +9,6 @@ import org.joml.Vector3f;
 import xiamomc.morph.client.graphics.Anchor;
 import xiamomc.morph.client.graphics.EntityDisplay;
 import xiamomc.morph.client.graphics.color.MaterialColors;
-import xiamomc.morph.client.graphics.transforms.Recorder;
-import xiamomc.morph.client.graphics.transforms.Transformer;
-import xiamomc.morph.client.graphics.transforms.easings.Easing;
 import xiamomc.pluginbase.Annotations.Initializer;
 
 import java.util.concurrent.ConcurrentLinkedQueue;

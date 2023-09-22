@@ -1,7 +1,5 @@
 package xiamomc.morph.client.utilties;
 
-import org.slf4j.LoggerFactory;
-
 public class MathUtils
 {
     public static float max(float v1, float v2, float v3)

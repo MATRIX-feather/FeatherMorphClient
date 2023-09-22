@@ -3,14 +3,13 @@ package xiamomc.morph.client.graphics;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
 import xiamomc.morph.client.MorphClient;
-import xiamomc.pluginbase.Bindables.Bindable;
 import xiamomc.morph.client.screens.disguise.DisguiseScreen;
+import xiamomc.pluginbase.Bindables.Bindable;
 
 import java.util.List;
 

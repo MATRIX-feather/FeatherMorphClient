@@ -2,12 +2,9 @@ package xiamomc.morph.client.network.commands;
 
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
-import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import xiamomc.morph.network.commands.S2C.set.S2CSetFakeEquipCommand;
-
-import java.util.Arrays;
 
 public class ClientSetEquipCommand extends S2CSetFakeEquipCommand<ItemStack>
 {
