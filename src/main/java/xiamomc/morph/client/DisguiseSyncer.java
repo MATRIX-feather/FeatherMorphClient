@@ -347,8 +347,6 @@ public class DisguiseSyncer extends MorphClientObject
         else
             entity.setPitch(clientPlayer.getPitch());
 
-        entity.prevPitch = clientPlayer.prevPitch;
-
         entity.headYaw = clientPlayer.headYaw;
         entity.prevHeadYaw = clientPlayer.prevHeadYaw;
 
@@ -376,7 +374,8 @@ public class DisguiseSyncer extends MorphClientObject
         var playerPos = clientPlayer.getPos();
         entity.setPosition(playerPos.x, playerPos.y - 4096, playerPos.z);
 
-        entity.bodyYaw = clientPlayer.bodyYaw;
+        if (!entity.ignoreCameraFrustum)
+            entity.tick();
 
         var entitylimbAnimatorAccessor = (LimbAnimatorAccessor) entity.limbAnimator;
         var playerLimbAccessor = (LimbAnimatorAccessor)clientPlayer.limbAnimator;
