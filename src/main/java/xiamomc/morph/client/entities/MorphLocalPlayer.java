@@ -1,28 +1,22 @@
 package xiamomc.morph.client.entities;
 
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.minecraft.MinecraftProfileTexture;
-import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.yggdrasil.ProfileResult;
-import net.minecraft.block.entity.SkullBlockEntity;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.client.render.entity.PlayerModelPart;
 import net.minecraft.client.util.SkinTextures;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Pair;
-import net.minecraft.util.UserCache;
-import net.minecraft.util.Util;
+import net.minecraft.util.*;
 import net.minecraft.util.math.Vec3d;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.graphics.capes.ICapeProvider;
 import xiamomc.morph.client.graphics.capes.providers.KappaCapeProvider;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -33,8 +27,12 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
 
     private final String playerName;
 
-    private Identifier morphTextureIdentifier;
+    @NotNull
+    private Identifier morphTextureIdentifier = new Identifier("minecraft", "textures/entity/player/wide/steve.png");
+
     private Identifier capeTextureIdentifier;
+
+    private String skinTextureUrl;
 
     private SkinTextures.Model model;
 
@@ -81,29 +79,59 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
 
     private static final Logger logger = LoggerFactory.getLogger("MorphClient");
 
-    private static boolean hasTextures(GameProfile profile) {
-        return profile.getProperties().containsKey("textures");
+    private static ApiServices apiServices;
+    private static Executor apiExecutor;
+
+    public static void setMinecraftAPIServices(ApiServices apiSrv, Executor apiExec)
+    {
+        apiServices = apiSrv;
+        apiExecutor = apiExec;
     }
 
-    @Nullable
-    private static MinecraftSessionService sessionService;
+    //region From SkullBlockEntity
 
-    private static CompletableFuture<Optional<GameProfile>> fetchProfileWithTextures(GameProfile profile) {
-        if (hasTextures(profile)) {
-            return CompletableFuture.completedFuture(Optional.of(profile));
-        }
+    public static CompletableFuture<Optional<GameProfile>> fetchProfileWithTextures(GameProfile profile)
+    {
+        return profile.getProperties().containsKey("textures")
+                ? CompletableFuture.completedFuture(Optional.of(profile))
+                : CompletableFuture.supplyAsync(() ->
+                    {
+                        var sessionService = MinecraftClient.getInstance().getSessionService();
 
-        sessionService = MinecraftClient.getInstance().getSessionService();
+                        if (sessionService != null)
+                        {
+                            ProfileResult profileResult = sessionService.fetchProfile(profile.getId(), true);
+                            return profileResult == null ? Optional.of(profile) : Optional.of(profileResult.profile());
+                        } else
+                        {
+                            return Optional.empty();
+                        }
+                    }, Util.getMainWorkerExecutor());
+    }
 
-        return CompletableFuture.supplyAsync(() -> {
-            MinecraftSessionService minecraftSessionService = sessionService;
-            if (minecraftSessionService != null) {
-                ProfileResult profileResult = minecraftSessionService.fetchProfile(profile.getId(), true);
-                return profileResult == null ? Optional.of(profile) : Optional.of(profileResult.profile());
+    private static UserCache userCache;
+
+    private static CompletableFuture<Optional<GameProfile>> fetchProfile(String name)
+    {
+        if (userCache == null && apiServices != null)
+            userCache = apiServices.userCache();
+
+        UserCache userCache = MorphLocalPlayer.userCache;
+        return userCache == null ? CompletableFuture.completedFuture(Optional.empty()) : userCache.findByNameAsync(name).thenCompose((profile) -> {
+            return profile.isPresent() ? fetchProfileWithTextures(profile.get()) : CompletableFuture.completedFuture(Optional.empty());
+        }).thenApplyAsync((profile) -> {
+            UserCache userCache1 = MorphLocalPlayer.userCache;
+            if (userCache1 != null) {
+                Objects.requireNonNull(userCache1);
+                profile.ifPresent(userCache1::add);
+                return profile;
+            } else {
+                return Optional.empty();
             }
-            return Optional.empty();
-        }, Util.getMainWorkerExecutor());
+        }, apiExecutor);
     }
+
+    //endregion From SkullBlockEntity
 
     public void updateSkin(GameProfile profile)
     {
@@ -119,24 +147,54 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
 
         var invokeId = requestId;
 
-        logger.info("Fetching skin...");
+        // 根据传入的profile来决定要不要由我们自己获取皮肤
+        CompletableFuture<Optional<GameProfile>> profileFetchTask;
 
-        var skinProvider = MinecraftClient.getInstance().getSkinProvider();
-        var fetchTask = skinProvider.fetchSkinTextures(profile);
-        fetchTask.thenApply(a ->
+        // 如果传入的是NIL_UUID，则自己获取，否则就用传入的profile
+        if (profile.getId().equals(Util.NIL_UUID))
+            profileFetchTask = fetchProfile(profile.getName());
+        else
+            profileFetchTask = CompletableFuture.completedFuture(Optional.of(profile));
+
+        profileFetchTask.thenApply(optional ->
         {
-            logger.info("Fetching skin complete!");
+            // 确保targetProfile不是null
+            GameProfile targetProfile = optional.orElse(profile);
 
-            onFetchComplete(invokeId, a, profile);
+            // 开始获取皮肤信息
+            startFetchTask(targetProfile, invokeId);
             return null;
         });
+    }
+
+    private void startFetchTask(GameProfile profile, int invokeId)
+    {
+        // 通过fetchProfileWithTextures获取带皮肤的gameProfile
+        var texturedProfileFetchTask = fetchProfileWithTextures(profile);
+        texturedProfileFetchTask.thenApply((optional ->
+        {
+            GameProfile gameProfile = optional.orElse(null);
+
+            // 如果没有，则不做任何举动
+            if (gameProfile == null)
+                return null;
+
+            // 反之，获取其中的皮肤
+            var skinProvider = MinecraftClient.getInstance().getSkinProvider();
+            var skinFetchTask = skinProvider.fetchSkinTextures(profile);
+            skinFetchTask.thenApply(a ->
+            {
+                onFetchComplete(invokeId, a, profile);
+                return null;
+            });
+
+            return null;
+        }));
     }
 
     private void onFetchComplete(int invokeId, SkinTextures tex, GameProfile profile)
     {
         if (this.isRemoved()) return;
-
-        logger.info("Get tex:" + tex.texture() + " :: " + tex.capeTexture() + " :: " + tex.model() + " :: " + tex.textureUrl());
 
         var currentId = currentProfilePair.getLeft();
 
@@ -150,7 +208,7 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
         currentProfilePair.setLeft(requestId);
         currentProfilePair.setRight(profile);
 
-        this.skinTexUrl = tex.textureUrl();
+        this.skinTextureUrl = tex.textureUrl();
 
         this.morphTextureIdentifier = tex.texture();
         this.model = tex.model();
@@ -168,8 +226,6 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
     }
 
     public boolean fallFlying;
-
-    private String skinTexUrl;
 
     @Override
     public boolean isFallFlying() {
@@ -236,12 +292,10 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
     @Override
     public SkinTextures getSkinTextures()
     {
-        var tex = new SkinTextures(morphTextureIdentifier,
-                skinTexUrl,
+        return new SkinTextures(morphTextureIdentifier,
+                skinTextureUrl,
                 capeTextureIdentifier, capeTextureIdentifier,
                 model, true);
-
-        return tex;
     }
 
     @Override

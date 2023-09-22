@@ -69,7 +69,7 @@ public class DisguiseEntryToast extends LinedToast
     @Initializer
     private void load()
     {
-        var x = 4;
+        var x = 16;
         var y = 0;
 
         switch (rawIdentifier)

@@ -3,9 +3,13 @@ package xiamomc.morph.client;
 import com.mojang.authlib.GameProfile;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.minecraft.block.entity.SkullBlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.util.ApiServices;
+import net.minecraft.util.UserCache;
+import net.minecraft.util.Util;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.entities.MorphLocalPlayer;
@@ -13,7 +17,10 @@ import xiamomc.pluginbase.Bindables.Bindable;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -166,7 +173,7 @@ public class EntityCache
             var splitedId = identifier.split(":", 2);
 
             if (splitedId.length != 2) return null;
-            var profile = new GameProfile(UUID.randomUUID(), splitedId[1]);
+            var profile = new GameProfile(Util.NIL_UUID, splitedId[1]);
 
             try (var world = MinecraftClient.getInstance().world)
             {
