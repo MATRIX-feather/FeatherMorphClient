@@ -6,6 +6,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ElementListWidget;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.math.MathHelper;
+import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.graphics.IMDrawable;
 import xiamomc.morph.client.graphics.transforms.Recorder;
@@ -25,6 +26,17 @@ public class DisguiseList extends ElementListWidget<EntityDisplayWidget> impleme
     {
         children().forEach(EntityDisplayWidget::clearChildren);
         clearEntries();
+    }
+
+    @Override
+    public void setFocused(boolean focused)
+    {
+        LoggerFactory.getLogger("morph").info("Set focused: " + this + " :: " + focused);
+
+        if (!focused)
+            Thread.dumpStack();
+
+        super.setFocused(focused);
     }
 
     public void setHeight(int nH)

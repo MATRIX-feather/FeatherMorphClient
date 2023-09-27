@@ -2,6 +2,7 @@ package xiamomc.morph.client.screens.disguise;
 
 import me.shedaniel.math.Color;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 import xiamomc.morph.client.MorphClient;
@@ -43,7 +44,7 @@ public class WaitingForServerScreen extends FeatherScreen
     private final LoadingSpinner loadingSpinner = new LoadingSpinner();
 
     @Override
-    protected void onScreenEnter(FeatherScreen last)
+    protected void onScreenEnter(Screen last)
     {
         super.onScreenEnter(last);
 
@@ -92,7 +93,7 @@ public class WaitingForServerScreen extends FeatherScreen
     }
 
     @Override
-    protected void onScreenExit(@Nullable FeatherScreen nextScreen)
+    protected void onScreenExit(@Nullable Screen nextScreen)
     {
         serverReady.dispose();
 
@@ -112,5 +113,10 @@ public class WaitingForServerScreen extends FeatherScreen
         closeButton.setY(this.height - 29);
 
         super.render(context, mouseX, mouseY, delta);
+    }
+
+    @Override
+    public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta)
+    {
     }
 }
