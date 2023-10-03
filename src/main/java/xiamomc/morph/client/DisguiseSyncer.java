@@ -348,6 +348,12 @@ public class DisguiseSyncer extends MorphClientObject
         else
             entity.setPitch(clientPlayer.getPitch());
 
+        //末影龙的Yaw和玩家是反的
+        if (entity.getType() == EntityType.ENDER_DRAGON)
+            entity.setYaw(180 + clientPlayer.getYaw());
+        else
+            entity.setYaw(clientPlayer.getYaw());
+
         entity.headYaw = clientPlayer.headYaw;
         entity.prevHeadYaw = clientPlayer.prevHeadYaw;
 
@@ -424,12 +430,6 @@ public class DisguiseSyncer extends MorphClientObject
 
         //entity.inPowderSnow = clientPlayer.inPowderSnow;
         entity.setFrozenTicks(clientPlayer.getFrozenTicks());
-
-        //末影龙的Yaw和玩家是反的
-        if (entity.getType() == EntityType.ENDER_DRAGON)
-            entity.setYaw(180 + clientPlayer.getYaw());
-        else
-            entity.setYaw(clientPlayer.getYaw());
 
         entity.setVelocity(clientPlayer.getVelocity());
 
