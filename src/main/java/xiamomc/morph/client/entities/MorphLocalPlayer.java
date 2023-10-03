@@ -221,6 +221,13 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
     public boolean fallFlying;
 
     @Override
+    public boolean isSpectator()
+    {
+        var clientPlayer = MinecraftClient.getInstance().player;
+        return clientPlayer != null && clientPlayer.isSpectator();
+    }
+
+    @Override
     public boolean isFallFlying() {
         return fallFlying;
     }
