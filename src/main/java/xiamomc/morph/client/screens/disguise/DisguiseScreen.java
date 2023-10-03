@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import me.shedaniel.math.Color;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import xiamomc.morph.client.ClientMorphManager;
@@ -126,7 +127,7 @@ public class DisguiseScreen extends FeatherScreen
     private final int fontMargin = 4;
 
     @Override
-    protected void onScreenExit(FeatherScreen next)
+    protected void onScreenExit(Screen next)
     {
         super.onScreenExit(next);
 
@@ -147,7 +148,7 @@ public class DisguiseScreen extends FeatherScreen
     }
 
     @Override
-    protected void onScreenEnter(FeatherScreen last)
+    protected void onScreenEnter(Screen last)
     {
         super.onScreenEnter(last);
 

@@ -6,13 +6,19 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.Selectable;
+import net.minecraft.client.gui.navigation.GuiNavigation;
+import net.minecraft.client.gui.navigation.GuiNavigationPath;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.ILoggerFactory;
+import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.graphics.IMDrawable;
 import xiamomc.morph.client.graphics.MButtonWidget;
+import xiamomc.morph.client.graphics.color.MaterialColors;
+import xiamomc.morph.client.utilties.Screens;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -25,15 +31,24 @@ public abstract class FeatherScreen extends Screen implements IMDrawable
 
     private boolean isInitialInitialize = true;
 
+    private Screen lastScreen;
+    private Screen nextScreen;
+
     @Override
     protected void init()
     {
+        var last = lastScreen;
+
+        if (last != null && last == nextScreen)
+            this.onScreenResume(last);
+        else if (isInitialInitialize)
+            this.onScreenEnter(last);
+
+        lastScreen = null;
+        nextScreen = null;
+
         if (isInitialInitialize)
         {
-            var last = lastScreen;
-            lastScreen = null;
-
-            this.onScreenEnter(last);
             this.onScreenResize();
             isInitialInitialize = false;
         }
@@ -41,14 +56,17 @@ public abstract class FeatherScreen extends Screen implements IMDrawable
         {
             this.onScreenResize();
 
-            this.children.forEach(d ->
-            {
-                super.addDrawable(d);
-                super.addSelectableChild((Element & Selectable) d);
-            });
+            clearChildren();
+            this.children.forEach(super::addDrawableChild);
         }
 
         super.init();
+    }
+
+    @Override
+    public void onDisplayed()
+    {
+        lastScreen = Screens.getInstance().last;
     }
 
     @Override
@@ -61,14 +79,23 @@ public abstract class FeatherScreen extends Screen implements IMDrawable
     }
 
     @Override
+    protected void clearAndInit()
+    {
+        super.clearAndInit();
+        layoutValid.set(true);
+    }
+
+    @Override
     public void removed()
     {
-        isInitialInitialize = true;
+        var next = Screens.getInstance().next;
+        if (next == null)
+            isInitialInitialize = true;
 
-        var next = nextScreen;
-        nextScreen = null;
-
+        nextScreen = next;
         this.onScreenExit(next);
+
+        invalidateLayout();
 
         this.clearChildren();
         super.removed();
@@ -134,34 +161,6 @@ public abstract class FeatherScreen extends Screen implements IMDrawable
 
     //region Minecraft interface children handling
 
-    @Override
-    @Deprecated(forRemoval = true)
-    protected <T extends Drawable> T addDrawable(T drawable)
-    {
-        throw new InvalidOperationException("May not use addDrawable to add children");
-    }
-
-    @Override
-    @Deprecated(forRemoval = true)
-    protected <T extends Element & Drawable & Selectable> T addDrawableChild(T drawableElement)
-    {
-        throw new InvalidOperationException("May not use addDrawableChild to add children");
-    }
-
-    @Override
-    @Deprecated(forRemoval = true)
-    protected <T extends Element & Selectable> T addSelectableChild(T child)
-    {
-        throw new InvalidOperationException("May not use addSelectableChild to add children");
-    }
-
-    @Override
-    @Deprecated(forRemoval = true)
-    protected void clearAndInit()
-    {
-        super.clearAndInit();
-    }
-
     private static class InvalidOperationException extends RuntimeException
     {
         public InvalidOperationException() {
@@ -191,14 +190,15 @@ public abstract class FeatherScreen extends Screen implements IMDrawable
     {
     }
 
-    private FeatherScreen lastScreen;
-    private FeatherScreen nextScreen;
-
-    protected void onScreenEnter(@Nullable FeatherScreen lastScreen)
+    protected void onScreenEnter(@Nullable Screen lastScreen)
     {
     }
 
-    protected void onScreenExit(@Nullable FeatherScreen nextScreen)
+    protected void onScreenExit(@Nullable Screen nextScreen)
+    {
+    }
+
+    protected void onScreenResume(@Nullable Screen lastScreen)
     {
     }
 
@@ -213,9 +213,6 @@ public abstract class FeatherScreen extends Screen implements IMDrawable
 
     protected void push(FeatherScreen screen)
     {
-        screen.lastScreen = this;
-        this.nextScreen = screen;
-
         MinecraftClient.getInstance().setScreen(screen);
     }
 
@@ -229,7 +226,7 @@ public abstract class FeatherScreen extends Screen implements IMDrawable
     @Override
     public SelectionType getType()
     {
-        return SelectionType.NONE;
+        return SelectionType.HOVERED;
     }
 
     //endregion

@@ -231,4 +231,11 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
     public boolean shouldRenderName() {
         return false;
     }
+
+    @Override
+    public boolean isSpectator()
+    {
+        var clientPlayer = MinecraftClient.getInstance().player;
+        return clientPlayer == null ? super.isSpectator() : clientPlayer.isSpectator();
+    }
 }
