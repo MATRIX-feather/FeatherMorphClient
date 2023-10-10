@@ -116,7 +116,7 @@ public class DisguiseScreen extends FeatherScreen
 
     private final MButtonWidget closeButton;
     private final MButtonWidget configMenuButton;
-    private final MButtonWidget testButton;
+    //private final MButtonWidget testButton;
     private final ToggleSelfButton selfVisibleToggle;
 
     private final ClientMorphManager manager;

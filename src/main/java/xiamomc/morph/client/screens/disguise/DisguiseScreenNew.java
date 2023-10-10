@@ -41,6 +41,8 @@ public class DisguiseScreenNew extends FeatherScreen
         otherContainer.setRelativeSizeAxes(Axes.Both);
         otherContainer.setSize(new Vector2f(1 - flowWidthRatio, 1));
         otherContainer.setAnchor(Anchor.TopRight);
+        otherContainer.setX(Math.round(-this.width * (1 - flowWidthRatio)));
+        otherContainer.setY(20);
 
         //region DisguiseSelectFlow
 
