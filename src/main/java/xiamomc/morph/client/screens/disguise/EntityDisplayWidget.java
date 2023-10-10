@@ -22,7 +22,7 @@ import xiamomc.morph.client.ClientMorphManager;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.MorphClientObject;
 import xiamomc.morph.client.graphics.Anchor;
-import xiamomc.morph.client.graphics.Container;
+import xiamomc.morph.client.graphics.container.Container;
 import xiamomc.morph.client.graphics.EntityDisplay;
 import xiamomc.morph.client.graphics.color.ColorUtils;
 import xiamomc.morph.client.graphics.transforms.Recorder;

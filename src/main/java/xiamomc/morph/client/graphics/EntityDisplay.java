@@ -15,6 +15,7 @@ import org.joml.Vector3f;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.EntityCache;
 import xiamomc.morph.client.MorphClient;
+import xiamomc.morph.client.graphics.color.MaterialColors;
 import xiamomc.pluginbase.Annotations.Initializer;
 import xiamomc.pluginbase.Bindables.Bindable;
 
@@ -123,7 +124,8 @@ public class EntityDisplay extends MDrawable
             case "minecraft:horse", "minecraft:player" -> 8;
             default ->
             {
-                var size = (int) (15 / Math.max(entity.getHeight(), entity.getWidth()));
+                //15 / ...
+                var size = (int) ((Math.max(this.getFinalHeight(), this.getFinalWidth()) * 0.8) / Math.max(entity.getHeight(), entity.getWidth()));
                 size = Math.max(1, size);
 
                 yield size;
@@ -233,10 +235,13 @@ public class EntityDisplay extends MDrawable
             if (displayingEntity == MinecraftClient.getInstance().player)
                 PlayerRenderHelper.instance.skipRender = true;
 
-            //context.fill(0, 0, mcWidth, mcHeight, MaterialColors.Red500.getColor());
+            //context.fill(0, 0, finalWidth, finalHeight, MaterialColors.Red500.getColor());
+
+            var x1 = finalWidth / 2;
+            var y2 = finalHeight;
 
             drawEntity(context,
-                    mcWidth/ 2, 0, mcWidth / 2, mcHeight,
+                    x1, 0, x1, y2,
                     entitySize, 0.0625f + entityYOffset, -mouseX, -mouseY, displayingEntity);
 
             PlayerRenderHelper.instance.skipRender = false;

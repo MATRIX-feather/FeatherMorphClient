@@ -22,4 +22,14 @@ public enum Anchor
     {
         this.posMask = posMask;
     }
+
+    public boolean xCentre()
+    {
+        return (this.posMask & x2) == x2;
+    }
+
+    public boolean yCentre()
+    {
+        return (this.posMask & y2) == y2;
+    }
 }

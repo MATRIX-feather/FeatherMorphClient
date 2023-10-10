@@ -3,7 +3,6 @@ package xiamomc.morph.client.graphics.container;
 import net.minecraft.client.gui.DrawContext;
 import xiamomc.morph.client.graphics.Anchor;
 import xiamomc.morph.client.graphics.Axes;
-import xiamomc.morph.client.graphics.BasicContainer;
 import xiamomc.morph.client.graphics.MDrawable;
 import xiamomc.pluginbase.Annotations.Initializer;
 
@@ -65,7 +64,8 @@ public class BasicFlowContainer<T extends MDrawable> extends BasicContainer<T>
             // Both下的自动换行
             if (flowAxes == Axes.Both)
             {
-                var maxWidth = this.width - this.padding.left - this.padding.right;
+                var rectWidth = this.relativeSizeAxes.modX ? this.width * this.getParentRect().width() : this.width;
+                var maxWidth = rectWidth - this.padding.left - this.padding.right;
                 if (currentX + child.getWidth() > maxWidth)
                 {
                     currentY += childMaxHeight + spacing;

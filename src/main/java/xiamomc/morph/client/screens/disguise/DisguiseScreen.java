@@ -12,6 +12,7 @@ import xiamomc.morph.client.EntityCache;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.ServerHandler;
 import xiamomc.morph.client.graphics.*;
+import xiamomc.morph.client.graphics.container.Container;
 import xiamomc.morph.client.graphics.transforms.Recorder;
 import xiamomc.morph.client.graphics.transforms.Transformer;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
@@ -103,6 +104,11 @@ public class DisguiseScreen extends FeatherScreen
             MinecraftClient.getInstance().setScreen(screen);
         }));
 
+        //testButton = this.buildButtonWidget(0, 0, 20, 20, Text.literal("T"), button ->
+        //{
+        //    this.push(new DisguiseScreenNew(Text.literal("d")));
+        //});
+
         selfVisibleToggle = new ToggleSelfButton(0, 0, 20, 20, manager.selfVisibleEnabled.get(), this);
     }
 
@@ -110,6 +116,7 @@ public class DisguiseScreen extends FeatherScreen
 
     private final MButtonWidget closeButton;
     private final MButtonWidget configMenuButton;
+    private final MButtonWidget testButton;
     private final ToggleSelfButton selfVisibleToggle;
 
     private final ClientMorphManager manager;
@@ -222,7 +229,8 @@ public class DisguiseScreen extends FeatherScreen
             bottomTextContainer,
             closeButton,
             selfVisibleToggle,
-            configMenuButton
+            configMenuButton,
+            //testButton
         });
 
         //顶端文本
