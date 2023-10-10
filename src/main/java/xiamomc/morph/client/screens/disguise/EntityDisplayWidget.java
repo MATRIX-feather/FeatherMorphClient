@@ -4,7 +4,10 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import me.shedaniel.math.Color;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.Drawable;
+import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.screen.narration.NarrationPart;
 import net.minecraft.client.gui.widget.ElementListWidget;
@@ -15,7 +18,9 @@ import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.LoggerFactory;
-import xiamomc.morph.client.*;
+import xiamomc.morph.client.ClientMorphManager;
+import xiamomc.morph.client.MorphClient;
+import xiamomc.morph.client.MorphClientObject;
 import xiamomc.morph.client.graphics.Anchor;
 import xiamomc.morph.client.graphics.Container;
 import xiamomc.morph.client.graphics.EntityDisplay;
@@ -33,6 +38,11 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
     private TextWidget field;
 
     private String identifier = "???";
+
+    public String getEntityName()
+    {
+        return field.entityName == null ? "???" : field.entityName;
+    }
 
     public String getIdentifier()
     {
@@ -86,6 +96,8 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
     private static class TextWidget extends MorphClientObject implements Selectable, Drawable, Element
     {
         private final String identifier;
+        private String entityName;
+
         private Text display;
 
         int screenSpaceY = 0;
@@ -129,7 +141,11 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
 
             // Setup drawables
             this.entityDisplay = new EntityDisplay(identifier);
-            entityDisplay.postEntitySetup = () -> this.trimDisplay(entityDisplay.getDisplayName());
+            entityDisplay.postEntitySetup = () ->
+            {
+                this.entityName = entityDisplay.getDisplayName().getString();
+                this.trimDisplay(entityDisplay.getDisplayName());
+            };
 
             displayContainer.add(entityDisplay);
             displayContainer.setSize(new Vector2f(48, 18));
