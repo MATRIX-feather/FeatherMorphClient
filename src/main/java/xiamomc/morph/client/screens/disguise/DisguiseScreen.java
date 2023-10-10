@@ -1,6 +1,7 @@
 package xiamomc.morph.client.screens.disguise;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import me.shedaniel.math.Color;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -18,6 +19,8 @@ import xiamomc.morph.client.graphics.transforms.Transformer;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
 import xiamomc.morph.client.screens.FeatherScreen;
 import xiamomc.pluginbase.Bindables.Bindable;
+
+import java.util.List;
 
 public class DisguiseScreen extends FeatherScreen
 {
@@ -109,12 +112,16 @@ public class DisguiseScreen extends FeatherScreen
         //    this.push(new DisguiseScreenNew(Text.literal("d")));
         //});
 
+        textBox = new MTextBoxWidget(MinecraftClient.getInstance().textRenderer, 120, 17, Text.literal("Search disguise..."));
+        textBox.setChangedListener(this::applySearch);
+
         selfVisibleToggle = new ToggleSelfButton(0, 0, 20, 20, manager.selfVisibleEnabled.get(), this);
     }
 
     private final Bindable<String> selectedIdentifier = new Bindable<>();
 
     private final MButtonWidget closeButton;
+    private final MTextBoxWidget textBox;
     private final MButtonWidget configMenuButton;
     //private final MButtonWidget testButton;
     private final ToggleSelfButton selfVisibleToggle;
@@ -140,6 +147,13 @@ public class DisguiseScreen extends FeatherScreen
 
         if (next == null)
         {
+            if (fullList != null)
+            {
+                list.clearChildren(false);
+                list.children().addAll(fullList);
+                fullList = null;
+            }
+
             //workaround: Bindable在界面关闭后还是会保持引用，得手动把字段设置为null
             list.clearChildren();
         }
@@ -168,13 +182,7 @@ public class DisguiseScreen extends FeatherScreen
             manager.getAvailableMorphs().forEach(s -> list.children().add(new EntityDisplayWidget(s)));
 
             //第一次打开时滚动到当前伪装
-            var current = manager.currentIdentifier.get();
-
-            if (current != null)
-            {
-                list.scrollTo(list.children().stream()
-                        .filter(w -> current.equals(w.getIdentifier())).findFirst().orElse(null));
-            }
+            scrollToCurrentOrLast(false);
         }
 
         if (last instanceof WaitingForServerScreen waitingForServerScreen)
@@ -230,6 +238,7 @@ public class DisguiseScreen extends FeatherScreen
             closeButton,
             selfVisibleToggle,
             configMenuButton,
+            textBox
             //testButton
         });
 
@@ -256,9 +265,80 @@ public class DisguiseScreen extends FeatherScreen
         //按钮
         var baseX = this.width - closeButton.getWidth() - 20;
 
+        textBox.setX(baseX);
+
         closeButton.setX(baseX);
         selfVisibleToggle.setX(baseX - selfVisibleToggle.getWidth() - 5);
         configMenuButton.setX(baseX - selfVisibleToggle.getWidth() - 5 - configMenuButton.getWidth() - 5);
+    }
+
+    private void scrollToCurrentOrLast(boolean scrollToLastIfNoCurrent)
+    {
+        var filter = list.children();
+
+        var current = manager.currentIdentifier.get();
+
+        if (current != null)
+        {
+            var widget = list.children().stream()
+                    .filter(w -> current.equals(w.getIdentifier())).findFirst().orElse(null);
+
+            if (widget != null)
+            {
+                list.scrollTo(widget);
+
+                return;
+            }
+        }
+
+        if (!scrollToLastIfNoCurrent) return;
+
+        EntityDisplayWidget last = null;
+        if (filter.size() >= 1)
+            last = filter.get(filter.size() - 1);
+
+        if (last != null)
+            list.scrollTo(last);
+    }
+
+    private void applySearch(String str)
+    {
+        if (str.isEmpty())
+        {
+            if (fullList != null)
+            {
+                list.clearChildren(false);
+                list.children().addAll(fullList);
+
+                fullList = null;
+            }
+
+            return;
+        }
+
+        if (fullList == null)
+            this.fullList = new ObjectArrayList<>(list.children());
+
+        var filter = fullList.stream().filter(w -> w.getIdentifier().toLowerCase().contains(str.toLowerCase()) || w.getEntityName().contains(str))
+                .toList();
+
+        list.clearChildren(false);
+        list.children().addAll(filter);
+
+        if (list.getScrollAmount() > list.getMaxScroll())
+            scrollToCurrentOrLast(true);
+    }
+
+    /**
+     * 搜索前伪装列表中的所有元素
+     */
+    private List<EntityDisplayWidget> fullList;
+
+    @Override
+    protected void init()
+    {
+        super.init();
+        this.focusOn(textBox);
     }
 
     @Override
@@ -282,6 +362,8 @@ public class DisguiseScreen extends FeatherScreen
         selfVisibleToggle.setY(bottomY);
         closeButton.setY(bottomY);
         configMenuButton.setY(bottomY);
+
+        textBox.setY(this.topHeight.get() - textBox.getHeight() - 5);
 
         context.fillGradient(0, 0, this.width, this.height, color.getColor(), color.getColor());
         super.render(context, mouseX, mouseY, delta);

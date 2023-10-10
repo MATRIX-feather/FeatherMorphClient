@@ -39,6 +39,11 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
 
     private String identifier = "???";
 
+    public String getEntityName()
+    {
+        return field.entityName == null ? "???" : field.entityName;
+    }
+
     public String getIdentifier()
     {
         return identifier;
@@ -91,6 +96,8 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
     private static class TextWidget extends MorphClientObject implements Selectable, Drawable, Element
     {
         private final String identifier;
+        private String entityName;
+
         private Text display;
 
         int screenSpaceY = 0;
@@ -134,7 +141,11 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
 
             // Setup drawables
             this.entityDisplay = new EntityDisplay(identifier);
-            entityDisplay.postEntitySetup = () -> this.trimDisplay(entityDisplay.getDisplayName());
+            entityDisplay.postEntitySetup = () ->
+            {
+                this.entityName = entityDisplay.getDisplayName().getString();
+                this.trimDisplay(entityDisplay.getDisplayName());
+            };
 
             displayContainer.add(entityDisplay);
             displayContainer.setSize(new Vector2f(48, 18));

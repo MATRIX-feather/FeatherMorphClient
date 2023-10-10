@@ -29,7 +29,7 @@ public abstract class FeatherScreen extends Screen implements IMDrawable
         super(title);
     }
 
-    private boolean isInitialInitialize = true;
+    protected boolean isInitialInitialize = true;
 
     private Screen lastScreen;
     private Screen nextScreen;

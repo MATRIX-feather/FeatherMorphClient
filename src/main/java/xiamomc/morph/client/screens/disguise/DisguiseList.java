@@ -24,18 +24,20 @@ public class DisguiseList extends ElementListWidget<EntityDisplayWidget> impleme
 
     public void clearChildren()
     {
-        children().forEach(EntityDisplayWidget::clearChildren);
+        this.clearChildren(true);
+    }
+
+    public void clearChildren(boolean disposeChildren)
+    {
+        if (disposeChildren)
+            children().forEach(EntityDisplayWidget::clearChildren);
+
         clearEntries();
     }
 
     @Override
     public void setFocused(boolean focused)
     {
-        LoggerFactory.getLogger("morph").info("Set focused: " + this + " :: " + focused);
-
-        if (!focused)
-            Thread.dumpStack();
-
         super.setFocused(focused);
     }
 
