@@ -15,6 +15,7 @@ import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.math.Vector2f;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.LoggerFactory;
@@ -44,9 +45,26 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
         return field.entityName == null ? "???" : field.entityName;
     }
 
-    public String getIdentifier()
+    public String getIdentifierString()
     {
         return identifier;
+    }
+
+    private Identifier identifierAsNms;
+
+    private static final Identifier defaultIdentifier = Identifier.of("morph", "unknown");
+
+    public Identifier getIdentifier()
+    {
+        if (identifierAsNms != null)
+            return identifierAsNms;
+
+        var id = Identifier.tryParse(identifier.toLowerCase());
+        if (id == null)
+            id = defaultIdentifier;
+
+        this.identifierAsNms = id;
+        return id;
     }
 
     @Override

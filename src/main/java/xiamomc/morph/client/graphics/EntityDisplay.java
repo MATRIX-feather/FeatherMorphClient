@@ -49,27 +49,12 @@ public class EntityDisplay extends MDrawable
         this(id, false);
     }
 
-    @Initializer
-    private void load()
-    {
-        ecDroppingCache.bindTo(EntityCache.droppingCaches);
-        ecDroppingCache.bindTo(null);
-
-        ecDroppingCache.onValueChanged((o, n) ->
-        {
-            if (n)
-                this.resetEntity();
-        }, true);
-    }
-
     @Override
     public void invalidatePosition()
     {
         super.invalidatePosition();
         loadingSpinner.invalidatePosition();
     }
-
-    private final Bindable<Boolean> ecDroppingCache = new Bindable<>();
 
     @Nullable
     private LivingEntity displayingEntity;

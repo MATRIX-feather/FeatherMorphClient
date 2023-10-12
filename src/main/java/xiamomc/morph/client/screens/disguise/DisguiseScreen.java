@@ -51,7 +51,7 @@ public class DisguiseScreen extends FeatherScreen
             if (!this.isCurrent()) return false;
 
             morphClient.schedule(() ->
-                    c.forEach(s -> list.children().removeIf(w -> w.getIdentifier().equals(s))));
+                    c.forEach(s -> list.children().removeIf(w -> w.getIdentifierString().equals(s))));
 
             return true;
         });
@@ -281,7 +281,7 @@ public class DisguiseScreen extends FeatherScreen
         if (current != null)
         {
             var widget = list.children().stream()
-                    .filter(w -> current.equals(w.getIdentifier())).findFirst().orElse(null);
+                    .filter(w -> current.equals(w.getIdentifierString())).findFirst().orElse(null);
 
             if (widget != null)
             {
@@ -319,7 +319,11 @@ public class DisguiseScreen extends FeatherScreen
         if (fullList == null)
             this.fullList = new ObjectArrayList<>(list.children());
 
-        var filter = fullList.stream().filter(w -> w.getIdentifier().toLowerCase().contains(str.toLowerCase()) || w.getEntityName().contains(str))
+        //搜索id和已加载伪装的实体名称
+        var finalStr = str.toLowerCase().trim();
+        var filter = fullList.stream().filter(w ->
+                        w.getIdentifier().getPath().contains(finalStr)
+                                || w.getEntityName().contains(finalStr))
                 .toList();
 
         list.clearChildren(false);
