@@ -5,12 +5,10 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.Vector2f;
 import net.minecraft.text.Text;
-import org.intellij.lang.annotations.Flow;
 import org.jetbrains.annotations.Nullable;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.graphics.*;
 import xiamomc.morph.client.graphics.color.ColorUtils;
-import xiamomc.morph.client.graphics.color.Colors;
 import xiamomc.morph.client.graphics.color.MaterialColors;
 import xiamomc.morph.client.graphics.container.Container;
 import xiamomc.morph.client.graphics.container.FlowContainer;
@@ -107,7 +105,7 @@ public class DisguiseScreenNew extends FeatherScreen
         public DisplayWdgt(String identifier)
         {
             this.identifier = identifier;
-            this.display = new EntityDisplay(identifier, true);
+            this.display = new EntityDisplay(identifier, true, EntityDisplay.InitialSetupMethod.ASYNC);
 
             display.setParent(this);
             display.setRelativeSizeAxes(Axes.Both);

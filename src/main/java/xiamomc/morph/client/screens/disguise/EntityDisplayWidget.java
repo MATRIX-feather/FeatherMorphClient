@@ -158,7 +158,7 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
             currentIdentifier.bindTo(manager.currentIdentifier);
 
             // Setup drawables
-            this.entityDisplay = new EntityDisplay(identifier);
+            this.entityDisplay = new EntityDisplay(identifier, false , EntityDisplay.InitialSetupMethod.ASYNC);
             entityDisplay.postEntitySetup = () ->
             {
                 this.entityName = entityDisplay.getDisplayName().getString();

@@ -40,7 +40,7 @@ public class DisguiseEntryToast extends LinedToast
         this.rawIdentifier = rawIdentifier;
         this.isGrant = isGrant;
 
-        this.entityDisplay = new EntityDisplay(rawIdentifier, true);
+        this.entityDisplay = new EntityDisplay(rawIdentifier, true, EntityDisplay.InitialSetupMethod.NONE);
         entityDisplay.setX(512);
         entityDisplay.setSize(new Vector2f(32, 16));
         entityDisplay.setMasking(true);

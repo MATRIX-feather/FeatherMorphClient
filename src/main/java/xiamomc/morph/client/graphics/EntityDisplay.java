@@ -15,9 +15,6 @@ import org.joml.Vector3f;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.EntityCache;
 import xiamomc.morph.client.MorphClient;
-import xiamomc.morph.client.graphics.color.MaterialColors;
-import xiamomc.pluginbase.Annotations.Initializer;
-import xiamomc.pluginbase.Bindables.Bindable;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -30,7 +27,28 @@ public class EntityDisplay extends MDrawable
 
     private final boolean displayLoadingIfInvalid;
 
-    public EntityDisplay(String rawIdentifier, boolean displayLoadingIfNotValid)
+    /**
+     * 此实体显示初始化的方式
+     */
+    public enum InitialSetupMethod
+    {
+        /**
+         * 无初始化方式，实体会在第一次渲染时异步设置
+         */
+        NONE,
+
+        /**
+         * 异步设置实体
+         */
+        ASYNC,
+
+        /**
+         * 立即设置实体
+         */
+        SYNC
+    }
+
+    public EntityDisplay(String rawIdentifier, boolean displayLoadingIfNotValid, InitialSetupMethod initialSetupMethod)
     {
         this.rawIdentifier = rawIdentifier;
         this.isPlayerItSelf = rawIdentifier.equals(MorphClient.UNMORPH_STIRNG);
@@ -42,11 +60,17 @@ public class EntityDisplay extends MDrawable
 
         loadingSpinner.setAnchor(Anchor.Centre);
         loadingSpinner.setParent(this);
+
+        switch (initialSetupMethod)
+        {
+            case ASYNC -> CompletableFuture.runAsync(this::setupEntity);
+            case SYNC -> this.setupEntity();
+        }
     }
 
     public EntityDisplay(String id)
     {
-        this(id, false);
+        this(id, false, InitialSetupMethod.NONE);
     }
 
     @Override
@@ -132,6 +156,8 @@ public class EntityDisplay extends MDrawable
     {
         try
         {
+            loadingEntity.set(true);
+
             var living = EntityCache.getEntity(rawIdentifier);
             isLiving = EntityCache.isLiving(rawIdentifier);
 
@@ -164,12 +190,12 @@ public class EntityDisplay extends MDrawable
             allowRender = true;
 
             this.displayingEntity = living;
-            this.displayName = displayingEntity.getDisplayName();
+            this.displayName = living.getDisplayName();
 
-            entitySize = getEntitySize(displayingEntity);
-            entityYOffset = getEntityYOffset(displayingEntity);
+            entitySize = getEntitySize(living);
+            entityYOffset = getEntityYOffset(living);
 
-            if (displayingEntity.getType() == EntityType.MAGMA_CUBE)
+            if (living.getType() == EntityType.MAGMA_CUBE)
                 ((MagmaCubeEntity) living).setSize(4, false);
 
             if (postEntitySetup != null)
