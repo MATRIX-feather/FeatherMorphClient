@@ -313,6 +313,9 @@ public class DisguiseSyncer extends MorphClientObject
             entity.prevBodyYaw = clientPlayer.prevBodyYaw;
             entity.bodyYaw = clientPlayer.bodyYaw;
         }
+
+        entity.headYaw = clientPlayer.headYaw;
+        entity.prevHeadYaw = clientPlayer.prevHeadYaw;
     }
 
     //private boolean isSpider = false;
