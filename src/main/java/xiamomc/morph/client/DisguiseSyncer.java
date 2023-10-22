@@ -229,37 +229,32 @@ public class DisguiseSyncer extends MorphClientObject
 
     private void mergeNbt(LivingEntity entity, NbtCompound nbtCompound)
     {
-        if (entity != null)
+        if (entity == null) return;
+
+        entity.readCustomDataFromNbt(nbtCompound);
+
+        if (entity instanceof HorseEntity horse)
         {
-            entity.readCustomDataFromNbt(nbtCompound);
+            var haveSaddle = nbtCompound.contains("SaddleItem", 10);
 
-            if (entity instanceof HorseEntity horse)
+            if (haveSaddle)
             {
-                var haveSaddle = nbtCompound.contains("SaddleItem", 10);
+                ItemStack itemStack = ItemStack.fromNbt(nbtCompound.getCompound("SaddleItem"));
+                var isSaddle = itemStack.isOf(Items.SADDLE);
 
-                if (haveSaddle)
-                {
-                    ItemStack itemStack = ItemStack.fromNbt(nbtCompound.getCompound("SaddleItem"));
-                    var isSaddle = itemStack.isOf(Items.SADDLE);
-
-                    ((AbstractHorseEntityMixin) horse).callSetHorseFlag(4, isSaddle);
-                }
-
-                //Doesn't work for unknown reason
-                if (nbtCompound.contains("ArmorItem", NbtElement.COMPOUND_TYPE))
-                {
-                    ItemStack armorItem = ItemStack.fromNbt(nbtCompound.getCompound("ArmorItem"));
-
-                    ((HorseEntityMixin) horse).callEquipArmor(armorItem);
-                }
+                ((AbstractHorseEntityMixin) horse).callSetHorseFlag(4, isSaddle);
             }
 
-            if (entity == currentEntity.get())
+            //Doesn't work for unknown reason
+            if (nbtCompound.contains("ArmorItem", NbtElement.COMPOUND_TYPE))
             {
-                if (nbtCompound.contains("Age") || nbtCompound.contains("IsBaby"))
-                    MinecraftClient.getInstance().player.calculateDimensions();
+                ItemStack armorItem = ItemStack.fromNbt(nbtCompound.getCompound("ArmorItem"));
+
+                ((HorseEntityMixin) horse).callEquipArmor(armorItem);
             }
         }
+
+        MinecraftClient.getInstance().player.calculateDimensions();
 
         var crystalPosition = nbtCompound.getInt("BeamTarget");
         crystalId = crystalPosition;
