@@ -18,6 +18,7 @@ import xiamomc.morph.client.MorphClient;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class EntityDisplay extends MDrawable
 {
@@ -103,7 +104,7 @@ public class EntityDisplay extends MDrawable
         return displayName;
     }
 
-    private int entitySize;
+    private final AtomicInteger entitySize = new AtomicInteger(1);
     private int entityYOffset;
 
     private int getEntityYOffset(LivingEntity entity)
@@ -187,7 +188,7 @@ public class EntityDisplay extends MDrawable
             this.displayingEntity = living;
             this.displayName = living.getDisplayName();
 
-            entitySize = getEntitySize(living);
+            entitySize.set(getEntitySize(living));
             entityYOffset = getEntityYOffset(living);
 
             if (postEntitySetup != null)
@@ -245,7 +246,7 @@ public class EntityDisplay extends MDrawable
 
             drawEntity(context,
                     x1, 0, x1, y2,
-                    entitySize, 0.0625f + entityYOffset, -mouseX, -mouseY, displayingEntity);
+                    entitySize.get(), 0.0625f + entityYOffset, -mouseX, -mouseY, displayingEntity);
 
             PlayerRenderHelper.instance.skipRender = false;
 
