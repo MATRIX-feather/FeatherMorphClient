@@ -125,11 +125,6 @@ public class EntityDisplay extends MDrawable
         {
             case "minecraft:ender_dragon" -> 3;
             case "minecraft:squid", "minecraft:glow_squid" -> 10;
-            case "minecraft:magma_cube" ->
-            {
-                ((MagmaCubeEntity) entity).setSize(4, false);
-                yield 8;
-            }
             case "minecraft:horse", "minecraft:player" -> 8;
             default ->
             {
@@ -194,9 +189,6 @@ public class EntityDisplay extends MDrawable
 
             entitySize = getEntitySize(living);
             entityYOffset = getEntityYOffset(living);
-
-            if (living.getType() == EntityType.MAGMA_CUBE)
-                ((MagmaCubeEntity) living).setSize(4, false);
 
             if (postEntitySetup != null)
                 postEntitySetup.run();
