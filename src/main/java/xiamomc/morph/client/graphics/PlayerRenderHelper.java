@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.entity.EnderDragonEntityRenderer;
 import net.minecraft.client.render.entity.EntityRenderer;
@@ -29,6 +30,9 @@ import xiamomc.morph.client.*;
 import xiamomc.morph.client.entities.MorphLocalPlayer;
 import xiamomc.morph.client.mixin.accessors.DragonEntityRendererAccessor;
 import xiamomc.morph.client.mixin.accessors.LivingRendererAccessor;
+import xiamomc.morph.client.syncers.ClientDisguiseSyncer;
+import xiamomc.morph.client.syncers.DisguiseSyncer;
+import xiamomc.morph.client.syncers.OtherClientDisguiseSyncer;
 import xiamomc.pluginbase.Annotations.Resolved;
 
 import java.util.List;
@@ -40,7 +44,7 @@ public class PlayerRenderHelper extends MorphClientObject
 
     public PlayerRenderHelper()
     {
-        DisguiseSyncer.currentEntity.onValueChanged((o, n) ->
+        ClientDisguiseSyncer.currentEntity.onValueChanged((o, n) ->
         {
             this.entity = n;
 
@@ -52,11 +56,12 @@ public class PlayerRenderHelper extends MorphClientObject
     private ClientMorphManager morphManager;
 
     @Resolved
-    private DisguiseSyncer syncer;
+    private DisguiseInstanceTracker instanceTracker;
 
     public boolean shouldHideLabel(AbstractClientPlayerEntity player)
     {
-        return (player instanceof MorphLocalPlayer);
+        var localSyncer = ClientDisguiseSyncer.getCurrentInstance();
+        return localSyncer != null && player == localSyncer.getDisguiseInstance();
     }
 
     private void onRenderException(Exception exception)
@@ -83,7 +88,6 @@ public class PlayerRenderHelper extends MorphClientObject
         assert clientPlayer != null;
 
         MorphClient.getInstance().updateClientView(true, false);
-        morphManager.selfViewIdentifier.set(null);
 
         clientPlayer.sendMessage(Text.literal("渲染当前实体时出现错误。"));
         clientPlayer.sendMessage(Text.literal("在当前伪装变更前客户端预览将被禁用以避免游戏崩溃。"));
@@ -96,20 +100,30 @@ public class PlayerRenderHelper extends MorphClientObject
 
     public boolean skipRenderExternal = false;
 
-    public boolean onDrawCall(LivingEntity player, float yaw, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light)
+    public boolean overrideEntityRender(AbstractClientPlayerEntity player, float yaw, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light)
     {
+        if (player instanceof MorphLocalPlayer) return false;
+
+        var syncer = instanceTracker.getSyncerFor(player);
         if (!allowRender || syncer == null || skipRender || skipRenderExternal) return false;
 
         try
         {
-            if (entity == null || player != MinecraftClient.getInstance().player || !MorphClient.getInstance().getModConfigData().clientViewVisible())
+            var entity = syncer.getDisguiseInstance();
+            if (entity == null || !MorphClient.getInstance().getModConfigData().clientViewVisible())
                 return false;
 
             var disguiseRenderer = MinecraftClient.getInstance().getEntityRenderDispatcher().getRenderer(entity);
 
+            if (syncer instanceof OtherClientDisguiseSyncer)
+            {
+                matrixStack.translate(0, -1024, 0);
+                return true;
+            }
+
             syncer.onGameRender();
 
-            light = (entity.getType() == EntityType.ALLAY || entity.getType() == EntityType.VEX)
+            light = (entity.getType() == EntityType.ALLAY || entity.getType() == EntityType.VEX || entity.getType() == EntityType.MAGMA_CUBE)
                     ? LightmapTextureManager.MAX_LIGHT_COORDINATE
                     : light;
 
@@ -128,7 +142,7 @@ public class PlayerRenderHelper extends MorphClientObject
     private final Camera camera = MinecraftClient.getInstance().gameRenderer.getCamera();
 
     /**
-     * 在玩家位置渲染通向 {@link DisguiseSyncer#getBeamTarget()} 的光柱
+     * 在玩家位置渲染通向 {@link ClientDisguiseSyncer#getBeamTarget()} 的光柱
      * @param tickDelta tickDelta
      * @param matrixStack {@link MatrixStack}
      * @param vertexConsumerProvider {@link VertexConsumerProvider}
@@ -136,6 +150,10 @@ public class PlayerRenderHelper extends MorphClientObject
      */
     public void renderCrystalBeam(float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light)
     {
+        DisguiseSyncer abstractSyncer = instanceTracker.getSyncerFor(MinecraftClient.getInstance().player);
+
+        if (!(abstractSyncer instanceof ClientDisguiseSyncer syncer)) return;
+
         var connectedCrystal = syncer.getBeamTarget();
 
         if (connectedCrystal == null) return;

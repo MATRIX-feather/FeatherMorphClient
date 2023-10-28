@@ -7,6 +7,7 @@ import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.client.render.entity.PlayerModelPart;
 import net.minecraft.client.util.SkinTextures;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.*;
 import net.minecraft.util.math.Vec3d;
@@ -54,9 +55,14 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
         this.currentProfilePair.setRight(prevPlayer.currentProfilePair.getRight());
     }
 
-    public MorphLocalPlayer(ClientWorld clientWorld, GameProfile profile)
+    private final PlayerEntity bindingPlayer;
+
+    public MorphLocalPlayer(ClientWorld clientWorld, GameProfile profile, PlayerEntity bindingPlayer)
     {
         super(clientWorld, profile);
+
+        if (bindingPlayer == null) bindingPlayer = MinecraftClient.getInstance().player;
+        this.bindingPlayer = bindingPlayer;
 
         this.playerName = profile.getName();
 
@@ -223,8 +229,7 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
     @Override
     public boolean isSpectator()
     {
-        var clientPlayer = MinecraftClient.getInstance().player;
-        return clientPlayer != null && clientPlayer.isSpectator();
+        return bindingPlayer != null && bindingPlayer.isSpectator();
     }
 
     @Override
@@ -268,7 +273,7 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
     @Override
     public Vec3d getPos()
     {
-        var clientPlayer = MinecraftClient.getInstance().player;
+        var clientPlayer = bindingPlayer;
 
         if (clientPlayer != null)
             return clientPlayer.getPos();

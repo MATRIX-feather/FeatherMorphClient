@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Util;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
@@ -13,20 +14,29 @@ import xiamomc.morph.client.entities.MorphLocalPlayer;
 import xiamomc.pluginbase.Bindables.Bindable;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class EntityCache
 {
-    private static final Map<String, LivingEntity> cacheMap = new Object2ObjectOpenHashMap<>();
+    public static EntityCache getGlobalCache()
+    {
+        return globalInstance;
+    }
 
-    public static void clearCache()
+    private static final EntityCache globalInstance = new EntityCache();
+
+    private final Map<String, LivingEntity> cacheMap = new Object2ObjectOpenHashMap<>();
+
+    public void clearCache()
     {
         cacheMap.clear();
     }
 
-    public static boolean containsId(int id)
+    public boolean containsId(int id)
     {
         try
         {
@@ -44,9 +54,9 @@ public class EntityCache
         }
     }
 
-    public static final Bindable<Boolean> droppingCaches = new Bindable<>();
+    public final Bindable<Boolean> droppingCaches = new Bindable<>();
 
-    public static void discardEntity(String identifier)
+    public void discardEntity(String identifier)
     {
         var entity = cacheMap.getOrDefault(identifier, null);
 
@@ -62,25 +72,24 @@ public class EntityCache
         }
     }
 
-    private static final ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock();
-    private static final Lock readLock = rwLock.readLock();
-    private static final Lock writeLock = rwLock.writeLock();
+    private final ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock();
+    private final Lock readLock = rwLock.readLock();
+    private final Lock writeLock = rwLock.writeLock();
 
-    private static final long lockWait = 10;
+    private final long lockWait = 10;
 
-    private static final Map<String, Boolean> isLivingMap = new Object2ObjectArrayMap<>();
+    private final Map<String, Boolean> isLivingMap = new Object2ObjectArrayMap<>();
 
-    public static boolean isLiving(String identifier)
+    public boolean isLiving(String identifier)
     {
         return isLivingMap.getOrDefault(identifier, false);
     }
 
     public static final String tag = "FMC_ClientView";
 
-    public static void dropAll()
+    public void dropAll()
     {
         droppingCaches.set(true);
-        MorphClient.LOGGER.info("Clearing entity caches...");
         cacheMap.forEach((id, entity) ->
         {
             entity.discard();
@@ -92,9 +101,12 @@ public class EntityCache
     }
 
     @Nullable
-    public static LivingEntity getEntity(String identifier)
+    public LivingEntity getEntity(String identifier, PlayerEntity bindingPlayer)
     {
         if (identifier == null) return null;
+
+        if (disposed.get())
+            throw new RuntimeException("Cannot access getEntity() for a disposed EntityCache.");
 
         LivingEntity cache;
 
@@ -149,6 +161,7 @@ public class EntityCache
                 }
 
                 le.addCommandTag(tag);
+                le.setUuid(UUID.randomUUID());
 
                 living = le;
             }
@@ -169,7 +182,8 @@ public class EntityCache
 
             try (var world = MinecraftClient.getInstance().world)
             {
-                living = new MorphLocalPlayer(world, profile);
+                living = new MorphLocalPlayer(world, profile, bindingPlayer);
+                living.setUuid(UUID.randomUUID());
             }
             catch (Throwable t)
             {
@@ -214,5 +228,15 @@ public class EntityCache
         //LoggerFactory.getLogger("morph").info("Pushing " + identifier + " into EntityCache.");
 
         return living;
+    }
+
+    private AtomicBoolean disposed = new AtomicBoolean(false);
+
+    public void dispose()
+    {
+        if (this == globalInstance) return;
+
+        this.dropAll();
+        disposed.set(true);
     }
 }

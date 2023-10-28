@@ -31,6 +31,7 @@ import xiamomc.morph.client.graphics.hud.HudRenderHelper;
 import xiamomc.morph.client.graphics.toasts.DisguiseEntryToast;
 import xiamomc.morph.client.graphics.toasts.RequestToast;
 import xiamomc.morph.client.screens.disguise.WaitingForServerScreen;
+import xiamomc.morph.client.syncers.DisguiseSyncer;
 import xiamomc.morph.network.Constants;
 import xiamomc.morph.network.commands.C2S.*;
 import xiamomc.morph.network.commands.S2C.S2CRequestCommand;
@@ -50,8 +51,6 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
     }
 
     public static final String UNMORPH_STIRNG = "morph:unmorph";
-
-    public DisguiseSyncer disguiseSyncer;
 
     public static final Logger LOGGER = LoggerFactory.getLogger("FeatherMorph");
 
@@ -89,6 +88,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
     public ClientMorphManager morphManager;
     public ServerHandler serverHandler;
     private ClientSkillHandler skillHandler;
+    private DisguiseInstanceTracker disguiseTracker;
 
     private final boolean debugToasts = false;
 
@@ -153,9 +153,9 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
         }
 
         dependencyManager.cache(this);
+        dependencyManager.cache(disguiseTracker = new DisguiseInstanceTracker());
         dependencyManager.cache(morphManager = new ClientMorphManager());
         dependencyManager.cache(serverHandler = new ServerHandler(this));
-        dependencyManager.cache(disguiseSyncer = new DisguiseSyncer());
         dependencyManager.cache(skillHandler = new ClientSkillHandler());
         dependencyManager.cache(modConfigData);
         dependencyManager.cache(new ClientRequestManager());
@@ -176,7 +176,15 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
 
     private void postWorldTick(ClientWorld clientWorld)
     {
-        disguiseSyncer.onGameTick();
+        var syncersToRemove = new ObjectArrayList<DisguiseSyncer>();
+
+        disguiseTracker.getAllSyncer().forEach(syncer ->
+        {
+            if (syncer.disposed()) syncersToRemove.add(syncer);
+            else syncer.onGameTick();
+        });
+
+        syncersToRemove.forEach(syncer -> disguiseTracker.removeSyncer(syncer));
     }
 
     private void updateKeys(MinecraftClient client)
@@ -245,7 +253,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
 
         while (resetCacheKeybind.wasPressed())
         {
-            EntityCache.clearCache();
+            EntityCache.getGlobalCache().clearCache();
             modelWorkarounds.initWorkarounds();
         }
     }

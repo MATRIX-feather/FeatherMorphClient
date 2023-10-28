@@ -5,7 +5,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.RaycastContext;
-import xiamomc.morph.client.DisguiseSyncer;
+import xiamomc.morph.client.syncers.ClientDisguiseSyncer;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.pluginbase.Bindables.Bindable;
 
@@ -17,7 +17,7 @@ public class CameraHelper
     {
         if (instance == null) return 0f;
 
-        var current = DisguiseSyncer.currentEntity.get();
+        var current = ClientDisguiseSyncer.currentEntity.get();
         var client = MorphClient.getInstance();
 
         if (current != null && client.morphManager.selfVisibleEnabled.get() && client.getModConfigData().changeCameraHeight)

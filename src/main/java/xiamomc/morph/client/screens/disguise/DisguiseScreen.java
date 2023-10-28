@@ -75,7 +75,7 @@ public class DisguiseScreen extends FeatherScreen
 
             if (n != null)
             {
-                var cachedEntity = EntityCache.getEntity(n);
+                var cachedEntity = EntityCache.getGlobalCache().getEntity(n, null);
 
                 if (cachedEntity != null)
                     display = cachedEntity.getName();

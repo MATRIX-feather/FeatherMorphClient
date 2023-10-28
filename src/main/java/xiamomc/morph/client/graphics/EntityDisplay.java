@@ -3,9 +3,7 @@ package xiamomc.morph.client.graphics;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
-import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.mob.MagmaCubeEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -154,8 +152,9 @@ public class EntityDisplay extends MDrawable
         {
             loadingEntity.set(true);
 
-            var living = EntityCache.getEntity(rawIdentifier);
-            isLiving = EntityCache.isLiving(rawIdentifier);
+            var entityCache = EntityCache.getGlobalCache();
+            var living = entityCache.getEntity(rawIdentifier, null);
+            isLiving = entityCache.isLiving(rawIdentifier);
 
             if (living == null)
             {

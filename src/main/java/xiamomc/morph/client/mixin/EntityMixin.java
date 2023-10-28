@@ -4,7 +4,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -14,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import xiamomc.morph.client.DisguiseSyncer;
+import xiamomc.morph.client.syncers.ClientDisguiseSyncer;
 import xiamomc.morph.client.EntityCache;
 import xiamomc.morph.client.ServerHandler;
 
@@ -42,7 +41,7 @@ public abstract class EntityMixin
     {
         if (featherMorph$entityInstance == MinecraftClient.getInstance().player && ServerHandler.modifyBoundingBox)
         {
-            var syncerEntity = DisguiseSyncer.currentEntity.get();
+            var syncerEntity = ClientDisguiseSyncer.currentEntity.get();
 
             if (syncerEntity != null)
                 cir.setReturnValue(MinecraftClient.getInstance().player.getY() + syncerEntity.getStandingEyeHeight());
@@ -54,7 +53,7 @@ public abstract class EntityMixin
     {
         if (featherMorph$entityInstance == MinecraftClient.getInstance().player && ServerHandler.modifyBoundingBox)
         {
-            var syncerEntity = DisguiseSyncer.currentEntity.get();
+            var syncerEntity = ClientDisguiseSyncer.currentEntity.get();
 
             if (syncerEntity != null)
                 cir.setReturnValue(syncerEntity.getEyeHeight(pose));
@@ -66,7 +65,7 @@ public abstract class EntityMixin
     {
         if (featherMorph$entityInstance == MinecraftClient.getInstance().player && ServerHandler.modifyBoundingBox)
         {
-            var syncerEntity = DisguiseSyncer.currentEntity.get();
+            var syncerEntity = ClientDisguiseSyncer.currentEntity.get();
 
             if (syncerEntity != null)
                 cir.setReturnValue(syncerEntity.getStandingEyeHeight());
@@ -83,7 +82,7 @@ public abstract class EntityMixin
     {
         if (featherMorph$entityInstance == MinecraftClient.getInstance().player && ServerHandler.modifyBoundingBox)
         {
-            var entity = DisguiseSyncer.currentEntity.get();
+            var entity = ClientDisguiseSyncer.currentEntity.get();
 
             if (entity != null)
                 cir.setReturnValue(entity.getDimensions(getPose()).getBoxAt(this.pos));
@@ -93,7 +92,7 @@ public abstract class EntityMixin
     @Inject(method = "squaredDistanceTo(Lnet/minecraft/entity/Entity;)D", at = @At("HEAD"), cancellable = true)
     private void morphClient$onSquaredDistanceToCall(CallbackInfoReturnable<Double> cir)
     {
-        if (EntityCache.containsId(id))
+        if (EntityCache.getGlobalCache().containsId(id))
             cir.setReturnValue(1d);
     }
 }

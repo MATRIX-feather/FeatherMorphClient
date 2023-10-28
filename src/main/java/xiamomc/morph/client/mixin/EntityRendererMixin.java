@@ -25,6 +25,6 @@ public class EntityRendererMixin
             at = @At(value = "HEAD"))
     public void onRender(Entity entity, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci)
     {
-        EntityRendererHelper.instance.onRender(this.dispatcher, entity, textRenderer, matrices, vertexConsumers, ci, light);
+        EntityRendererHelper.instance.renderRevealNameIfPossible(this.dispatcher, entity, textRenderer, matrices, vertexConsumers, ci, light);
     }
 }

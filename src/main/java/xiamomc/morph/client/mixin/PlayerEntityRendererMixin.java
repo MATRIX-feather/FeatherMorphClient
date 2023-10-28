@@ -39,7 +39,7 @@ public abstract class PlayerEntityRendererMixin extends LivingEntityRenderer<Abs
     )
     public void onRenderCall(LivingEntityRenderer<?, ?> renderer, LivingEntity player, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i)
     {
-        if (!rendererHelper.onDrawCall(player, f, g, matrixStack, vertexConsumerProvider, i))
+        if (!rendererHelper.overrideEntityRender((AbstractClientPlayerEntity)player, f, g, matrixStack, vertexConsumerProvider, i))
             super.render((AbstractClientPlayerEntity) player, f, g, matrixStack, vertexConsumerProvider, i);
     }
 

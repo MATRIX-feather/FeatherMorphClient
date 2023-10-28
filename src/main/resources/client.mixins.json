@@ -13,6 +13,7 @@
     "CameraMixin",
     "ClientPlayerEntityMixin",
     "ClientPlayerInteractionManagerMixin",
+    "ClientWorldMixin",
     "CreativeInventoryMixin",
     "EntityMixin",
     "EntityRendererMixin",

@@ -4,7 +4,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.entity.LivingEntity;
-import xiamomc.morph.client.DisguiseSyncer;
+import xiamomc.morph.client.syncers.ClientDisguiseSyncer;
 import xiamomc.morph.client.MorphClient;
 
 public class InventoryRenderHelper
@@ -20,7 +20,7 @@ public class InventoryRenderHelper
 
     public InventoryRenderHelper()
     {
-        DisguiseSyncer.currentEntity.onValueChanged((o, n) ->
+        ClientDisguiseSyncer.currentEntity.onValueChanged((o, n) ->
         {
             allowRender = true;
 

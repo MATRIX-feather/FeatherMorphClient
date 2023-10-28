@@ -9,7 +9,7 @@ import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import xiamomc.morph.client.DisguiseSyncer;
+import xiamomc.morph.client.syncers.ClientDisguiseSyncer;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.graphics.color.ColorUtils;
 import xiamomc.morph.client.graphics.color.MaterialColors;
@@ -28,7 +28,7 @@ public class EntityRendererHelper
     private final int textColor = MaterialColors.Orange500.getColor();
     public final int textColorTransparent = ColorUtils.forOpacity(MaterialColors.Orange500, 0).getColor();
 
-    public void onRender(EntityRenderDispatcher dispatcher, Entity entity, TextRenderer textRenderer, MatrixStack matrices, VertexConsumerProvider vertexConsumers, CallbackInfo ci, int light)
+    public void renderRevealNameIfPossible(EntityRenderDispatcher dispatcher, Entity entity, TextRenderer textRenderer, MatrixStack matrices, VertexConsumerProvider vertexConsumers, CallbackInfo ci, int light)
     {
         if (!doRenderRealName) return;
 
@@ -44,7 +44,7 @@ public class EntityRendererHelper
         String text = entrySet.getValue();
         if (text.equals(entity.getEntityName())) return;
 
-        if (entity != DisguiseSyncer.currentEntity.get())
+        if (entity != ClientDisguiseSyncer.currentEntity.get())
             entity.ignoreCameraFrustum = true;
 
         matrices.push();

@@ -16,6 +16,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 import xiamomc.morph.client.config.ModConfigData;
 import xiamomc.morph.client.network.commands.ClientSetEquipCommand;
+import xiamomc.morph.client.syncers.ClientDisguiseSyncer;
 import xiamomc.morph.network.BasicServerHandler;
 import xiamomc.morph.network.Constants;
 import xiamomc.morph.network.commands.C2S.AbstractC2SCommand;
@@ -23,6 +24,7 @@ import xiamomc.morph.network.commands.C2S.C2SInitialCommand;
 import xiamomc.morph.network.commands.C2S.C2SOptionCommand;
 import xiamomc.morph.network.commands.CommandRegistries;
 import xiamomc.morph.network.commands.S2C.*;
+import xiamomc.morph.network.commands.S2C.clientrender.*;
 import xiamomc.morph.network.commands.S2C.map.S2CMapClearCommand;
 import xiamomc.morph.network.commands.S2C.map.S2CMapCommand;
 import xiamomc.morph.network.commands.S2C.map.S2CMapRemoveCommand;
@@ -79,7 +81,12 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
                 .registerS2C(S2CCommandNames.Map, S2CMapCommand::ofStr)
                 .registerS2C(S2CCommandNames.MapPartial, S2CPartialMapCommand::ofStr)
                 .registerS2C(S2CCommandNames.MapClear, a -> new S2CMapClearCommand())
-                .registerS2C(S2CCommandNames.MapRemove, a -> new S2CMapRemoveCommand(Integer.parseInt(a)));
+                .registerS2C(S2CCommandNames.MapRemove, a -> new S2CMapRemoveCommand(Integer.parseInt(a)))
+                .registerS2C(S2CCommandNames.CRAdd, S2CRenderMapAddCommand::of)
+                .registerS2C(S2CCommandNames.CRClear, a -> new S2CRenderMapClearCommand())
+                .registerS2C(S2CCommandNames.CRMap, S2CRenderMapSyncCommand::ofStr)
+                .registerS2C(S2CCommandNames.CRRemove, S2CRenderMapRemoveCommand::of)
+                .registerS2C(S2CCommandNames.CRMeta, S2CRenderMapMetaCommand::fromStr);
     }
 
     //region Common
@@ -94,13 +101,16 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
     private ClientMorphManager morphManager;
 
     @Resolved
-    private DisguiseSyncer syncer;
+    private DisguiseInstanceTracker instanceTracker;
 
     @Resolved
     private ModConfigData config;
 
     @Resolved
     private ClientSkillHandler skillHandler;
+
+    @Resolved
+    private DisguiseInstanceTracker tracker;
 
     //endregion
 
@@ -226,7 +236,8 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
     {
         var aggressive = s2CSetAggressiveCommand.getArgumentAt(0, false);
 
-        if (syncer.entity instanceof GhastEntity ghastEntity)
+        var syncer = instanceTracker.getSyncerFor(MinecraftClient.getInstance().player);
+        if (syncer != null && syncer.getDisguiseInstance() instanceof GhastEntity ghastEntity)
             ghastEntity.setShooting(aggressive);
     }
 
@@ -277,7 +288,12 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
             var profile = NbtHelper.toGameProfile(nbt);
 
             if (profile != null)
-                this.client.schedule(() -> syncer.updateSkin(profile));
+            {
+                var syncer = instanceTracker.getSyncerFor(MinecraftClient.getInstance().player);
+
+                if (syncer != null)
+                    this.client.schedule(() -> syncer.updateSkin(profile));
+            }
         }
         catch (Exception e)
         {
@@ -288,7 +304,7 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
     @Override
     public void onSetSelfViewIdentifierCommand(S2CSetSelfViewIdentifierCommand s2CSetSelfViewCommand)
     {
-        morphManager.selfViewIdentifier.set(s2CSetSelfViewCommand.serializeArguments());
+        //morphManager.selfViewIdentifier.set(s2CSetSelfViewCommand.serializeArguments());
     }
 
     @Override
@@ -371,6 +387,36 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
     {
         var id = s2CMapRemoveCommand.getTargetId();
         morphManager.playerMap.remove(id);
+    }
+
+    @Override
+    public void onClientMapSyncCommand(S2CRenderMapSyncCommand s2CRenderMapSyncCommand)
+    {
+        instanceTracker.onSyncCommand(s2CRenderMapSyncCommand);
+    }
+
+    @Override
+    public void onClientMapAddCommand(S2CRenderMapAddCommand s2CRenderMapAddCommand)
+    {
+        instanceTracker.onAddCommand(s2CRenderMapAddCommand);
+    }
+
+    @Override
+    public void onClientMapRemoveCommand(S2CRenderMapRemoveCommand s2CRenderMapRemoveCommand)
+    {
+        instanceTracker.onRemoveCommand(s2CRenderMapRemoveCommand);
+    }
+
+    @Override
+    public void onClientMapClearCommand(S2CRenderMapClearCommand s2CRenderMapClearCommand)
+    {
+        instanceTracker.onClearCommand(s2CRenderMapClearCommand);
+    }
+
+    @Override
+    public void onClientMapMetaNbtCommand(S2CRenderMapMetaCommand s2CRenderMapMetaCommand)
+    {
+        instanceTracker.onMetaCommand(s2CRenderMapMetaCommand);
     }
 
     //endregion Impl of ServerHandler

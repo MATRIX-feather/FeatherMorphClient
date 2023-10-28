@@ -4,14 +4,24 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.toast.ToastManager;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import org.jetbrains.annotations.Nullable;
 import xiamomc.morph.client.graphics.toasts.DisguiseEntryToast;
 import xiamomc.morph.client.graphics.toasts.NewDisguiseSetToast;
+import xiamomc.morph.client.syncers.DisguiseSyncer;
+import xiamomc.morph.client.syncers.ClientDisguiseSyncer;
+import xiamomc.morph.client.syncers.OtherClientDisguiseSyncer;
+import xiamomc.pluginbase.Annotations.Initializer;
+import xiamomc.pluginbase.Annotations.Resolved;
 import xiamomc.pluginbase.Bindables.Bindable;
+import xiamomc.pluginbase.Exceptions.NullDependencyException;
 
 import java.util.List;
 import java.util.Map;
@@ -41,8 +51,6 @@ public class ClientMorphManager extends MorphClientObject
 
     public final Bindable<String> currentIdentifier = new Bindable<>(null);
 
-    public final Bindable<String> selfViewIdentifier = new Bindable<>(null);
-
     public final Bindable<Boolean> equipOverriden = new Bindable<>(false);
 
     public final Bindable<NbtCompound> currentNbtCompound = new Bindable<>(null);
@@ -51,7 +59,58 @@ public class ClientMorphManager extends MorphClientObject
 
     public final Map<Integer, String> playerMap = new Object2ObjectArrayMap<>();
 
+    @Resolved
+    private DisguiseInstanceTracker instanceTracker;
+
     //endregion
+
+    @Nullable
+    private DisguiseSyncer localPlayerSyncer;
+
+    @Initializer
+    private void load()
+    {
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) ->
+        {
+            playerMap.clear();
+
+            world = null;
+            prevWorld = null;
+        });
+
+        this.addSchedule(this::update);
+    }
+
+    private ClientWorld world;
+    private ClientWorld prevWorld;
+
+    private void update()
+    {
+        this.addSchedule(this::update);
+
+        world = MinecraftClient.getInstance().world;
+        if (world != null && world != prevWorld)
+        {
+            prevWorld = world;
+            refreshSyncer(this.currentIdentifier.get());
+        }
+    }
+
+    private void refreshSyncer(String n)
+    {
+        if (localPlayerSyncer != null)
+        {
+            logger.info("Removing previous syncer " + localPlayerSyncer);
+            instanceTracker.removeSyncer(localPlayerSyncer);
+        }
+
+        logger.info("NEW IS " + n);
+
+        if (n == null || n.isEmpty()) return;
+
+        localPlayerSyncer = instanceTracker.addSyncerIfNotExist(MinecraftClient.getInstance().player.getId(), n);
+        logger.info("New Local Syncer: " + localPlayerSyncer);
+    }
 
     //region Add/Remove/Set disguises
 
@@ -188,7 +247,6 @@ public class ClientMorphManager extends MorphClientObject
 
         selectedIdentifier.set(null);
         currentIdentifier.set(null);
-        selfViewIdentifier.set(null);
 
         revealingValue.set(0f);
     }
@@ -201,8 +259,24 @@ public class ClientMorphManager extends MorphClientObject
         currentIdentifier.set(val);
 
         equipOverriden.set(false);
-        selfViewIdentifier.set(null);
         equipmentSlotItemStackMap.clear();
         currentNbtCompound.set(null);
+    }
+
+    public DisguiseSyncer getSyncerFor(AbstractClientPlayerEntity player, String disguiseId, int networkId)
+    {
+        var clientPlayer = MinecraftClient.getInstance().player;
+        if (clientPlayer == null)
+            throw new NullDependencyException("Required non-null client player to get DisguiseSyncer");
+
+        DisguiseSyncer syncer;
+        if (clientPlayer == player)
+            syncer = new ClientDisguiseSyncer(player, disguiseId, networkId);
+        else
+            syncer = new OtherClientDisguiseSyncer(player, disguiseId, networkId);
+
+        logger.info("RETURNING %s for id %s, CLientPlayer is %s".formatted(syncer, player.getId(), clientPlayer.getId()));
+
+        return syncer;
     }
 }
