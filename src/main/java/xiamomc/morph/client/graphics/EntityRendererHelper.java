@@ -44,7 +44,8 @@ public class EntityRendererHelper
         String text = entrySet.getValue();
         if (text.equals(entity.getEntityName())) return;
 
-        if (entity != ClientDisguiseSyncer.currentEntity.get())
+        var syncer = ClientDisguiseSyncer.getCurrentInstance();
+        if (syncer != null && entity != ClientDisguiseSyncer.getCurrentInstance().getDisguiseInstance())
             entity.ignoreCameraFrustum = true;
 
         matrices.push();

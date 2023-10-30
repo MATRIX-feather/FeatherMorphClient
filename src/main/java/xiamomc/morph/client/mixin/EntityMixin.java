@@ -9,6 +9,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -16,6 +17,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xiamomc.morph.client.syncers.ClientDisguiseSyncer;
 import xiamomc.morph.client.EntityCache;
 import xiamomc.morph.client.ServerHandler;
+import xiamomc.morph.client.utilties.ClientSyncerUtils;
+
+import java.util.function.Consumer;
 
 @Mixin(Entity.class)
 public abstract class EntityMixin
@@ -27,6 +31,10 @@ public abstract class EntityMixin
     private Vec3d pos;
 
     @Shadow public abstract EntityPose getPose();
+
+    @Shadow public abstract void remove(Entity.RemovalReason reason);
+
+    @Shadow public abstract int getPortalCooldown();
 
     private Entity featherMorph$entityInstance;
 
@@ -41,10 +49,8 @@ public abstract class EntityMixin
     {
         if (featherMorph$entityInstance == MinecraftClient.getInstance().player && ServerHandler.modifyBoundingBox)
         {
-            var syncerEntity = ClientDisguiseSyncer.currentEntity.get();
-
-            if (syncerEntity != null)
-                cir.setReturnValue(MinecraftClient.getInstance().player.getY() + syncerEntity.getStandingEyeHeight());
+            runIfSyncerEntityNotNull(syncerEntity ->
+                    cir.setReturnValue(MinecraftClient.getInstance().player.getY() + syncerEntity.getStandingEyeHeight()));
         }
     }
 
@@ -53,10 +59,8 @@ public abstract class EntityMixin
     {
         if (featherMorph$entityInstance == MinecraftClient.getInstance().player && ServerHandler.modifyBoundingBox)
         {
-            var syncerEntity = ClientDisguiseSyncer.currentEntity.get();
-
-            if (syncerEntity != null)
-                cir.setReturnValue(syncerEntity.getEyeHeight(pose));
+            runIfSyncerEntityNotNull(syncerEntity ->
+                    cir.setReturnValue(syncerEntity.getEyeHeight(pose)));
         }
     }
 
@@ -65,10 +69,8 @@ public abstract class EntityMixin
     {
         if (featherMorph$entityInstance == MinecraftClient.getInstance().player && ServerHandler.modifyBoundingBox)
         {
-            var syncerEntity = ClientDisguiseSyncer.currentEntity.get();
-
-            if (syncerEntity != null)
-                cir.setReturnValue(syncerEntity.getStandingEyeHeight());
+            runIfSyncerEntityNotNull(syncerEntity ->
+                    cir.setReturnValue(syncerEntity.getStandingEyeHeight()));
         }
     }
 
@@ -82,10 +84,8 @@ public abstract class EntityMixin
     {
         if (featherMorph$entityInstance == MinecraftClient.getInstance().player && ServerHandler.modifyBoundingBox)
         {
-            var entity = ClientDisguiseSyncer.currentEntity.get();
-
-            if (entity != null)
-                cir.setReturnValue(entity.getDimensions(getPose()).getBoxAt(this.pos));
+            runIfSyncerEntityNotNull(e ->
+                    cir.setReturnValue(e.getDimensions(getPose()).getBoxAt(this.pos)));
         }
     }
 
@@ -94,5 +94,11 @@ public abstract class EntityMixin
     {
         if (EntityCache.getGlobalCache().containsId(id))
             cir.setReturnValue(1d);
+    }
+
+    @Unique
+    private void runIfSyncerEntityNotNull(Consumer<Entity> consumerifNotNull)
+    {
+        ClientSyncerUtils.runIfSyncerEntityValid(consumerifNotNull::accept);
     }
 }

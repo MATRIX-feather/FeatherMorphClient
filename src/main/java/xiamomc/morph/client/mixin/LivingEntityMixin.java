@@ -6,6 +6,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xiamomc.morph.client.syncers.ClientDisguiseSyncer;
+import xiamomc.morph.client.utilties.ClientSyncerUtils;
 
 @Mixin(LivingEntity.class)
 public class LivingEntityMixin
@@ -13,7 +14,10 @@ public class LivingEntityMixin
     @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
     private void featherMorph$onTick(CallbackInfo ci)
     {
-        if (this.equals(ClientDisguiseSyncer.currentEntity.get()) && !ClientDisguiseSyncer.syncing)
-            ci.cancel();
+        ClientSyncerUtils.runIfSyncerEntityValid(entity ->
+        {
+            if (this.equals(entity) && !ClientDisguiseSyncer.syncing)
+                ci.cancel();
+        });
     }
 }

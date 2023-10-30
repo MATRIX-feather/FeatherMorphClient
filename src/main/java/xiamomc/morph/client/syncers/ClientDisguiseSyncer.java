@@ -59,8 +59,6 @@ public class ClientDisguiseSyncer extends DisguiseSyncer
         //ServerHandler.spiderEnabled.onValueChanged((o, n) -> this.isSpider = n);
     }
 
-    public static Bindable<LivingEntity> currentEntity = new Bindable<>();
-
     private World prevWorld;
 
     @Override
@@ -73,7 +71,6 @@ public class ClientDisguiseSyncer extends DisguiseSyncer
     public void refreshEntity()
     {
         super.refreshEntity();
-        currentEntity.set(disguiseInstance);
         beamTarget = null;
     }
 
@@ -222,11 +219,6 @@ public class ClientDisguiseSyncer extends DisguiseSyncer
     {
         if (disguiseInstance != null)
             disguiseInstance.discard();
-
-        if (currentInstance == this)
-            currentInstance = null;
-
-        currentEntity.set(null);
 
         currentNbtCompound.unBindFromTarget();
         currentNbtCompound.unBindBindings();

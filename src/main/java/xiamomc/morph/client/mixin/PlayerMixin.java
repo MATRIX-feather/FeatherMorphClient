@@ -18,6 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xiamomc.morph.client.DisguiseInstanceTracker;
 import xiamomc.morph.client.syncers.ClientDisguiseSyncer;
 import xiamomc.morph.client.ServerHandler;
+import xiamomc.morph.client.utilties.ClientSyncerUtils;
 
 @Mixin(PlayerEntity.class)
 public abstract class PlayerMixin
@@ -64,7 +65,10 @@ public abstract class PlayerMixin
     {
         ensureTrackerPresent();
 
-        if (this.equals(ClientDisguiseSyncer.currentEntity.get()) && !ClientDisguiseSyncer.syncing)
-            ci.cancel();
+        ClientSyncerUtils.runIfSyncerEntityValid(entity ->
+        {
+            if (this.equals(entity) && !ClientDisguiseSyncer.syncing)
+                ci.cancel();
+        });
     }
 }

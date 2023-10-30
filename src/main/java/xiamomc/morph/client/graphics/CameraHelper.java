@@ -5,6 +5,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.RaycastContext;
+import org.jetbrains.annotations.Nullable;
 import xiamomc.morph.client.syncers.ClientDisguiseSyncer;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.pluginbase.Bindables.Bindable;
@@ -13,11 +14,20 @@ public class CameraHelper
 {
     public static Bindable<Boolean> isThirdPerson = new Bindable<>(false);
 
+    @Nullable
+    private Entity getCurrentDisguise()
+    {
+        var syncer = ClientDisguiseSyncer.getCurrentInstance();
+        if (syncer == null || syncer.disposed()) return null;
+
+        return syncer.getDisguiseInstance();
+    }
+
     public float onEyeHeightCall(Entity instance, BlockView area)
     {
         if (instance == null) return 0f;
 
-        var current = ClientDisguiseSyncer.currentEntity.get();
+        var current = getCurrentDisguise();
         var client = MorphClient.getInstance();
 
         if (current != null && client.morphManager.selfVisibleEnabled.get() && client.getModConfigData().changeCameraHeight)

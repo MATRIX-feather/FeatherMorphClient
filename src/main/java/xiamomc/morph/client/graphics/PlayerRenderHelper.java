@@ -33,6 +33,7 @@ import xiamomc.morph.client.mixin.accessors.LivingRendererAccessor;
 import xiamomc.morph.client.syncers.ClientDisguiseSyncer;
 import xiamomc.morph.client.syncers.DisguiseSyncer;
 import xiamomc.morph.client.syncers.OtherClientDisguiseSyncer;
+import xiamomc.pluginbase.Annotations.Initializer;
 import xiamomc.pluginbase.Annotations.Resolved;
 import xiamomc.pluginbase.Bindables.Bindable;
 import xiamomc.pluginbase.Exceptions.NullDependencyException;
@@ -48,11 +49,14 @@ public class PlayerRenderHelper extends MorphClientObject
     {
     }
 
-    @Nullable
-    private DisguiseSyncer currentSyncer = null;
-
-    @Resolved
-    private ClientMorphManager morphManager;
+    @Initializer
+    private void load(ClientMorphManager morphManager)
+    {
+        morphManager.currentIdentifier.onValueChanged((o, n) ->
+        {
+            this.allowRender = true;
+        });
+    }
 
     @Resolved
     private DisguiseInstanceTracker instanceTracker;
@@ -89,8 +93,6 @@ public class PlayerRenderHelper extends MorphClientObject
 
         var clientPlayer = MinecraftClient.getInstance().player;
         assert clientPlayer != null;
-
-        MorphClient.getInstance().updateClientView(true, false);
 
         clientPlayer.sendMessage(Text.literal("渲染当前实体时出现错误。"));
         clientPlayer.sendMessage(Text.literal("在当前伪装变更前客户端预览将被禁用以避免游戏崩溃。"));
@@ -325,7 +327,7 @@ public class PlayerRenderHelper extends MorphClientObject
         {
             var syncer = ClientDisguiseSyncer.getCurrentInstance();
 
-            if (syncer == null) return false;
+            if (syncer == null || syncer.disposed()) return false;
             var entity = syncer.getDisguiseInstance();
 
             if (entity == null || player != MinecraftClient.getInstance().player || !MorphClient.getInstance().getModConfigData().clientViewVisible()) return false;

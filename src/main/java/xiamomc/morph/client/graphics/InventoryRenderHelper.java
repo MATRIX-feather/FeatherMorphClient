@@ -4,10 +4,13 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.entity.LivingEntity;
+import xiamomc.morph.client.ClientMorphManager;
+import xiamomc.morph.client.MorphClientObject;
 import xiamomc.morph.client.syncers.ClientDisguiseSyncer;
 import xiamomc.morph.client.MorphClient;
+import xiamomc.pluginbase.Annotations.Initializer;
 
-public class InventoryRenderHelper
+public class InventoryRenderHelper extends MorphClientObject
 {
     private static InventoryRenderHelper instance;
 
@@ -18,23 +21,25 @@ public class InventoryRenderHelper
         return instance;
     }
 
-    public InventoryRenderHelper()
+    @Initializer
+    private void load(ClientMorphManager morphManager)
     {
-        ClientDisguiseSyncer.currentEntity.onValueChanged((o, n) ->
+        morphManager.currentIdentifier.onValueChanged((o, n) ->
         {
-            allowRender = true;
-
-            this.entity = n;
-        }, true);
+            this.allowRender = true;
+        });
     }
 
     public boolean allowRender = true;
-    private LivingEntity entity;
 
     public void onRenderCall(DrawContext context, int x1, int y1, int x2, int y2, int size, float f, float mouseX, float mouseY)
     {
         if (!allowRender) return;
         var modConfig = MorphClient.getInstance().getModConfigData();
+
+        var syncer = ClientDisguiseSyncer.getCurrentInstance();
+        if (syncer == null || syncer.disposed()) return;
+        var entity = syncer.getDisguiseInstance();
 
         if (entity != null && (modConfig.clientViewVisible() || modConfig.alwaysShowPreviewInInventory))
         {
