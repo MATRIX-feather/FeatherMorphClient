@@ -223,6 +223,9 @@ public class ClientDisguiseSyncer extends DisguiseSyncer
         if (disguiseInstance != null)
             disguiseInstance.discard();
 
+        if (currentInstance == this)
+            currentInstance = null;
+
         currentEntity.set(null);
 
         currentNbtCompound.unBindFromTarget();

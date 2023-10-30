@@ -221,6 +221,31 @@ public class DisguiseInstanceTracker extends MorphClientObject
         return syncer;
     }
 
+/*
+
+    @Nullable
+    public DisguiseSyncer refreshSyncer(Entity entity)
+    {
+        if (!(entity instanceof AbstractClientPlayerEntity player)) return null;
+
+        var networkId = entity.getId();
+
+        var tracking = trackingDisguises.getOrDefault(networkId, "no");
+        if (tracking.equals("no")) return null;
+
+        var prevSyncer = idSyncerMap.getOrDefault(networkId, null);
+
+        if (prevSyncer != null)
+            this.removeSyncer(prevSyncer);
+
+        var syncer = manager.getSyncerFor(player, tracking, player.getId());
+        idSyncerMap.put(networkId, syncer);
+
+        return syncer;
+    }
+
+*/
+
     @Nullable
     public DisguiseSyncer addSyncerIfNotExist(Entity entity)
     {

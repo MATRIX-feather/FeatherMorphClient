@@ -34,6 +34,8 @@ import xiamomc.morph.client.syncers.ClientDisguiseSyncer;
 import xiamomc.morph.client.syncers.DisguiseSyncer;
 import xiamomc.morph.client.syncers.OtherClientDisguiseSyncer;
 import xiamomc.pluginbase.Annotations.Resolved;
+import xiamomc.pluginbase.Bindables.Bindable;
+import xiamomc.pluginbase.Exceptions.NullDependencyException;
 
 import java.util.List;
 import java.util.Map;
@@ -44,13 +46,10 @@ public class PlayerRenderHelper extends MorphClientObject
 
     public PlayerRenderHelper()
     {
-        ClientDisguiseSyncer.currentEntity.onValueChanged((o, n) ->
-        {
-            this.entity = n;
-
-            allowRender = true;
-        }, true);
     }
+
+    @Nullable
+    private DisguiseSyncer currentSyncer = null;
 
     @Resolved
     private ClientMorphManager morphManager;
@@ -69,6 +68,12 @@ public class PlayerRenderHelper extends MorphClientObject
         allowRender = false;
         exception.printStackTrace();
 
+        var syncer = ClientDisguiseSyncer.getCurrentInstance();
+        if (syncer == null)
+            throw new NullDependencyException("Render Exception with null Syncer ?!");
+
+        var entity = syncer.getDisguiseInstance();
+
         if (entity != null)
         {
             try
@@ -80,8 +85,6 @@ public class PlayerRenderHelper extends MorphClientObject
                 LoggerFactory.getLogger("MorphClient").error("无法移除实体：" + ee.getMessage());
                 ee.printStackTrace();
             }
-
-            entity = null;
         }
 
         var clientPlayer = MinecraftClient.getInstance().player;
@@ -92,8 +95,6 @@ public class PlayerRenderHelper extends MorphClientObject
         clientPlayer.sendMessage(Text.literal("渲染当前实体时出现错误。"));
         clientPlayer.sendMessage(Text.literal("在当前伪装变更前客户端预览将被禁用以避免游戏崩溃。"));
     }
-
-    private Entity entity = null;
 
     @ApiStatus.Internal
     public boolean skipRender = false;
@@ -322,6 +323,11 @@ public class PlayerRenderHelper extends MorphClientObject
 
         try
         {
+            var syncer = ClientDisguiseSyncer.getCurrentInstance();
+
+            if (syncer == null) return false;
+            var entity = syncer.getDisguiseInstance();
+
             if (entity == null || player != MinecraftClient.getInstance().player || !MorphClient.getInstance().getModConfigData().clientViewVisible()) return false;
 
             EntityRenderer<?> disguiseRenderer = MinecraftClient.getInstance().getEntityRenderDispatcher().getRenderer(entity);
@@ -337,7 +343,6 @@ public class PlayerRenderHelper extends MorphClientObject
                 model = ((DragonEntityRendererAccessor) enderDragonEntityRenderer).getModel();
                 layer = dragonLayer;
             }
-
 
             if (disguiseRenderer instanceof LivingEntityRenderer livingEntityRenderer)
             {
