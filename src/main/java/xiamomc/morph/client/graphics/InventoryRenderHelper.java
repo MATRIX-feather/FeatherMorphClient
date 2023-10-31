@@ -3,11 +3,10 @@ package xiamomc.morph.client.graphics;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
-import net.minecraft.entity.LivingEntity;
 import xiamomc.morph.client.ClientMorphManager;
+import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.MorphClientObject;
 import xiamomc.morph.client.syncers.ClientDisguiseSyncer;
-import xiamomc.morph.client.MorphClient;
 import xiamomc.pluginbase.Annotations.Initializer;
 
 public class InventoryRenderHelper extends MorphClientObject

@@ -1,8 +1,6 @@
 package xiamomc.morph.client.syncers;
 
 import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
 import xiamomc.morph.client.EntityCache;
 

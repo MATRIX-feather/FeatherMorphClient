@@ -2,9 +2,6 @@ package xiamomc.morph.client.graphics;
 
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
-import org.slf4j.ILoggerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class MButtonWidget extends ButtonWidget implements IMDrawable
 {

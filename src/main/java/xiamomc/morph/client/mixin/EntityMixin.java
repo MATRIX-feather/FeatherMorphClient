@@ -14,7 +14,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import xiamomc.morph.client.syncers.ClientDisguiseSyncer;
 import xiamomc.morph.client.EntityCache;
 import xiamomc.morph.client.ServerHandler;
 import xiamomc.morph.client.utilties.ClientSyncerUtils;

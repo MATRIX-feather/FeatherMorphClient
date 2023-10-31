@@ -25,7 +25,6 @@ import xiamomc.morph.client.mixin.accessors.EntityAccessor;
 import xiamomc.morph.client.mixin.accessors.HorseEntityMixin;
 import xiamomc.morph.client.mixin.accessors.LimbAnimatorAccessor;
 import xiamomc.pluginbase.Annotations.Resolved;
-import xiamomc.pluginbase.Exceptions.NullDependencyException;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 

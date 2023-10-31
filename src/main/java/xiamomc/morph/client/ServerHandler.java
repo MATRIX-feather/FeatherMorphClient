@@ -16,7 +16,6 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 import xiamomc.morph.client.config.ModConfigData;
 import xiamomc.morph.client.network.commands.ClientSetEquipCommand;
-import xiamomc.morph.client.syncers.ClientDisguiseSyncer;
 import xiamomc.morph.network.BasicServerHandler;
 import xiamomc.morph.network.Constants;
 import xiamomc.morph.network.commands.C2S.AbstractC2SCommand;

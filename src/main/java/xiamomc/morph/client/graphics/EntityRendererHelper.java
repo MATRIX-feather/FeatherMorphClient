@@ -9,10 +9,10 @@ import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import xiamomc.morph.client.syncers.ClientDisguiseSyncer;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.graphics.color.ColorUtils;
 import xiamomc.morph.client.graphics.color.MaterialColors;
+import xiamomc.morph.client.syncers.ClientDisguiseSyncer;
 
 public class EntityRendererHelper
 {
