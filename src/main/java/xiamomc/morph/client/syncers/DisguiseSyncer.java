@@ -146,7 +146,7 @@ public abstract class DisguiseSyncer extends MorphClientObject
                 initialSync();
                 baseSync();
 
-                var nbt = instanceTracker.getNbtFor(this.bindingNetworkId);
+                var nbt = bindingMeta.nbt;
                 if (nbt != null)
                     client.schedule(() -> mergeNbt(nbt));
 

@@ -132,15 +132,17 @@ public class DisguiseInstanceTracker extends MorphClientObject
         idMetaMap.put(networkId, currentMeta);
     }
 
-    private void reset()
+    //endregion
+
+    public void reset()
     {
         trackingDisguises.clear();
-        idSyncerMap.forEach((id, syncer) -> syncer.dispose());
-        idSyncerMap.clear();
+
+        var mapCopy = new Object2ObjectArrayMap<>(idSyncerMap);
+        mapCopy.forEach((id, syncer) -> this.removeSyncer(syncer));
+
         idMetaMap.clear();
     }
-
-    //endregion
 
     //region Meta Tracking
 
@@ -163,7 +165,7 @@ public class DisguiseInstanceTracker extends MorphClientObject
 
     //region Syncer Tracking
 
-    private Map<Integer, DisguiseSyncer> idSyncerMap = new Object2ObjectArrayMap<>();
+    private final Map<Integer, DisguiseSyncer> idSyncerMap = new Object2ObjectArrayMap<>();
 
     public List<DisguiseSyncer> getAllSyncer()
     {
@@ -200,16 +202,6 @@ public class DisguiseInstanceTracker extends MorphClientObject
     public DisguiseSyncer getSyncerFor(int networkId)
     {
         return idSyncerMap.getOrDefault(networkId, null);
-    }
-
-    //endregion
-
-    //region Compound Handling
-
-    public NbtCompound getNbtFor(int id)
-    {
-        //TODO: Implement this
-        return new NbtCompound();
     }
 
     //endregion

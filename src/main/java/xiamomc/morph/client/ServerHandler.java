@@ -433,6 +433,7 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
 
         morphManager.reset();
         updateServerStatus();
+        instanceTracker.reset();
     }
 
     private void updateServerStatus()
