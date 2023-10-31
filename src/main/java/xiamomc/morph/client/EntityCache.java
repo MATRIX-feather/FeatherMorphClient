@@ -160,7 +160,6 @@ public class EntityCache
                     return null;
                 }
 
-                le.addCommandTag(tag);
                 le.setUuid(UUID.randomUUID());
 
                 living = le;
@@ -217,6 +216,9 @@ public class EntityCache
 
         try
         {
+            living.addCommandTag(tag);
+            living.addCommandTag("BINDING_" + bindingPlayer.getId());
+
             isLivingMap.put(identifier, true);
             cacheMap.put(identifier, living);
         }

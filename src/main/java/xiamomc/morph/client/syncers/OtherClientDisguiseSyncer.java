@@ -31,6 +31,12 @@ public class OtherClientDisguiseSyncer extends DisguiseSyncer
             bindingPlayer.setPosition(disguiseInstance.getPos());
     }
 
+    @Override
+    protected void postDispose()
+    {
+        bindingPlayer.calculateDimensions();
+    }
+
     private EntityCache localCache;
 
     @Override
@@ -48,9 +54,16 @@ public class OtherClientDisguiseSyncer extends DisguiseSyncer
 
         baseSync();
         syncPosition();
-        syncYawPitch();
         disguiseInstance.setGlowing(bindingPlayer.isGlowing());
+
+        if (!dimensionsRefreshed)
+        {
+            bindingPlayer.calculateDimensions();
+            dimensionsRefreshed = true;
+        }
     }
+
+    private boolean dimensionsRefreshed;
 
     @Override
     public void syncDraw()

@@ -555,6 +555,12 @@ public abstract class DisguiseSyncer extends MorphClientObject
         world = null;
         prevWorld = null;
         disposed.set(true);
+
+        postDispose();
+    }
+
+    protected void postDispose()
+    {
     }
 
     //endregion Disposal
