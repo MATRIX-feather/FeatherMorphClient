@@ -138,7 +138,7 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
 
         if (!profile.getName().equals(playerName))
         {
-            logger.debug("Profile player name not match : " + profile.getName() + " <-> " + playerName);
+            logger.debug("Profile player name not match : '%s' <-> '%s'".formatted( profile.getName(), playerName));
             return;
         }
 

@@ -38,8 +38,8 @@ public class InventoryRenderHelper extends MorphClientObject
         var modConfig = MorphClient.getInstance().getModConfigData();
 
         var syncer = ClientDisguiseSyncer.getCurrentInstance();
-        if (syncer == null || syncer.disposed()) return;
-        var entity = syncer.getDisguiseInstance();
+        var syncerNotAvailable = syncer == null || syncer.disposed();
+        var entity = syncerNotAvailable ? null : syncer.getDisguiseInstance();
 
         if (entity != null && (modConfig.clientViewVisible() || modConfig.alwaysShowPreviewInInventory))
         {
