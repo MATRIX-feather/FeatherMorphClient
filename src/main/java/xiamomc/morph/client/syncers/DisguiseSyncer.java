@@ -134,8 +134,6 @@ public abstract class DisguiseSyncer extends MorphClientObject
 
             disguiseInstance = entityCache.getEntity(disguiseId, bindingPlayer);
 
-            var clientPlayer = MinecraftClient.getInstance().player;
-
             if (disguiseInstance != null)
             {
                 var entityToAdd = disguiseInstance;
@@ -143,19 +141,16 @@ public abstract class DisguiseSyncer extends MorphClientObject
 
                 client.schedule(() -> clientWorld.addEntity(entityToAdd));
 
-                initialSync();
-                baseSync();
-
                 var nbt = bindingMeta.nbt;
                 if (nbt != null)
                     client.schedule(() -> mergeNbt(nbt));
 
+                initialSync();
+                baseSync();
+
                 if (disguiseInstance instanceof MorphLocalPlayer localPlayer && prevEntity instanceof MorphLocalPlayer prevPlayer && prevPlayer.personEquals(localPlayer))
                     localPlayer.copyFrom(prevPlayer);
             }
-
-            if (clientPlayer != null)
-                clientPlayer.calculateDimensions();
         }
         catch (Throwable t)
         {

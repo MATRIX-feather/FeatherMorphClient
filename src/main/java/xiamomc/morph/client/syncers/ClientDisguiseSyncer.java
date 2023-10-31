@@ -75,6 +75,10 @@ public class ClientDisguiseSyncer extends DisguiseSyncer
     {
         super.refreshEntity();
         beamTarget = null;
+
+        var clientPlayer = MinecraftClient.getInstance().player;
+        if (clientPlayer != null)
+            clientPlayer.calculateDimensions();
     }
 
     @Override
@@ -121,10 +125,6 @@ public class ClientDisguiseSyncer extends DisguiseSyncer
     }
 
     //private boolean isSpider = false;
-
-    private void initialSync(LivingEntity entity, PlayerEntity clientPlayer)
-    {
-    }
 
     @Override
     public void syncDraw()
