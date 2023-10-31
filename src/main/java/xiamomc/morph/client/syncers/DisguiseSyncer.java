@@ -27,6 +27,8 @@ import xiamomc.morph.client.mixin.accessors.LimbAnimatorAccessor;
 import xiamomc.pluginbase.Annotations.Resolved;
 import xiamomc.pluginbase.Exceptions.NullDependencyException;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public abstract class DisguiseSyncer extends MorphClientObject
 {
     @Nullable
@@ -143,8 +145,7 @@ public abstract class DisguiseSyncer extends MorphClientObject
                 client.schedule(() -> clientWorld.addEntity(entityToAdd));
 
                 initialSync();
-                syncTick();
-                syncDraw();
+                baseSync();
 
                 var nbt = instanceTracker.getNbtFor(this.bindingNetworkId);
                 if (nbt != null)
@@ -207,12 +208,21 @@ public abstract class DisguiseSyncer extends MorphClientObject
 
     //region DisguiseSyncing
 
+    private final AtomicBoolean isSyncing = new AtomicBoolean(false);
+
     protected void markSyncing()
     {
+        isSyncing.set(true);
     }
 
     protected void markNotSyncing()
     {
+        isSyncing.set(false);
+    }
+
+    public boolean isSyncing()
+    {
+        return isSyncing.get();
     }
 
     private boolean allowTick = true;
@@ -326,41 +336,35 @@ public abstract class DisguiseSyncer extends MorphClientObject
         }
     }
 
-    private boolean showOverridedEquips;
-
     protected boolean showOverridedEquips()
     {
-        return showOverridedEquips;
+        return bindingMeta.showOverridedEquips;
     }
 
     protected void syncEquipments()
     {
         if (disguiseInstance == null) return;
 
-        //同步装备
-        if (!showOverridedEquips())
-        {
-            disguiseInstance.equipStack(EquipmentSlot.MAINHAND, bindingPlayer.getEquippedStack(EquipmentSlot.MAINHAND));
-            disguiseInstance.equipStack(EquipmentSlot.OFFHAND, bindingPlayer.getEquippedStack(EquipmentSlot.OFFHAND));
+        var meta = getBindingMeta();
+        var showOverridedEquips = showOverridedEquips();
+        var disguiseEquip = meta.convertedEquipment;
 
-            disguiseInstance.equipStack(EquipmentSlot.HEAD, bindingPlayer.getEquippedStack(EquipmentSlot.HEAD));
-            disguiseInstance.equipStack(EquipmentSlot.CHEST, bindingPlayer.getEquippedStack(EquipmentSlot.CHEST));
-            disguiseInstance.equipStack(EquipmentSlot.LEGS, bindingPlayer.getEquippedStack(EquipmentSlot.LEGS));
-            disguiseInstance.equipStack(EquipmentSlot.FEET, bindingPlayer.getEquippedStack(EquipmentSlot.FEET));
-        }
-        else
-        {
-            var equipment = this.bindingMeta.convertedEquipment;
+        var headStack = showOverridedEquips ? disguiseEquip.head : bindingPlayer.getEquippedStack(EquipmentSlot.HEAD);
+        var chestStack = showOverridedEquips ? disguiseEquip.chest : bindingPlayer.getEquippedStack(EquipmentSlot.CHEST);
+        var legStack = showOverridedEquips ? disguiseEquip.leggings : bindingPlayer.getEquippedStack(EquipmentSlot.LEGS);
+        var feetStack = showOverridedEquips ? disguiseEquip.feet : bindingPlayer.getEquippedStack(EquipmentSlot.FEET);
+        var handStack = showOverridedEquips ? disguiseEquip.mainHand : bindingPlayer.getEquippedStack(EquipmentSlot.MAINHAND);
+        var offHandStack = showOverridedEquips ? disguiseEquip.offHand : bindingPlayer.getEquippedStack(EquipmentSlot.OFFHAND);
 
-            disguiseInstance.equipStack(EquipmentSlot.MAINHAND, equipment.mainHand);
-            disguiseInstance.equipStack(EquipmentSlot.OFFHAND, equipment.offHand);
+        //logger.info("Show disguised? " + showOverridedEquips + " :: Checkstack? " + chestStack);
 
-            disguiseInstance.equipStack(EquipmentSlot.HEAD, equipment.head);
-            disguiseInstance.equipStack(EquipmentSlot.CHEST, equipment.chest);
-            disguiseInstance.equipStack(EquipmentSlot.LEGS, equipment.leggings);
-            disguiseInstance.equipStack(EquipmentSlot.FEET, equipment.feet);
-        }
+        disguiseInstance.equipStack(EquipmentSlot.MAINHAND, handStack);
+        disguiseInstance.equipStack(EquipmentSlot.OFFHAND, offHandStack);
 
+        disguiseInstance.equipStack(EquipmentSlot.HEAD, headStack);
+        disguiseInstance.equipStack(EquipmentSlot.CHEST, chestStack);
+        disguiseInstance.equipStack(EquipmentSlot.LEGS, legStack);
+        disguiseInstance.equipStack(EquipmentSlot.FEET, feetStack);
     }
 
     protected abstract void syncPosition();
@@ -377,8 +381,6 @@ public abstract class DisguiseSyncer extends MorphClientObject
         if (meta.profileNbt != null && this.disguiseInstance instanceof MorphLocalPlayer localPlayer)
             localPlayer.updateSkin(meta.profileNbt);
 
-        this.showOverridedEquips = meta.showOverridedEquips;
-
         meta.outdated = false;
 
         this.bindingMeta = meta;
@@ -390,6 +392,13 @@ public abstract class DisguiseSyncer extends MorphClientObject
     {
         var entity = disguiseInstance;
         if (entity == null) return;
+
+        if (this.disposed())
+        {
+            logger.warn("Trying to update a disposed DisguiseSyncer(%s)!".formatted(this));
+            Thread.dumpStack();
+            return;
+        }
 
         if (bindingPlayer.isRemoved() || bindingPlayer.getWorld() != MinecraftClient.getInstance().world)
         {
@@ -426,7 +435,6 @@ public abstract class DisguiseSyncer extends MorphClientObject
         // 因为我们在LivingEntity和PlayerEntity那里都加了阻止伪装实体被世界tick的mixin,
         // 所以在这里手动调用tick
 
-        if (this instanceof ClientDisguiseSyncer)
             entity.tick();
 
         if (beamTarget != null && beamTarget.isRemoved())
@@ -517,16 +525,16 @@ public abstract class DisguiseSyncer extends MorphClientObject
 
     //region Disposal
 
-    private boolean disposed;
+    private final AtomicBoolean disposed = new AtomicBoolean(false);
 
     public boolean disposed()
     {
-        return disposed;
+        return disposed.get();
     }
 
     protected abstract void onDispose();
 
-    public void dispose()
+    public final void dispose()
     {
         getEntityCache().dispose();
 
@@ -543,7 +551,7 @@ public abstract class DisguiseSyncer extends MorphClientObject
         disguiseInstance = null;
         world = null;
         prevWorld = null;
-        disposed = true;
+        disposed.set(true);
     }
 
     //endregion Disposal

@@ -110,7 +110,7 @@ public class DisguiseInstanceTracker extends MorphClientObject
 
         if (meta == null)
         {
-            logger.warn("Received S2CRenderMapMetaCommand with no meta?");
+            logger.warn("Received S2CRenderMapMetaCommand with no meta! Not Processing...");
             logger.warn("Packet: " + metaCommand.buildCommand());
             return;
         }
@@ -118,15 +118,15 @@ public class DisguiseInstanceTracker extends MorphClientObject
         var networkId = meta.networkId;
         if (networkId == -1)
         {
-            logger.warn("Received S2CRenderMapMetaCommand with -1 network id?");
+            logger.warn("Received S2CRenderMapMetaCommand with -1 network id! Not Processing...");
             return;
         }
 
-        var convertedMeta = ConvertedMeta.of(meta);
+        var newMeta = ConvertedMeta.of(meta);
         var currentMeta = getMetaFor(networkId);
 
-        if (convertedMeta != null)
-            currentMeta.mergeFrom(convertedMeta);
+        if (newMeta != null)
+            currentMeta.mergeFrom(newMeta);
 
         currentMeta.outdated = true;
         idMetaMap.put(networkId, currentMeta);
@@ -177,8 +177,17 @@ public class DisguiseInstanceTracker extends MorphClientObject
                 .filter(e -> e.getValue().equals(targetSyncer))
                 .findFirst();
 
-        logger.info("Remove syncer call: " + targetSyncer + " :: get " + optional);
-        optional.ifPresent(e -> idSyncerMap.remove(e.getKey()));
+        logger.info("Removing syncer" + targetSyncer + " :: get " + optional);
+
+        if (optional.isPresent())
+        {
+            idSyncerMap.remove(optional.get().getKey());
+        }
+        else
+        {
+            logger.warn("Trying to remove an DisguiseSyncer that is not in the list?!");
+            Thread.dumpStack();
+        }
     }
 
     @Nullable

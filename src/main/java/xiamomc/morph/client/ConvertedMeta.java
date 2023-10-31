@@ -36,9 +36,7 @@ public class ConvertedMeta
         if (other.profileNbt != null)
             this.profileNbt = other.profileNbt;
 
-        if (!other.convertedEquipment.isEmpty())
-            this.convertedEquipment = other.convertedEquipment;
-
+        this.convertedEquipment = other.convertedEquipment;
         this.showOverridedEquips = other.showOverridedEquips;
     }
 
@@ -102,6 +100,8 @@ public class ConvertedMeta
         if (profileNbt != null)
             instance.profileNbt = NbtHelper.toGameProfile(profileNbt);
 
+        instance.showOverridedEquips = renderMeta.showOverridedEquipment;
+
         // Equipment
         try
         {
@@ -150,22 +150,22 @@ public class ConvertedMeta
 
                     var itemNbt = NbtUtils.parseSNbt(eqNbt[i]);
                     item.setNbt(itemNbt);
+                    item.setCount(Math.max(item.getCount(), 1));
 
                     items.add(item);
                 }
 
                 instance.convertedEquipment = ConvertedEquipment.from(items.toArray(new ItemStack[]{}));
-                instance.showOverridedEquips = renderMeta.showOverridedEquipment;
-
-                return instance;
             }
+
+            return instance;
         }
         catch (Throwable t)
         {
             logger.error("Error occurred while parsing meta: %s".formatted(t.getMessage()));
             t.printStackTrace();
-        }
 
-        return null;
+            return null;
+        }
     }
 }

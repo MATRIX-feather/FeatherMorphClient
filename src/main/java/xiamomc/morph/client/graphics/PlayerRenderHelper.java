@@ -103,20 +103,35 @@ public class PlayerRenderHelper extends MorphClientObject
 
     public boolean skipRenderExternal = false;
 
+    /**
+     * 覆盖玩家的实体渲染
+     * @param player 目标玩家
+     * @param yaw yaw
+     * @param tickDelta tickDelta
+     * @param matrixStack matrixStack
+     * @param vertexConsumerProvider vertexConsumerProvider
+     * @param light 所处光照
+     * @return true: 不继续渲染玩家本体, false: 继续渲染玩家本体
+     */
     public boolean overrideEntityRender(AbstractClientPlayerEntity player, float yaw, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light)
     {
         if (player instanceof MorphLocalPlayer) return false;
 
         var syncer = instanceTracker.getSyncerFor(player);
+
         if (!allowRender || syncer == null || skipRender || skipRenderExternal) return false;
 
         try
         {
             var entity = syncer.getDisguiseInstance();
-            if (entity == null || !MorphClient.getInstance().getModConfigData().clientViewVisible())
+            var isOurClient = syncer == ClientDisguiseSyncer.getCurrentInstance();
+
+            if (entity == null || (isOurClient && !MorphClient.getInstance().getModConfigData().clientViewVisible()))
                 return false;
 
             var disguiseRenderer = MinecraftClient.getInstance().getEntityRenderDispatcher().getRenderer(entity);
+
+            syncer.onGameRender();
 
             if (syncer instanceof OtherClientDisguiseSyncer)
             {
@@ -124,13 +139,10 @@ public class PlayerRenderHelper extends MorphClientObject
                 return true;
             }
 
-            syncer.onGameRender();
-
             light = (entity.getType() == EntityType.ALLAY || entity.getType() == EntityType.VEX || entity.getType() == EntityType.MAGMA_CUBE)
                     ? LightmapTextureManager.MAX_LIGHT_COORDINATE
                     : light;
 
-            //LoggerFactory.getLogger("d").info(player.getName() + " :: " + player.getDataTracker().get(MorphLocalPlayer.getPMPMask()));
             disguiseRenderer.render(entity, yaw, tickDelta, matrixStack, vertexConsumerProvider, light);
         }
         catch (Exception e)

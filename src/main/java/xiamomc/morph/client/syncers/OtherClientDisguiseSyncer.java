@@ -20,25 +20,9 @@ public class OtherClientDisguiseSyncer extends DisguiseSyncer
 
         var playerPos = bindingPlayer.getPos();
 
-        /*
-        if (prevPlayerPos == null) prevPlayerPos = Vec3d.ZERO;
-        if (renderPos == null) renderPos = Vec3d.ZERO;
-
-        var xDiff = playerPos.x - prevPlayerPos.x;
-        var yDiff = playerPos.y - prevPlayerPos.y;
-        var zDiff = playerPos.z - prevPlayerPos.z;
-
-        var diff = new Vec3d(xDiff, yDiff, zDiff);
-        renderPos = renderPos.add(diff);
-        */
-
         //暂时先这样
         disguiseInstance.setPosition(playerPos);
     }
-
-    private Vec3d prevPlayerPos;
-
-    private Vec3d renderPos;
 
     @Override
     protected void onDispose()
@@ -62,22 +46,16 @@ public class OtherClientDisguiseSyncer extends DisguiseSyncer
     {
         if (disguiseInstance == null || disposed()) return;
 
-        disguiseInstance.equipStack(EquipmentSlot.MAINHAND, bindingPlayer.getEquippedStack(EquipmentSlot.MAINHAND));
-        disguiseInstance.equipStack(EquipmentSlot.OFFHAND, bindingPlayer.getEquippedStack(EquipmentSlot.OFFHAND));
-
-        disguiseInstance.equipStack(EquipmentSlot.HEAD, bindingPlayer.getEquippedStack(EquipmentSlot.HEAD));
-        disguiseInstance.equipStack(EquipmentSlot.CHEST, bindingPlayer.getEquippedStack(EquipmentSlot.CHEST));
-        disguiseInstance.equipStack(EquipmentSlot.LEGS, bindingPlayer.getEquippedStack(EquipmentSlot.LEGS));
-        disguiseInstance.equipStack(EquipmentSlot.FEET, bindingPlayer.getEquippedStack(EquipmentSlot.FEET));
-
         baseSync();
         syncPosition();
         syncYawPitch();
+        disguiseInstance.setGlowing(bindingPlayer.isGlowing());
     }
 
     @Override
     public void syncDraw()
     {
+        syncYawPitch();
     }
 
     @Override

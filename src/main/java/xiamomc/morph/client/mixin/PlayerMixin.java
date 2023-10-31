@@ -1,11 +1,8 @@
 package xiamomc.morph.client.mixin;
 
 import com.mojang.authlib.GameProfile;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityPose;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -15,10 +12,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import xiamomc.morph.client.EntityTickHandler;
 import xiamomc.morph.client.DisguiseInstanceTracker;
 import xiamomc.morph.client.syncers.ClientDisguiseSyncer;
-import xiamomc.morph.client.ServerHandler;
-import xiamomc.morph.client.utilties.ClientSyncerUtils;
 
 @Mixin(PlayerEntity.class)
 public abstract class PlayerMixin
@@ -63,12 +59,6 @@ public abstract class PlayerMixin
     @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
     private void featherMorph$onTick(CallbackInfo ci)
     {
-        ensureTrackerPresent();
-
-        ClientSyncerUtils.runIfSyncerEntityValid(entity ->
-        {
-            if (this.equals(entity) && !ClientDisguiseSyncer.syncing)
-                ci.cancel();
-        });
+        EntityTickHandler.cancelIfIsDisguiseAndNotSyncing(ci, this);
     }
 }

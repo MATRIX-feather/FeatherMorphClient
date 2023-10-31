@@ -87,6 +87,12 @@ public class ClientDisguiseSyncer extends DisguiseSyncer
     }
 
     @Override
+    public boolean isSyncing()
+    {
+        return syncing;
+    }
+
+    @Override
     protected void onTickError()
     {
         var clientPlayer = MinecraftClient.getInstance().player;
