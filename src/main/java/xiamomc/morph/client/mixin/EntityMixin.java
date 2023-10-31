@@ -34,7 +34,7 @@ public abstract class EntityMixin
 
     @Shadow public abstract void remove(Entity.RemovalReason reason);
 
-    @Shadow public abstract int getPortalCooldown();
+    @Shadow protected abstract void setFlag(int index, boolean value);
 
     private Entity featherMorph$entityInstance;
 
@@ -42,6 +42,14 @@ public abstract class EntityMixin
     private void featherMorph$onInit(EntityType<?> type, World world, CallbackInfo ci)
     {
         featherMorph$entityInstance = (Entity) (Object) this;
+    }
+
+    @Inject(method = "setGlowing", at = @At("RETURN"))
+    private void morphClient$onGlowingCall(boolean glowing, CallbackInfo ci)
+    {
+        var thisInstance = ((Entity)(Object)this);
+        if (thisInstance.getCommandTags().contains(EntityCache.tag))
+            this.setFlag(6, glowing);
     }
 
     @Inject(method = "getEyeY", at = @At("HEAD"), cancellable = true)

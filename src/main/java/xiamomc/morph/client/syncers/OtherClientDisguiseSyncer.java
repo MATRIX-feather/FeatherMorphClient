@@ -54,7 +54,9 @@ public class OtherClientDisguiseSyncer extends DisguiseSyncer
 
         baseSync();
         syncPosition();
-        disguiseInstance.setGlowing(bindingPlayer.isGlowing());
+
+        if (disguiseInstance.isGlowing() != bindingPlayer.isGlowing())
+            disguiseInstance.setGlowing(bindingPlayer.isGlowing());
 
         if (!dimensionsRefreshed)
         {
