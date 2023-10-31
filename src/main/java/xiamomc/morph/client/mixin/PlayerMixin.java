@@ -15,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xiamomc.morph.client.DisguiseInstanceTracker;
 import xiamomc.morph.client.EntityTickHandler;
+import xiamomc.morph.client.ServerHandler;
 import xiamomc.morph.client.syncers.ClientDisguiseSyncer;
 
 @Mixin(PlayerEntity.class)
@@ -48,11 +49,18 @@ public abstract class PlayerMixin
 
         if (syncer != null && !syncer.disposed())
         {
+            // 如果是客户端伪装并且服务端没有开启碰撞箱修改，那么不要修改此方法的返回值
+            if (syncer == ClientDisguiseSyncer.getCurrentInstance() && !ServerHandler.modifyBoundingBox)
+                return;
+
+            // 否则，根据伪装实例来修改碰撞箱
             var entity = syncer.getDisguiseInstance();
 
             if (entity != null)
             {
                 EntityDimensions dimensions = entity.getDimensions(pose);
+
+                // 扩大其他玩家的碰撞箱来使其能被客户端玩家攻击到
                 if (syncer != ClientDisguiseSyncer.getCurrentInstance())
                 {
                     dimensions = new EntityDimensions(

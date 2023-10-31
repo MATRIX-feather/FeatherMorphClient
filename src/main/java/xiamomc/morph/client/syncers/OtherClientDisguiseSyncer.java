@@ -53,6 +53,10 @@ public class OtherClientDisguiseSyncer extends DisguiseSyncer
         baseSync();
         syncPosition();
 
+        // syncer可能会在baseSync后被处理
+        if (disposed())
+            return;
+
         if (disguiseInstance.isGlowing() != bindingPlayer.isGlowing())
             disguiseInstance.setGlowing(bindingPlayer.isGlowing());
 

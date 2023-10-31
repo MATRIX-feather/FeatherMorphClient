@@ -217,7 +217,9 @@ public class EntityCache
         try
         {
             living.addCommandTag(tag);
-            living.addCommandTag("BINDING_" + bindingPlayer.getId());
+
+            if (bindingPlayer != null)
+                living.addCommandTag("BINDING_" + bindingPlayer.getId());
 
             isLivingMap.put(identifier, true);
             cacheMap.put(identifier, living);
