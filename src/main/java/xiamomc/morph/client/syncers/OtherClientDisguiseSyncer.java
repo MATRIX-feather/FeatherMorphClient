@@ -1,6 +1,8 @@
 package xiamomc.morph.client.syncers;
 
 import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import org.jetbrains.annotations.NotNull;
 import xiamomc.morph.client.EntityCache;
 
@@ -29,18 +31,20 @@ public class OtherClientDisguiseSyncer extends DisguiseSyncer
             bindingPlayer.setPosition(disguiseInstance.getPos());
     }
 
-    @Override
-    protected void postDispose()
-    {
-        bindingPlayer.calculateDimensions();
-    }
-
     private EntityCache localCache;
 
     @Override
     protected @NotNull EntityCache getEntityCache()
     {
         if (localCache == null) localCache = new EntityCache();
+        else if (localCache.disposed() && !this.disposed())
+        {
+            logger.warn("A non-disposed DisguiseSyncer '%s' has a disposed EntityCache?!");
+            logger.warn("Creating a new instance now...");
+            Thread.dumpStack();
+
+            localCache = new EntityCache();
+        }
 
         return localCache;
     }

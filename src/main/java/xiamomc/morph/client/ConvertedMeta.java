@@ -21,8 +21,8 @@ public class ConvertedMeta
     @Nullable
     public GameProfile profileNbt;
 
-    @NotNull
-    public ConvertedEquipment convertedEquipment = new ConvertedEquipment();
+    @Nullable
+    public ConvertedEquipment convertedEquipment;
 
     public boolean showOverridedEquips;
 
@@ -36,7 +36,9 @@ public class ConvertedMeta
         if (other.profileNbt != null)
             this.profileNbt = other.profileNbt;
 
-        this.convertedEquipment = other.convertedEquipment;
+        if (other.convertedEquipment != null)
+            this.convertedEquipment = other.convertedEquipment;
+
         this.showOverridedEquips = other.showOverridedEquips;
     }
 

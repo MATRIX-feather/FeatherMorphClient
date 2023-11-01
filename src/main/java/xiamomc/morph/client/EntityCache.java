@@ -218,9 +218,6 @@ public class EntityCache
         {
             living.addCommandTag(tag);
 
-            if (bindingPlayer != null)
-                living.addCommandTag("BINDING_" + bindingPlayer.getId());
-
             isLivingMap.put(identifier, true);
             cacheMap.put(identifier, living);
         }
@@ -234,7 +231,12 @@ public class EntityCache
         return living;
     }
 
-    private AtomicBoolean disposed = new AtomicBoolean(false);
+    private final AtomicBoolean disposed = new AtomicBoolean(false);
+
+    public boolean disposed()
+    {
+        return disposed.get();
+    }
 
     public void dispose()
     {

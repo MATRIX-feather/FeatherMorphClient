@@ -39,22 +39,6 @@ public class DisguiseInstanceTracker extends MorphClientObject
     @Resolved
     private ClientMorphManager manager;
 
-    @Initializer
-    private void load()
-    {
-        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) ->
-        {
-            this.clearTracking();
-        });
-    }
-
-    private void clearTracking()
-    {
-        idSyncerMap.forEach((id, syncer) -> syncer.dispose());
-        this.idSyncerMap.clear();
-        this.trackingDisguises.clear();
-    }
-
     //region CommandHandling
 
     private final Map<Integer, String> trackingDisguises = new Object2ObjectArrayMap<>();
@@ -179,7 +163,7 @@ public class DisguiseInstanceTracker extends MorphClientObject
                 .filter(e -> e.getValue().equals(targetSyncer))
                 .findFirst();
 
-        logger.info("Removing syncer" + targetSyncer + " :: get " + optional);
+        logger.debug("Removing syncer" + targetSyncer + " :: get " + optional);
 
         if (optional.isPresent())
         {

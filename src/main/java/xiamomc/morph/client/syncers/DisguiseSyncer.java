@@ -145,6 +145,8 @@ public abstract class DisguiseSyncer extends MorphClientObject
                 if (nbt != null)
                     client.schedule(() -> mergeNbt(nbt));
 
+                disguiseInstance.addCommandTag("BINDING_" + bindingPlayer.getId());
+
                 initialSync();
                 baseSync();
 
@@ -190,7 +192,7 @@ public abstract class DisguiseSyncer extends MorphClientObject
             }
         }
 
-        MinecraftClient.getInstance().player.calculateDimensions();
+        bindingPlayer.calculateDimensions();
 
         var crystalPosition = nbtCompound.getInt("BeamTarget");
         crystalId = crystalPosition;
@@ -396,14 +398,14 @@ public abstract class DisguiseSyncer extends MorphClientObject
 
         if (bindingPlayer.isRemoved() || bindingPlayer.getWorld() != MinecraftClient.getInstance().world)
         {
-            logger.info(this + " Player removed, disposing");
-            this.dispose();
+            logger.debug(this + " Player removed, scheduling dispose");
+            this.addSchedule(this::dispose);
             return;
         }
 
         if (world != prevWorld)
         {
-            logger.info(this + " World changed, refreshing");
+            logger.debug(this + " World changed, refreshing");
             prevWorld = world;
 
             getEntityCache().dropAll();
@@ -414,7 +416,7 @@ public abstract class DisguiseSyncer extends MorphClientObject
 
         if (disguiseInstance.isRemoved())
         {
-            logger.info(this + " Instance removed, refreshing");
+            logger.debug(this + " Instance removed, refreshing");
             refreshEntity();
             return;
         }
@@ -428,8 +430,7 @@ public abstract class DisguiseSyncer extends MorphClientObject
 
         // 因为我们在LivingEntity和PlayerEntity那里都加了阻止伪装实体被世界tick的mixin,
         // 所以在这里手动调用tick
-
-            entity.tick();
+        entity.tick();
 
         if (beamTarget != null && beamTarget.isRemoved())
             beamTarget = null;
@@ -524,7 +525,7 @@ public abstract class DisguiseSyncer extends MorphClientObject
 
     private final AtomicBoolean disposed = new AtomicBoolean(false);
 
-    public boolean disposed()
+    public final boolean disposed()
     {
         return disposed.get();
     }
@@ -533,6 +534,9 @@ public abstract class DisguiseSyncer extends MorphClientObject
 
     public final void dispose()
     {
+        if (disposed())
+            return;
+
         getEntityCache().dispose();
 
         try
@@ -541,7 +545,7 @@ public abstract class DisguiseSyncer extends MorphClientObject
         }
         catch (Throwable t)
         {
-            logger.warn("Error calling onDispose() for a DisguiseSyncer: %s".formatted(t.getMessage()));
+            logger.warn("Error calling onDispose() for DisguiseSyncer: %s".formatted(t.getMessage()));
             t.printStackTrace();
         }
 
@@ -550,7 +554,17 @@ public abstract class DisguiseSyncer extends MorphClientObject
         prevWorld = null;
         disposed.set(true);
 
-        postDispose();
+        bindingPlayer.calculateDimensions();
+
+        try
+        {
+            postDispose();
+        }
+        catch (Throwable t)
+        {
+            logger.warn("Error calling postDispose() for DisguiseSyncer: %s".formatted(t.getMessage()));
+            t.printStackTrace();
+        }
     }
 
     protected void postDispose()

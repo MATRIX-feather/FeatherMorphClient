@@ -92,11 +92,11 @@ public class ClientMorphManager extends MorphClientObject
         if (world != null && world != prevWorld)
         {
             prevWorld = world;
-            refreshSyncer(this.currentIdentifier.get());
+            refreshLocalSyncer(this.currentIdentifier.get());
         }
     }
 
-    private void refreshSyncer(String n)
+    private void refreshLocalSyncer(String n)
     {
         if (localPlayerSyncer != null)
         {
@@ -104,12 +104,9 @@ public class ClientMorphManager extends MorphClientObject
             instanceTracker.removeSyncer(localPlayerSyncer);
         }
 
-        logger.info("NEW IS " + n);
-
         if (n == null || n.isEmpty()) return;
 
         localPlayerSyncer = instanceTracker.addSyncerIfNotExist(MinecraftClient.getInstance().player.getId(), n);
-        logger.info("New Local Syncer: " + localPlayerSyncer);
     }
 
     //region Add/Remove/Set disguises
@@ -274,8 +271,6 @@ public class ClientMorphManager extends MorphClientObject
             syncer = new ClientDisguiseSyncer(player, disguiseId, networkId);
         else
             syncer = new OtherClientDisguiseSyncer(player, disguiseId, networkId);
-
-        logger.info("RETURNING %s for id %s, CLientPlayer is %s".formatted(syncer, player.getId(), clientPlayer.getId()));
 
         return syncer;
     }
