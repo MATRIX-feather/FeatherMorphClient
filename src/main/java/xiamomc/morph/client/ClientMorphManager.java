@@ -106,7 +106,7 @@ public class ClientMorphManager extends MorphClientObject
 
         if (n == null || n.isEmpty()) return;
 
-        localPlayerSyncer = instanceTracker.addSyncerIfNotExist(MinecraftClient.getInstance().player.getId(), n);
+        localPlayerSyncer = instanceTracker.setSyncer(MinecraftClient.getInstance().player, n);
     }
 
     //region Add/Remove/Set disguises

@@ -134,11 +134,11 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
 
     public void updateSkin(GameProfile profile)
     {
-        logger.debug("Fetching skin for " + profile);
+        logger.info("Fetching skin for " + profile);
 
         if (!profile.getName().equals(playerName))
         {
-            logger.debug("Profile player name not match : '%s' <-> '%s'".formatted( profile.getName(), playerName));
+            logger.info("Profile player name not match : '%s' <-> '%s'".formatted( profile.getName(), playerName));
             return;
         }
 
@@ -199,7 +199,7 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
 
         if (invokeId < currentId)
         {
-            logger.debug("Not setting skin for " + this + ": A newer request has been finished! " + invokeId + " <-> " + currentProfilePair.getLeft());
+            logger.info("Not setting skin for " + this + ": A newer request has been finished! " + invokeId + " <-> " + currentProfilePair.getLeft());
             return;
         }
 

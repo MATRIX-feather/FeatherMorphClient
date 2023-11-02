@@ -398,14 +398,14 @@ public abstract class DisguiseSyncer extends MorphClientObject
 
         if (bindingPlayer.isRemoved() || bindingPlayer.getWorld() != MinecraftClient.getInstance().world)
         {
-            logger.debug(this + " Player removed, scheduling dispose");
+            logger.info(this + " Player removed, scheduling dispose");
             this.addSchedule(this::dispose);
             return;
         }
 
         if (world != prevWorld)
         {
-            logger.debug(this + " World changed, refreshing");
+            logger.info(this + " World changed, refreshing");
             prevWorld = world;
 
             getEntityCache().dropAll();
@@ -416,7 +416,7 @@ public abstract class DisguiseSyncer extends MorphClientObject
 
         if (disguiseInstance.isRemoved())
         {
-            logger.debug(this + " Instance removed, refreshing");
+            logger.info(this + " Instance removed, refreshing");
             refreshEntity();
             return;
         }

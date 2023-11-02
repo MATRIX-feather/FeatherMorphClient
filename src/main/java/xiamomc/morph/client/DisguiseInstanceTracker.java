@@ -163,7 +163,7 @@ public class DisguiseInstanceTracker extends MorphClientObject
                 .filter(e -> e.getValue().equals(targetSyncer))
                 .findFirst();
 
-        logger.debug("Removing syncer" + targetSyncer + " :: get " + optional);
+        logger.info("Removing syncer" + targetSyncer + " :: get " + optional);
 
         if (optional.isPresent())
         {
@@ -193,7 +193,14 @@ public class DisguiseInstanceTracker extends MorphClientObject
     @Nullable
     public DisguiseSyncer addSyncerIfNotExist(int networkId, String did)
     {
-        if (idSyncerMap.containsKey(networkId)) return idSyncerMap.get(networkId);
+        if (idSyncerMap.containsKey(networkId))
+        {
+            var syncer = idSyncerMap.get(networkId);
+
+            // 如果Syncer已调用了dispose方法，则当作不存在处理
+            if (!syncer.disposed())
+                return syncer;
+        };
 
         var world = MinecraftClient.getInstance().world;
         var entity = world.getEntityById(networkId);
@@ -206,30 +213,25 @@ public class DisguiseInstanceTracker extends MorphClientObject
         return syncer;
     }
 
-/*
-
     @Nullable
-    public DisguiseSyncer refreshSyncer(Entity entity)
+    public DisguiseSyncer setSyncer(Entity entity, String did)
     {
         if (!(entity instanceof AbstractClientPlayerEntity player)) return null;
 
         var networkId = entity.getId();
 
-        var tracking = trackingDisguises.getOrDefault(networkId, "no");
-        if (tracking.equals("no")) return null;
-
+        // 移除之前的Syncer
         var prevSyncer = idSyncerMap.getOrDefault(networkId, null);
 
         if (prevSyncer != null)
             this.removeSyncer(prevSyncer);
 
-        var syncer = manager.getSyncerFor(player, tracking, player.getId());
+        // 然后再添加新的
+        var syncer = manager.getSyncerFor(player, did, player.getId());
         idSyncerMap.put(networkId, syncer);
 
         return syncer;
     }
-
-*/
 
     @Nullable
     public DisguiseSyncer addSyncerIfNotExist(Entity entity)
