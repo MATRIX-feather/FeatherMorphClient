@@ -17,6 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xiamomc.morph.client.EntityCache;
 import xiamomc.morph.client.ServerHandler;
 import xiamomc.morph.client.utilties.ClientSyncerUtils;
+import xiamomc.morph.client.utilties.EntityCacheUtils;
 
 import java.util.function.Consumer;
 
@@ -101,6 +102,12 @@ public abstract class EntityMixin
     {
         if (EntityCache.getGlobalCache().containsId(id))
             cir.setReturnValue(1d);
+    }
+
+    @Inject(method = "setRemoved", at = @At("RETURN"))
+    private void morphClient$onRemoved(CallbackInfo ci)
+    {
+        EntityCacheUtils.postEntityRemove(featherMorph$entityInstance);
     }
 
     @Unique

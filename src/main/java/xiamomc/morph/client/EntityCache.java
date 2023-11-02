@@ -3,18 +3,19 @@ package xiamomc.morph.client;
 import com.mojang.authlib.GameProfile;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Util;
-import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.entities.MorphLocalPlayer;
+import xiamomc.morph.client.utilties.EntityCacheUtils;
 import xiamomc.pluginbase.Bindables.Bindable;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -30,6 +31,16 @@ public class EntityCache
     }
 
     private static final EntityCache globalInstance = new EntityCache();
+
+    public EntityCache()
+    {
+        EntityCacheUtils.addOnEntityRemoveHook(this, e ->
+        {
+            var uuid = e.getUuid();
+            uuidsUsedThisInstance.remove(uuid);
+            alreadyUsedUUIDs.remove(uuid);
+        });
+    }
 
     private final Map<String, LivingEntity> cacheMap = new Object2ObjectOpenHashMap<>();
 
@@ -234,11 +245,20 @@ public class EntityCache
         return living;
     }
 
-    private static UUID randomUUID()
+    private static final List<UUID> alreadyUsedUUIDs = new ObjectArrayList<>();
+
+    private final List<UUID> uuidsUsedThisInstance = new ObjectArrayList<>();
+
+    private UUID randomUUID()
     {
         UUID uuid = UUID.randomUUID();
-        while (uuid.equals(Util.NIL_UUID))
+
+        // 确保生成的UUID不会
+        while (uuid.equals(Util.NIL_UUID) && !alreadyUsedUUIDs.contains(uuid))
             uuid = UUID.randomUUID();
+
+        alreadyUsedUUIDs.add(uuid);
+        uuidsUsedThisInstance.add(uuid);
 
         return uuid;
     }
@@ -255,6 +275,9 @@ public class EntityCache
         if (this == globalInstance) return;
 
         this.dropAll();
+        alreadyUsedUUIDs.removeAll(uuidsUsedThisInstance);
+        EntityCacheUtils.removeOnEntityRemoveHook(this);
+
         disposed.set(true);
     }
 }
