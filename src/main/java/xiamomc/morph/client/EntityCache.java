@@ -4,10 +4,12 @@ import com.mojang.authlib.GameProfile;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Util;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.entities.MorphLocalPlayer;
@@ -177,12 +179,13 @@ public class EntityCache
             var splitedId = identifier.split(":", 2);
 
             if (splitedId.length != 2) return null;
-            var profile = new GameProfile(Util.NIL_UUID, splitedId[1]);
+            var profile = new GameProfile(randomUUID(), splitedId[1]);
 
             try (var world = MinecraftClient.getInstance().world)
             {
-                living = new MorphLocalPlayer(world, profile, bindingPlayer);
-                living.setUuid(UUID.randomUUID());
+                var localPlayer = new MorphLocalPlayer(world, profile, bindingPlayer);
+                localPlayer.updateSkin(new GameProfile(Util.NIL_UUID, splitedId[1]));
+                living = localPlayer;
             }
             catch (Throwable t)
             {
@@ -229,6 +232,15 @@ public class EntityCache
         //LoggerFactory.getLogger("morph").info("Pushing " + identifier + " into EntityCache.");
 
         return living;
+    }
+
+    private static UUID randomUUID()
+    {
+        UUID uuid = UUID.randomUUID();
+        while (uuid.equals(Util.NIL_UUID))
+            uuid = UUID.randomUUID();
+
+        return uuid;
     }
 
     private final AtomicBoolean disposed = new AtomicBoolean(false);

@@ -19,6 +19,7 @@ import xiamomc.morph.client.graphics.capes.providers.KappaCapeProvider;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
