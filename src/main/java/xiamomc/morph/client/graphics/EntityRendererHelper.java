@@ -8,13 +8,14 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
-import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.graphics.color.ColorUtils;
 import xiamomc.morph.client.graphics.color.MaterialColors;
 import xiamomc.morph.client.syncers.ClientDisguiseSyncer;
+
+import java.util.Map;
 
 public class EntityRendererHelper
 {
@@ -30,27 +31,34 @@ public class EntityRendererHelper
     private final int textColor = MaterialColors.Orange500.getColor();
     public final int textColorTransparent = ColorUtils.forOpacity(MaterialColors.Orange500, 0).getColor();
 
-    public void renderRevealNameIfPossible(EntityRenderDispatcher dispatcher, Entity entity, TextRenderer textRenderer, MatrixStack matrices, VertexConsumerProvider vertexConsumers, @Nullable CallbackInfo ci, int light)
+    @Nullable
+    public final Map.Entry<Integer, String> getEntry(Integer id)
+    {
+        return MorphClient.getInstance().morphManager.playerMap.entrySet().stream()
+                .filter(set -> id.equals(set.getKey()))
+                .findFirst().orElse(null);
+    }
+
+    public final void renderRevealNameIfPossible(EntityRenderDispatcher dispatcher,
+                                           Entity renderingEntity, TextRenderer textRenderer,
+                                           MatrixStack matrices, VertexConsumerProvider vertexConsumers,
+                                           @Nullable CallbackInfo ci, int light)
     {
         if (!doRenderRealName) return;
 
-        Integer id = entity.getId();
+        Integer id = renderingEntity.getId();
 
-        var morphManager = MorphClient.getInstance().morphManager;
-        var entrySet = morphManager.playerMap.entrySet().stream()
-                .filter(set -> id.equals(set.getKey()))
-                .findFirst().orElse(null);
-
+        var entrySet = getEntry(id);
         if (entrySet == null) return;
 
         String text = entrySet.getValue();
-        if (text.equals(entity.getEntityName())) return;
+        if (text.equals(renderingEntity.getEntityName())) return;
 
         var syncer = ClientDisguiseSyncer.getCurrentInstance();
-        if (syncer != null && entity != ClientDisguiseSyncer.getCurrentInstance().getDisguiseInstance())
-            entity.ignoreCameraFrustum = true;
+        if (syncer != null && renderingEntity != ClientDisguiseSyncer.getCurrentInstance().getDisguiseInstance())
+            renderingEntity.ignoreCameraFrustum = true;
 
-        renderLabelOnTop(matrices, vertexConsumers, textRenderer, entity, dispatcher, text);
+        renderLabelOnTop(matrices, vertexConsumers, textRenderer, renderingEntity, dispatcher, text);
     }
 
     public void renderLabelOnTop(MatrixStack matrices, VertexConsumerProvider vertexConsumers, TextRenderer textRenderer, Entity entity, EntityRenderDispatcher dispatcher, String text)

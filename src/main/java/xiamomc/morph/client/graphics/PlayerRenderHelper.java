@@ -111,7 +111,7 @@ public class PlayerRenderHelper extends MorphClientObject
      * @param light 所处光照
      * @return true: 不继续渲染玩家本体, false: 继续渲染玩家本体
      */
-    public boolean overrideEntityRender(AbstractClientPlayerEntity player, float yaw, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light)
+    public final boolean overrideEntityRender(AbstractClientPlayerEntity player, float yaw, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light)
     {
         if (player instanceof MorphLocalPlayer) return false;
 
@@ -134,7 +134,8 @@ public class PlayerRenderHelper extends MorphClientObject
             // 目前因为其他客户端的伪装会被拉到对应的玩家那里，因此不需要我们手动渲染
             if (syncer instanceof OtherClientDisguiseSyncer)
             {
-                if (EntityRendererHelper.doRenderRealName)
+                var renderHelper = EntityRendererHelper.instance;
+                if (EntityRendererHelper.doRenderRealName && renderHelper.getEntry(player.getId()) != null)
                 {
                     var textRenderer = MinecraftClient.getInstance().textRenderer;
                     var dispatcher = MinecraftClient.getInstance().getEntityRenderDispatcher();
