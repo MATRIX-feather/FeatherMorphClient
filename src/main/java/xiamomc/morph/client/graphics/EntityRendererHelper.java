@@ -8,6 +8,7 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xiamomc.morph.client.MorphClient;
@@ -33,11 +34,11 @@ public class EntityRendererHelper
     {
         if (!doRenderRealName) return;
 
-        Integer uuid = entity.getId();
+        Integer id = entity.getId();
 
         var morphManager = MorphClient.getInstance().morphManager;
         var entrySet = morphManager.playerMap.entrySet().stream()
-                .filter(set -> uuid.equals(set.getKey()))
+                .filter(set -> id.equals(set.getKey()))
                 .findFirst().orElse(null);
 
         if (entrySet == null) return;
@@ -49,6 +50,11 @@ public class EntityRendererHelper
         if (syncer != null && entity != ClientDisguiseSyncer.getCurrentInstance().getDisguiseInstance())
             entity.ignoreCameraFrustum = true;
 
+        renderLabelOnTop(matrices, vertexConsumers, textRenderer, entity, dispatcher, text);
+    }
+
+    public void renderLabelOnTop(MatrixStack matrices, VertexConsumerProvider vertexConsumers, TextRenderer textRenderer, Entity entity, EntityRenderDispatcher dispatcher, String text)
+    {
         matrices.push();
 
         var exOffset = (entity.hasCustomName() || entity instanceof OtherClientPlayerEntity) ? 0.25f : -0.25f;
@@ -77,17 +83,4 @@ public class EntityRendererHelper
 
         matrices.pop();
     }
-
-    /*
-    public boolean isDisguiseEntity(Entity entity)
-    {
-        var uuid = entity.getId();
-        var morphManager = MorphClient.getInstance().morphManager;
-        var entrySet = morphManager.playerMap.entrySet().stream()
-                .filter(set -> set.getKey().equals(uuid))
-                .findFirst().orElse(null);
-
-        return entrySet != null;
-    }
-     */
 }

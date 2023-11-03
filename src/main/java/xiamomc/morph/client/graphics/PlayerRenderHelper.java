@@ -131,8 +131,16 @@ public class PlayerRenderHelper extends MorphClientObject
 
             syncer.onGameRender();
 
+            // 目前因为其他客户端的伪装会被拉到对应的玩家那里，因此不需要我们手动渲染
             if (syncer instanceof OtherClientDisguiseSyncer)
             {
+                if (EntityRendererHelper.doRenderRealName)
+                {
+                    var textRenderer = MinecraftClient.getInstance().textRenderer;
+                    var dispatcher = MinecraftClient.getInstance().getEntityRenderDispatcher();
+                    EntityRendererHelper.instance.renderLabelOnTop(matrixStack, vertexConsumerProvider, textRenderer, entity, dispatcher, player.getEntityName());
+                }
+
                 matrixStack.translate(0, -1024, 0);
                 return true;
             }
@@ -142,7 +150,6 @@ public class PlayerRenderHelper extends MorphClientObject
                     : light;
 
             disguiseRenderer.render(entity, yaw, tickDelta, matrixStack, vertexConsumerProvider, light);
-            EntityRendererHelper.instance.renderRevealNameIfPossible(MinecraftClient.getInstance().getEntityRenderDispatcher(), entity, MinecraftClient.getInstance().textRenderer, matrixStack, vertexConsumerProvider, null, light);
         }
         catch (Exception e)
         {
