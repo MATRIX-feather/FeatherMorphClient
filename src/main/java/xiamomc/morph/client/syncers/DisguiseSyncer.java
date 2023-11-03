@@ -457,6 +457,8 @@ public abstract class DisguiseSyncer extends MorphClientObject
         else
             entity.clearSleepingPosition();
 
+        entity.setOnFire(bindingPlayer.isOnFire());
+
         // Health
         var attribute = entity.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH);
 
