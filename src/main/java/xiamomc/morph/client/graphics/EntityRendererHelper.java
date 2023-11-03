@@ -8,6 +8,7 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.graphics.color.ColorUtils;
@@ -28,7 +29,7 @@ public class EntityRendererHelper
     private final int textColor = MaterialColors.Orange500.getColor();
     public final int textColorTransparent = ColorUtils.forOpacity(MaterialColors.Orange500, 0).getColor();
 
-    public void renderRevealNameIfPossible(EntityRenderDispatcher dispatcher, Entity entity, TextRenderer textRenderer, MatrixStack matrices, VertexConsumerProvider vertexConsumers, CallbackInfo ci, int light)
+    public void renderRevealNameIfPossible(EntityRenderDispatcher dispatcher, Entity entity, TextRenderer textRenderer, MatrixStack matrices, VertexConsumerProvider vertexConsumers, @Nullable CallbackInfo ci, int light)
     {
         if (!doRenderRealName) return;
 

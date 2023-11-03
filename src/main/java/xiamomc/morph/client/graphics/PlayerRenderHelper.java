@@ -142,6 +142,7 @@ public class PlayerRenderHelper extends MorphClientObject
                     : light;
 
             disguiseRenderer.render(entity, yaw, tickDelta, matrixStack, vertexConsumerProvider, light);
+            EntityRendererHelper.instance.renderRevealNameIfPossible(MinecraftClient.getInstance().getEntityRenderDispatcher(), entity, MinecraftClient.getInstance().textRenderer, matrixStack, vertexConsumerProvider, null, light);
         }
         catch (Exception e)
         {

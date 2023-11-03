@@ -5,10 +5,12 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Util;
+import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.entities.MorphLocalPlayer;
@@ -34,11 +36,19 @@ public class EntityCache
 
     public EntityCache()
     {
-        EntityCacheUtils.addOnEntityRemoveHook(this, e ->
+        EntityCacheUtils.addOnEntityAddHook(this, e ->
         {
-            var uuid = e.getUuid();
-            uuidsUsedThisInstance.remove(uuid);
-            alreadyUsedUUIDs.remove(uuid);
+            if (e.getCommandTags().contains(tag)) return;
+
+            var targets = cacheMap.entrySet().stream().filter(entry -> entry.getValue().getUuid().equals(e.getUuid()))
+                    .toList();
+
+            targets.forEach(ee ->
+            {
+                var id = ee.getKey();
+
+                discardEntity(id);
+            });
         });
     }
 
@@ -173,7 +183,8 @@ public class EntityCache
                     return null;
                 }
 
-                le.setUuid(UUID.randomUUID());
+                var uuid = ensureUUIDUnique(MathHelper.randomUuid());
+                le.setUuid(uuid);
 
                 living = le;
             }
@@ -190,7 +201,9 @@ public class EntityCache
             var splitedId = identifier.split(":", 2);
 
             if (splitedId.length != 2) return null;
-            var profile = new GameProfile(randomUUID(), splitedId[1]);
+
+            var uuid = ensureUUIDUnique(MathHelper.randomUuid());
+            var profile = new GameProfile(uuid, splitedId[1]);
 
             try (var world = MinecraftClient.getInstance().world)
             {
@@ -245,20 +258,31 @@ public class EntityCache
         return living;
     }
 
-    private static final List<UUID> alreadyUsedUUIDs = new ObjectArrayList<>();
-
-    private final List<UUID> uuidsUsedThisInstance = new ObjectArrayList<>();
-
-    private UUID randomUUID()
+    /**
+     * 确保传入的UUID在客户端世界里是唯一的
+     * @param uuid 目标UUID
+     * @return
+     */
+    private UUID ensureUUIDUnique(UUID uuid)
     {
-        UUID uuid = UUID.randomUUID();
+        var world = MinecraftClient.getInstance().world;
+        if (world == null) return uuid;
 
-        // 确保生成的UUID不会
-        while (uuid.equals(Util.NIL_UUID) && !alreadyUsedUUIDs.contains(uuid))
-            uuid = UUID.randomUUID();
+        var haveMatch = true;
+        while (haveMatch)
+        {
+            haveMatch = false;
 
-        alreadyUsedUUIDs.add(uuid);
-        uuidsUsedThisInstance.add(uuid);
+            for (var entity : world.getEntities())
+            {
+                if (entity.getUuid().equals(uuid))
+                {
+                    uuid = MathHelper.randomUuid();
+                    haveMatch = true;
+                    break;
+                }
+            }
+        }
 
         return uuid;
     }
@@ -275,8 +299,7 @@ public class EntityCache
         if (this == globalInstance) return;
 
         this.dropAll();
-        alreadyUsedUUIDs.removeAll(uuidsUsedThisInstance);
-        EntityCacheUtils.removeOnEntityRemoveHook(this);
+        EntityCacheUtils.removeOnEntityAddHook(this);
 
         disposed.set(true);
     }

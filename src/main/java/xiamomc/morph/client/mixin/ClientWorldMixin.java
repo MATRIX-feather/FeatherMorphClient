@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xiamomc.morph.client.DisguiseInstanceTracker;
+import xiamomc.morph.client.utilties.EntityCacheUtils;
 
 @Mixin(ClientWorld.class)
 public class ClientWorldMixin
@@ -14,6 +15,8 @@ public class ClientWorldMixin
     @Inject(method = "addEntity", at = @At("HEAD"))
     private void fm$onAddEntity(Entity entity, CallbackInfo ci)
     {
+        EntityCacheUtils.onEntityAdd(entity);
+
         var fm$instanceTracker = DisguiseInstanceTracker.getInstance();
         fm$instanceTracker.addSyncerIfNotExist(entity);
     }
