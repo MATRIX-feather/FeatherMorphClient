@@ -19,6 +19,7 @@ import xiamomc.pluginbase.Bindables.Bindable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -113,9 +114,11 @@ public class EntityCache
     public void dropAll()
     {
         droppingCaches.set(true);
+
+        var morphClient = MorphClient.getInstance();
         cacheMap.forEach((id, entity) ->
         {
-            entity.discard();
+            morphClient.schedule(entity::discard);
             cacheMap.remove(id);
         });
 
