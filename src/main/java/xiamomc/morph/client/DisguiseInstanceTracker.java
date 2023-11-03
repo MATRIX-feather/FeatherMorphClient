@@ -62,11 +62,6 @@ public class DisguiseInstanceTracker extends MorphClientObject
         if (!s2CRenderMapAddCommand.isValid()) return;
 
         var networkId = s2CRenderMapAddCommand.getPlayerNetworkId();
-
-        var prevSyncer = getSyncerFor(networkId);
-        if (prevSyncer != null)
-            removeSyncer(prevSyncer);
-
         trackingDisguises.put(networkId, s2CRenderMapAddCommand.getMobId());
         addSyncerIfNotExist(networkId, s2CRenderMapAddCommand.getMobId());
     }

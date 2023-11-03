@@ -187,6 +187,12 @@ public class ClientDisguiseSyncer extends DisguiseSyncer
     }
 
     @Override
+    protected @Nullable NbtCompound getCompound()
+    {
+        return morphManager.currentNbtCompound.get();
+    }
+
+    @Override
     protected void syncEquipments()
     {
         if (disguiseInstance == null) return;

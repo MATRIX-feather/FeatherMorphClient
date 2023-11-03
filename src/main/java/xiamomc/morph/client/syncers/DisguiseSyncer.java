@@ -50,6 +50,12 @@ public abstract class DisguiseSyncer extends MorphClientObject
         return bindingMeta;
     }
 
+    @Nullable
+    protected NbtCompound getCompound()
+    {
+        return bindingMeta.nbt;
+    }
+
     protected final String disguiseId;
 
     protected final int bindingNetworkId;
@@ -141,7 +147,7 @@ public abstract class DisguiseSyncer extends MorphClientObject
 
                 client.schedule(() -> clientWorld.addEntity(entityToAdd));
 
-                var nbt = bindingMeta.nbt;
+                var nbt = getCompound();
                 if (nbt != null)
                     client.schedule(() -> mergeNbt(nbt));
 

@@ -250,6 +250,8 @@ public class ClientMorphManager extends MorphClientObject
 
     public void setCurrent(String val)
     {
+        refreshLocalSyncer(val);
+
         if (val != null && (val.isBlank() || val.isEmpty()))
             val = null;
 
