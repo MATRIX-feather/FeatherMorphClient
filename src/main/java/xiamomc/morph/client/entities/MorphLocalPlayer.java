@@ -2,6 +2,7 @@ package xiamomc.morph.client.entities;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.yggdrasil.ProfileResult;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.client.render.entity.PlayerModelPart;
@@ -14,6 +15,7 @@ import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.graphics.capes.ICapeProvider;
 import xiamomc.morph.client.graphics.capes.providers.KappaCapeProvider;
 
@@ -77,7 +79,7 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
 
     private final static ICapeProvider capeProvider = new KappaCapeProvider();
 
-    private static final Logger logger = LoggerFactory.getLogger("MorphClient");
+    private static final Logger logger = MorphClient.LOGGER;
 
     private static ApiServices apiServices;
     private static Executor apiExecutor;
@@ -117,18 +119,15 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
             userCache = apiServices.userCache();
 
         UserCache userCache = MorphLocalPlayer.userCache;
-        return userCache == null ? CompletableFuture.completedFuture(Optional.empty()) : userCache.findByNameAsync(name).thenCompose((profile) -> {
-            return profile.isPresent() ? fetchProfileWithTextures(profile.get()) : CompletableFuture.completedFuture(Optional.empty());
-        }).thenApplyAsync((profile) -> {
-            UserCache userCache1 = MorphLocalPlayer.userCache;
-            if (userCache1 != null) {
-                Objects.requireNonNull(userCache1);
-                profile.ifPresent(userCache1::add);
-                return profile;
-            } else {
-                return Optional.empty();
-            }
-        }, apiExecutor);
+        return userCache == null
+                ? CompletableFuture.completedFuture(Optional.empty())
+                : userCache.findByNameAsync(name).thenCompose((optional) ->
+                {
+                    return optional.isPresent() ? fetchProfileWithTextures(optional.get()) : CompletableFuture.completedFuture(Optional.empty());
+                }).thenApplyAsync((profile) ->
+                {
+                    return profile;
+                }, apiExecutor);
     }
 
     //endregion From SkullBlockEntity
@@ -139,7 +138,13 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
 
         if (!profile.getName().equals(playerName))
         {
-            logger.info("Profile player name not match : '%s' <-> '%s'".formatted( profile.getName(), playerName));
+            logger.info("Profile %s player name not match : '%s' <-> '%s'".formatted(profile.getId(), profile.getName(), playerName));
+            return;
+        }
+
+        if (!RenderSystem.isOnRenderThread())
+        {
+            MorphClient.getInstance().schedule(() -> updateSkin(profile));
             return;
         }
 
@@ -160,6 +165,8 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
         {
             // 确保targetProfile不是null
             GameProfile targetProfile = optional.orElse(profile);
+
+            //logger.info("Target UUID is " + targetProfile.getId() + " :: Optional is " + optional.orElse(null));
 
             // 开始获取皮肤信息
             startFetchTask(targetProfile, invokeId);
