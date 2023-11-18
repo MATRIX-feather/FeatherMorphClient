@@ -102,6 +102,7 @@ public class ClientMorphManager extends MorphClientObject
         {
             logger.info("Removing previous syncer " + localPlayerSyncer);
             instanceTracker.removeSyncer(localPlayerSyncer);
+            localPlayerSyncer = null;
         }
 
         if (n == null || n.isEmpty()) return;
