@@ -56,6 +56,8 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
 
         this.currentProfilePair.setLeft(requestId);
         this.currentProfilePair.setRight(prevPlayer.currentProfilePair.getRight());
+
+        this.skinTextureUrl = prevPlayer.skinTextureUrl;
     }
 
     private final PlayerEntity bindingPlayer;

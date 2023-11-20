@@ -1,6 +1,7 @@
 package xiamomc.morph.client.syncers;
 
 import com.mojang.authlib.GameProfile;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
@@ -39,7 +40,8 @@ public abstract class DisguiseSyncer extends MorphClientObject
         return disguiseInstance;
     }
 
-    protected final AbstractClientPlayerEntity bindingPlayer;
+    @NotNull
+    protected AbstractClientPlayerEntity bindingPlayer;
 
     @NotNull
     private ConvertedMeta bindingMeta = new ConvertedMeta();
@@ -304,6 +306,9 @@ public abstract class DisguiseSyncer extends MorphClientObject
             return;
         }
 
+        if (!RenderSystem.isOnRenderThread())
+            throw new RuntimeException("May not invoke updateSkin() while not on the render thread.");
+
         if (disguiseInstance instanceof MorphLocalPlayer localPlayer)
             localPlayer.updateSkin(profile);
         else
@@ -416,13 +421,20 @@ public abstract class DisguiseSyncer extends MorphClientObject
             return;
         }
 
+        world = MinecraftClient.getInstance().world;
+
         if (world != prevWorld)
         {
-            logger.info(this + " World changed, refreshing");
+            var prev = prevWorld;
             prevWorld = world;
 
-            getEntityCache().dropAll();
-            refreshEntity();
+            if (prev != null)
+            {
+                logger.info(this + " World changed, refreshing");
+
+                getEntityCache().dropAll();
+                refreshEntity();
+            }
 
             return;
         }

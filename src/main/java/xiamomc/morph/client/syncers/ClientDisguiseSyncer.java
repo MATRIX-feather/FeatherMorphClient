@@ -174,6 +174,10 @@ public class ClientDisguiseSyncer extends DisguiseSyncer
         if (this.disposed())
             throw new RuntimeException("May not update a disposed DisguiseSyncer");
 
+        var clientPlayer = MinecraftClient.getInstance().player;
+        if (bindingPlayer != clientPlayer && clientPlayer != null)
+            bindingPlayer = clientPlayer;
+
         if (disguiseInstance == null || disguiseInstance.isRemoved() || disguiseInstance.getWorld() == null)
         {
             logger.warn("Trying to update an removed entity " + disguiseInstance);

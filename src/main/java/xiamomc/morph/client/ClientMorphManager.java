@@ -99,7 +99,7 @@ public class ClientMorphManager extends MorphClientObject
         if (world != null && world != prevWorld)
         {
             prevWorld = world;
-            refreshLocalSyncer(this.currentIdentifier.get());
+            //refreshLocalSyncer(this.currentIdentifier.get());
         }
     }
 
