@@ -287,12 +287,7 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
             var profile = NbtHelper.toGameProfile(nbt);
 
             if (profile != null)
-            {
-                var syncer = instanceTracker.getSyncerFor(MinecraftClient.getInstance().player);
-
-                if (syncer != null)
-                    this.client.schedule(() -> syncer.updateSkin(profile));
-            }
+                this.client.schedule(() -> morphManager.updateSkin(profile));
         }
         catch (Exception e)
         {

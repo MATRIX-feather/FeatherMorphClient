@@ -1,5 +1,6 @@
 package xiamomc.morph.client;
 
+import com.mojang.authlib.GameProfile;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
@@ -76,6 +77,8 @@ public class ClientMorphManager extends MorphClientObject
 
             world = null;
             prevWorld = null;
+
+            reset();
         });
 
         this.addSchedule(this::update);
@@ -89,6 +92,10 @@ public class ClientMorphManager extends MorphClientObject
         this.addSchedule(this::update);
 
         world = MinecraftClient.getInstance().world;
+
+        if (prevWorld == null)
+            prevWorld = world;
+
         if (world != null && world != prevWorld)
         {
             prevWorld = world;
@@ -102,6 +109,7 @@ public class ClientMorphManager extends MorphClientObject
         {
             logger.info("Removing previous syncer " + localPlayerSyncer);
             instanceTracker.removeSyncer(localPlayerSyncer);
+            localPlayerSyncer.dispose();
             localPlayerSyncer = null;
         }
 
@@ -247,11 +255,24 @@ public class ClientMorphManager extends MorphClientObject
         currentIdentifier.set(null);
 
         revealingValue.set(0f);
+        if (localPlayerSyncer != null)
+            localPlayerSyncer.dispose();
+
+        localPlayerSyncer = null;
+
+        prevWorld = null;
+        world = null;
     }
 
     public void setCurrent(String val)
     {
-        refreshLocalSyncer(val);
+        if (localPlayerSyncer != null)
+            localPlayerSyncer.dispose();
+
+        localPlayerSyncer = null;
+
+        String finalVal = val;
+        this.addSchedule(() -> refreshLocalSyncer(finalVal));
 
         if (val != null && (val.isBlank() || val.isEmpty()))
             val = null;
@@ -263,7 +284,7 @@ public class ClientMorphManager extends MorphClientObject
         currentNbtCompound.set(null);
     }
 
-    public DisguiseSyncer getSyncerFor(AbstractClientPlayerEntity player, String disguiseId, int networkId)
+    public DisguiseSyncer createSyncerFor(AbstractClientPlayerEntity player, String disguiseId, int networkId)
     {
         var clientPlayer = MinecraftClient.getInstance().player;
         if (clientPlayer == null)
@@ -276,5 +297,18 @@ public class ClientMorphManager extends MorphClientObject
             syncer = new OtherClientDisguiseSyncer(player, disguiseId, networkId);
 
         return syncer;
+    }
+
+    public void updateSkin(GameProfile profile)
+    {
+        if (localPlayerSyncer != null)
+        {
+            localPlayerSyncer.updateSkin(profile);
+        }
+        else
+        {
+            logger.warn("Calling UpdateSkin while localPlayerSyncer is null!");
+            Thread.dumpStack();
+        }
     }
 }

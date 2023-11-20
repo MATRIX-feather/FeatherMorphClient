@@ -297,11 +297,18 @@ public abstract class DisguiseSyncer extends MorphClientObject
 
     public void updateSkin(GameProfile profile)
     {
+        if (disposed.get())
+        {
+            logger.warn("Trying to update skin for a disposed DisguiseSyncer " + this);
+            Thread.dumpStack();
+            return;
+        }
+
         if (disguiseInstance instanceof MorphLocalPlayer localPlayer)
             localPlayer.updateSkin(profile);
         else
             LoggerFactory.getLogger("MorphClient")
-                    .warn("Received a GameProfile while current disguise is not a player! : " + profile);
+                    .warn(this + " Received a GameProfile while current disguise is not a player! Current instance is %s".formatted(disguiseInstance));
     }
 
     public abstract void syncTick();
@@ -545,7 +552,8 @@ public abstract class DisguiseSyncer extends MorphClientObject
         if (disposed())
             return;
 
-        getEntityCache().dispose();
+        if (getEntityCache() != EntityCache.getGlobalCache())
+            getEntityCache().dispose();
 
         try
         {

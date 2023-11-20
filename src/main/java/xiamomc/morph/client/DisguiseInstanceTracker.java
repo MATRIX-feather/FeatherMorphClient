@@ -2,16 +2,13 @@ package xiamomc.morph.client;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.entity.Entity;
-import net.minecraft.nbt.NbtCompound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xiamomc.morph.client.syncers.DisguiseSyncer;
 import xiamomc.morph.network.commands.S2C.clientrender.*;
-import xiamomc.pluginbase.Annotations.Initializer;
 import xiamomc.pluginbase.Annotations.Resolved;
 
 import java.util.HashMap;
@@ -163,8 +160,6 @@ public class DisguiseInstanceTracker extends MorphClientObject
                 .filter(e -> e.getValue().equals(targetSyncer))
                 .findFirst();
 
-        logger.info("Removing syncer" + targetSyncer + " :: get " + optional);
-
         if (optional.isPresent())
         {
             idSyncerMap.remove(optional.get().getKey());
@@ -207,7 +202,7 @@ public class DisguiseInstanceTracker extends MorphClientObject
 
         if (!(entity instanceof AbstractClientPlayerEntity player)) return null;
 
-        var syncer = manager.getSyncerFor(player, did, networkId);
+        var syncer = manager.createSyncerFor(player, did, networkId);
         idSyncerMap.put(networkId, syncer);
 
         return syncer;
@@ -227,7 +222,7 @@ public class DisguiseInstanceTracker extends MorphClientObject
             this.removeSyncer(prevSyncer);
 
         // 然后再添加新的
-        var syncer = manager.getSyncerFor(player, did, player.getId());
+        var syncer = manager.createSyncerFor(player, did, player.getId());
         idSyncerMap.put(networkId, syncer);
 
         return syncer;
@@ -244,7 +239,7 @@ public class DisguiseInstanceTracker extends MorphClientObject
         if (tracking.equals("no")) return null;
         if (!(entity instanceof AbstractClientPlayerEntity player)) return null;
 
-        var syncer = manager.getSyncerFor(player, tracking, player.getId());
+        var syncer = manager.createSyncerFor(player, tracking, player.getId());
         idSyncerMap.put(networkId, syncer);
 
         return syncer;

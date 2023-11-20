@@ -299,8 +299,6 @@ public class EntityCache
 
     public void dispose()
     {
-        if (this == globalInstance) return;
-
         this.dropAll();
         EntityCacheUtils.removeOnEntityAddHook(this);
 
