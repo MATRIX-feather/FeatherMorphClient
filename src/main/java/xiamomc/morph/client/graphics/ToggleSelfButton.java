@@ -7,6 +7,7 @@ import net.minecraft.text.OrderedText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
+import net.minecraft.util.Formatting;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.screens.disguise.DisguiseScreen;
 import xiamomc.pluginbase.Bindables.Bindable;
@@ -17,8 +18,12 @@ public class ToggleSelfButton extends ButtonWidget implements IMDrawable
 {
     private static Text getSwitchTextFrom(boolean val)
     {
+        var color = val
+                ? TextColor.fromFormatting(Formatting.GREEN)
+                : TextColor.fromFormatting(Formatting.RED);
+
         return Text.literal(val ? "I" : "O")
-                .setStyle(Style.EMPTY.withColor(val ? TextColor.parse("green") : TextColor.parse("red")));
+                .setStyle(Style.EMPTY.withColor(color));
     }
 
     public ToggleSelfButton(int x, int y, int width, int height, boolean toggled, DisguiseScreen screen)
@@ -44,9 +49,9 @@ public class ToggleSelfButton extends ButtonWidget implements IMDrawable
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta)
+    public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta)
     {
-        super.render(context, mouseX, mouseY, delta);
+        super.renderWidget(context, mouseX, mouseY, delta);
 
         if (screen != null && this.isHovered())
             context.drawOrderedTooltip(MinecraftClient.getInstance().textRenderer, tooltips, mouseX, mouseY);

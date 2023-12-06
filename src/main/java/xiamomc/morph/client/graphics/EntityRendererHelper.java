@@ -52,7 +52,7 @@ public class EntityRendererHelper
         if (entrySet == null) return;
 
         String text = entrySet.getValue();
-        if (text.equals(renderingEntity.getEntityName())) return;
+        if (text.equals(renderingEntity.getName().getString())) return;
 
         var syncer = ClientDisguiseSyncer.getCurrentInstance();
         if (syncer != null && renderingEntity != ClientDisguiseSyncer.getCurrentInstance().getDisguiseInstance())

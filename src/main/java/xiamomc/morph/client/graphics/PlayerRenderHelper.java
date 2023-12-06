@@ -139,7 +139,7 @@ public class PlayerRenderHelper extends MorphClientObject
                 {
                     var textRenderer = MinecraftClient.getInstance().textRenderer;
                     var dispatcher = MinecraftClient.getInstance().getEntityRenderDispatcher();
-                    EntityRendererHelper.instance.renderLabelOnTop(matrixStack, vertexConsumerProvider, textRenderer, entity, dispatcher, player.getEntityName());
+                    EntityRendererHelper.instance.renderLabelOnTop(matrixStack, vertexConsumerProvider, textRenderer, entity, dispatcher, player.getName().getString());
                 }
 
                 matrixStack.translate(0, -1024, 0);

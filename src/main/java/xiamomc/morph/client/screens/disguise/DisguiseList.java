@@ -8,6 +8,7 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.math.MathHelper;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.graphics.IMDrawable;
+import xiamomc.morph.client.graphics.color.Colors;
 import xiamomc.morph.client.graphics.transforms.Recorder;
 import xiamomc.morph.client.graphics.transforms.Transformer;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
@@ -16,7 +17,7 @@ public class DisguiseList extends ElementListWidget<EntityDisplayWidget> impleme
 {
     public DisguiseList(MinecraftClient minecraftClient, int width, int height, int topPadding, int bottomPadding, int itemHeight)
     {
-        super(minecraftClient, width, height, topPadding, bottomPadding, itemHeight);
+        super(minecraftClient, width, height, 0, itemHeight);
 
         this.setRenderBackground(false);
     }
@@ -48,32 +49,6 @@ public class DisguiseList extends ElementListWidget<EntityDisplayWidget> impleme
     public void setWidth(int w)
     {
         this.width = w;
-    }
-
-    public void setBottomPadding(int b)
-    {
-        this.bottom = b;
-    }
-
-    @Override
-    protected void renderHeader(DrawContext context, int x, int y)
-    {
-        super.renderHeader(context, x, y);
-    }
-
-    public int getBottomPadding()
-    {
-        return this.bottom;
-    }
-
-    public int getTopPadding()
-    {
-        return this.top;
-    }
-
-    public void setTopPadding(int newPadding)
-    {
-        this.top = newPadding;
     }
 
     public void scrollTo(EntityDisplayWidget widget)
@@ -157,42 +132,16 @@ public class DisguiseList extends ElementListWidget<EntityDisplayWidget> impleme
 
     public void setHeaderHeight(int newHeaderHeight)
     {
+        this.headerHeight = newHeaderHeight;
         this.setRenderHeader(true, newHeaderHeight);
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta)
+    public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta)
     {
-        /*
-        var textRenderer = MinecraftClient.getInstance().textRenderer;
+        super.renderWidget(context, mouseX, mouseY, delta);
 
-        var textY = this.getTopPadding() + textRenderer.fontHeight;
-        textRenderer.drawWithShadow(matrices, "Current: %s".formatted(this.scrollAmount.get()), 0, textY, 0xffffff);
-
-        textY += textRenderer.fontHeight;
-        textRenderer.drawWithShadow(matrices, "Target: %s".formatted(targetAmount), 0, textY, 0xffffff);
-
-        textY += textRenderer.fontHeight;
-        textRenderer.drawWithShadow(matrices, "Diff: %s".formatted(diff), 0, textY, 0xffffff);
-        */
-
-        context.setShaderColor(0.2F, 0.2F, 0.2F, 1.0F);
-
-        context.drawTexture(Screen.OPTIONS_BACKGROUND_TEXTURE,
-                0, 0,
-                (float)this.right, -getTopPadding(),
-                this.right - this.left, this.getTopPadding(), 32, 32);
-
-        context.drawTexture(Screen.OPTIONS_BACKGROUND_TEXTURE,
-                0, this.bottom,
-                (float)this.right, 0,
-                this.right - this.left, this.getBottomPadding(), 32, 32);
-
-        context.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-
-        super.render(context, mouseX, mouseY, delta);
-
-        context.fillGradient(RenderLayer.getGuiOverlay(), this.left, this.top, this.right, this.top + 4, -16777216, 0, 0);
-        context.fillGradient(RenderLayer.getGuiOverlay(), this.left, this.bottom - 4, this.right, this.bottom, 0, -16777216, 0);
+        context.fillGradient(RenderLayer.getGuiOverlay(), 0, getY(), this.width, getY() + 4, -16777216, 0, 0);
+        context.fillGradient(RenderLayer.getGuiOverlay(), 0, getBottom() - 4, this.width, getBottom(), 0, -16777216, 0);
     }
 }

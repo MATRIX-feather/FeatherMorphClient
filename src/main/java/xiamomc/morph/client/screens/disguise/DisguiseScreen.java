@@ -2,6 +2,7 @@ package xiamomc.morph.client.screens.disguise;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import me.shedaniel.clothconfig2.gui.AbstractConfigScreen;
 import me.shedaniel.math.Color;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -173,7 +174,8 @@ public class DisguiseScreen extends FeatherScreen
     {
         super.onScreenEnter(last);
 
-        list.updateSize(width, this.height, 0, 0);
+        list.setWidth(width);
+        list.setHeight(this.height - 25);
 
         if (last == null || last instanceof WaitingForServerScreen)
         {
@@ -193,13 +195,13 @@ public class DisguiseScreen extends FeatherScreen
 
         topHeight.onValueChanged((o, n) ->
         {
-            list.setTopPadding(n);
+            list.setY(n);
             list.setHeaderHeight(textRenderer.fontHeight * 2 + fontMargin * 2 - n);
         }, true);
 
         bottomHeight.onValueChanged((o, n) ->
         {
-            list.setBottomPadding(this.height - n);
+            list.setHeight(this.height - topHeight.get() - n);
         });
 
         Transformer.transform(topHeight, textRenderer.fontHeight * 2 + fontMargin * 2, duration, easing);
@@ -257,7 +259,8 @@ public class DisguiseScreen extends FeatherScreen
         assert this.client != null;
 
         //列表
-        list.updateSize(width, this.height, list.getTopPadding(), this.height - bottomHeight.get());
+        list.setWidth(width);
+        list.setHeight(this.height - topHeight.get() - bottomHeight.get());
 
         bottomTextContainer.invalidatePosition();
         topTextContainer.invalidatePosition();
@@ -354,9 +357,6 @@ public class DisguiseScreen extends FeatherScreen
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta)
     {
-        if (!RenderSystem.isOnRenderThread())
-            throw new RuntimeException("Not on render thread");
-
         var dim = (int) (255 * backgroundDim.get());
         var color = Color.ofRGBA(0, 0, 0, dim);
 
@@ -370,6 +370,21 @@ public class DisguiseScreen extends FeatherScreen
         textBox.setY(this.topHeight.get() - textBox.getHeight() - 5);
 
         context.fillGradient(0, 0, this.width, this.height, color.getColor(), color.getColor());
+
+        context.setShaderColor(0.2F, 0.2F, 0.2F, 1.0F);
+
+        context.drawTexture(Screen.OPTIONS_BACKGROUND_TEXTURE,
+                0, 0,
+                0, -topHeight.get(),
+                this.width, this.topHeight.get(), 32, 32);
+
+        context.drawTexture(Screen.OPTIONS_BACKGROUND_TEXTURE,
+                0, this.height - bottomHeight.get(),
+                0, 0,
+                this.width, this.height, 32, 32);
+
+        context.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+
         super.render(context, mouseX, mouseY, delta);
     }
 
