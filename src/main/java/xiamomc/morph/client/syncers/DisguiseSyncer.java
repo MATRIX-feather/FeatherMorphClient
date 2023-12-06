@@ -154,6 +154,7 @@ public abstract class DisguiseSyncer extends MorphClientObject
                     client.schedule(() -> mergeNbt(nbt));
 
                 disguiseInstance.addCommandTag("BINDING_" + bindingPlayer.getId());
+                disguiseInstance.noClip = true;
 
                 initialSync();
                 baseSync();
