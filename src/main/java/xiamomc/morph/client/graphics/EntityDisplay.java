@@ -1,5 +1,6 @@
 package xiamomc.morph.client.graphics;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
@@ -13,6 +14,7 @@ import org.joml.Vector3f;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.EntityCache;
 import xiamomc.morph.client.MorphClient;
+import xiamomc.morph.client.graphics.color.MaterialColors;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -64,6 +66,7 @@ public class EntityDisplay extends MDrawable
         {
             case ASYNC -> CompletableFuture.runAsync(this::setupEntity);
             case SYNC -> this.setupEntity();
+            case NONE -> { /* 交给load方法 */ }
         }
     }
 
@@ -128,7 +131,7 @@ public class EntityDisplay extends MDrawable
             default ->
             {
                 //15 / ...
-                var size = (int) ((Math.max(this.getFinalHeight(), this.getFinalWidth()) * 0.8) / Math.max(entity.getHeight(), entity.getWidth()));
+                var size = (int) ((Math.min(this.getFinalHeight(), this.getFinalWidth()) * 0.8) / Math.max(entity.getHeight(), entity.getWidth()));
                 size = Math.max(1, size);
 
                 yield size;
@@ -187,8 +190,20 @@ public class EntityDisplay extends MDrawable
             this.displayingEntity = living;
             this.displayName = living.getDisplayName();
 
-            entitySize.set(getEntitySize(living));
-            entityYOffset = getEntityYOffset(living);
+            if (RenderSystem.isOnRenderThread())
+            {
+                entitySize.set(getEntitySize(living));
+                entityYOffset = getEntityYOffset(living);
+            }
+            else
+            {
+                LivingEntity finalLiving = living;
+                this.addSchedule(() ->
+                {
+                    entitySize.set(getEntitySize(finalLiving));
+                    entityYOffset = getEntityYOffset(finalLiving);
+                });
+            }
 
             if (postEntitySetup != null)
                 postEntitySetup.run();
