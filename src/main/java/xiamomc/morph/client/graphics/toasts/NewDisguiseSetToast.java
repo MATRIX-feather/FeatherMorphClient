@@ -51,7 +51,7 @@ public class NewDisguiseSetToast extends LinedToast
         return Math.max(super.getWidth(), max1);
     }
 
-    private static final Identifier TEX = Identifier.of(Identifier.DEFAULT_NAMESPACE, "textures/gui/info_icon.png");
+    private static final Identifier TEX = Identifier.of(Identifier.DEFAULT_NAMESPACE, "textures/gui/sprites/icon/info.png");
 
     @Override
     protected void postBackgroundDrawing(DrawContext context, ToastManager manager, long startTime)
