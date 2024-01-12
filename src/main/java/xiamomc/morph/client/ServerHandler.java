@@ -6,8 +6,10 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.entity.EntityStatuses;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.mob.GhastEntity;
+import net.minecraft.entity.mob.WardenEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtHelper;
@@ -236,8 +238,16 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
         var aggressive = s2CSetAggressiveCommand.getArgumentAt(0, false);
 
         var syncer = instanceTracker.getSyncerFor(MinecraftClient.getInstance().player);
-        if (syncer != null && syncer.getDisguiseInstance() instanceof GhastEntity ghastEntity)
-            ghastEntity.setShooting(aggressive);
+
+        if (syncer != null)
+        {
+            var instance = syncer.getDisguiseInstance();
+
+            if (instance instanceof GhastEntity ghast)
+                ghast.setShooting(aggressive);
+            else if (instance instanceof WardenEntity warden && aggressive)
+                warden.handleStatus(EntityStatuses.SONIC_BOOM);
+        }
     }
 
     @Override

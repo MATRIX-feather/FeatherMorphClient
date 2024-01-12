@@ -5,10 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.*;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.passive.HorseEntity;
 import net.minecraft.item.ItemStack;
@@ -156,11 +153,14 @@ public abstract class DisguiseSyncer extends MorphClientObject
                 disguiseInstance.addCommandTag("BINDING_" + bindingPlayer.getId());
                 disguiseInstance.noClip = true;
 
+                if (disguiseInstance instanceof MorphLocalPlayer localPlayer && prevEntity instanceof MorphLocalPlayer prevPlayer && prevPlayer.personEquals(localPlayer))
+                {
+                    localPlayer.copyFrom(prevPlayer);
+                    localPlayer.setBindingPlayer(MinecraftClient.getInstance().player);
+                }
+
                 initialSync();
                 baseSync();
-
-                if (disguiseInstance instanceof MorphLocalPlayer localPlayer && prevEntity instanceof MorphLocalPlayer prevPlayer && prevPlayer.personEquals(localPlayer))
-                    localPlayer.copyFrom(prevPlayer);
             }
         }
         catch (Throwable t)
@@ -170,6 +170,12 @@ public abstract class DisguiseSyncer extends MorphClientObject
 
             disguiseInstance = null;
         }
+    }
+
+    public void playAttackAnimation()
+    {
+        if (disguiseInstance != null)
+            disguiseInstance.handleStatus(EntityStatuses.PLAY_ATTACK_SOUND);
     }
 
     protected void mergeNbt(NbtCompound nbtCompound)
