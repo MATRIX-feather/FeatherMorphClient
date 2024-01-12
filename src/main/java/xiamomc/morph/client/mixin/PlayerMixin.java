@@ -1,6 +1,7 @@
 package xiamomc.morph.client.mixin;
 
 import com.mojang.authlib.GameProfile;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.player.PlayerEntity;
@@ -83,5 +84,13 @@ public abstract class PlayerMixin
     private void featherMorph$onTick(CallbackInfo ci)
     {
         EntityTickHandler.cancelIfIsDisguiseAndNotSyncing(ci, this);
+    }
+
+    @Inject(method = "attack", at = @At("HEAD"))
+    private void featherMorph$onAttack(Entity target, CallbackInfo ci)
+    {
+        var syncer = DisguiseInstanceTracker.getInstance().getSyncerFor(featherMorph$playerInstance.getId());
+        if (syncer != null)
+            syncer.playAttackAnimation();
     }
 }

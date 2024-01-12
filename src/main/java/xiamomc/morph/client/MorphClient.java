@@ -198,6 +198,18 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
         while (unMorphKeyBind.wasPressed())
             serverHandler.sendCommand(new C2SUnmorphCommand());
 
+        if (MinecraftClient.getInstance().options.attackKey.isPressed())
+        {
+            var clientPlayer = MinecraftClient.getInstance().player;
+            if (clientPlayer != null)
+            {
+                var syncer = DisguiseInstanceTracker.getInstance().getSyncerFor(clientPlayer);
+
+                if (syncer != null)
+                    syncer.playAttackAnimation();
+            }
+        }
+
         if (displayOwnerBind.wasPressed())
         {
             var doRender = !EntityRendererHelper.doRenderRealName;

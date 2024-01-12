@@ -60,7 +60,12 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
         this.skinTextureUrl = prevPlayer.skinTextureUrl;
     }
 
-    private final PlayerEntity bindingPlayer;
+    private PlayerEntity bindingPlayer;
+
+    public void setBindingPlayer(PlayerEntity newInstance)
+    {
+        bindingPlayer = newInstance;
+    }
 
     public MorphLocalPlayer(ClientWorld clientWorld, GameProfile profile, PlayerEntity bindingPlayer)
     {
@@ -300,8 +305,9 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
     }
 
     @Override
-    public boolean isPartVisible(PlayerModelPart modelPart) {
-        return true;
+    public boolean isPartVisible(PlayerModelPart modelPart)
+    {
+        return bindingPlayer.isPartVisible(modelPart);
     }
 
     @Override
