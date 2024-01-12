@@ -187,6 +187,9 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
         syncersToRemove.forEach(syncer -> disguiseTracker.removeSyncer(syncer));
     }
 
+    @Nullable
+    private Boolean attackPressedDown = null;
+
     private void updateKeys(MinecraftClient client)
     {
         while (executeSkillKeyBind.wasPressed() && skillHandler.getCurrentCooldown() <= 0)
@@ -198,16 +201,20 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
         while (unMorphKeyBind.wasPressed())
             serverHandler.sendCommand(new C2SUnmorphCommand());
 
-        if (MinecraftClient.getInstance().options.attackKey.isPressed())
+        var attackPressed = MinecraftClient.getInstance().options.attackKey.isPressed();
+
+        if (attackPressed != Boolean.TRUE.equals(this.attackPressedDown))
         {
             var clientPlayer = MinecraftClient.getInstance().player;
-            if (clientPlayer != null)
+            if (clientPlayer != null && attackPressed)
             {
                 var syncer = DisguiseInstanceTracker.getInstance().getSyncerFor(clientPlayer);
 
                 if (syncer != null)
                     syncer.playAttackAnimation();
             }
+
+            this.attackPressedDown = attackPressed;
         }
 
         if (displayOwnerBind.wasPressed())
