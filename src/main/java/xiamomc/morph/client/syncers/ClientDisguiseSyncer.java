@@ -1,5 +1,6 @@
 package xiamomc.morph.client.syncers;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.entity.Entity;
@@ -236,9 +237,6 @@ public class ClientDisguiseSyncer extends DisguiseSyncer
     @Override
     protected void onDispose()
     {
-        if (disguiseInstance != null)
-            disguiseInstance.discard();
-
         currentNbtCompound.unBindFromTarget();
         currentNbtCompound.unBindBindings();
 

@@ -574,6 +574,14 @@ public abstract class DisguiseSyncer extends MorphClientObject
         if (getEntityCache() != EntityCache.getGlobalCache())
             getEntityCache().dispose();
 
+        if (disguiseInstance != null)
+        {
+            if (RenderSystem.isOnRenderThread())
+                disguiseInstance.discard();
+            else
+                addSchedule(disguiseInstance::discard);
+        }
+
         try
         {
             this.onDispose();
