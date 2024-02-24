@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MorphLocalPlayer extends OtherClientPlayerEntity
 {
@@ -79,7 +80,7 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
         currentProfilePair.setLeft(0);
         currentProfilePair.setRight(profile);
 
-        this.updateSkin(profile);
+        this.updateSkin(profile, true);
     }
 
     private int requestId = 0;
@@ -139,19 +140,31 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
 
     //endregion From SkullBlockEntity
 
+    private AtomicBoolean initialFetchFired = new AtomicBoolean(false);
+
     public void updateSkin(GameProfile profile)
     {
+        updateSkin(profile, false);
+    }
+
+    private void updateSkin(GameProfile profile, boolean isInitial)
+    {
+        if (!RenderSystem.isOnRenderThread())
+        {
+            MorphClient.getInstance().schedule(() -> updateSkin(profile));
+            return;
+        }
+
+        if (isInitial && initialFetchFired.get())
+            return;
+
+        initialFetchFired.set(true);
+
         logger.info("Fetching skin for " + profile);
 
         if (!profile.getName().equals(playerName))
         {
             logger.info("Profile %s player name not match : '%s' <-> '%s'".formatted(profile.getId(), profile.getName(), playerName));
-            return;
-        }
-
-        if (!RenderSystem.isOnRenderThread())
-        {
-            MorphClient.getInstance().schedule(() -> updateSkin(profile));
             return;
         }
 
