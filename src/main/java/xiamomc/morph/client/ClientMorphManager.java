@@ -260,6 +260,8 @@ public class ClientMorphManager extends MorphClientObject
 
         localPlayerSyncer = null;
 
+        EntityCache.getGlobalCache().dropAll();
+
         prevWorld = null;
         world = null;
     }

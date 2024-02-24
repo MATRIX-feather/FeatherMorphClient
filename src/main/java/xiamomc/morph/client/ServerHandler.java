@@ -1,5 +1,6 @@
 package xiamomc.morph.client;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.netty.buffer.ByteBuf;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -526,7 +527,12 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
                 var cmd = registries.createS2CCommand(baseName, str.length == 2 ? str[1] : "");
 
                 if (cmd != null)
-                    cmd.onCommand(this);
+                {
+                    if (RenderSystem.isOnRenderThread())
+                        cmd.onCommand(this);
+                    else
+                        MorphClient.getInstance().schedule(() -> cmd.onCommand(this));
+                }
                 else
                     logger.warn("Unknown client command: " + baseName);
             }
