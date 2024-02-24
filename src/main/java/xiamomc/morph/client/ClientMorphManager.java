@@ -1,6 +1,7 @@
 package xiamomc.morph.client;
 
 import com.mojang.authlib.GameProfile;
+import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
@@ -73,15 +74,23 @@ public class ClientMorphManager extends MorphClientObject
     {
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) ->
         {
-            playerMap.clear();
-
-            world = null;
-            prevWorld = null;
-
-            reset();
+            if (RenderSystem.isOnRenderThread())
+                onDisconnect();
+            else
+                this.addSchedule(this::onDisconnect);
         });
 
         this.addSchedule(this::update);
+    }
+
+    private void onDisconnect()
+    {
+        playerMap.clear();
+
+        world = null;
+        prevWorld = null;
+
+        reset();
     }
 
     private ClientWorld world;
@@ -93,10 +102,12 @@ public class ClientMorphManager extends MorphClientObject
 
         world = MinecraftClient.getInstance().world;
 
+        if (world == null) return;
+
         if (prevWorld == null)
             prevWorld = world;
 
-        if (world != null && world != prevWorld)
+        if (world != prevWorld)
         {
             prevWorld = world;
             //refreshLocalSyncer(this.currentIdentifier.get());
