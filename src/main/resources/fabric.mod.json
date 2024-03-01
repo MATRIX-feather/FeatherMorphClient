@@ -24,6 +24,11 @@
   "mixins": [
     "client.mixins.json"
   ],
+  "custom": {
+    "loom:injected_interfaces": {
+      "net/fabricmc/fabric/impl/client/rendering/WorldRenderContextImpl": ["xiamomc/morph/client/mixin/external/IDDD"]
+    }
+  },
   "depends": {
     "fabricloader": ">=0.12.9",
     "fabric": "*",

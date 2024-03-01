@@ -28,7 +28,9 @@
     "accessors.EntityAccessor",
     "accessors.LimbAnimatorAccessor",
     "accessors.LivingRendererAccessor",
-    "accessors.UtilAccessor"
+    "accessors.UtilAccessor",
+    "external.ClientPlayNetworkHandlerMixin",
+    "external.FabricContext"
   ],
   "injectors": {
     "defaultRequire": 1

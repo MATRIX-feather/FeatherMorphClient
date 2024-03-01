@@ -175,8 +175,10 @@ public class EntityCache
 
             var type = typeOptional.get();
 
-            try (var world = MinecraftClient.getInstance().world)
+            try
             {
+                var world = MinecraftClient.getInstance().world;
+
                 if (world == null) return null;
 
                 var instance = type.create(world);
@@ -209,8 +211,9 @@ public class EntityCache
             var uuid = ensureUUIDUnique(MathHelper.randomUuid());
             var profile = new GameProfile(uuid, splitedId[1]);
 
-            try (var world = MinecraftClient.getInstance().world)
+            try
             {
+                var world = MinecraftClient.getInstance().world;
                 var localPlayer = new MorphLocalPlayer(world, profile, bindingPlayer);
                 localPlayer.updateSkin(new GameProfile(Util.NIL_UUID, splitedId[1]));
                 living = localPlayer;
