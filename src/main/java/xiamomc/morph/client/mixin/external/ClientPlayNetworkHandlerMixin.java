@@ -57,7 +57,8 @@ public class ClientPlayNetworkHandlerMixin
     {
         if (isValueInvalid(worldMax,
                 packet.getX(), packet.getY(), packet.getZ(),
-                packet.getPlayerVelocityX(), packet.getPlayerVelocityY(), packet.getPlayerVelocityZ()))
+                packet.getPlayerVelocityX(), packet.getPlayerVelocityY(), packet.getPlayerVelocityZ(),
+                packet.getRadius()))
         {
             cancelPacket(packet, ci, "Position or Velocity too large");
         }
