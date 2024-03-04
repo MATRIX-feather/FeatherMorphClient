@@ -236,9 +236,6 @@ public class ClientDisguiseSyncer extends DisguiseSyncer
     @Override
     protected void onDispose()
     {
-        if (disguiseInstance != null)
-            disguiseInstance.discard();
-
         currentNbtCompound.unBindFromTarget();
         currentNbtCompound.unBindBindings();
 
