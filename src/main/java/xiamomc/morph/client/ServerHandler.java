@@ -504,6 +504,10 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
             logger.info("Server API version: " + serverVersion);
         });
 
+        ClientPlayNetworking.registerGlobalReceiver(new Identifier("allmusic:channel"), (client, handler, buf, responseSender) ->
+        {
+        });
+
         ClientPlayNetworking.registerGlobalReceiver(commandChannelIdentifier, (client, handler, buf, responseSender) ->
         {
             var str = readStringfromByte(buf).split(" ", 2);
