@@ -34,9 +34,12 @@ public class FabricContext
             MorphClient.LOGGER.info("~~~HOOKING EVENTS FOR " + this);
             ClientPlayConnectionEvents.DISCONNECT.register((handler, client) ->
             {
-                MorphClient.LOGGER.info("Clearing world field");
-                this.world = null;
-                this.entity = null;
+                MorphClient.getInstance().schedule(() ->
+                {
+                    MorphClient.LOGGER.info("Clearing world field");
+                    this.world = null;
+                    this.entity = null;
+                }, 2);
             });
         }
 
