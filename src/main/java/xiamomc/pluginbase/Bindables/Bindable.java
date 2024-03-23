@@ -1,5 +1,6 @@
 package xiamomc.pluginbase.Bindables;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -7,6 +8,7 @@ import xiamomc.pluginbase.WeakReferenceList;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 
 public class Bindable<T> implements IBindable<T>
@@ -117,6 +119,8 @@ public class Bindable<T> implements IBindable<T>
         if (bindTarget != null)
         {
             bindTarget.binds.remove(this);
+            bindTarget.valueChangeConsumers.remove(this);
+
             bindTarget = null;
         }
 

@@ -60,7 +60,8 @@ public class DisguiseScreen extends FeatherScreen
         selectedIdentifier.bindTo(manager.selectedIdentifier);
         selectedIdentifier.set(manager.currentIdentifier.get());
 
-        serverHandler.serverReady.onValueChanged((o, n) ->
+        serverReady.bindTo(serverHandler.serverReady);
+        serverReady.onValueChanged((o, n) ->
         {
             MorphClient.getInstance().schedule(() ->
             {
@@ -70,7 +71,8 @@ public class DisguiseScreen extends FeatherScreen
         }, true);
 
         //初始化文本
-        manager.currentIdentifier.onValueChanged((o, n) ->
+        currentIdentifier.bindTo(manager.currentIdentifier);
+        currentIdentifier.onValueChanged((o, n) ->
         {
             Text display = null;
 
@@ -119,6 +121,10 @@ public class DisguiseScreen extends FeatherScreen
         selfVisibleToggle = new ToggleSelfButton(0, 0, 20, 20, manager.selfVisibleEnabled.get(), this);
     }
 
+    private final Bindable<String> currentIdentifier = new Bindable<>();
+
+    private final Bindable<Boolean> serverReady = new Bindable<>();
+
     private final Bindable<String> selectedIdentifier = new Bindable<>();
 
     private final MButtonWidget closeButton;
@@ -157,6 +163,9 @@ public class DisguiseScreen extends FeatherScreen
 
             //workaround: Bindable在界面关闭后还是会保持引用，得手动把字段设置为null
             list.clearChildren();
+
+            currentIdentifier.dispose();
+            serverReady.dispose();
         }
     }
 
