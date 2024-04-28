@@ -8,6 +8,7 @@ import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.client.render.entity.PlayerModelPart;
 import net.minecraft.client.util.SkinTextures;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.*;
@@ -310,10 +311,11 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
     }
 
     @Override
-    protected void initDataTracker()
+    protected void initDataTracker(DataTracker.Builder builder)
     {
-        super.initDataTracker();
+        super.initDataTracker(builder);
 
+        builder.add(PLAYER_MODEL_PARTS, (byte)127);
         this.dataTracker.set(PLAYER_MODEL_PARTS, (byte)127);
     }
 

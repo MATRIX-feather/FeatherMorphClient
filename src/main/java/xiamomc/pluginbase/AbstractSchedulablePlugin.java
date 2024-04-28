@@ -2,6 +2,7 @@ package xiamomc.pluginbase;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.slf4j.Logger;
+import xiamomc.pluginbase.Exceptions.NullDependencyException;
 import xiamomc.pluginbase.Managers.DependencyManager;
 
 import java.util.List;
@@ -25,7 +26,12 @@ public abstract class AbstractSchedulablePlugin
 
     public static AbstractSchedulablePlugin getInstance(String nameSpace)
     {
-        return instances.get(nameSpace);
+        var instance = instances.getOrDefault(nameSpace, null);
+
+        if (instance == null)
+            throw new NullDependencyException("Null instance for namespace " + nameSpace);
+
+        return instance;
     }
 
     protected final DependencyManager dependencyManager;

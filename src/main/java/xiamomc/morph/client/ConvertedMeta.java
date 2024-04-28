@@ -2,19 +2,25 @@ package xiamomc.morph.client;
 
 import com.mojang.authlib.GameProfile;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.component.ComponentMap;
+import net.minecraft.component.ComponentMapImpl;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import xiamomc.morph.client.utilties.NbtHelperCopy;
 import xiamomc.morph.client.utilties.NbtUtils;
 import xiamomc.morph.network.commands.S2C.clientrender.S2CRenderMeta;
 
 public class ConvertedMeta
 {
+    private static final Logger log = LoggerFactory.getLogger(ConvertedMeta.class);
     @Nullable
     public NbtCompound nbt;
 
@@ -87,7 +93,7 @@ public class ConvertedMeta
         }
     }
 
-    public static ConvertedMeta of(S2CRenderMeta renderMeta)
+    public static ConvertedMeta of(S2CRenderMeta renderMeta, RegistryWrapper.WrapperLookup registry)
     {
         var instance = new ConvertedMeta();
 
@@ -100,7 +106,7 @@ public class ConvertedMeta
         var profileNbt = NbtUtils.parseSNbt(renderMeta.profileCompound);
 
         if (profileNbt != null)
-            instance.profileNbt = NbtHelper.toGameProfile(profileNbt);
+            instance.profileNbt = NbtHelperCopy.toGameProfile(profileNbt);
 
         instance.showOverridedEquips = renderMeta.showOverridedEquipment;
 
@@ -151,7 +157,9 @@ public class ConvertedMeta
                     }
 
                     var itemNbt = NbtUtils.parseSNbt(eqNbt[i]);
-                    item.setNbt(itemNbt);
+
+                    logger.info("todo: IMPLEMENT CONVERTEDMETA ITEM SETNBT!!!");
+                    //item.setNbt(itemNbt);
                     item.setCount(Math.max(item.getCount(), 1));
 
                     items.add(item);

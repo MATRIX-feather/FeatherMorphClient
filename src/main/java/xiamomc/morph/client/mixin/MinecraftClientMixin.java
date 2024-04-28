@@ -2,6 +2,7 @@ package xiamomc.morph.client.mixin;
 
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.DownloadingTerrainScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.world.ClientWorld;
 import org.jetbrains.annotations.Nullable;
@@ -33,7 +34,7 @@ public abstract class MinecraftClientMixin
     }
 
     @Inject(method = "joinWorld", at = @At("HEAD"))
-    private void featherMorph$onJoinServer(ClientWorld world, CallbackInfo ci)
+    private void featherMorph$onJoinServer(ClientWorld world, DownloadingTerrainScreen.WorldEntryReason worldEntryReason, CallbackInfo ci)
     {
         MinecraftClientMixinUtils.setApiService(this.authenticationService, this.runDirectory);
     }

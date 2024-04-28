@@ -3,9 +3,12 @@ package xiamomc.morph.client;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.Function;
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EntityStatuses;
 import net.minecraft.entity.EquipmentSlot;
@@ -13,12 +16,16 @@ import net.minecraft.entity.mob.GhastEntity;
 import net.minecraft.entity.mob.WardenEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 import xiamomc.morph.client.config.ModConfigData;
 import xiamomc.morph.client.network.commands.ClientSetEquipCommand;
+import xiamomc.morph.client.network.payload.MorphCommandPayload;
+import xiamomc.morph.client.network.payload.MorphInitChannelPayload;
+import xiamomc.morph.client.network.payload.MorphVersionChannelPayload;
+import xiamomc.morph.client.utilties.NbtHelperCopy;
 import xiamomc.morph.network.BasicServerHandler;
 import xiamomc.morph.network.Constants;
 import xiamomc.morph.network.commands.C2S.AbstractC2SCommand;
@@ -36,8 +43,10 @@ import xiamomc.morph.network.commands.S2C.set.*;
 import xiamomc.pluginbase.Annotations.Initializer;
 import xiamomc.pluginbase.Annotations.Resolved;
 import xiamomc.pluginbase.Bindables.Bindable;
+import xiamomc.pluginbase.Exceptions.NullDependencyException;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ServerHandler extends MorphClientObject implements BasicServerHandler<PlayerEntity>
@@ -148,18 +157,50 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
         return packet;
     }
 
-    @Override
-    public void connect()
-    {
-        this.resetServerStatus();
+    private final Map<Identifier, Function<String, CustomPayload>> payloadMap = new Object2ObjectArrayMap<>();
 
-        ClientPlayNetworking.send(initializeChannelIdentifier, PacketByteBufs.create());
+    private void initializePayloadMap()
+    {
+        logger.info("Registering payload types...");
+        PayloadTypeRegistry.playC2S().register(MorphInitChannelPayload.id, MorphInitChannelPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(MorphVersionChannelPayload.id, MorphVersionChannelPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(MorphCommandPayload.id, MorphCommandPayload.CODEC);
+
+        PayloadTypeRegistry.playS2C().register(MorphInitChannelPayload.id, MorphInitChannelPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(MorphVersionChannelPayload.id, MorphVersionChannelPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(MorphCommandPayload.id, MorphCommandPayload.CODEC);
+
+        payloadMap.put(initializeChannelIdentifier, raw -> new MorphInitChannelPayload(raw.toString()));
+        payloadMap.put(commandChannelIdentifier, raw -> new MorphCommandPayload(raw.toString()));
+        payloadMap.put(versionChannelIdentifier, raw -> new MorphVersionChannelPayload(objectToInteger(raw.toString())));
+
+        logger.info("Done.");
     }
 
-    @Override
-    public void disconnect()
+    private int objectToInteger(Object obj)
     {
-        resetServerStatus();
+        try
+        {
+            return Integer.parseInt(obj.toString());
+        }
+        catch (Throwable t)
+        {
+            logger.warn("Error occurred parsing server protocol version: " + t.getMessage());
+            t.printStackTrace();
+
+            return 1;
+        }
+    }
+
+    public void sendCommand(Identifier channel, String cmd)
+    {
+        var func = payloadMap.getOrDefault(channel, null);
+        if (func == null)
+            throw new NullDependencyException("Null func for channel " + channel + "?!");
+
+        var payload = func.apply(cmd);
+
+        ClientPlayNetworking.send(payload);
     }
 
     public boolean sendCommand(AbstractC2SCommand<?> command)
@@ -169,9 +210,23 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
 
         cmd = cmd.trim();
 
-        ClientPlayNetworking.send(commandChannelIdentifier, fromString(cmd));
+        sendCommand(commandChannelIdentifier, cmd);
 
         return true;
+    }
+
+    @Override
+    public void connect()
+    {
+        this.resetServerStatus();
+
+        this.sendCommand(initializeChannelIdentifier, "");
+    }
+
+    @Override
+    public void disconnect()
+    {
+        resetServerStatus();
     }
 
     @Override
@@ -295,14 +350,16 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
         try
         {
             var nbt = StringNbtReader.parse(s2CSetProfileCommand.serializeArguments());
-            var profile = NbtHelper.toGameProfile(nbt);
+
+            var profile = NbtHelperCopy.toGameProfile(nbt);
 
             if (profile != null)
                 this.client.schedule(() -> morphManager.updateSkin(profile));
         }
-        catch (Exception e)
+        catch (Throwable t)
         {
-            //todo
+            logger.warn("Failed processing S2CSetProfileCommand: " + t.getMessage());
+            t.printStackTrace();
         }
     }
 
@@ -455,6 +512,8 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
         if (networkInitialized)
             throw new RuntimeException("The network has been initialized once!");
 
+        initializePayloadMap();
+
         ClientPlayConnectionEvents.INIT.register((handler, client) ->
         {
         });
@@ -470,9 +529,18 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
         });
 
         //初始化网络
-        ClientPlayNetworking.registerGlobalReceiver(initializeChannelIdentifier, (client, handler, buf, responseSender) ->
+        ClientPlayNetworking.registerGlobalReceiver(MorphInitChannelPayload.id, (payload, context) ->
         {
-            if (this.readStringfromByte(buf).equalsIgnoreCase("no"))
+            logger.info("Payload is " + payload);
+            if (!(payload instanceof MorphInitChannelPayload initPayload))
+            {
+                logger.info("Not custom payload!");
+                return;
+            }
+
+            var content = initPayload.message();
+
+            if (content.equalsIgnoreCase("no"))
             {
                 logger.error("Initialize failed: Denied by server");
                 return;
@@ -481,17 +549,26 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
             handshakeReceived = true;
             updateServerStatus();
 
-            ClientPlayNetworking.send(versionChannelIdentifier, fromString("" + getImplmentingApiVersion()));
+            // Server parses version with Integer.parseInt(), and client only accepts integer value not string
+            // What a cursed pair :(
+            sendCommand(versionChannelIdentifier, "" + getImplmentingApiVersion());
             sendCommand(new C2SInitialCommand());
             sendCommand(new C2SOptionCommand(C2SOptionCommand.ClientOptions.CLIENTVIEW).setValue(config.allowClientView));
             sendCommand(new C2SOptionCommand(C2SOptionCommand.ClientOptions.HUD).setValue(config.displayDisguiseOnHud));
         });
 
-        ClientPlayNetworking.registerGlobalReceiver(versionChannelIdentifier, (client, handler, buf, responseSender) ->
+        ClientPlayNetworking.registerGlobalReceiver(MorphVersionChannelPayload.id, (payload, context) ->
         {
+            logger.info("Payload is " + payload);
+            if (!(payload instanceof MorphVersionChannelPayload versionPayload))
+            {
+                logger.info("Not custom payload!");
+                return;
+            }
+
             try
             {
-                serverVersion = buf.readInt();
+                serverVersion = versionPayload.protocolVersion();
                 apiVersionChecked = true;
                 updateServerStatus();
             }
@@ -504,14 +581,21 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
             logger.info("Server API version: " + serverVersion);
         });
 
-        ClientPlayNetworking.registerGlobalReceiver(commandChannelIdentifier, (client, handler, buf, responseSender) ->
+        ClientPlayNetworking.registerGlobalReceiver(MorphCommandPayload.id, (payload, context) ->
         {
-            var str = readStringfromByte(buf).split(" ", 2);
+            logger.info("Payload is " + payload);
+            if (!(payload instanceof MorphCommandPayload morphCommandPayload))
+            {
+                logger.info("Not custom payload!");
+                return;
+            }
+
+            var str = morphCommandPayload.content().split(" ", 2);
 
             if (!serverReady.get() && !str[0].equals("reauth"))
             {
                 if (config.verbosePackets)
-                    logger.warn("Received command before initialize complete, not processing... ('%s')".formatted(readStringfromByte(buf)));
+                    logger.warn("Received command before initialize complete, not processing... ('%s')".formatted(morphCommandPayload.content()));
 
                 return;
             }
@@ -519,7 +603,7 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
             try
             {
                 if (config.verbosePackets)
-                    logger.info("Received client command: " + readStringfromByte(buf));
+                    logger.info("Received client command: " + morphCommandPayload.content());
 
                 if (str.length < 1) return;
 

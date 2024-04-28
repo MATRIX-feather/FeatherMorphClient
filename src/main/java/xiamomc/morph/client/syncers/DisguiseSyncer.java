@@ -5,13 +5,19 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.component.ComponentMap;
+import net.minecraft.component.DataComponentType;
 import net.minecraft.entity.*;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.passive.HorseEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtHelper;
+import net.minecraft.nbt.StringNbtReader;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,7 +26,6 @@ import xiamomc.morph.client.*;
 import xiamomc.morph.client.entities.MorphLocalPlayer;
 import xiamomc.morph.client.mixin.accessors.AbstractHorseEntityMixin;
 import xiamomc.morph.client.mixin.accessors.EntityAccessor;
-import xiamomc.morph.client.mixin.accessors.HorseEntityMixin;
 import xiamomc.morph.client.mixin.accessors.LimbAnimatorAccessor;
 import xiamomc.pluginbase.Annotations.Resolved;
 
@@ -178,6 +183,8 @@ public abstract class DisguiseSyncer extends MorphClientObject
             disguiseInstance.handleStatus(EntityStatuses.PLAY_ATTACK_SOUND);
     }
 
+    private static final ItemStack air = new ItemStack(Items.AIR);
+
     protected void mergeNbt(NbtCompound nbtCompound)
     {
         var entity = disguiseInstance;
@@ -192,7 +199,9 @@ public abstract class DisguiseSyncer extends MorphClientObject
 
             if (haveSaddle)
             {
-                ItemStack itemStack = ItemStack.fromNbt(nbtCompound.getCompound("SaddleItem"));
+                ItemStack itemStack = ItemStack.fromNbt(bindingPlayer.getWorld().getRegistryManager(), nbtCompound.getCompound("SaddleItem"))
+                        .orElse(air);
+
                 var isSaddle = itemStack.isOf(Items.SADDLE);
 
                 ((AbstractHorseEntityMixin) horse).callSetHorseFlag(4, isSaddle);
@@ -201,9 +210,10 @@ public abstract class DisguiseSyncer extends MorphClientObject
             //Doesn't work for unknown reason
             if (nbtCompound.contains("ArmorItem", NbtElement.COMPOUND_TYPE))
             {
-                ItemStack armorItem = ItemStack.fromNbt(nbtCompound.getCompound("ArmorItem"));
+                ItemStack armorItem = ItemStack.fromNbt(bindingPlayer.getWorld().getRegistryManager(), nbtCompound.getCompound("ArmorItem"))
+                        .orElse(air);
 
-                ((HorseEntityMixin) horse).callEquipArmor(armorItem);
+                horse.equipBodyArmor(armorItem);
             }
         }
 

@@ -7,6 +7,7 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -18,10 +19,13 @@ import java.util.Random;
 @Mixin(EnderDragonEntity.class)
 public class EnderDragonEntityMixin
 {
+    @Unique
     private static final Random random = new Random();
 
+    @Unique
     private EnderDragonEntity morphClient$entityInstance;
 
+    @Unique
     @Nullable
     private Boolean morphClient$isCache = null;
 
@@ -41,6 +45,7 @@ public class EnderDragonEntityMixin
             morphClient$playSoundAtPlayer();
     }
 
+    @Unique
     private void morphClient$playSoundAtPlayer()
     {
         var fmClient = MorphClient.getInstance();

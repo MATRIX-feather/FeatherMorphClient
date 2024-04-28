@@ -18,8 +18,6 @@ public class DisguiseList extends ElementListWidget<EntityDisplayWidget> impleme
     public DisguiseList(MinecraftClient minecraftClient, int width, int height, int topPadding, int bottomPadding, int itemHeight)
     {
         super(minecraftClient, width, height, 0, itemHeight);
-
-        this.setRenderBackground(false);
     }
 
     public void clearChildren()

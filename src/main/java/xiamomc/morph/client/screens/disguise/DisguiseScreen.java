@@ -345,7 +345,7 @@ public class DisguiseScreen extends FeatherScreen
     protected void init()
     {
         super.init();
-        this.focusOn(textBox);
+        this.setFocused(textBox);
     }
 
     @Override
@@ -373,12 +373,12 @@ public class DisguiseScreen extends FeatherScreen
 
         context.setShaderColor(0.2F, 0.2F, 0.2F, 1.0F);
 
-        context.drawTexture(Screen.OPTIONS_BACKGROUND_TEXTURE,
+        context.drawTexture(Screen.MENU_BACKGROUND_TEXTURE,
                 0, 0,
                 0, -topHeight.get(),
                 this.width, this.topHeight.get(), 32, 32);
 
-        context.drawTexture(Screen.OPTIONS_BACKGROUND_TEXTURE,
+        context.drawTexture(Screen.MENU_BACKGROUND_TEXTURE,
                 0, this.height - bottomHeight.get(),
                 0, 0,
                 this.width, this.height, 32, 32);

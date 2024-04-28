@@ -67,7 +67,8 @@ public class EntityRendererHelper
 
         var exOffset = (entity.hasCustomName() || entity instanceof OtherClientPlayerEntity) ? 0.25f : -0.25f;
 
-        matrices.translate(0, entity.getNameLabelHeight() +exOffset, 0);
+        //Recover behavior of the old entity.getNameLabelHeight() -> entity.getHeight() + 0.5f
+        matrices.translate(0, entity.getHeight() + 0.5f + exOffset, 0);
         matrices.multiply(dispatcher.getRotation());
         matrices.scale(-0.025F, -0.025F, 0.025F);
 

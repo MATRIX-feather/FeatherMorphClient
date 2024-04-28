@@ -41,7 +41,14 @@ import java.util.Map;
 
 public class PlayerRenderHelper extends MorphClientObject
 {
-    public static final PlayerRenderHelper instance = new PlayerRenderHelper();
+    private static PlayerRenderHelper instance;
+
+    public static PlayerRenderHelper instance()
+    {
+        if (instance == null) instance = new PlayerRenderHelper();
+
+        return instance;
+    }
 
     public PlayerRenderHelper()
     {
@@ -161,7 +168,10 @@ public class PlayerRenderHelper extends MorphClientObject
         return true;
     }
 
-    private final Camera camera = MinecraftClient.getInstance().gameRenderer.getCamera();
+    private Camera camera()
+    {
+        return MinecraftClient.getInstance().gameRenderer.getCamera();
+    }
 
     /**
      * 在玩家位置渲染通向 {@link ClientDisguiseSyncer#getBeamTarget()} 的光柱
@@ -182,7 +192,7 @@ public class PlayerRenderHelper extends MorphClientObject
 
         matrixStack.push();
 
-        var cameraPos = camera.getPos();
+        var cameraPos = camera().getPos();
 
         //相机XYZ
         var cameraX = cameraPos.x;

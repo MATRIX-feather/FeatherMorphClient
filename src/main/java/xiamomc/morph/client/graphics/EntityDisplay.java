@@ -251,7 +251,7 @@ public class EntityDisplay extends MDrawable
         try
         {
             if (displayingEntity == MinecraftClient.getInstance().player)
-                PlayerRenderHelper.instance.skipRender = true;
+                PlayerRenderHelper.instance().skipRender = true;
 
             //context.fill(0, 0, finalWidth, finalHeight, MaterialColors.Red500.getColor());
 
@@ -262,7 +262,7 @@ public class EntityDisplay extends MDrawable
                     x1, 0, x1, y2,
                     entitySize.get(), 0.0625f + entityYOffset, -mouseX, -mouseY, displayingEntity);
 
-            PlayerRenderHelper.instance.skipRender = false;
+            PlayerRenderHelper.instance().skipRender = false;
 
             if (displayingEntity.isRemoved())
                 resetEntity();

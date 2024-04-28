@@ -22,8 +22,7 @@ import xiamomc.morph.client.syncers.ClientDisguiseSyncer;
 @Mixin(PlayerEntity.class)
 public abstract class PlayerMixin
 {
-    @Shadow public abstract EntityDimensions getDimensions(EntityPose pose);
-
+    @Unique
     private PlayerEntity featherMorph$playerInstance;
 
     @Inject(method = "<init>", at = @At("RETURN"))
@@ -42,7 +41,7 @@ public abstract class PlayerMixin
             tracker = DisguiseInstanceTracker.getInstance();
     }
 
-    @Inject(method = "getDimensions", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "getBaseDimensions", at = @At("HEAD"), cancellable = true)
     private void featherMorph$overrideDimensions(EntityPose pose, CallbackInfoReturnable<EntityDimensions> cir)
     {
         ensureTrackerPresent();
@@ -64,11 +63,10 @@ public abstract class PlayerMixin
                 // 扩大其他玩家的碰撞箱来使其能被客户端玩家攻击到
                 if (syncer != ClientDisguiseSyncer.getCurrentInstance())
                 {
-                    dimensions = new EntityDimensions(
-                            dimensions.width + 0.001f,
-                            dimensions.height + 0.001f,
-                            dimensions.fixed
-                    );
+                    if (dimensions.fixed())
+                        dimensions = EntityDimensions.fixed(dimensions.width() + 0.001f, dimensions.height() + 0.001f);
+                    else
+                        dimensions = EntityDimensions.changing(dimensions.width() + 0.001f, dimensions.height() + 0.001f);
                 }
 
                 cir.setReturnValue(dimensions);

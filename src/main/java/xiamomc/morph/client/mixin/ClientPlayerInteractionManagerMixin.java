@@ -10,10 +10,12 @@ import xiamomc.morph.client.ServerHandler;
 @Mixin(ClientPlayerInteractionManager.class)
 public class ClientPlayerInteractionManagerMixin
 {
+    /*
     @Inject(method = "getReachDistance", at = @At("HEAD"), cancellable = true)
     private void feathermorph$onGetReachDistance(CallbackInfoReturnable<Float> cir)
     {
         if (ServerHandler.reach > 0)
             cir.setReturnValue(ServerHandler.reach);
     }
+    */
 }

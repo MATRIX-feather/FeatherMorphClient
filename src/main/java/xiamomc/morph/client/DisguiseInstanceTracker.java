@@ -103,7 +103,8 @@ public class DisguiseInstanceTracker extends MorphClientObject
             return;
         }
 
-        var newMeta = ConvertedMeta.of(meta);
+        var registry = MinecraftClient.getInstance().player.getWorld().getRegistryManager();
+        var newMeta = ConvertedMeta.of(meta, registry);
         var currentMeta = getMetaFor(networkId);
 
         if (newMeta != null)
