@@ -531,7 +531,7 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
         //初始化网络
         ClientPlayNetworking.registerGlobalReceiver(MorphInitChannelPayload.id, (payload, context) ->
         {
-            logger.info("Payload is " + payload);
+            //logger.info("Payload is " + payload);
             if (!(payload instanceof MorphInitChannelPayload initPayload))
             {
                 logger.info("Not custom payload!");
@@ -559,7 +559,7 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
 
         ClientPlayNetworking.registerGlobalReceiver(MorphVersionChannelPayload.id, (payload, context) ->
         {
-            logger.info("Payload is " + payload);
+            //logger.info("Payload is " + payload);
             if (!(payload instanceof MorphVersionChannelPayload versionPayload))
             {
                 logger.info("Not custom payload!");
@@ -583,7 +583,7 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
 
         ClientPlayNetworking.registerGlobalReceiver(MorphCommandPayload.id, (payload, context) ->
         {
-            logger.info("Payload is " + payload);
+            //logger.info("Payload is " + payload);
             if (!(payload instanceof MorphCommandPayload morphCommandPayload))
             {
                 logger.info("Not custom payload!");

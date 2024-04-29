@@ -81,6 +81,7 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
         currentProfilePair.setLeft(0);
         currentProfilePair.setRight(profile);
 
+        this.dataTracker.set(PLAYER_MODEL_PARTS, (byte)127);
         this.updateSkin(profile, true);
     }
 
@@ -314,9 +315,6 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
     protected void initDataTracker(DataTracker.Builder builder)
     {
         super.initDataTracker(builder);
-
-        //builder.add(PLAYER_MODEL_PARTS, (byte)127);
-        this.dataTracker.set(PLAYER_MODEL_PARTS, (byte)127);
     }
 
     @Override

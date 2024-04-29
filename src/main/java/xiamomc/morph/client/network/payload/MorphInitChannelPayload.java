@@ -38,6 +38,7 @@ public record MorphInitChannelPayload(String message) implements CustomPayload
         var asByteBuf = input.readUTF();
 
         buf.clear();
+        directBuffer.clear();
         return asByteBuf;
     }
 
