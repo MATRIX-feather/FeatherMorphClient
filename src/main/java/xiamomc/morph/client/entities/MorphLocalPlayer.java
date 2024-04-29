@@ -315,7 +315,7 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
     {
         super.initDataTracker(builder);
 
-        builder.add(PLAYER_MODEL_PARTS, (byte)127);
+        //builder.add(PLAYER_MODEL_PARTS, (byte)127);
         this.dataTracker.set(PLAYER_MODEL_PARTS, (byte)127);
     }
 

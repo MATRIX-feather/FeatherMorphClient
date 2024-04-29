@@ -36,12 +36,6 @@ public class CodecDispatcherMixin<B extends ByteBuf, V, T>
         exception.printStackTrace();
         System.err.println("- x - x - x - x - x - x - x - x - x - x - x -");
 
-        System.err.println("All available types at this moment:");
-
-        for (PacketCodecDispatcher.PacketType<B, V, T> type : packetTypes)
-            System.err.println(" - " + type.id());
-
-        System.err.println("- x - x - x - x - x - x - x - x - x - x - x -");
         System.err.println();
     }
 }

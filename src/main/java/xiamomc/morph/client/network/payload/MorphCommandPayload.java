@@ -8,9 +8,10 @@ import xiamomc.morph.client.ServerHandler;
 
 public record MorphCommandPayload(String content) implements CustomPayload
 {
-    public static final PacketCodec<PacketByteBuf, MorphCommandPayload> CODEC = PacketCodecs.STRING
-            .xmap(MorphCommandPayload::new, MorphCommandPayload::content)
-            .cast();
+    public static final PacketCodec<PacketByteBuf, MorphCommandPayload> CODEC = PacketCodec.of(
+            (value, buf) -> buf.writeBytes(MorphInitChannelPayload.writeString(value.content())),
+            buf -> new MorphCommandPayload(MorphInitChannelPayload.readString(buf))
+    );
 
     public static final CustomPayload.Id<MorphCommandPayload> id = new Id<>(ServerHandler.commandChannelIdentifier);
 
