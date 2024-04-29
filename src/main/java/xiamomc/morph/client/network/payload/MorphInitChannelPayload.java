@@ -18,10 +18,7 @@ public record MorphInitChannelPayload(String message) implements CustomPayload
 
     public static byte[] writeString(String string)
     {
-        var out = ByteStreams.newDataOutput();
-        out.writeUTF(string);
-
-        return out.toByteArray();
+        return string.getBytes(StandardCharsets.UTF_8);
     }
 
     public static String readString(PacketByteBuf buf)
@@ -32,14 +29,9 @@ public record MorphInitChannelPayload(String message) implements CustomPayload
         var dst = new byte[directBuffer.capacity()];
         directBuffer.getBytes(0, dst);
 
-        //System.out.printf("DST is '%s'%n", Arrays.toString(dst));
-
-        var input = ByteStreams.newDataInput(dst);
-        var asByteBuf = input.readUTF();
-
         buf.clear();
         directBuffer.clear();
-        return asByteBuf;
+        return new String(dst, StandardCharsets.UTF_8);
     }
 
     public static final CustomPayload.Id<MorphInitChannelPayload> id = new Id<>(ServerHandler.initializeChannelIdentifier);
