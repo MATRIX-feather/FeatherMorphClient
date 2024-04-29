@@ -373,6 +373,7 @@ public class DisguiseScreen extends FeatherScreen
 
         context.setShaderColor(0.2F, 0.2F, 0.2F, 1.0F);
 
+        RenderSystem.enableBlend();
         context.drawTexture(Screen.MENU_BACKGROUND_TEXTURE,
                 0, 0,
                 0, -topHeight.get(),
@@ -389,7 +390,7 @@ public class DisguiseScreen extends FeatherScreen
     }
 
     @Override
-    public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
-        
+    protected void renderDarkening(DrawContext context, int x, int y, int width, int height)
+    {
     }
 }
