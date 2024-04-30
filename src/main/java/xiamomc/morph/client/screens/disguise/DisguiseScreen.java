@@ -206,7 +206,7 @@ public class DisguiseScreen extends FeatherScreen
 
         Transformer.transform(topHeight, textRenderer.fontHeight * 2 + fontMargin * 2, duration, easing);
         Transformer.transform(bottomHeight, 30, duration, easing);
-        Transformer.transform(backgroundDim, 0.5f, duration, easing);
+        Transformer.transform(backgroundDim, 0.3f, duration, easing);
 
         topTextContainer.addRange(titleText, selectedIdentifierText);
         topTextContainer.setY(-40);

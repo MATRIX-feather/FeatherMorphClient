@@ -80,7 +80,7 @@ public class WaitingForServerScreen extends FeatherScreen
             if (last instanceof DisguiseScreen disguiseScreen)
                 backgroundDim.set(disguiseScreen.getBackgroundDim());
 
-            Transformer.transform(backgroundDim, 0.5f, 300, Easing.OutQuint);
+            Transformer.transform(backgroundDim, 0.3f, 300, Easing.OutQuint);
         }
     }
 
