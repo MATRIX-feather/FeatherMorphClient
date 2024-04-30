@@ -8,10 +8,13 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.math.MathHelper;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.graphics.IMDrawable;
+import xiamomc.morph.client.graphics.color.ColorUtils;
 import xiamomc.morph.client.graphics.color.Colors;
 import xiamomc.morph.client.graphics.transforms.Recorder;
 import xiamomc.morph.client.graphics.transforms.Transformer;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
+
+import java.awt.*;
 
 public class DisguiseList extends ElementListWidget<EntityDisplayWidget> implements IMDrawable
 {
@@ -138,8 +141,5 @@ public class DisguiseList extends ElementListWidget<EntityDisplayWidget> impleme
     public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta)
     {
         super.renderWidget(context, mouseX, mouseY, delta);
-
-        context.fillGradient(RenderLayer.getGuiOverlay(), 0, getY(), this.width, getY() + 4, -16777216, 0, 0);
-        context.fillGradient(RenderLayer.getGuiOverlay(), 0, getBottom() - 4, this.width, getBottom(), 0, -16777216, 0);
     }
 }

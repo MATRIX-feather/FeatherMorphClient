@@ -116,7 +116,17 @@ public class WaitingForServerScreen extends FeatherScreen
     }
 
     @Override
-    public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta)
+    public void renderInGameBackground(DrawContext context)
+    {
+    }
+
+    @Override
+    protected void renderDarkening(DrawContext context)
+    {
+    }
+
+    @Override
+    protected void renderDarkening(DrawContext context, int x, int y, int width, int height)
     {
     }
 }

@@ -206,7 +206,7 @@ public class DisguiseScreen extends FeatherScreen
 
         Transformer.transform(topHeight, textRenderer.fontHeight * 2 + fontMargin * 2, duration, easing);
         Transformer.transform(bottomHeight, 30, duration, easing);
-        Transformer.transform(backgroundDim, 0.7f, duration, easing);
+        Transformer.transform(backgroundDim, 0.5f, duration, easing);
 
         topTextContainer.addRange(titleText, selectedIdentifierText);
         topTextContainer.setY(-40);
@@ -387,6 +387,22 @@ public class DisguiseScreen extends FeatherScreen
         context.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
         super.render(context, mouseX, mouseY, delta);
+    }
+
+    @Override
+    protected void applyBlur(float delta)
+    {
+        super.applyBlur(delta);
+    }
+
+    @Override
+    public void renderInGameBackground(DrawContext context)
+    {
+    }
+
+    @Override
+    protected void renderDarkening(DrawContext context)
+    {
     }
 
     @Override
