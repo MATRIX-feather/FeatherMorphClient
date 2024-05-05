@@ -172,7 +172,7 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
 
         payloadMap.put(initializeChannelIdentifier, raw -> new MorphInitChannelPayload(raw.toString()));
         payloadMap.put(commandChannelIdentifier, raw -> new MorphCommandPayload(raw.toString()));
-        payloadMap.put(versionChannelIdentifier, raw -> new MorphVersionChannelPayload(objectToInteger(raw.toString())));
+        payloadMap.put(versionChannelIdentifier, raw -> new MorphVersionChannelPayload(raw.toString()));
 
         logger.info("Done.");
     }
@@ -568,7 +568,7 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
 
             try
             {
-                serverVersion = versionPayload.protocolVersion();
+                serverVersion = versionPayload.getProtocolVersion();
                 apiVersionChecked = true;
                 updateServerStatus();
             }

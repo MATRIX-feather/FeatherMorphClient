@@ -8,12 +8,34 @@ import xiamomc.morph.client.ServerHandler;
 
 import java.nio.charset.StandardCharsets;
 
-public record MorphVersionChannelPayload(int protocolVersion) implements CustomPayload
+public record MorphVersionChannelPayload(String protocolVersion) implements CustomPayload
 {
+    // Client --String-> Server
+    // Server --Integer-> Client
+    // :(
     public static final PacketCodec<PacketByteBuf, MorphVersionChannelPayload> CODEC  = PacketCodec.of(
-            (value, buf) -> buf.writeInt(value.protocolVersion()),
-            buf -> new MorphVersionChannelPayload(parseInt(buf))
+            (value, buf) -> buf.writeBytes(MorphInitChannelPayload.writeString(value.protocolVersion())),
+            buf -> new MorphVersionChannelPayload("" + parseInt(buf))
     );
+
+    public int getProtocolVersion()
+    {
+        return parse(protocolVersion);
+    }
+
+    private int parse(String input)
+    {
+        try
+        {
+            return Integer.parseInt(input);
+        }
+        catch (Throwable t)
+        {
+            System.err.println("[FeatherMorph] Failed to parse protocol version from input: " + t.getMessage());
+        }
+
+        return 1;
+    }
 
     public static int parseInt(PacketByteBuf buf)
     {
