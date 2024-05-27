@@ -336,4 +336,13 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
     public boolean shouldRenderName() {
         return false;
     }
+
+    @Override
+    public double squaredDistanceTo(Vec3d vector)
+    {
+        if (vector.equals(MinecraftClient.getInstance().gameRenderer.getCamera().getPos()))
+            return 0d;
+
+        return super.squaredDistanceTo(vector);
+    }
 }
