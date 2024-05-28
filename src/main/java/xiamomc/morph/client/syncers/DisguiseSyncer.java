@@ -496,12 +496,18 @@ public abstract class DisguiseSyncer extends MorphClientObject
         entity.setOnFire(bindingPlayer.isOnFire());
 
         // Health
-        var attribute = entity.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH);
+        var healthAttribute = entity.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH);
 
-        if (attribute != null)
-            attribute.setBaseValue(bindingPlayer.getMaxHealth());
+        if (healthAttribute != null)
+            healthAttribute.setBaseValue(bindingPlayer.getMaxHealth());
 
         entity.setHealth(bindingPlayer.getHealth());
+
+        // Scale
+        var scaleAttribute = entity.getAttributeInstance(EntityAttributes.GENERIC_SCALE);
+
+        if (scaleAttribute != null)
+            scaleAttribute.setBaseValue(bindingPlayer.getAttributeValue(EntityAttributes.GENERIC_SCALE));
 
         // Hand Swing
         entity.handSwinging = bindingPlayer.handSwinging;
