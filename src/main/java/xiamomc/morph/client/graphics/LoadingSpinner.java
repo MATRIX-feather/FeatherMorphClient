@@ -6,7 +6,7 @@ import net.minecraft.util.Identifier;
 
 public class LoadingSpinner extends MDrawable
 {
-    private static final Identifier LOADING_TEX = new Identifier("morphclient", "textures/gui/loading.png");
+    private static final Identifier LOADING_TEX = Identifier.of("morphclient", "textures/gui/loading.png");
 
     public LoadingSpinner()
     {

@@ -35,12 +35,12 @@ public abstract class WorldRendererMixin
 
     @Inject(method = "render",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/BufferBuilderStorage;getEntityVertexConsumers()Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;", shift = At.Shift.AFTER))
-    private void featherMorph$onRender(float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci)
+    private void featherMorph$onRender(RenderTickCounter tickCounter, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci)
     {
         if (featherMorph$currentStack != null)
         {
             var featherMorph$vertex = this.bufferBuilders.getEntityVertexConsumers();
-            PlayerRenderHelper.instance().renderCrystalBeam(tickDelta, featherMorph$currentStack, featherMorph$vertex, 0xFFFFFF);
+            PlayerRenderHelper.instance().renderCrystalBeam(tickCounter, featherMorph$currentStack, featherMorph$vertex, 0xFFFFFF);
 
             featherMorph$currentStack = null;
         }

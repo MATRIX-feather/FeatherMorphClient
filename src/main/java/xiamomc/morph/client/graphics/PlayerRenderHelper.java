@@ -175,12 +175,12 @@ public class PlayerRenderHelper extends MorphClientObject
 
     /**
      * 在玩家位置渲染通向 {@link ClientDisguiseSyncer#getBeamTarget()} 的光柱
-     * @param tickDelta tickDelta
+     * @param tickCounter tickCounter
      * @param matrixStack {@link MatrixStack}
      * @param vertexConsumerProvider {@link VertexConsumerProvider}
      * @param light 光照等级
      */
-    public void renderCrystalBeam(float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light)
+    public void renderCrystalBeam(RenderTickCounter tickCounter, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light)
     {
         DisguiseSyncer abstractSyncer = instanceTracker.getSyncerFor(MinecraftClient.getInstance().player);
 
@@ -202,6 +202,7 @@ public class PlayerRenderHelper extends MorphClientObject
         var player = MinecraftClient.getInstance().player;
         assert player != null;
 
+        var tickDelta = tickCounter.getTickDelta(true);
         //通过插值的方式获取玩家XYZ可以避免让渲染出来的光柱看起来非常卡顿
         var lerpPlayerX = MathHelper.lerp(tickDelta, player.prevX, player.getX());
         var lerpPlayerY = MathHelper.lerp(tickDelta, player.prevY, player.getY());
@@ -345,7 +346,7 @@ public class PlayerRenderHelper extends MorphClientObject
         return part;
     }
 
-    private final RenderLayer dragonLayer = RenderLayer.getEntityCutoutNoCull(new Identifier("textures/entity/enderdragon/dragon.png"));
+    private final RenderLayer dragonLayer = RenderLayer.getEntityCutoutNoCull(Identifier.of("textures/entity/enderdragon/dragon.png"));
 
     @SuppressWarnings("rawtypes")
     public boolean onArmDrawCall(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, AbstractClientPlayerEntity player, ModelPart arm, ModelPart sleeve)

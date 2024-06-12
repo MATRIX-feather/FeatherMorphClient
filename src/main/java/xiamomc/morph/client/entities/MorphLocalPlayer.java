@@ -5,11 +5,11 @@ import com.mojang.authlib.yggdrasil.ProfileResult;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.OtherClientPlayerEntity;
-import net.minecraft.client.render.entity.PlayerModelPart;
 import net.minecraft.client.util.SkinTextures;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerModelPart;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.*;
 import net.minecraft.util.math.Vec3d;
@@ -34,7 +34,7 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
     private final String playerName;
 
     @NotNull
-    private Identifier morphTextureIdentifier = new Identifier("minecraft", "textures/entity/player/wide/steve.png");
+    private Identifier morphTextureIdentifier = Identifier.of("minecraft", "textures/entity/player/wide/steve.png");
 
     private Identifier capeTextureIdentifier;
 

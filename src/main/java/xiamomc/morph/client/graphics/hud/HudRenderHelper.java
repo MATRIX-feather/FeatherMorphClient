@@ -3,6 +3,7 @@ package xiamomc.morph.client.graphics.hud;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.shedaniel.math.Color;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.RenderTickCounter;
 import xiamomc.morph.client.ClientMorphManager;
 import xiamomc.morph.client.MorphClientObject;
 import xiamomc.morph.client.graphics.color.ColorUtils;
@@ -93,7 +94,7 @@ public class HudRenderHelper extends MorphClientObject
         visible.set(rev > 0.1f);
     }
 
-    public void onRender(DrawContext context, float tickDelta)
+    public void onRender(DrawContext context, RenderTickCounter renderTickCounter)
     {
         if (manager == null) return;
 
@@ -103,7 +104,7 @@ public class HudRenderHelper extends MorphClientObject
         {
             matrices.push();
 
-            renderBar(context, tickDelta);
+            renderBar(context, renderTickCounter);
         }
         finally
         {
@@ -111,7 +112,7 @@ public class HudRenderHelper extends MorphClientObject
         }
     }
 
-    public void renderBar(DrawContext context, float tickDelta)
+    public void renderBar(DrawContext context, RenderTickCounter renderTickCounter)
     {
         // 10 * 0.8
         var width = 8;
@@ -151,7 +152,7 @@ public class HudRenderHelper extends MorphClientObject
         context.setShaderColor(shaderColor[0], shaderColor[1], shaderColor[2], shaderColor[3]);
     }
 
-    public void renderProgress(DrawContext context, float tickDelta)
+    public void renderProgress(DrawContext context, RenderTickCounter renderTickCounter)
     {
         var width = context.getScaledWindowWidth();
 

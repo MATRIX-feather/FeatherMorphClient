@@ -104,9 +104,9 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
 
     private static final String morphNameSpace = "morphplugin";
 
-    public static Identifier initializeChannelIdentifier = new Identifier(morphNameSpace, "init");
-    public static Identifier versionChannelIdentifier = new Identifier(morphNameSpace, "version");
-    public static Identifier commandChannelIdentifier = new Identifier(morphNameSpace, "commands");
+    public static Identifier initializeChannelIdentifier = Identifier.of(morphNameSpace, "init");
+    public static Identifier versionChannelIdentifier = Identifier.of(morphNameSpace, "version");
+    public static Identifier commandChannelIdentifier = Identifier.of(morphNameSpace, "commands");
 
     @Resolved
     private ClientMorphManager morphManager;
