@@ -12,6 +12,7 @@ import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.toast.ToastManager;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import org.jetbrains.annotations.Nullable;
@@ -108,11 +109,22 @@ public class ClientMorphManager extends MorphClientObject
             prevWorld = world;
 
         if (world != prevWorld)
-        {
             prevWorld = world;
-            //refreshLocalSyncer(this.currentIdentifier.get());
+
+        var currentClientPlayer = MinecraftClient.getInstance().player;
+        if (currentClientPlayer != null && lastClientPlayer != currentClientPlayer)
+        {
+            if (localPlayerSyncer != null && localPlayerSyncer.disposed())
+                localPlayerSyncer = null;
+
+            refreshLocalSyncer(currentIdentifier.get());
         }
+
+        lastClientPlayer = currentClientPlayer;
     }
+
+    @Nullable
+    private PlayerEntity lastClientPlayer;
 
     private void refreshLocalSyncer(String n)
     {
@@ -275,6 +287,7 @@ public class ClientMorphManager extends MorphClientObject
 
         prevWorld = null;
         world = null;
+        lastClientPlayer = null;
     }
 
     public void setCurrent(String val)
