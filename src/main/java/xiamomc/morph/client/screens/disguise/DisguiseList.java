@@ -136,10 +136,4 @@ public class DisguiseList extends ElementListWidget<EntityDisplayWidget> impleme
         this.headerHeight = newHeaderHeight;
         this.setRenderHeader(true, newHeaderHeight);
     }
-
-    @Override
-    public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta)
-    {
-        super.renderWidget(context, mouseX, mouseY, delta);
-    }
 }

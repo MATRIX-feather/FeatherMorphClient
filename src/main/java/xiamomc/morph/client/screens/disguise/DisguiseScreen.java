@@ -371,6 +371,20 @@ public class DisguiseScreen extends FeatherScreen
 
         context.fillGradient(0, 0, this.width, this.height, color.getColor(), color.getColor());
 
+        super.render(context, mouseX, mouseY, delta);
+    }
+
+    @Override
+    protected void applyBlur(float delta)
+    {
+        super.applyBlur(delta);
+    }
+
+    @Override
+    public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta)
+    {
+        super.renderBackground(context, mouseX, mouseY, delta);
+
         context.setShaderColor(0.2F, 0.2F, 0.2F, 1.0F);
 
         RenderSystem.enableBlend();
@@ -384,15 +398,7 @@ public class DisguiseScreen extends FeatherScreen
                 0, 0,
                 this.width, this.height, 32, 32);
 
-        context.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-
-        super.render(context, mouseX, mouseY, delta);
-    }
-
-    @Override
-    protected void applyBlur(float delta)
-    {
-        super.applyBlur(delta);
+        context.setShaderColor(1F, 1F, 1F, 1F);
     }
 
     @Override
