@@ -156,9 +156,9 @@ public class ConvertedMeta
                         item = new ItemStack(Registries.ITEM.get(identifier));
                     }
 
-                    var itemNbt = NbtUtils.parseSNbt(eqNbt[i]);
-
-                    logger.info("todo: IMPLEMENT CONVERTEDMETA ITEM SETNBT!!!");
+                    // todo: IMPLEMENT THIS
+                    //var itemNbt = NbtUtils.parseSNbt(eqNbt[i]);
+                    //logger.info("todo: IMPLEMENT CONVERTEDMETA ITEM SETNBT!!!");
                     //item.setNbt(itemNbt);
                     item.setCount(Math.max(item.getCount(), 1));
 

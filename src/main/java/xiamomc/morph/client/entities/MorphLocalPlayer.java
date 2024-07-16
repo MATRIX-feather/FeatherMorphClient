@@ -14,6 +14,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.*;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.MorphClient;
@@ -162,11 +163,11 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
 
         initialFetchFired.set(true);
 
-        logger.info("Fetching skin for " + profile);
+        //logger.info("Fetching skin for " + profile);
 
         if (!profile.getName().equals(playerName))
         {
-            logger.info("Profile %s player name not match : '%s' <-> '%s'".formatted(profile.getId(), profile.getName(), playerName));
+            //logger.info("Profile %s player name not match : '%s' <-> '%s'".formatted(profile.getId(), profile.getName(), playerName));
             return;
         }
 
@@ -229,7 +230,7 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
 
         if (invokeId < currentId)
         {
-            logger.info("Not setting skin for " + this + ": A newer request has been finished! " + invokeId + " <-> " + currentProfilePair.getLeft());
+            //logger.info("Not setting skin for " + this + ": A newer request has been finished! " + invokeId + " <-> " + currentProfilePair.getLeft());
             return;
         }
 
@@ -242,16 +243,26 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
         this.morphTextureIdentifier = tex.texture();
         this.model = tex.model();
 
-        //为披风提供器单独创建新的GameProfile以避免影响皮肤功能
-        capeProvider.getCape(new GameProfile(profile.getId(), profile.getName()), a ->
-        {
-            logger.info("Received custom cape texture from a cape provider!");
+        updateSkinTextures();
 
-            if (this.capeTextureIdentifier == null)
-                this.capeTextureIdentifier = a;
-            else
-                logger.info("But capeTextureIdentifier is not null (" + capeTextureIdentifier + "), not setting...");
+        //为披风提供器单独创建新的GameProfile以避免影响皮肤功能
+        capeProvider.getCape(new GameProfile(profile.getId(), profile.getName()), identifier ->
+        {
+            //logger.info("Received custom cape texture from a cape provider!");
+
+            if (identifier != null)
+                this.capeTextureIdentifier = identifier;
+
+            updateSkinTextures();
         });
+    }
+
+    private void updateSkinTextures()
+    {
+        this.skinTextures = new SkinTextures(morphTextureIdentifier,
+                skinTextureUrl,
+                capeTextureIdentifier, capeTextureIdentifier,
+                model, false);
     }
 
     public boolean fallFlying;
@@ -323,9 +334,14 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
         return bindingPlayer.isPartVisible(modelPart);
     }
 
+    @Nullable
+    private SkinTextures skinTextures;
+
     @Override
     public SkinTextures getSkinTextures()
     {
+        if (skinTextures != null) return skinTextures;
+
         return new SkinTextures(morphTextureIdentifier,
                 skinTextureUrl,
                 capeTextureIdentifier, capeTextureIdentifier,
