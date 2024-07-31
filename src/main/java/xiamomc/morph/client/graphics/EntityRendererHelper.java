@@ -8,7 +8,9 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityAttachmentType;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Quaternionf;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.graphics.color.ColorUtils;
@@ -68,9 +70,19 @@ public class EntityRendererHelper
         var exOffset = (entity.hasCustomName() || entity instanceof OtherClientPlayerEntity) ? 0.25f : -0.25f;
 
         //Recover behavior of the old entity.getNameLabelHeight() -> entity.getHeight() + 0.5f
-        matrices.translate(0, entity.getHeight() + 0.5f + exOffset, 0);
+        var point = entity.getAttachments().getPointNullable(EntityAttachmentType.NAME_TAG, 0, entity.getYaw());
+        if (point == null)
+            matrices.translate(0, entity.getHeight() + 0.5f + exOffset, 0);
+        else
+            matrices.translate(point.x, (entity.hasCustomName() ? 0.3 : 0) + point.y + 0.5f, point.z);
+
         matrices.multiply(dispatcher.getRotation());
-        matrices.scale(-0.025F, -0.025F, 0.025F);
+        matrices.scale(0.025F, -0.025F, 0.025F);
+
+        var distance = dispatcher.camera.getPos().distanceTo(entity.getPos());
+        var scale = Math.max(1, (float)distance / 5f);
+
+        matrices.scale(scale, scale, scale);
 
         float clientBackgroundOpacity = MinecraftClient.getInstance().options.getTextBackgroundOpacity(0.25F);
         int finalColor = (int)(clientBackgroundOpacity * 255.0f) << 24;
