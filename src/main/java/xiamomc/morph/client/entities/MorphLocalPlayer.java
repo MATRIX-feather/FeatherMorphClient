@@ -39,6 +39,9 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
 
     private Identifier capeTextureIdentifier;
 
+    @Nullable
+    private Identifier ofCapeIdentifier;
+
     private String skinTextureUrl;
 
     private SkinTextures.Model model;
@@ -248,20 +251,18 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
         //为披风提供器单独创建新的GameProfile以避免影响皮肤功能
         capeProvider.getCape(new GameProfile(profile.getId(), profile.getName()), identifier ->
         {
-            //logger.info("Received custom cape texture from a cape provider!");
-
-            if (identifier != null)
-                this.capeTextureIdentifier = identifier;
-
+            this.ofCapeIdentifier = identifier;
             updateSkinTextures();
         });
     }
 
     private void updateSkinTextures()
     {
+        var cape = ofCapeIdentifier == null ? capeTextureIdentifier : ofCapeIdentifier;
+
         this.skinTextures = new SkinTextures(morphTextureIdentifier,
                 skinTextureUrl,
-                capeTextureIdentifier, capeTextureIdentifier,
+                cape, cape,
                 model, false);
     }
 
