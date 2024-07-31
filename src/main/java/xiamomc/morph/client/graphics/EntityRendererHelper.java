@@ -83,7 +83,7 @@ public class EntityRendererHelper
         if (MorphClient.getInstance().getModConfigData().scaleNameTag)
         {
             var distance = dispatcher.camera.getPos().distanceTo(entity.getPos());
-            var scale = Math.max(1, (float)distance / 5f);
+            var scale = Math.max(1, (float)distance / 7.5f);
             matrices.scale(scale, scale, scale);
         }
 
