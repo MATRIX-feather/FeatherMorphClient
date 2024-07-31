@@ -374,6 +374,11 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
                         .setDefaultValue(false)
                         .setSaveConsumer(v -> modConfigData.verbosePackets = v)
                         .build()
+        ).addEntry(
+                entryBuilder.startBooleanToggle(Text.translatable("option.morphclient.nametag_scaling"), modConfigData.scaleNameTag)
+                        .setDefaultValue(false)
+                        .setSaveConsumer(v -> modConfigData.scaleNameTag = v)
+                        .build()
         );
 
         ConfigCategory categoryToast = builder.getOrCreateCategory(Text.translatable("category.morphclient.config_toasts"));

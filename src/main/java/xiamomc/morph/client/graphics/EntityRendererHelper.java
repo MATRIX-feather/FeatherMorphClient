@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xiamomc.morph.client.MorphClient;
+import xiamomc.morph.client.config.ModConfigData;
 import xiamomc.morph.client.graphics.color.ColorUtils;
 import xiamomc.morph.client.graphics.color.MaterialColors;
 import xiamomc.morph.client.syncers.ClientDisguiseSyncer;
@@ -79,10 +80,12 @@ public class EntityRendererHelper
         matrices.multiply(dispatcher.getRotation());
         matrices.scale(0.025F, -0.025F, 0.025F);
 
-        var distance = dispatcher.camera.getPos().distanceTo(entity.getPos());
-        var scale = Math.max(1, (float)distance / 5f);
-
-        matrices.scale(scale, scale, scale);
+        if (MorphClient.getInstance().getModConfigData().scaleNameTag)
+        {
+            var distance = dispatcher.camera.getPos().distanceTo(entity.getPos());
+            var scale = Math.max(1, (float)distance / 5f);
+            matrices.scale(scale, scale, scale);
+        }
 
         float clientBackgroundOpacity = MinecraftClient.getInstance().options.getTextBackgroundOpacity(0.25F);
         int finalColor = (int)(clientBackgroundOpacity * 255.0f) << 24;

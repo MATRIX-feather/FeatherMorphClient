@@ -34,6 +34,7 @@
   "option.morphclient.query_set_toasts": "Disguise update toasts",
   "option.morphclient.query_set_toasts.desc": "Pops up when the entire disguise list gets updated",
   "option.morphclient.toast_progress": "Display toast progress",
+  "option.morphclient.nametag_scaling": "Scale reveal tag by distance",
   "title.morphclient.config": "FeatherMorph client settings",
   "text.morphclient.error.update_disguise1": "Error occurred while updating disguise at client side.",
   "text.morphclient.error.update_disguise2": "SelfView has been disabled until the current disguise has been changed!",
