@@ -9,6 +9,7 @@ import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityAttachmentType;
+import net.minecraft.entity.player.PlayerEntity;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -61,6 +62,12 @@ public class EntityRendererHelper
         if (syncer != null && renderingEntity != ClientDisguiseSyncer.getCurrentInstance().getDisguiseInstance())
             renderingEntity.ignoreCameraFrustum = true;
 
+        var typeText = renderingEntity instanceof PlayerEntity playerEntity
+                ? playerEntity.getName().getString()
+                : renderingEntity.getType().getName().getString();
+
+        text = "%s(%s)".formatted(typeText, text);
+
         renderLabelOnTop(matrices, vertexConsumers, textRenderer, renderingEntity, dispatcher, text);
     }
 
@@ -93,17 +100,17 @@ public class EntityRendererHelper
         var positionMatrix = matrices.peek().getPositionMatrix();
         var x = textRenderer.getWidth(text) / -2f;
 
-        //文字
-        textRenderer.draw(text, x, 0,
-                textColor, false,
-                positionMatrix, vertexConsumers,
-                TextRenderer.TextLayerType.NORMAL, 0, LightmapTextureManager.MAX_LIGHT_COORDINATE);
-
         //背景
         textRenderer.draw(text, x, 0,
                 textColorTransparent, false,
                 positionMatrix, vertexConsumers,
                 TextRenderer.TextLayerType.SEE_THROUGH, finalColor, LightmapTextureManager.MAX_LIGHT_COORDINATE);
+
+        //文字
+        textRenderer.draw(text, x, 0,
+                textColor, false,
+                positionMatrix, vertexConsumers,
+                TextRenderer.TextLayerType.NORMAL, 0, LightmapTextureManager.MAX_LIGHT_COORDINATE);
 
         matrices.pop();
     }
