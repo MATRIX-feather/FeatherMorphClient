@@ -429,6 +429,11 @@ public class MDrawable extends MorphClientObject implements IMDrawable
 
     private boolean hovered;
 
+    protected boolean hovered()
+    {
+        return this.hovered;
+    }
+
     protected void onHover()
     {
     }
@@ -455,7 +460,11 @@ public class MDrawable extends MorphClientObject implements IMDrawable
                 onHoverLost();
         }
 
-        if (this.alpha.get() == 0f) return;
+        if (this.alpha.get() == 0f)
+        {
+            matrices.pop();
+            return;
+        }
 
         var shaderColor = RenderSystem.getShaderColor();
         shaderColor = new float[]
@@ -572,6 +581,11 @@ public class MDrawable extends MorphClientObject implements IMDrawable
     }
 
     protected final Recorder<Float> alpha = new Recorder<Float>(1f);
+
+    public void setAlpha(float newVal)
+    {
+        this.alpha.set(newVal);
+    }
 
     public void fadeTo(float newVal, long duration, Easing easing)
     {

@@ -51,5 +51,9 @@
   "category.morphclient.config_toasts": "弹窗",
   "option.morphclient.grant_revoke_toasts": "伪装解锁/丢失弹窗",
   "option.morphclient.query_set_toasts": "伪装更新弹窗",
-  "option.morphclient.query_set_toasts.desc": "会在伪装列表更新时显示"
+  "option.morphclient.query_set_toasts.desc": "会在伪装列表更新时显示",
+  "emote.morphclient.sniff": "嗅闻",
+  "emote.morphclient.roar": "咆哮",
+  "emote.morphclient.rollup": "缩壳",
+  "emote.morphclient.dance": "跳舞"
 }

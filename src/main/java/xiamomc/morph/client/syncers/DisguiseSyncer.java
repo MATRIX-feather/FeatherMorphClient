@@ -7,6 +7,7 @@ import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.*;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.mob.WardenEntity;
 import net.minecraft.entity.passive.HorseEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -21,6 +22,7 @@ import xiamomc.morph.client.entities.MorphLocalPlayer;
 import xiamomc.morph.client.mixin.accessors.AbstractHorseEntityMixin;
 import xiamomc.morph.client.mixin.accessors.EntityAccessor;
 import xiamomc.morph.client.mixin.accessors.LimbAnimatorAccessor;
+import xiamomc.morph.client.syncers.animations.AnimationHandler;
 import xiamomc.pluginbase.Annotations.Resolved;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -78,6 +80,24 @@ public abstract class DisguiseSyncer extends MorphClientObject
         bindingMeta.outdated = true;
 
         refreshEntity();
+    }
+
+    private AnimationHandler animHandler;
+
+    public void setAnimationHandler(AnimationHandler handler)
+    {
+        this.animHandler = handler;
+    }
+
+    public void playAnimation(String animation)
+    {
+        if (animHandler == null)
+        {
+            logger.warn("No animation handler for syncer!");
+            return;
+        }
+
+        animHandler.play(disguiseInstance, animation);
     }
 
     private int crystalId;

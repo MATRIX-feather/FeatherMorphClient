@@ -21,6 +21,7 @@ import xiamomc.morph.client.graphics.toasts.NewDisguiseSetToast;
 import xiamomc.morph.client.syncers.ClientDisguiseSyncer;
 import xiamomc.morph.client.syncers.DisguiseSyncer;
 import xiamomc.morph.client.syncers.OtherClientDisguiseSyncer;
+import xiamomc.morph.client.syncers.animations.AnimHandlerIndex;
 import xiamomc.pluginbase.Annotations.Initializer;
 import xiamomc.pluginbase.Annotations.Resolved;
 import xiamomc.pluginbase.Bindables.Bindable;
@@ -66,6 +67,28 @@ public class ClientMorphManager extends MorphClientObject
     private DisguiseInstanceTracker instanceTracker;
 
     //endregion
+
+    private final List<String> emotes = new ObjectArrayList<>();
+
+    public void setEmotes(List<String> emotes)
+    {
+        if (emotes.size() > 4)
+            logger.warn("Server send a emote that has more than 4 elements!");
+
+        this.emotes.clear();
+        this.emotes.addAll(emotes);
+    }
+
+    public void playEmote(String emote)
+    {
+        if (localPlayerSyncer != null)
+            localPlayerSyncer.playAnimation(emote);
+    }
+
+    public List<String> getEmotes()
+    {
+        return new ObjectArrayList<>(emotes);
+    }
 
     @Nullable
     private DisguiseSyncer localPlayerSyncer;
@@ -310,6 +333,9 @@ public class ClientMorphManager extends MorphClientObject
         currentNbtCompound.set(null);
     }
 
+    @Resolved
+    private AnimHandlerIndex animIndex;
+
     public DisguiseSyncer createSyncerFor(AbstractClientPlayerEntity player, String disguiseId, int networkId)
     {
         var clientPlayer = MinecraftClient.getInstance().player;
@@ -321,6 +347,9 @@ public class ClientMorphManager extends MorphClientObject
             syncer = new ClientDisguiseSyncer(player, disguiseId, networkId);
         else
             syncer = new OtherClientDisguiseSyncer(player, disguiseId, networkId);
+
+        var handler = animIndex.get(disguiseId);
+        syncer.setAnimationHandler(handler);
 
         return syncer;
     }

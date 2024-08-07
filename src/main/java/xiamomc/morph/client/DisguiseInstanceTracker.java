@@ -8,6 +8,7 @@ import net.minecraft.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xiamomc.morph.client.syncers.DisguiseSyncer;
+import xiamomc.morph.client.syncers.animations.AnimHandlerIndex;
 import xiamomc.morph.network.commands.S2C.clientrender.*;
 import xiamomc.pluginbase.Annotations.Resolved;
 

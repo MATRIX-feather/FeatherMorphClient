@@ -31,7 +31,9 @@ import xiamomc.morph.client.graphics.hud.HudRenderHelper;
 import xiamomc.morph.client.graphics.toasts.DisguiseEntryToast;
 import xiamomc.morph.client.graphics.toasts.RequestToast;
 import xiamomc.morph.client.screens.disguise.WaitingForServerScreen;
+import xiamomc.morph.client.screens.emote.SelectScreen;
 import xiamomc.morph.client.syncers.DisguiseSyncer;
+import xiamomc.morph.client.syncers.animations.AnimHandlerIndex;
 import xiamomc.morph.network.Constants;
 import xiamomc.morph.network.commands.C2S.*;
 import xiamomc.morph.network.commands.S2C.S2CRequestCommand;
@@ -59,9 +61,11 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
     private KeyBinding unMorphKeyBind;
     private KeyBinding morphKeyBind;
     private KeyBinding resetCacheKeybind;
+    private KeyBinding displayOwnerBind;
+
+    private KeyBinding testKeyAnimation;
     private KeyBinding testKeyBindGrant;
     private KeyBinding testKeyBindLost;
-    private KeyBinding displayOwnerBind;
 
     @Override
     public String getNameSpace()
@@ -90,7 +94,9 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
     private ClientSkillHandler skillHandler;
     private DisguiseInstanceTracker disguiseTracker;
 
-    private final boolean debugToasts = false;
+    private final AnimHandlerIndex animHandlerIndex = new AnimHandlerIndex();
+
+    private final boolean debugToasts = true;
 
     @Override
     public void onInitializeClient()
@@ -118,6 +124,11 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
             testKeyBindLost = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                     "key.morphclient.testToastLost", InputUtil.Type.KEYSYM,
                     GLFW.GLFW_KEY_X, "category.morphclient.keybind"
+            ));
+
+            testKeyAnimation = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                    "测试动画", InputUtil.Type.KEYSYM,
+                    GLFW.GLFW_KEY_G, "category.morphclient.keybind"
             ));
         }
 
@@ -160,6 +171,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
         dependencyManager.cache(modConfigData);
         dependencyManager.cache(new ClientRequestManager());
         dependencyManager.cache(new EntityRendererHelper());
+        dependencyManager.cache(animHandlerIndex);
 
         serverHandler.initializeNetwork();
 
@@ -275,7 +287,23 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
             EntityCache.getGlobalCache().clearCache();
             modelWorkarounds.initWorkarounds();
         }
+
+        if (testKeyAnimation != null) while (testKeyAnimation.wasPressed())
+        {
+            logger.info("Send command");
+
+            MinecraftClient.getInstance().setScreen(new SelectScreen());
+/*
+            if (lastIsRoar)
+                serverHandler.sendCommand(new C2SAnimationCommand("sniff"));
+            else
+                serverHandler.sendCommand(new C2SAnimationCommand("roar"));
+*/
+            lastIsRoar = !lastIsRoar;
+        }
     }
+
+    private boolean lastIsRoar;
 
     @Nullable
     private Boolean lastClientView = null;

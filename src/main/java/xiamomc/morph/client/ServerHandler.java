@@ -5,6 +5,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.Function;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -97,7 +98,8 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
                 .registerS2C(S2CCommandNames.CRClear, a -> new S2CRenderMapClearCommand())
                 .registerS2C(S2CCommandNames.CRMap, S2CRenderMapSyncCommand::ofStr)
                 .registerS2C(S2CCommandNames.CRRemove, S2CRenderMapRemoveCommand::of)
-                .registerS2C(S2CCommandNames.CRMeta, S2CRenderMapMetaCommand::fromStr);
+                .registerS2C(S2CCommandNames.CRMeta, S2CRenderMapMetaCommand::fromStr)
+                .registerS2C("animation", S2CAnimationCommand::new);
     }
 
     //region Common
@@ -206,7 +208,11 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
     public boolean sendCommand(AbstractC2SCommand<?> command)
     {
         var cmd = command.buildCommand();
-        if (cmd == null || cmd.isEmpty() || cmd.isBlank()) return false;
+        if (cmd == null || cmd.isEmpty() || cmd.isBlank())
+        {
+            logger.warn("Command '%s' returns an empty or blank cmd string!".formatted(command));
+            return false;
+        }
 
         cmd = cmd.trim();
 
@@ -479,6 +485,24 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
     public void onClientMapMetaNbtCommand(S2CRenderMapMetaCommand s2CRenderMapMetaCommand)
     {
         instanceTracker.onMetaCommand(s2CRenderMapMetaCommand);
+    }
+
+    @Override
+    public void onAnimationCommand(S2CAnimationCommand command)
+    {
+        //logger.info("Update animation : " + command.getArgumentAt(0, "???"));
+        morphManager.playEmote(command.getArgumentAt(0, "???"));
+    }
+
+    @Override
+    public void onValidAnimationsCommand(S2CSetAvailableAnimationsCommand command)
+    {
+        //logger.info("Received:");
+        var cmdList = new ObjectArrayList<String>(command.getAvailableAnimations());
+        cmdList.removeIf(String::isBlank);
+        //cmdList.forEach(s -> logger.info("|- " + s));
+        morphManager.setEmotes(cmdList);
+        //logger.info("End.");
     }
 
     //endregion Impl of ServerHandler

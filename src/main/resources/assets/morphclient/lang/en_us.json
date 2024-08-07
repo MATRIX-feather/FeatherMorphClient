@@ -51,5 +51,9 @@
   "text.morphclient.toast.request.from": "Request from %s",
   "text.morphclient.toast.request.to": "Request to %s",
   "text.morphclient.display_real_names": "Displaying disguises' owner name",
-  "text.morphclient.hide_real_names": "Hiding disguises' owner name"
+  "text.morphclient.hide_real_names": "Hiding disguises' owner name",
+  "emote.morphclient.sniff": "Sniff",
+  "emote.morphclient.roar": "Roar",
+  "emote.morphclient.rollup": "Roll up",
+  "emote.morphclient.dance": "Dance"
 }

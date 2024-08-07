@@ -10,6 +10,7 @@ import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 import xiamomc.morph.client.graphics.IMDrawable;
 import xiamomc.morph.client.graphics.MButtonWidget;
+import xiamomc.morph.client.graphics.MDrawable;
 import xiamomc.morph.client.utilties.Screens;
 
 import java.util.List;
@@ -108,6 +109,11 @@ public abstract class FeatherScreen extends Screen implements IMDrawable
     }
 
     private final List<IMDrawable> children = new ObjectArrayList<>();
+
+    protected List<IMDrawable> mChildren()
+    {
+        return new ObjectArrayList<>(children);
+    }
 
     protected void add(IMDrawable drawable)
     {
