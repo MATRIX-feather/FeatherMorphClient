@@ -297,6 +297,8 @@ public class ClientMorphManager extends MorphClientObject
     {
         this.clearAvailableDisguises();
 
+        this.setEmotes(List.of());
+
         selectedIdentifier.set(null);
         currentIdentifier.set(null);
 

@@ -2,13 +2,14 @@ package xiamomc.morph.client.screens.disguise;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import me.shedaniel.clothconfig2.gui.AbstractConfigScreen;
 import me.shedaniel.math.Color;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.ClientMorphManager;
 import xiamomc.morph.client.EntityCache;
 import xiamomc.morph.client.MorphClient;
@@ -19,12 +20,15 @@ import xiamomc.morph.client.graphics.transforms.Recorder;
 import xiamomc.morph.client.graphics.transforms.Transformer;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
 import xiamomc.morph.client.screens.FeatherScreen;
+import xiamomc.morph.client.screens.WaitingForServerScreen;
 import xiamomc.pluginbase.Bindables.Bindable;
 
 import java.util.List;
 
 public class DisguiseScreen extends FeatherScreen
 {
+    private static final Logger log = LoggerFactory.getLogger(DisguiseScreen.class);
+
     public DisguiseScreen()
     {
         super(Text.literal("选择界面"));
@@ -57,20 +61,24 @@ public class DisguiseScreen extends FeatherScreen
             return true;
         });
 
-        selectedIdentifier.bindTo(manager.selectedIdentifier);
-        selectedIdentifier.set(manager.currentIdentifier.get());
+        this.selectedIdentifier.bindTo(manager.selectedIdentifier);
+        this.selectedIdentifier.set(manager.currentIdentifier.get());
 
-        serverHandler.serverReady.onValueChanged((o, n) ->
+        this.serverReady.bindTo(serverHandler.serverReady);
+
+        this.serverReady.onValueChanged((o, n) ->
         {
             MorphClient.getInstance().schedule(() ->
             {
                 if (this.isCurrent() && !n)
-                    this.push(new WaitingForServerScreen());
+                    this.push(new WaitingForServerScreen(new DisguiseScreen()));
             });
         }, true);
 
+        this.currentIdentifier.bindTo(manager.currentIdentifier);
+
         //初始化文本
-        manager.currentIdentifier.onValueChanged((o, n) ->
+        this.currentIdentifier.onValueChanged((o, n) ->
         {
             Text display = null;
 
@@ -120,6 +128,8 @@ public class DisguiseScreen extends FeatherScreen
     }
 
     private final Bindable<String> selectedIdentifier = new Bindable<>();
+    private final Bindable<Boolean> serverReady = new Bindable<>();
+    private final Bindable<String> currentIdentifier = new Bindable<>();
 
     private final MButtonWidget closeButton;
     private final MTextBoxWidget textBox;
@@ -157,6 +167,10 @@ public class DisguiseScreen extends FeatherScreen
 
             //workaround: Bindable在界面关闭后还是会保持引用，得手动把字段设置为null
             list.clearChildren();
+
+            this.serverReady.unBindFromTarget();
+            this.selectedIdentifier.unBindFromTarget();
+            this.currentIdentifier.unBindFromTarget();
         }
     }
 

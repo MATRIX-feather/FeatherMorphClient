@@ -30,8 +30,9 @@ import xiamomc.morph.client.graphics.ModelWorkarounds;
 import xiamomc.morph.client.graphics.hud.HudRenderHelper;
 import xiamomc.morph.client.graphics.toasts.DisguiseEntryToast;
 import xiamomc.morph.client.graphics.toasts.RequestToast;
-import xiamomc.morph.client.screens.disguise.WaitingForServerScreen;
-import xiamomc.morph.client.screens.emote.SelectScreen;
+import xiamomc.morph.client.screens.WaitingForServerScreen;
+import xiamomc.morph.client.screens.disguise.DisguiseScreen;
+import xiamomc.morph.client.screens.emote.EmoteScreen;
 import xiamomc.morph.client.syncers.DisguiseSyncer;
 import xiamomc.morph.client.syncers.animations.AnimHandlerIndex;
 import xiamomc.morph.network.Constants;
@@ -62,8 +63,8 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
     private KeyBinding morphKeyBind;
     private KeyBinding resetCacheKeybind;
     private KeyBinding displayOwnerBind;
+    private KeyBinding emoteKeyBind;
 
-    private KeyBinding testKeyAnimation;
     private KeyBinding testKeyBindGrant;
     private KeyBinding testKeyBindLost;
 
@@ -125,11 +126,6 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
                     "key.morphclient.testToastLost", InputUtil.Type.KEYSYM,
                     GLFW.GLFW_KEY_X, "category.morphclient.keybind"
             ));
-
-            testKeyAnimation = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                    "测试动画", InputUtil.Type.KEYSYM,
-                    GLFW.GLFW_KEY_G, "category.morphclient.keybind"
-            ));
         }
 
         morphKeyBind = KeyBindingHelper.registerKeyBinding(new KeyBinding(
@@ -140,6 +136,11 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
         toggleselfKeyBind = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.morphclient.toggle", InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_RIGHT, "category.morphclient.keybind"
+        ));
+
+        emoteKeyBind = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.morphclient.emote", InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_G, "category.morphclient.keybind"
         ));
 
         resetCacheKeybind = KeyBindingHelper.registerKeyBinding(new KeyBinding(
@@ -278,7 +279,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
             }
             else if (client.currentScreen == null)
             {
-                client.setScreen(new WaitingForServerScreen());
+                client.setScreen(new WaitingForServerScreen(new DisguiseScreen()));
             }
         }
 
@@ -288,22 +289,9 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
             modelWorkarounds.initWorkarounds();
         }
 
-        if (testKeyAnimation != null) while (testKeyAnimation.wasPressed())
-        {
-            logger.info("Send command");
-
-            MinecraftClient.getInstance().setScreen(new SelectScreen());
-/*
-            if (lastIsRoar)
-                serverHandler.sendCommand(new C2SAnimationCommand("sniff"));
-            else
-                serverHandler.sendCommand(new C2SAnimationCommand("roar"));
-*/
-            lastIsRoar = !lastIsRoar;
-        }
+        while (emoteKeyBind.wasPressed())
+            MinecraftClient.getInstance().setScreen(new WaitingForServerScreen(new EmoteScreen()));
     }
-
-    private boolean lastIsRoar;
 
     @Nullable
     private Boolean lastClientView = null;

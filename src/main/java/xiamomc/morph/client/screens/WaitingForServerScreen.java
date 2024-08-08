@@ -1,28 +1,33 @@
-package xiamomc.morph.client.screens.disguise;
+package xiamomc.morph.client.screens;
 
 import me.shedaniel.math.Color;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.graphics.*;
 import xiamomc.morph.client.graphics.transforms.Transformer;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
-import xiamomc.morph.client.screens.FeatherScreen;
+import xiamomc.morph.client.screens.disguise.DisguiseScreen;
 import xiamomc.pluginbase.Bindables.Bindable;
 
 public class WaitingForServerScreen extends FeatherScreen
 {
-    public WaitingForServerScreen()
+    @Nullable
+    private final FeatherScreen nextScreen;
+
+    public WaitingForServerScreen(@NotNull FeatherScreen next)
     {
-        this(Text.empty());
+        this(Text.empty(), next);
     }
 
-    protected WaitingForServerScreen(Text title)
+    protected WaitingForServerScreen(Text title, @NotNull FeatherScreen next)
     {
         super(title);
 
+        this.nextScreen = next;
         closeButton = this.buildButtonWidget(0, 0, 150, 20, Text.translatable("gui.back"), (button) ->
         {
             this.close();
@@ -53,7 +58,7 @@ public class WaitingForServerScreen extends FeatherScreen
 
         if (serverReady.get())
         {
-            this.push(new DisguiseScreen());
+            this.push(nextScreen);
         }
         else
         {
@@ -62,7 +67,7 @@ public class WaitingForServerScreen extends FeatherScreen
                 MorphClient.getInstance().schedule(() ->
                 {
                     if (isCurrent() && n)
-                        this.push(new DisguiseScreen());
+                        this.push(nextScreen);
                 });
             }, true);
 

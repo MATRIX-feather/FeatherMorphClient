@@ -13,6 +13,7 @@
   "key.morphclient.toggle": "切换自身可见",
   "key.morphclient.unmorph": "取消伪装",
   "key.morphclient.display_name": "显示伪装对应的玩家名",
+  "key.morphclient.emote": "伪装动画",
   "option.morphclient.allowClientView.description": "",
   "option.morphclient.allowClientView.name": "在客户端显示自身可见（如果支持）",
   "option.morphclient.animationTime.description": "设定进入动画要持续多久（单位：毫秒）",

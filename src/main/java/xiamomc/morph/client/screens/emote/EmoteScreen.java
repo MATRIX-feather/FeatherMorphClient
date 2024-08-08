@@ -3,11 +3,9 @@ package xiamomc.morph.client.screens.emote;
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.PopupScreen;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import xiamomc.morph.client.ClientMorphManager;
+import org.jetbrains.annotations.Nullable;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.graphics.Anchor;
 import xiamomc.morph.client.graphics.MDrawable;
@@ -15,15 +13,17 @@ import xiamomc.morph.client.graphics.transforms.Recorder;
 import xiamomc.morph.client.graphics.transforms.Transformer;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
 import xiamomc.morph.client.screens.FeatherScreen;
+import xiamomc.morph.client.screens.WaitingForServerScreen;
 import xiamomc.morph.client.utilties.MathUtils;
+import xiamomc.pluginbase.Bindables.Bindable;
 
 import java.util.List;
 
-public class SelectScreen extends FeatherScreen
+public class EmoteScreen extends FeatherScreen
 {
-    private static final Logger log = LoggerFactory.getLogger(SelectScreen.class);
+    private final Bindable<Boolean> serverReady = new Bindable<>();
 
-    public SelectScreen()
+    public EmoteScreen()
     {
         super(Text.literal("Disguise emote select screen"));
 
@@ -39,7 +39,7 @@ public class SelectScreen extends FeatherScreen
         {
             if (i >= emoteWidgets.size())
             {
-                log.warn("We run out of widgets!!!");
+                //logger.warn("We run out of widgets!!!");
                 break;
             }
 
@@ -51,6 +51,28 @@ public class SelectScreen extends FeatherScreen
 
         this.alpha.set(0f);
         this.fadeIn(200, Easing.OutQuint);
+
+        var serverHandler = MorphClient.getInstance().serverHandler;
+        this.serverReady.bindTo(serverHandler.serverReady);
+
+        this.serverReady.onValueChanged((o, n) ->
+        {
+            MorphClient.getInstance().schedule(() ->
+            {
+                if (this.isCurrent() && !n)
+                    this.push(new WaitingForServerScreen(new EmoteScreen()));
+            });
+        }, true);
+
+    }
+
+    @Override
+    protected void onScreenExit(@Nullable Screen nextScreen)
+    {
+        super.onScreenExit(nextScreen);
+
+        if (nextScreen == null)
+            this.serverReady.unBindFromTarget();
     }
 
     @Override
