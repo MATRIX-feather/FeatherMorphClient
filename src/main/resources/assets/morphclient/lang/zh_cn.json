@@ -55,5 +55,10 @@
   "emote.morphclient.sniff": "嗅闻",
   "emote.morphclient.roar": "咆哮",
   "emote.morphclient.rollup": "缩壳",
-  "emote.morphclient.dance": "跳舞"
+  "emote.morphclient.dance": "跳舞",
+  "emote.morphclient.dance_stop": "停止跳舞",
+  "emote.morphclient.inflate": "膨胀",
+  "emote.morphclient.deflate": "收缩",
+  "emote.morphclient.lay": "躺下",
+  "emote.morphclient.standup": "站起"
 }

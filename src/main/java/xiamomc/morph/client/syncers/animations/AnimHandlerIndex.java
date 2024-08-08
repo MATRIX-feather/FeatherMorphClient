@@ -1,10 +1,8 @@
 package xiamomc.morph.client.syncers.animations;
 
+import net.minecraft.entity.EntityType;
 import org.jetbrains.annotations.Nullable;
-import xiamomc.morph.client.syncers.animations.impl.AllayAnimationHandler;
-import xiamomc.morph.client.syncers.animations.impl.ArmadilloAnimationHandler;
-import xiamomc.morph.client.syncers.animations.impl.SnifferAnimationHandler;
-import xiamomc.morph.client.syncers.animations.impl.WardenAnimationHandler;
+import xiamomc.morph.client.syncers.animations.impl.*;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,10 +13,20 @@ public class AnimHandlerIndex
 
     public AnimHandlerIndex()
     {
-        register("minecraft:warden", new WardenAnimationHandler());
-        register("minecraft:sniffer", new SnifferAnimationHandler());
-        register("minecraft:allay", new AllayAnimationHandler());
-        register("minecraft:armadillo", new ArmadilloAnimationHandler());
+        register(EntityType.WARDEN, new WardenAnimationHandler());
+        register(EntityType.SNIFFER, new SnifferAnimationHandler());
+        register(EntityType.ALLAY, new AllayAnimationHandler());
+        register(EntityType.ARMADILLO, new ArmadilloAnimationHandler());
+        register(EntityType.SHULKER, new ShulkerAnimationHandler());
+        register(EntityType.CAT, new CatAnimationHandler());
+        register(EntityType.PARROT, new ParrotAnimationHandler());
+        register(EntityType.PIGLIN, new PiglinAnimationHandler());
+        register(EntityType.PUFFERFISH, new PufferfishAnimationHandler());
+    }
+
+    public void register(EntityType<?> type, AnimationHandler handler)
+    {
+        this.register(EntityType.getId(type).toString(), handler);
     }
 
     public void register(String disguiseIdentifier, AnimationHandler handler)
