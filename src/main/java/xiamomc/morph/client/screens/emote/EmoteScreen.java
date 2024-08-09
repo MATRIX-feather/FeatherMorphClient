@@ -30,8 +30,8 @@ public class EmoteScreen extends FeatherScreen
         //addSingleEmoteWidget(0, 0);
         addSingleEmoteWidget(0, -(widgetSize + 5));
         addSingleEmoteWidget(widgetSize + 5, 0);
-        addSingleEmoteWidget(-(widgetSize + 5), 0);
         addSingleEmoteWidget(0, widgetSize + 5);
+        addSingleEmoteWidget(-(widgetSize + 5), 0);
 
         var morphManager = MorphClient.getInstance().morphManager;
         var emotes = morphManager.getEmotes();
