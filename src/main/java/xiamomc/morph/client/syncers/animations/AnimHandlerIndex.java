@@ -22,6 +22,10 @@ public class AnimHandlerIndex
         register(EntityType.PARROT, new ParrotAnimationHandler());
         register(EntityType.PIGLIN, new PiglinAnimationHandler());
         register(EntityType.PUFFERFISH, new PufferfishAnimationHandler());
+        register(EntityType.FOX, new FoxAnimationHandler());
+        register(EntityType.FROG, new FrogAnimationHandler());
+        register(EntityType.PANDA, new PandaAnimationHandler());
+        register(EntityType.WOLF, new WolfAnimationHandler());
     }
 
     public void register(EntityType<?> type, AnimationHandler handler)

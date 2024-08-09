@@ -6,6 +6,7 @@
   "mixins": [
     "AllayMixin",
     "EnderDragonEntityMixin",
+    "FoxMixin",
     "LivingEntityMixin",
     "accessors.PlayerAccessor",
     "accessors.ShulkerEntityAccessor"

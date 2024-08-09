@@ -8,6 +8,7 @@ import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.graphics.Anchor;
+import xiamomc.morph.client.graphics.DrawableText;
 import xiamomc.morph.client.graphics.MDrawable;
 import xiamomc.morph.client.graphics.transforms.Recorder;
 import xiamomc.morph.client.graphics.transforms.Transformer;
@@ -23,9 +24,15 @@ public class EmoteScreen extends FeatherScreen
 {
     private final Bindable<Boolean> serverReady = new Bindable<>();
 
+    private final DrawableText titleText = new DrawableText();
+
     public EmoteScreen()
     {
         super(Text.literal("Disguise emote select screen"));
+
+        titleText.setText(Text.translatable("gui.morphclient.emote_select"));
+        titleText.setAnchor(Anchor.TopCentre);
+        titleText.setDrawShadow(true);
 
         //addSingleEmoteWidget(0, 0);
         addSingleEmoteWidget(0, -(widgetSize + 5));
@@ -48,6 +55,7 @@ public class EmoteScreen extends FeatherScreen
         }
 
         addSingleEmoteWidget(0, 0).setText(Text.translatable("gui.back"));
+        this.add(titleText);
 
         this.alpha.set(0f);
         this.fadeIn(200, Easing.OutQuint);
@@ -80,6 +88,7 @@ public class EmoteScreen extends FeatherScreen
     {
         super.onScreenResize();
 
+        titleText.setY((int)Math.round(this.height * 0.07));
         this.mChildren().forEach(e ->
         {
             ((MDrawable)e).invalidatePosition();

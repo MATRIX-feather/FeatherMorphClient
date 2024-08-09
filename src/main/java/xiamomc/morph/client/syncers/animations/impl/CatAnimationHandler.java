@@ -16,7 +16,17 @@ public class CatAnimationHandler extends AnimationHandler
         switch (animationId)
         {
             case AnimationNames.LAY_START -> cat.setInSleepingPose(true);
-            case AnimationNames.LAY_STOP -> cat.setInSleepingPose(false);
+            case AnimationNames.STANDUP ->
+            {
+                cat.setInSleepingPose(false);
+                cat.setSitting(false);
+                cat.setInSittingPose(false);
+            }
+            case AnimationNames.SIT ->
+            {
+                cat.setSitting(true);
+                cat.setInSittingPose(true);
+            }
         }
     }
 }

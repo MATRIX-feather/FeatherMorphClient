@@ -6,6 +6,7 @@
   "gui.morphclient.select_disguise": "选择伪装",
   "gui.morphclient.version_mismatch": "API版本不匹配",
   "gui.morphclient.waiting_for_server": "等待服务器响应...",
+  "gui.morphclient.emote_select": "伪装动画",
   "key.morphclient.morph": "伪装",
   "key.morphclient.open_gui": "打开伪装选择界面",
   "key.morphclient.reset_cache": "（调试）重置缓存",
@@ -57,9 +58,13 @@
   "emote.morphclient.roar": "咆哮",
   "emote.morphclient.rollup": "缩壳",
   "emote.morphclient.dance": "跳舞",
-  "emote.morphclient.dance_stop": "停止跳舞",
   "emote.morphclient.inflate": "膨胀",
   "emote.morphclient.deflate": "收缩",
   "emote.morphclient.lay": "躺下",
-  "emote.morphclient.standup": "站起"
+  "emote.morphclient.standup": "站起",
+  "emote.morphclient.sit": "坐下",
+  "emote.morphclient.peek": "偷窥",
+  "emote.morphclient.open": "打开",
+  "emote.morphclient.eat": "开吃",
+  "emote.morphclient.sleep": "睡觉"
 }

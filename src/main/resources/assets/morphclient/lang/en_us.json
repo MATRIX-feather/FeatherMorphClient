@@ -7,6 +7,7 @@
   "gui.morphclient.select_disguise": "Select disguise",
   "gui.morphclient.version_mismatch": "API version mismatch",
   "gui.morphclient.waiting_for_server": "Waiting for server...",
+  "gui.morphclient.emote_select": "Disguise emotes",
   "key.morphclient.morph": "Morph",
   "key.morphclient.open_gui": "Open disguise select screen",
   "key.morphclient.reset_cache": "(Debug) Reset cache",
@@ -57,9 +58,13 @@
   "emote.morphclient.roar": "Roar",
   "emote.morphclient.rollup": "Roll up",
   "emote.morphclient.dance": "Dance",
-  "emote.morphclient.dance_stop": "Stop dancing",
   "emote.morphclient.inflate": "Inflate",
   "emote.morphclient.deflate": "Deflate",
   "emote.morphclient.lay": "Lay",
-  "emote.morphclient.standup": "Stand"
+  "emote.morphclient.standup": "Stand",
+  "emote.morphclient.sit": "Sit",
+  "emote.morphclient.peek": "Peek",
+  "emote.morphclient.open": "Open",
+  "emote.morphclient.eat": "Eat",
+  "emote.morphclient.sleep": "Sleep"
 }
