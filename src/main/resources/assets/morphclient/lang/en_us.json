@@ -66,5 +66,6 @@
   "emote.morphclient.peek": "Peek",
   "emote.morphclient.open": "Open",
   "emote.morphclient.eat": "Eat",
-  "emote.morphclient.sleep": "Sleep"
+  "emote.morphclient.sleep": "Sleep",
+  "emote.morphclient.stop": "Stop"
 }

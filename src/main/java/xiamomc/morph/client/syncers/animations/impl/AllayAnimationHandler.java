@@ -17,7 +17,7 @@ public class AllayAnimationHandler extends AnimationHandler
         switch (animationId)
         {
             case AnimationNames.DANCE_START -> allay.morphclient$forceSetDancing(true);
-            case AnimationNames.STANDUP -> allay.morphclient$forceSetDancing(false);
+            case AnimationNames.STOP -> allay.morphclient$forceSetDancing(false);
         }
     }
 }

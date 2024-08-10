@@ -16,7 +16,7 @@ public class PiglinAnimationHandler extends AnimationHandler
         switch (animationId)
         {
             case AnimationNames.DANCE_START -> piglin.setDancing(true);
-            case AnimationNames.DANCE_STOP -> piglin.setDancing(false);
+            case AnimationNames.STOP -> piglin.setDancing(false);
         }
     }
 }

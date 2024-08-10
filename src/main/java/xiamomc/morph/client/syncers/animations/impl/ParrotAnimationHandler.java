@@ -19,7 +19,7 @@ public class ParrotAnimationHandler extends AnimationHandler
         switch (animationId)
         {
             case AnimationNames.DANCE_START -> parrot.setNearbySongPlaying(bPos, true);
-            case AnimationNames.DANCE_STOP -> parrot.setNearbySongPlaying(bPos, false);
+            case AnimationNames.STOP -> parrot.setNearbySongPlaying(bPos, false);
         }
     }
 }
