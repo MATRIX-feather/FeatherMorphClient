@@ -7,6 +7,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.client.util.SkinTextures;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerModelPart;
@@ -361,5 +362,35 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
             return 0d;
 
         return super.squaredDistanceTo(vector);
+    }
+
+    @Nullable
+    private EntityPose overridePose;
+
+    public void setOverridePose(@Nullable EntityPose newPose)
+    {
+        this.overridePose = newPose;
+    }
+
+    private EntityPose lastPose;
+
+    @Override
+    public void setPose(EntityPose pose)
+    {
+        if (pose != lastPose)
+        {
+            overridePose = null;
+            lastPose = pose;
+        }
+
+        super.setPose(pose);
+    }
+
+    @Override
+    public EntityPose getPose()
+    {
+        if (overridePose != null) return overridePose;
+
+        return super.getPose();
     }
 }

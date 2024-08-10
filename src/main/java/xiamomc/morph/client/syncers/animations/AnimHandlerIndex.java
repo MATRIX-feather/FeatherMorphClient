@@ -26,6 +26,7 @@ public class AnimHandlerIndex
         register(EntityType.FROG, new FrogAnimationHandler());
         register(EntityType.PANDA, new PandaAnimationHandler());
         register(EntityType.WOLF, new WolfAnimationHandler());
+        register(EntityType.PLAYER, new PlayerAnimationHandler());
     }
 
     public void register(EntityType<?> type, AnimationHandler handler)
@@ -41,6 +42,9 @@ public class AnimHandlerIndex
     @Nullable
     public AnimationHandler get(String disguiseIdentifier)
     {
+        if (disguiseIdentifier.startsWith("player:"))
+            disguiseIdentifier = "minecraft:player";
+
         return handlerMap.getOrDefault(disguiseIdentifier, null);
     }
 }
