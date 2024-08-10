@@ -372,20 +372,6 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
         this.overridePose = newPose;
     }
 
-    private EntityPose lastPose;
-
-    @Override
-    public void setPose(EntityPose pose)
-    {
-        if (pose != lastPose)
-        {
-            overridePose = null;
-            lastPose = pose;
-        }
-
-        super.setPose(pose);
-    }
-
     @Override
     public EntityPose getPose()
     {
