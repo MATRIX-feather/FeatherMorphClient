@@ -7,6 +7,9 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -16,13 +19,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xiamomc.morph.client.EntityCache;
 import xiamomc.morph.client.ServerHandler;
+import xiamomc.morph.client.entities.IEntity;
 import xiamomc.morph.client.utilties.ClientSyncerUtils;
 import xiamomc.morph.client.utilties.EntityCacheUtils;
 
 import java.util.function.Consumer;
 
 @Mixin(Entity.class)
-public abstract class EntityMixin
+public abstract class EntityMixin implements IEntity
 {
     @Shadow
     private int id;
@@ -35,6 +39,10 @@ public abstract class EntityMixin
     @Shadow public abstract void remove(Entity.RemovalReason reason);
 
     @Shadow protected abstract void setFlag(int index, boolean value);
+
+    @Shadow @Final private static Logger LOGGER;
+
+    @Shadow public abstract void setPose(EntityPose pose);
 
     private Entity featherMorph$entityInstance;
 
@@ -114,5 +122,24 @@ public abstract class EntityMixin
     private void runIfSyncerEntityNotNull(Consumer<Entity> consumerifNotNull)
     {
         ClientSyncerUtils.runIfSyncerEntityValid(consumerifNotNull::accept);
+    }
+
+    @Unique
+    private EntityPose morphClient$overridePose;
+
+    @Override
+    public void featherMorph$setOverridePose(@Nullable EntityPose newPose)
+    {
+        this.morphClient$overridePose = newPose;
+
+        if (newPose != null)
+            this.setPose(newPose);
+    }
+
+    @Inject(method = "getPose", at = @At("HEAD"), cancellable = true)
+    private void morphClient$onPoseCall(CallbackInfoReturnable<EntityPose> cir)
+    {
+        if (morphClient$overridePose != null)
+            cir.setReturnValue(morphClient$overridePose);
     }
 }
