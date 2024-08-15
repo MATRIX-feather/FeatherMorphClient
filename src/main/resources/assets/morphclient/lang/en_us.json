@@ -7,7 +7,7 @@
   "gui.morphclient.select_disguise": "Select disguise",
   "gui.morphclient.version_mismatch": "API version mismatch",
   "gui.morphclient.waiting_for_server": "Waiting for server...",
-  "gui.morphclient.emote_select": "Disguise emotes",
+  "gui.morphclient.emote_select": "Disguise actions",
   "key.morphclient.morph": "Morph",
   "key.morphclient.open_gui": "Open disguise select screen",
   "key.morphclient.reset_cache": "(Debug) Reset cache",

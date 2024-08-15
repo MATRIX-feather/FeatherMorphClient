@@ -6,7 +6,7 @@
   "gui.morphclient.select_disguise": "选择伪装",
   "gui.morphclient.version_mismatch": "API版本不匹配",
   "gui.morphclient.waiting_for_server": "等待服务器响应...",
-  "gui.morphclient.emote_select": "伪装动画",
+  "gui.morphclient.emote_select": "伪装动作",
   "key.morphclient.morph": "伪装",
   "key.morphclient.open_gui": "打开伪装选择界面",
   "key.morphclient.reset_cache": "（调试）重置缓存",
