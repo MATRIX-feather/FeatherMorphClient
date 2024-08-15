@@ -128,7 +128,7 @@ public abstract class EntityMixin implements IEntity
     private EntityPose morphClient$overridePose;
 
     @Override
-    public void featherMorph$setOverridePose(@Nullable EntityPose newPose)
+    public void featherMorph$overridePose(@Nullable EntityPose newPose)
     {
         this.morphClient$overridePose = newPose;
 
@@ -141,5 +141,41 @@ public abstract class EntityMixin implements IEntity
     {
         if (morphClient$overridePose != null)
             cir.setReturnValue(morphClient$overridePose);
+    }
+
+    @Unique
+    @Nullable
+    private Boolean morphClient$isInvisible;
+
+    @Override
+    public void featherMorph$overrideInvisibility(boolean invisible)
+    {
+        if (invisible)
+            this.morphClient$isInvisible = invisible;
+        else
+            this.morphClient$isInvisible = null;
+    }
+
+    @Inject(method = "isInvisible", at = @At("HEAD"), cancellable = true)
+    private void morphClient$onInvisibleCall(CallbackInfoReturnable<Boolean> cir)
+    {
+        if (this.morphClient$isInvisible != null)
+            cir.setReturnValue(this.morphClient$isInvisible);
+    }
+
+    @Unique
+    private boolean morphClient$noAcceptSetPose;
+
+    @Override
+    public void featherMorph$setNoAcceptSetPose(boolean noAccept)
+    {
+        this.morphClient$noAcceptSetPose = noAccept;
+    }
+
+    @Inject(method = "setPose", at = @At("HEAD"), cancellable = true)
+    private void morphClient$onSetPose(EntityPose pose, CallbackInfo ci)
+    {
+        if (this.morphClient$noAcceptSetPose)
+            ci.cancel();
     }
 }

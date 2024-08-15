@@ -68,5 +68,7 @@
   "emote.morphclient.eat": "Eat",
   "emote.morphclient.sleep": "Sleep",
   "emote.morphclient.stop": "Stop",
+  "emote.morphclient.digdown": "Dig down",
+  "emote.morphclient.appear": "Appear",
   "emote.morphclient.prostrate": "Prostrate"
 }

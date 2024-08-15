@@ -19,15 +19,40 @@ public class WardenAnimationHandler extends AnimationHandler
 
         switch (animationId)
         {
-            case AnimationNames.ROAR -> mixinWarden.featherMorph$setOverridePose(EntityPose.ROARING);
-            case AnimationNames.SNIFF -> mixinWarden.featherMorph$setOverridePose(EntityPose.SNIFFING);
-            case AnimationNames.DISAPPEAR -> mixinWarden.featherMorph$setOverridePose(EntityPose.DIGGING);
+            case AnimationNames.ROAR ->
+            {
+                mixinWarden.featherMorph$overridePose(EntityPose.ROARING);
+                mixinWarden.featherMorph$setNoAcceptSetPose(true);
+            }
+            case AnimationNames.SNIFF ->
+            {
+                mixinWarden.featherMorph$overridePose(EntityPose.SNIFFING);
+                mixinWarden.featherMorph$setNoAcceptSetPose(true);
+            }
+            case AnimationNames.DIGDOWN ->
+            {
+                if (warden.getPose() == EntityPose.DIGGING) return;
+
+                mixinWarden.featherMorph$overridePose(EntityPose.DIGGING);
+                mixinWarden.featherMorph$setNoAcceptSetPose(true);
+            }
+            case AnimationNames.INTERNAL_VANISH -> mixinWarden.featherMorph$overrideInvisibility(true);
             case AnimationNames.APPEAR ->
             {
+                if (warden.getPose() != EntityPose.DIGGING) return;
+
+                mixinWarden.featherMorph$overrideInvisibility(false);
                 warden.diggingAnimationState.stop();
-                mixinWarden.featherMorph$setOverridePose(EntityPose.EMERGING);
+
+                mixinWarden.featherMorph$setNoAcceptSetPose(false);
+                mixinWarden.featherMorph$overridePose(EntityPose.EMERGING);
+                mixinWarden.featherMorph$setNoAcceptSetPose(true);
             }
-            case AnimationNames.POSE_RESET -> mixinWarden.featherMorph$setOverridePose(null);
+            case AnimationNames.RESET ->
+            {
+                mixinWarden.featherMorph$overridePose(null);
+                mixinWarden.featherMorph$setNoAcceptSetPose(false);
+            }
         }
     }
 }

@@ -83,7 +83,7 @@ public class ClientMorphManager extends MorphClientObject
 
     public void playEmote(String emote)
     {
-        if (!emote.equals(AnimationNames.POSE_RESET))
+        if (!emote.equals(AnimationNames.RESET))
             this.lastEmote = emote;
         else
             this.lastEmote = null;

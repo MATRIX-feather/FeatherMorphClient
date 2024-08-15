@@ -19,8 +19,8 @@ public class FrogAnimationHandler extends AnimationHandler
 
         switch (animationId)
         {
-            case AnimationNames.EAT -> mixinFrog.featherMorph$setOverridePose(EntityPose.USING_TONGUE);
-            case AnimationNames.POSE_RESET -> mixinFrog.featherMorph$setOverridePose(null);
+            case AnimationNames.EAT -> mixinFrog.featherMorph$overridePose(EntityPose.USING_TONGUE);
+            case AnimationNames.RESET -> mixinFrog.featherMorph$overridePose(null);
         }
     }
 }

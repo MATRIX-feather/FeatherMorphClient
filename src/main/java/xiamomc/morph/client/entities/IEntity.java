@@ -5,5 +5,7 @@ import org.jetbrains.annotations.Nullable;
 
 public interface IEntity
 {
-    public void featherMorph$setOverridePose(@Nullable EntityPose newPose);
+    public void featherMorph$overridePose(@Nullable EntityPose newPose);
+    public void featherMorph$overrideInvisibility(boolean invisible);
+    public void featherMorph$setNoAcceptSetPose(boolean noAccept);
 }
