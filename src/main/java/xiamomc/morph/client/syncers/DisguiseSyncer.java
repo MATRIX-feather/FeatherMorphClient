@@ -13,6 +13,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -93,7 +94,7 @@ public abstract class DisguiseSyncer extends MorphClientObject
     {
         if (animHandler == null)
         {
-            logger.warn("No animation handler for syncer!");
+            logger.warn("No animation handler for disguise '%s'!".formatted(disguiseId));
             return;
         }
 

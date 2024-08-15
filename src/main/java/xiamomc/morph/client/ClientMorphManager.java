@@ -79,8 +79,15 @@ public class ClientMorphManager extends MorphClientObject
         this.emotes.addAll(emotes);
     }
 
+    public String lastEmote;
+
     public void playEmote(String emote)
     {
+        if (!emote.equals(AnimationNames.POSE_RESET))
+            this.lastEmote = emote;
+        else
+            this.lastEmote = null;
+
         if (localPlayerSyncer != null)
             localPlayerSyncer.playAnimation(emote);
     }
@@ -162,6 +169,9 @@ public class ClientMorphManager extends MorphClientObject
         if (n == null || n.isEmpty()) return;
 
         localPlayerSyncer = instanceTracker.setSyncer(MinecraftClient.getInstance().player, n);
+
+        if (lastEmote != null && localPlayerSyncer != null)
+            localPlayerSyncer.playAnimation(lastEmote);
     }
 
     //region Add/Remove/Set disguises
@@ -307,6 +317,7 @@ public class ClientMorphManager extends MorphClientObject
             localPlayerSyncer.dispose();
 
         localPlayerSyncer = null;
+        lastEmote = null;
 
         EntityCache.getGlobalCache().dropAll();
 
@@ -321,6 +332,7 @@ public class ClientMorphManager extends MorphClientObject
             localPlayerSyncer.dispose();
 
         localPlayerSyncer = null;
+        lastEmote = null;
 
         String finalVal = val;
         this.addSchedule(() -> refreshLocalSyncer(finalVal));
