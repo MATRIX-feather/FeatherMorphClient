@@ -6,6 +6,8 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
+import xiamomc.morph.client.AnimationNames;
+import xiamomc.morph.client.ClientMorphManager;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.graphics.Anchor;
 import xiamomc.morph.client.graphics.DrawableText;
@@ -16,9 +18,11 @@ import xiamomc.morph.client.graphics.transforms.easings.Easing;
 import xiamomc.morph.client.screens.FeatherScreen;
 import xiamomc.morph.client.screens.WaitingForServerScreen;
 import xiamomc.morph.client.utilties.MathUtils;
+import xiamomc.pluginbase.Annotations.Resolved;
 import xiamomc.pluginbase.Bindables.Bindable;
 
 import java.util.List;
+import java.util.Objects;
 
 public class EmoteScreen extends FeatherScreen
 {
@@ -26,13 +30,20 @@ public class EmoteScreen extends FeatherScreen
 
     private final DrawableText titleText = new DrawableText();
 
+    private final DrawableText currentAnimText = new DrawableText();
+
     public EmoteScreen()
     {
         super(Text.literal("Disguise emote select screen"));
 
+        morphManager = MorphClient.getInstance().morphManager;
+
         titleText.setText(Text.translatable("gui.morphclient.emote_select"));
         titleText.setAnchor(Anchor.TopCentre);
         titleText.setDrawShadow(true);
+
+        currentAnimText.setAnchor(Anchor.BottomCentre);
+        currentAnimText.setDrawShadow(true);
 
         //addSingleEmoteWidget(0, 0);
         addSingleEmoteWidget(0, -(widgetSize + 5));
@@ -56,6 +67,7 @@ public class EmoteScreen extends FeatherScreen
 
         addSingleEmoteWidget(0, 0).setText(Text.translatable("gui.back"));
         this.add(titleText);
+        this.add(currentAnimText);
 
         this.alpha.set(0f);
         this.fadeIn(200, Easing.OutQuint);
@@ -72,6 +84,7 @@ public class EmoteScreen extends FeatherScreen
             });
         }, true);
 
+        updateEmoteText(morphManager.lastEmote);
     }
 
     @Override
@@ -89,10 +102,44 @@ public class EmoteScreen extends FeatherScreen
         super.onScreenResize();
 
         titleText.setY((int)Math.round(this.height * 0.07));
+        currentAnimText.setY(-(int)Math.round(this.height * 0.07));
         this.mChildren().forEach(e ->
         {
             ((MDrawable)e).invalidatePosition();
         });
+    }
+
+    private Text getEmoteText(@Nullable String identifier)
+    {
+        if (identifier == null || identifier.equals(AnimationNames.INTERNAL_VANISH))
+             return Text.translatable("gui.none");
+
+        return Text.translatable("emote.morphclient." + identifier);
+    }
+
+    private void updateEmoteText(@Nullable String identifier)
+    {
+        var text = this.getEmoteText(identifier);
+        this.currentAnimText.setText(Text.translatable("gui.morphclient.current_emote", text));
+    }
+
+    @Nullable
+    private String lastEmote;
+
+    private ClientMorphManager morphManager;
+
+    @Override
+    public void tick()
+    {
+        var managerLast = morphManager.lastEmote;
+
+        if (!Objects.equals(this.lastEmote, managerLast))
+        {
+            this.lastEmote = managerLast;
+            updateEmoteText(managerLast);
+        }
+
+        super.tick();
     }
 
     @Override

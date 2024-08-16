@@ -7,6 +7,7 @@
   "gui.morphclient.version_mismatch": "API版本不匹配",
   "gui.morphclient.waiting_for_server": "等待服务器响应...",
   "gui.morphclient.emote_select": "伪装动作",
+  "gui.morphclient.current_emote": "正在播放: %s",
   "key.morphclient.morph": "伪装",
   "key.morphclient.open_gui": "打开伪装选择界面",
   "key.morphclient.reset_cache": "（调试）重置缓存",
@@ -70,5 +71,6 @@
   "emote.morphclient.stop": "停止",
   "emote.morphclient.digdown": "掘地",
   "emote.morphclient.appear": "出现",
+  "emote.morphclient.vanish": "消失",
   "emote.morphclient.prostrate": "趴下"
 }

@@ -8,6 +8,7 @@
   "gui.morphclient.version_mismatch": "API version mismatch",
   "gui.morphclient.waiting_for_server": "Waiting for server...",
   "gui.morphclient.emote_select": "Disguise actions",
+  "gui.morphclient.current_emote": "Current Playing: %s",
   "key.morphclient.morph": "Morph",
   "key.morphclient.open_gui": "Open disguise select screen",
   "key.morphclient.reset_cache": "(Debug) Reset cache",
@@ -70,5 +71,6 @@
   "emote.morphclient.stop": "Stop",
   "emote.morphclient.digdown": "Dig down",
   "emote.morphclient.appear": "Appear",
+  "emote.morphclient.vanish": "Vanish",
   "emote.morphclient.prostrate": "Prostrate"
 }

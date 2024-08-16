@@ -79,11 +79,12 @@ public class ClientMorphManager extends MorphClientObject
         this.emotes.addAll(emotes);
     }
 
+    @Nullable
     public String lastEmote;
 
     public void playEmote(String emote)
     {
-        if (!emote.equals(AnimationNames.RESET))
+        if (!emote.equals(AnimationNames.RESET) && !emote.equals(AnimationNames.TRY_RESET))
             this.lastEmote = emote;
         else
             this.lastEmote = null;
