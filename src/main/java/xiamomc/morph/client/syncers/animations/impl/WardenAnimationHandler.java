@@ -48,7 +48,7 @@ public class WardenAnimationHandler extends AnimationHandler
                 mixinWarden.featherMorph$overridePose(EntityPose.EMERGING);
                 mixinWarden.featherMorph$setNoAcceptSetPose(true);
             }
-            case AnimationNames.RESET ->
+            case AnimationNames.TRY_RESET, AnimationNames.RESET ->
             {
                 mixinWarden.featherMorph$overridePose(null);
                 mixinWarden.featherMorph$setNoAcceptSetPose(false);

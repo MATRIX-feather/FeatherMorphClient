@@ -47,6 +47,7 @@ public class AnimationNames
     public static final String PROSTRATE = "prostrate";
 
     public static final String RESET = "reset";
+    public static final String TRY_RESET = "try_reset";
 
     public static final String INTERNAL_VANISH = "vanish";
     public static final String INTERNAL_DISABLE_SKILL = "disable_skill";
