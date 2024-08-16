@@ -31,16 +31,12 @@ public class WardenAnimationHandler extends AnimationHandler
             }
             case AnimationNames.DIGDOWN ->
             {
-                if (warden.getPose() == EntityPose.DIGGING) return;
-
                 mixinWarden.featherMorph$overridePose(EntityPose.DIGGING);
                 mixinWarden.featherMorph$setNoAcceptSetPose(true);
             }
             case AnimationNames.INTERNAL_VANISH -> mixinWarden.featherMorph$overrideInvisibility(true);
             case AnimationNames.APPEAR ->
             {
-                if (warden.getPose() != EntityPose.DIGGING) return;
-
                 mixinWarden.featherMorph$overrideInvisibility(false);
                 warden.diggingAnimationState.stop();
 
