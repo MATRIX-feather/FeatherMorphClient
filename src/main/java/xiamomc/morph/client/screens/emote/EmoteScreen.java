@@ -83,7 +83,7 @@ public class EmoteScreen extends FeatherScreen
             });
         }, true);
 
-        updateEmoteText(morphManager.lastEmote);
+        updateEmoteText(morphManager.emoteDisplayName);
     }
 
     @Override
