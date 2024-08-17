@@ -2,7 +2,6 @@
   "category.morphclient.keybind": "FeatherMorph",
   "gui.morphclient.current_disguise": "当前伪装: %s",
   "gui.morphclient.loading": "加载中...",
-  "gui.morphclient.no_disguise": "暂无",
   "gui.morphclient.select_disguise": "选择伪装",
   "gui.morphclient.version_mismatch": "API版本不匹配",
   "gui.morphclient.waiting_for_server": "等待服务器响应...",

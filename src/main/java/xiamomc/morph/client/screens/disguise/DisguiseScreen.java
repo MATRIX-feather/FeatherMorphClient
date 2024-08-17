@@ -92,8 +92,8 @@ public class DisguiseScreen extends FeatherScreen
                     display = Text.literal(n);
             }
 
-            var text = Text.translatable("gui.morphclient.current_disguise",
-                    display == null ? Text.translatable("gui.morphclient.no_disguise") : display);
+            var text = Text.stringifiedTranslatable("gui.morphclient.current_disguise",
+                    display == null ? Text.translatable("gui.none") : display);
 
             selectedIdentifierText.setText(text);
         }, true);

@@ -3,7 +3,6 @@
   "category.morphclient.config_toasts": "Toasts",
   "gui.morphclient.current_disguise": "Current disguise: %s",
   "gui.morphclient.loading": "Loading...",
-  "gui.morphclient.no_disguise": "None",
   "gui.morphclient.select_disguise": "Select disguise",
   "gui.morphclient.version_mismatch": "API version mismatch",
   "gui.morphclient.waiting_for_server": "Waiting for server...",
