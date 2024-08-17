@@ -69,7 +69,7 @@ public class EmoteScreen extends FeatherScreen
         this.add(currentAnimText);
 
         this.alpha.set(0f);
-        this.fadeIn(200, Easing.OutQuint);
+        this.fadeIn(300, Easing.OutQuint);
 
         var serverHandler = MorphClient.getInstance().serverHandler;
         this.serverReady.bindTo(serverHandler.serverReady);
