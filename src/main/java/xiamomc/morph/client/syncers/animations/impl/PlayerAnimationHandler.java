@@ -17,7 +17,7 @@ public class PlayerAnimationHandler extends AnimationHandler
         switch (animationId)
         {
             case AnimationNames.LAY -> localPlayer.setOverridePose(EntityPose.SLEEPING);
-            case AnimationNames.PROSTRATE -> localPlayer.setOverridePose(EntityPose.SWIMMING);
+            case AnimationNames.CRAWL -> localPlayer.setOverridePose(EntityPose.SWIMMING);
             case AnimationNames.STANDUP -> localPlayer.setOverridePose(null);
         }
     }
