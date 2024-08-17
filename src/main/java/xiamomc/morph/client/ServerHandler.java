@@ -505,6 +505,12 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
         //logger.info("End.");
     }
 
+    @Override
+    public void onSetAnimationDisplayCommand(S2CSetAnimationDisplayNameCommand command)
+    {
+        morphManager.setEmoteDisplay(command.getDisplayIdentifier());
+    }
+
     //endregion Impl of ServerHandler
 
     public static float reach = -1;

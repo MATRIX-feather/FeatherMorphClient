@@ -18,7 +18,6 @@ import xiamomc.morph.client.graphics.transforms.easings.Easing;
 import xiamomc.morph.client.screens.FeatherScreen;
 import xiamomc.morph.client.screens.WaitingForServerScreen;
 import xiamomc.morph.client.utilties.MathUtils;
-import xiamomc.pluginbase.Annotations.Resolved;
 import xiamomc.pluginbase.Bindables.Bindable;
 
 import java.util.List;
@@ -111,7 +110,7 @@ public class EmoteScreen extends FeatherScreen
 
     private Text getEmoteText(@Nullable String identifier)
     {
-        if (identifier == null || identifier.equals(AnimationNames.INTERNAL_VANISH))
+        if (identifier == null || identifier.equals(AnimationNames.INTERNAL_VANISH) || identifier.equals(AnimationNames.NONE))
              return Text.translatable("gui.none");
 
         return Text.translatable("emote.morphclient." + identifier);
@@ -124,18 +123,18 @@ public class EmoteScreen extends FeatherScreen
     }
 
     @Nullable
-    private String lastEmote;
+    private String emoteName;
 
-    private ClientMorphManager morphManager;
+    private final ClientMorphManager morphManager;
 
     @Override
     public void tick()
     {
-        var managerLast = morphManager.lastEmote;
+        var managerLast = morphManager.emoteDisplayName;
 
-        if (!Objects.equals(this.lastEmote, managerLast))
+        if (!Objects.equals(this.emoteName, managerLast))
         {
-            this.lastEmote = managerLast;
+            this.emoteName = managerLast;
             updateEmoteText(managerLast);
         }
 

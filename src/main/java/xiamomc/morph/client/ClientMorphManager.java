@@ -82,6 +82,14 @@ public class ClientMorphManager extends MorphClientObject
     @Nullable
     public String lastEmote;
 
+    @Nullable
+    public String emoteDisplayName;
+
+    public void setEmoteDisplay(String id)
+    {
+        this.emoteDisplayName = id;
+    }
+
     public void playEmote(String emote)
     {
         if (!emote.equals(AnimationNames.RESET) && !emote.equals(AnimationNames.TRY_RESET))
@@ -334,6 +342,7 @@ public class ClientMorphManager extends MorphClientObject
 
         localPlayerSyncer = null;
         lastEmote = null;
+        emoteDisplayName = null;
 
         String finalVal = val;
         this.addSchedule(() -> refreshLocalSyncer(finalVal));
