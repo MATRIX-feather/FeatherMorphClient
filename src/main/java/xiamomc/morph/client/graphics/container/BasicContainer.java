@@ -1,6 +1,8 @@
 package xiamomc.morph.client.graphics.container;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectSortedSets;
 import net.minecraft.client.gui.DrawContext;
 import org.jetbrains.annotations.ApiStatus;
 import xiamomc.morph.client.graphics.MDrawable;
@@ -8,6 +10,7 @@ import xiamomc.morph.client.graphics.MDrawable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BasicContainer<T extends MDrawable> extends MDrawable
@@ -37,6 +40,7 @@ public class BasicContainer<T extends MDrawable> extends MDrawable
 
     public void add(T drawable) {
         children.add(drawable);
+        drawable.setParent(this);
 
         invalidateLayout();
     }
@@ -83,11 +87,32 @@ public class BasicContainer<T extends MDrawable> extends MDrawable
     }
 
     @Override
-    protected void onRender(DrawContext context, int mouseX, int mouseY, float delta) {
+    protected void onRender(DrawContext context, int mouseX, int mouseY, float delta)
+    {
         if (!layoutValid.get()) updateLayout();
 
         super.onRender(context, mouseX, mouseY, delta);
-        this.children.forEach(d -> d.render(context, mouseX, mouseY, delta));
+
+        var matrices = context.getMatrices();
+
+        matrices.push();
+
+        matrices.translate(0, 0, 50);
+
+        try
+        {
+            this.children.forEach(d ->
+            {
+                matrices.translate(0, 0, -d.getDepth());
+                d.render(context, mouseX, mouseY, delta);
+                matrices.translate(0, 0, d.getDepth());
+            });
+        }
+        finally
+        {
+            matrices.translate(0, 0, -50);
+            matrices.pop();
+        }
     }
 
     @Override

@@ -41,6 +41,7 @@ import xiamomc.morph.network.commands.S2C.S2CRequestCommand;
 import xiamomc.pluginbase.AbstractSchedulablePlugin;
 import xiamomc.pluginbase.ScheduleInfo;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @Environment(EnvType.CLIENT)
@@ -56,17 +57,6 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
     public static final String UNMORPH_STIRNG = "morph:unmorph";
 
     public static final Logger LOGGER = LoggerFactory.getLogger("FeatherMorph");
-
-    private KeyBinding toggleselfKeyBind;
-    private KeyBinding executeSkillKeyBind;
-    private KeyBinding unMorphKeyBind;
-    private KeyBinding morphKeyBind;
-    private KeyBinding resetCacheKeybind;
-    private KeyBinding displayOwnerBind;
-    private KeyBinding emoteKeyBind;
-
-    private KeyBinding testKeyBindGrant;
-    private KeyBinding testKeyBindLost;
 
     @Override
     public String getNameSpace()
@@ -104,54 +94,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
     {
         Constants.initialize(false);
 
-        //初始化按键
-        executeSkillKeyBind = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                "key.morphclient.skill", InputUtil.Type.KEYSYM,
-                GLFW.GLFW_KEY_V, "category.morphclient.keybind"
-        ));
-
-        unMorphKeyBind = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                "key.morphclient.unmorph", InputUtil.Type.KEYSYM,
-                GLFW.GLFW_KEY_DOWN, "category.morphclient.keybind"
-        ));
-
-        if (debugToasts)
-        {
-            testKeyBindGrant = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                    "key.morphclient.testToastGrant", InputUtil.Type.KEYSYM,
-                    GLFW.GLFW_KEY_Z, "category.morphclient.keybind"
-            ));
-
-            testKeyBindLost = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                    "key.morphclient.testToastLost", InputUtil.Type.KEYSYM,
-                    GLFW.GLFW_KEY_X, "category.morphclient.keybind"
-            ));
-        }
-
-        morphKeyBind = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                "key.morphclient.morph", InputUtil.Type.KEYSYM,
-                GLFW.GLFW_KEY_N, "category.morphclient.keybind"
-        ));
-
-        toggleselfKeyBind = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                "key.morphclient.toggle", InputUtil.Type.KEYSYM,
-                GLFW.GLFW_KEY_RIGHT, "category.morphclient.keybind"
-        ));
-
-        emoteKeyBind = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                "key.morphclient.emote", InputUtil.Type.KEYSYM,
-                GLFW.GLFW_KEY_G, "category.morphclient.keybind"
-        ));
-
-        resetCacheKeybind = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                "key.morphclient.reset_cache", InputUtil.Type.KEYSYM,
-                GLFW.GLFW_KEY_UNKNOWN, "category.morphclient.keybind"
-        ));
-
-        displayOwnerBind = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                "key.morphclient.display_name", InputUtil.Type.KEYSYM,
-                GLFW.GLFW_KEY_F8, "category.morphclient.keybind"
-        ));
+        this.registerKeys();
 
         //初始化配置
         if (modConfigData == null)
@@ -202,6 +145,81 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
 
     @Nullable
     private Boolean attackPressedDown = null;
+
+    private KeyBinding toggleselfKeyBind;
+    private KeyBinding executeSkillKeyBind;
+    private KeyBinding unMorphKeyBind;
+    private KeyBinding morphKeyBind;
+    private KeyBinding resetCacheKeybind;
+    private KeyBinding displayOwnerBind;
+    private KeyBinding emoteKeyBind;
+
+    private KeyBinding testKeyBindGrant;
+    private KeyBinding testKeyBindLost;
+
+    private final int keybindCount = 4;
+    private final List<KeyBinding> quickDisguiseKeys = new ObjectArrayList<>(keybindCount);
+
+    private void registerKeys()
+    {
+        //初始化按键
+        executeSkillKeyBind = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.morphclient.skill", InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_V, "category.morphclient.keybind"
+        ));
+
+        unMorphKeyBind = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.morphclient.unmorph", InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_DOWN, "category.morphclient.keybind"
+        ));
+
+        if (debugToasts)
+        {
+            testKeyBindGrant = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                    "key.morphclient.testToastGrant", InputUtil.Type.KEYSYM,
+                    GLFW.GLFW_KEY_Z, "category.morphclient.keybind"
+            ));
+
+            testKeyBindLost = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                    "key.morphclient.testToastLost", InputUtil.Type.KEYSYM,
+                    GLFW.GLFW_KEY_X, "category.morphclient.keybind"
+            ));
+        }
+
+        morphKeyBind = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.morphclient.morph", InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_N, "category.morphclient.keybind"
+        ));
+
+        toggleselfKeyBind = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.morphclient.toggle", InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_RIGHT, "category.morphclient.keybind"
+        ));
+
+        emoteKeyBind = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.morphclient.emote", InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_G, "category.morphclient.keybind"
+        ));
+
+        resetCacheKeybind = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.morphclient.reset_cache", InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_UNKNOWN, "category.morphclient.keybind"
+        ));
+
+        displayOwnerBind = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.morphclient.display_name", InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_F8, "category.morphclient.keybind"
+        ));
+
+        for (int i = 1; i <= keybindCount; i++)
+        {
+            var key = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                    "key.morphclient.quick_disguise.%s".formatted(i),
+                    InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_UNKNOWN, "category.morphclient.keybind"
+            ));
+            quickDisguiseKeys.add(key);
+        }
+    }
 
     private void updateKeys(MinecraftClient client)
     {
@@ -291,6 +309,14 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
 
         while (emoteKeyBind.wasPressed())
             MinecraftClient.getInstance().setScreen(new WaitingForServerScreen(new EmoteScreen()));
+
+        for (int i = 0; i < this.quickDisguiseKeys.size(); i++)
+        {
+            var key = quickDisguiseKeys.get(i);
+
+            while (key.wasPressed())
+                morphManager.onQuickDisguise(i);
+        }
     }
 
     @Nullable

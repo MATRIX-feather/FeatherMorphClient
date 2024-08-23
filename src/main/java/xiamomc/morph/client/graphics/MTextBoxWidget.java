@@ -18,4 +18,31 @@ public class MTextBoxWidget extends TextFieldWidget implements IMDrawable
     public MTextBoxWidget(TextRenderer textRenderer, int x, int y, int width, int height, @Nullable TextFieldWidget copyFrom, Text text) {
         super(textRenderer, x, y, width, height, copyFrom, text);
     }
+
+    @Override
+    public void invalidatePosition()
+    {
+    }
+
+    @Override
+    public void invalidateLayout()
+    {
+    }
+
+    private int depth = 0;
+
+    /**
+     * Depth of this IMDrawable, higher value means this drawable should be rendered below others
+     */
+    @Override
+    public int getDepth()
+    {
+        return this.depth;
+    }
+
+    @Override
+    public void setDepth(int depth)
+    {
+        this.depth = depth;
+    }
 }

@@ -16,8 +16,21 @@ import xiamomc.morph.client.utilties.MathUtils;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class MDrawable extends MorphClientObject implements IMDrawable
+public abstract class MDrawable extends MorphClientObject implements IMDrawable
 {
+    protected int depth = 0;
+
+    @Override
+    public int getDepth()
+    {
+        return depth;
+    }
+
+    public void setDepth(int depth)
+    {
+        this.depth = depth;
+    }
+
     //region Anchor
 
     @NotNull
@@ -511,6 +524,7 @@ public class MDrawable extends MorphClientObject implements IMDrawable
         }
         finally
         {
+            matrices.translate(-xScreenSpaceOffset, -yScreenSpaceOffset, -1);
             matrices.pop();
 
             context.setShaderColor(shaderColor[0], shaderColor[1], shaderColor[2], shaderColor[3]);

@@ -19,4 +19,31 @@ public class MButtonWidget extends ButtonWidget implements IMDrawable
                 ButtonWidget.DEFAULT_NARRATION_SUPPLIER
         );
     }
+
+    @Override
+    public void invalidatePosition()
+    {
+    }
+
+    @Override
+    public void invalidateLayout()
+    {
+    }
+
+    private int depth = 0;
+
+    /**
+     * Depth of this IMDrawable, higher value means this drawable should be rendered below others
+     */
+    @Override
+    public int getDepth()
+    {
+        return this.depth;
+    }
+
+    @Override
+    public void setDepth(int depth)
+    {
+        this.depth = depth;
+    }
 }

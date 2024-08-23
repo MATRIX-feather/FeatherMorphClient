@@ -15,6 +15,7 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 import xiamomc.morph.client.graphics.toasts.DisguiseEntryToast;
 import xiamomc.morph.client.graphics.toasts.NewDisguiseSetToast;
@@ -389,5 +390,33 @@ public class ClientMorphManager extends MorphClientObject
             logger.warn("Calling UpdateSkin while localPlayerSyncer is null!");
             Thread.dumpStack();
         }
+    }
+
+    private final Map<Integer, String> quickDisguiseMap = new Object2ObjectArrayMap<>();
+
+    public void setupQuickDisguise(Map<Integer, String> newMap)
+    {
+        this.clearQuickDisguise();
+        this.quickDisguiseMap.putAll(newMap);
+    }
+
+    public void setupQuickDisguise(int index, String disguiseID)
+    {
+        quickDisguiseMap.put(index, disguiseID);
+    }
+
+    public void clearQuickDisguise()
+    {
+        quickDisguiseMap.clear();
+    }
+
+    public void onQuickDisguise(int index)
+    {
+        MinecraftClient.getInstance().player.sendMessage(Text.literal("QUick Disguise! " + index));
+
+        var disguise = quickDisguiseMap.getOrDefault(index, null);
+        if (disguise == null) return;
+
+        MorphClient.getInstance().sendMorphCommand(disguise);
     }
 }

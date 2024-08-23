@@ -136,4 +136,31 @@ public class DisguiseList extends ElementListWidget<EntityDisplayWidget> impleme
         this.headerHeight = newHeaderHeight;
         this.setRenderHeader(true, newHeaderHeight);
     }
+
+    @Override
+    public void invalidatePosition()
+    {
+    }
+
+    @Override
+    public void invalidateLayout()
+    {
+    }
+
+    private int depth = 0;
+
+    /**
+     * Depth of this IMDrawable, higher value means this drawable should be rendered below others
+     */
+    @Override
+    public int getDepth()
+    {
+        return this.depth;
+    }
+
+    @Override
+    public void setDepth(int depth)
+    {
+        this.depth = depth;
+    }
 }

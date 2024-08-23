@@ -1,5 +1,6 @@
 package xiamomc.morph.client.screens;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -8,9 +9,14 @@ import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
+import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.graphics.IMDrawable;
 import xiamomc.morph.client.graphics.MButtonWidget;
 import xiamomc.morph.client.graphics.MDrawable;
+import xiamomc.morph.client.graphics.transforms.Recorder;
+import xiamomc.morph.client.graphics.transforms.Transformer;
+import xiamomc.morph.client.graphics.transforms.easings.Easing;
+import xiamomc.morph.client.utilties.MathUtils;
 import xiamomc.morph.client.utilties.Screens;
 
 import java.util.List;
@@ -28,6 +34,18 @@ public abstract class FeatherScreen extends Screen implements IMDrawable
     private Screen nextScreen;
 
     @Override
+    public int getDepth()
+    {
+        return 0;
+    }
+
+    @Override
+    public void setDepth(int depth)
+    {
+        MorphClient.LOGGER.warn("setDepth() for FeatherScreen is not implemented!!!");
+    }
+
+    @Override
     protected void init()
     {
         var last = lastScreen;
@@ -39,6 +57,8 @@ public abstract class FeatherScreen extends Screen implements IMDrawable
 
         lastScreen = null;
         nextScreen = null;
+
+        this.mChildren().forEach(IMDrawable::invalidatePosition);
 
         if (isInitialInitialize)
         {
@@ -68,7 +88,20 @@ public abstract class FeatherScreen extends Screen implements IMDrawable
         if (!layoutValid.get())
             this.clearAndInit();
 
+        var shaderColor = RenderSystem.getShaderColor();
+        shaderColor = new float[]
+                {
+                        shaderColor[0],
+                        shaderColor[1],
+                        shaderColor[2],
+                        shaderColor[3]
+                };
+
+        context.setShaderColor(shaderColor[0], shaderColor[1], shaderColor[2], shaderColor[3] * this.alpha.get());
+
         super.render(context, mouseX, mouseY, delta);
+
+        context.setShaderColor(shaderColor[0], shaderColor[1], shaderColor[2], shaderColor[3]);
     }
 
     @Override
@@ -98,7 +131,8 @@ public abstract class FeatherScreen extends Screen implements IMDrawable
 
     private final AtomicBoolean layoutValid = new AtomicBoolean(false);
 
-    protected void invalidateLayout()
+    @Override
+    public void invalidateLayout()
     {
         layoutValid.set(false);
     }
@@ -106,6 +140,16 @@ public abstract class FeatherScreen extends Screen implements IMDrawable
     protected boolean layoutValidate()
     {
         return layoutValid.get();
+    }
+
+    private final AtomicBoolean positionValid = new AtomicBoolean(false);
+
+    @Override
+    public void invalidatePosition() { positionValid.set(false); }
+
+    public boolean positionValid()
+    {
+        return positionValid.get();
     }
 
     private final List<IMDrawable> children = new ObjectArrayList<>();
@@ -213,6 +257,32 @@ public abstract class FeatherScreen extends Screen implements IMDrawable
     {
         MinecraftClient.getInstance().setScreen(screen);
     }
+
+    //region Alpha
+
+    protected final Recorder<Float> alpha = new Recorder<Float>(1f);
+
+    public void setAlpha(float newVal)
+    {
+        this.alpha.set(newVal);
+    }
+
+    public void fadeTo(float newVal, long duration, Easing easing)
+    {
+        Transformer.transform(alpha, MathUtils.clamp(0f, 1f, newVal), duration, easing);
+    }
+
+    public void fadeIn(long duration, Easing easing)
+    {
+        this.fadeTo(1, duration, easing);
+    }
+
+    public void fadeOut(long duration, Easing easing)
+    {
+        this.fadeTo(0, duration, easing);
+    }
+
+    //endregion Alpha
 
     //region Narratable Selectable
 

@@ -4,7 +4,10 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.text.Text;
+import net.minecraft.world.chunk.light.LightingProvider;
+import org.joml.Matrix4f;
 
 public class DrawableText extends MDrawable
 {
