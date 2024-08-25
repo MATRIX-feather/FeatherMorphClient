@@ -77,7 +77,7 @@ public class DisguiseEntryToast extends LinedToast
         entityDisplay.setX(x);
         entityDisplay.setY(y);
         entityDisplay.setAnchor(Anchor.CentreLeft);
-        entityDisplay.setParentRect(new ScreenRect(0, 0, this.getWidth(), this.getHeight()));
+        entityDisplay.setParentScreenSpace(new ScreenRect(0, 0, this.getWidth(), this.getHeight()));
 
         setTitle(Text.translatable("text.morphclient.toast.disguise_%s".formatted(isGrant ? "grant" : "lost")));
         this.setLineColor(isGrant ? MaterialColors.Green500 : MaterialColors.Amber500);

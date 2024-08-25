@@ -141,9 +141,9 @@ public class DisguiseScreenNew extends FeatherScreen
             super.onRender(context, mouseX, mouseY, delta);
 
             if (contentColor.get() != null)
-                context.fill(0, 0, finalWidth, finalHeight, contentColor.get().getColor());
+                context.fill(0, 0, renderWidth, renderHeight, contentColor.get().getColor());
 
-            context.drawBorder(0, 0, finalWidth, finalHeight, ColorUtils.fromHex("#888888").getColor() );
+            context.drawBorder(0, 0, renderWidth, renderHeight, ColorUtils.fromHex("#888888").getColor() );
         }
 
         private final DrawableText nameText = new DrawableText();

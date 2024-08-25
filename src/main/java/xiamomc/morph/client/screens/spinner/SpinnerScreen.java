@@ -18,16 +18,16 @@ public abstract class SpinnerScreen<T extends ClickableSpinnerWidget> extends Fe
 
     protected final List<T> spinnerWidgets = new ObjectArrayList<>();
 
-    protected abstract int getWidgetSize();
+    protected abstract int getWidgetWidth();
+    protected abstract int getWidgetHeight();
 
     protected T addSingleWidget(int xOffset, int yOffset)
     {
         var widget = createWidget();
         widget.setAnchor(Anchor.Centre);
 
-        var size = this.getWidgetSize();
-        widget.setWidth(size);
-        widget.setHeight(size);
+        widget.setWidth(getWidgetWidth());
+        widget.setHeight(getWidgetHeight());
 
         widget.setX(xOffset);
         widget.setY(yOffset);

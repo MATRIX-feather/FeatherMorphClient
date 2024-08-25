@@ -14,7 +14,6 @@ import org.joml.Vector3f;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.client.EntityCache;
 import xiamomc.morph.client.MorphClient;
-import xiamomc.morph.client.graphics.color.MaterialColors;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -131,7 +130,7 @@ public class EntityDisplay extends MDrawable
             default ->
             {
                 //15 / ...
-                var size = (int) ((Math.min(this.getFinalHeight(), this.getFinalWidth()) * 0.8) / Math.max(entity.getHeight(), entity.getWidth()));
+                var size = (int) ((Math.min(this.getRenderHeight(), this.getRenderWidth()) * 0.8) / Math.max(entity.getHeight(), entity.getWidth()));
                 size = Math.max(1, size);
 
                 yield size;
@@ -253,10 +252,10 @@ public class EntityDisplay extends MDrawable
             if (displayingEntity == MinecraftClient.getInstance().player)
                 PlayerRenderHelper.instance().skipRender = true;
 
-            //context.fill(0, 0, finalWidth, finalHeight, MaterialColors.Red500.getColor());
+            //context.fill(0, 0, renderWidth, renderHeight, MaterialColors.Red500.getColor());
 
-            var x1 = finalWidth / 2;
-            var y2 = finalHeight;
+            var x1 = renderWidth / 2;
+            var y2 = renderHeight;
 
             drawEntity(context,
                     x1, 0, x1, y2,

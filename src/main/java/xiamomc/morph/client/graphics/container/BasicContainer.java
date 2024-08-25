@@ -19,12 +19,20 @@ public class BasicContainer<T extends MDrawable> extends MDrawable
 
     @Override
     @ApiStatus.Internal
-    public void invalidatePosition() {
+    public void invalidatePosition()
+    {
         invalidateLayout();
         super.invalidatePosition();
+
+        this.children.forEach(MDrawable::invalidatePosition);
     }
 
-    private final AtomicBoolean layoutValid = new AtomicBoolean(false);
+    @Override
+    public void invalidateLayout()
+    {
+        this.children.forEach(MDrawable::invalidateLayout);
+        super.invalidateLayout();
+    }
 
     protected void updateLayout()
     {
@@ -89,8 +97,6 @@ public class BasicContainer<T extends MDrawable> extends MDrawable
     @Override
     protected void onRender(DrawContext context, int mouseX, int mouseY, float delta)
     {
-        if (!layoutValid.get()) updateLayout();
-
         super.onRender(context, mouseX, mouseY, delta);
 
         var matrices = context.getMatrices();

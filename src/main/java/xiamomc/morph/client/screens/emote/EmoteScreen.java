@@ -33,10 +33,21 @@ public class EmoteScreen extends SpinnerScreen<SingleEmoteWidget>
         return new SingleEmoteWidget();
     }
 
-    @Override
-    protected int getWidgetSize()
+    private int getWidgetSize()
     {
         return 55;
+    }
+
+    @Override
+    protected int getWidgetWidth()
+    {
+        return getWidgetSize();
+    }
+
+    @Override
+    protected int getWidgetHeight()
+    {
+        return getWidgetSize();
     }
 
     public EmoteScreen()

@@ -56,6 +56,18 @@ public class ColorUtils
         return Color.ofRGBA(r, g, b, a);
     }
 
+    public static int[] toRgbaArray(int c)
+    {
+        var color = ColorUtils.fromIntRGBA(c);
+        return new int[]
+                {
+                        color.getRed() / 255,
+                        color.getGreen() / 255,
+                        color.getBlue() / 255,
+                        color.getAlpha() / 255
+                };
+    }
+
     public static Color forOpacity(Color color, float alpha)
     {
         alpha = MathUtils.clamp(0, 1, alpha);

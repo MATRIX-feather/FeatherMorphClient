@@ -13,7 +13,7 @@ public class Box extends MDrawable
         super.onRender(context, mouseX, mouseY, delta);
 
         context.fill(0, 0,
-                finalWidth, finalHeight,
+                renderWidth, renderHeight,
                 color);
     }
 }

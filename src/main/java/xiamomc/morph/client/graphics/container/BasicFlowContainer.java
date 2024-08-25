@@ -4,6 +4,7 @@ import net.minecraft.client.gui.DrawContext;
 import xiamomc.morph.client.graphics.Anchor;
 import xiamomc.morph.client.graphics.Axes;
 import xiamomc.morph.client.graphics.MDrawable;
+import xiamomc.morph.client.graphics.color.MaterialColors;
 import xiamomc.pluginbase.Annotations.Initializer;
 
 public class BasicFlowContainer<T extends MDrawable> extends BasicContainer<T>
@@ -51,20 +52,29 @@ public class BasicFlowContainer<T extends MDrawable> extends BasicContainer<T>
     @Override
     protected void updateLayout()
     {
+        super.updateLayout();
+
         var currentX = 0;
         var currentY = 0;
 
         var childMaxHeight = 0f;
+        Anchor lastChildAnchor = null;
 
         for (var child : children)
         {
+            var childAnchor = child.getAnchor();
+            if (lastChildAnchor != null && lastChildAnchor != childAnchor)
+                throw new IllegalStateException("Different anchors are not supported.");
+
+            lastChildAnchor = childAnchor;
+
             if (child.getAnchor() != Anchor.TopLeft)
                 throw new IllegalArgumentException("Anchors except TopLeft are not supported yet.");
 
             // Both下的自动换行
             if (flowAxes == Axes.Both)
             {
-                var rectWidth = this.relativeSizeAxes.modX ? this.width * this.getParentRect().width() : this.width;
+                var rectWidth = this.relativeSizeAxes.modX ? this.width * this.getParentScreenSpace().width() : this.width;
                 var maxWidth = rectWidth - this.padding.left - this.padding.right;
                 if (currentX + child.getWidth() > maxWidth)
                 {
@@ -92,8 +102,6 @@ public class BasicFlowContainer<T extends MDrawable> extends BasicContainer<T>
                 case Y -> currentY += Math.max(0, child.getHeight()) + spacing;
             }
         }
-
-        super.updateLayout();
     }
 
     @Override
@@ -101,6 +109,7 @@ public class BasicFlowContainer<T extends MDrawable> extends BasicContainer<T>
     {
         super.onRender(context, mouseX, mouseY, delta);
 
-        context.fill(0, 0, (int)width, (int)height, 0xa0333333);
+        context.fill(0, 0, renderWidth, renderHeight, MaterialColors.Amber500.getColor());
+        //logger.info("Fw " + renderWidth + " FH " + renderHeight);
     }
 }

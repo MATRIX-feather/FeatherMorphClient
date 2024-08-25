@@ -78,7 +78,7 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
 
     //region Position/Layout validation
 
-    private final AtomicBoolean posValid = new AtomicBoolean(false);
+    protected final AtomicBoolean posValid = new AtomicBoolean(false);
 
     @ApiStatus.Internal
     public void invalidatePosition()
@@ -86,7 +86,7 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
         posValid.set(false);
     }
 
-    private final AtomicBoolean layoutValid = new AtomicBoolean(false);
+    protected final AtomicBoolean layoutValid = new AtomicBoolean(false);
 
     @ApiStatus.Internal
     public void invalidateLayout()
@@ -102,6 +102,9 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
     protected void updateLayout()
     {
         layoutValid.set(true);
+
+        if (parent == null)
+            updateParentScreenSpace();
     }
 
     protected boolean validatePosition()
@@ -121,29 +124,33 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
             var parentPadding = parent.getPadding();
 
             //rectW: 可用的宽度空间
-            var rectW = parent.getFinalWidth() - parentPadding.left - parentPadding.right;
+            var rectW = parent.getRenderWidth() - parentPadding.left - parentPadding.right;
 
             //rectH: 可用的高度空间
-            var rectH = parent.getFinalHeight() - parentPadding.top - parentPadding.bottom;
-            this.setParentRect(new ScreenRect(0, 0, (int)rectW, (int)rectH));
+            var rectH = parent.getRenderHeight() - parentPadding.top - parentPadding.bottom;
+            this.setParentScreenSpace(new ScreenRect(0, 0, (int)rectW, (int)rectH));
+        }
+        else
+        {
+            updateParentScreenSpace();
         }
 
         //此Drawable的最终宽高
         if (relativeSizeAxes.modX)
-            finalWidth = Math.round(width * parentRect.width());
+            renderWidth = Math.round(width * parentScreenSpace.width());
         else
-            finalWidth = Math.round(width);
+            renderWidth = Math.round(width);
 
         if (relativeSizeAxes.modY)
-            finalHeight = Math.round(height * parentRect.height());
+            renderHeight = Math.round(height * parentScreenSpace.height());
         else
-            finalHeight = Math.round(height);
+            renderHeight = Math.round(height);
 
         var windowInstance = MinecraftClient.getInstance().getWindow();
 
-        var isEmptyRect = parentRect == ScreenRect.empty();
-        float parentRectWidth = isEmptyRect ? windowInstance.getScaledWidth() : parentRect.width();
-        float parentRectHeight = isEmptyRect ? windowInstance.getScaledHeight() : parentRect.height();
+        var isEmptyRect = parentScreenSpace == ScreenRect.empty();
+        float parentRectWidth = isEmptyRect ? windowInstance.getScaledWidth() : parentScreenSpace.width();
+        float parentRectHeight = isEmptyRect ? windowInstance.getScaledHeight() : parentScreenSpace.height();
 
         var rectCentre = new Vector2f(parentRectWidth / 2, parentRectHeight / 2);
 
@@ -161,9 +168,9 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
         if ((maskX & PosMask.x1) == PosMask.x1)
             xScreenSpaceOffset += margin.left + (parent == null ? 0 : parent.padding.left);
         else if ((maskX & PosMask.x2) == PosMask.x2)
-            xScreenSpaceOffset += margin.getCentreOffsetX() + (rectCentre.getX() - this.finalWidth / 2f) + (parent == null ? 0 : parent.padding.getCentreOffsetX());
+            xScreenSpaceOffset += margin.getCentreOffsetX() + (rectCentre.getX() - this.renderWidth / 2f) + (parent == null ? 0 : parent.padding.getCentreOffsetX());
         else if ((maskX & PosMask.x3) == PosMask.x3)
-            xScreenSpaceOffset += -margin.right + (parentRectWidth - this.finalWidth) - (parent == null ? 0 : parent.padding.right);
+            xScreenSpaceOffset += -margin.right + (parentRectWidth - this.renderWidth) - (parent == null ? 0 : parent.padding.right);
 
         // 坐标原点：左上角
         // 居中时，通过上方Margin减去下方Margin来取得此Drawable的X位移
@@ -176,9 +183,9 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
         if ((maskY & PosMask.y1) == PosMask.y1)
             yScreenSpaceOffset += margin.top + (parent == null ? 0 : parent.padding.top);
         else if ((maskY & PosMask.y2) == PosMask.y2)
-            yScreenSpaceOffset += margin.getCentreOffset() + (rectCentre.getY() - this.finalHeight / 2f) + (parent == null ? 0 : parent.padding.getCentreOffset());
+            yScreenSpaceOffset += margin.getCentreOffset() + (rectCentre.getY() - this.renderHeight / 2f) + (parent == null ? 0 : parent.padding.getCentreOffset());
         else if ((maskY & PosMask.y3) == PosMask.y3)
-            yScreenSpaceOffset += - margin.bottom + (parentRectHeight - this.finalHeight) - (parent == null ? 0 : parent.padding.bottom);
+            yScreenSpaceOffset += - margin.bottom + (parentRectHeight - this.renderHeight) - (parent == null ? 0 : parent.padding.bottom);
 
         this.xScreenSpaceOffset = xScreenSpaceOffset;
         this.yScreenSpaceOffset = yScreenSpaceOffset;
@@ -207,6 +214,7 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
     {
         this.relativeSizeAxes = a;
 
+        invalidateLayout();
         invalidatePosition();
     }
 
@@ -223,22 +231,16 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
     /**
      * 此drawable实际绘制和处理时的宽度
      */
-    protected int finalWidth;
+    protected int renderWidth;
 
     /**
      * 此drawable实际绘制和处理时的高度
      */
-    protected int finalHeight;
+    protected int renderHeight;
 
     public float getWidth()
     {
         return width;
-    }
-
-    public float getFinalWidth()
-    {
-        var modX = this.relativeSizeAxes.modX;
-        return modX ? width * getParentRect().width() : width;
     }
 
     public void setWidth(float w)
@@ -248,6 +250,12 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
         this.width = w;
         invalidatePosition();
         invalidateLayout();
+    }
+
+    public float getRenderWidth()
+    {
+        var modX = this.relativeSizeAxes.modX;
+        return modX ? width * getParentScreenSpace().width() : width;
     }
 
     public float getHeight()
@@ -264,10 +272,10 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
         invalidateLayout();
     }
 
-    public float getFinalHeight()
+    public float getRenderHeight()
     {
         var modY = this.relativeSizeAxes.modY;
-        return modY ? height * getParentRect().width() : height;
+        return modY ? height * getParentScreenSpace().width() : height;
     }
 
     public void setSize(Vector2f vector2f)
@@ -361,32 +369,38 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
      * 此Drawable的父级在屏幕上的所有可用空间
      */
     @NotNull
-    private ScreenRect parentRect = ScreenRect.empty();
+    private ScreenRect parentScreenSpace = ScreenRect.empty();
+
+    protected void updateParentScreenSpace()
+    {
+        var windowInstance = MinecraftClient.getInstance().getWindow();
+        parentScreenSpace = new ScreenRect(0, 0, windowInstance.getScaledWidth(), windowInstance.getScaledHeight());
+    }
 
     /**
      * 获取此Drawable在父级屏幕上的所有可用空间
      */
     @NotNull
-    public ScreenRect getParentRect()
+    public ScreenRect getParentScreenSpace()
     {
-        if (parentRect == ScreenRect.empty())
+        if (parentScreenSpace == ScreenRect.empty())
         {
             var windowInstance = MinecraftClient.getInstance().getWindow();
             return new ScreenRect(0, 0, windowInstance.getScaledWidth(), windowInstance.getScaledHeight());
         }
 
-        return parentRect;
+        return parentScreenSpace;
     }
 
     /**
      * 设置父级Drawable在其相对位置上的宽高
      */
-    public void setParentRect(ScreenRect rect)
+    public void setParentScreenSpace(ScreenRect rect)
     {
-        if (this.parentRect.equals(rect))
+        if (this.parentScreenSpace.equals(rect))
             return;
 
-        this.parentRect = rect;
+        this.parentScreenSpace = rect;
         invalidatePosition();
     }
 
@@ -497,8 +511,8 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
             if (!validateLayout()) updateLayout();
 
             // Render parent rect
-            //context.fill(parentRect.getLeft(), parentRect.getTop(),
-            //        parentRect.width(), parentRect.height(),
+            //context.fill(parentScreenSpace.getLeft(), parentScreenSpace.getTop(),
+            //        parentScreenSpace.width(), parentScreenSpace.height(),
             //        ColorUtils.forOpacity(MaterialColors.Orange500, 0.4f).getColor());
 
             matrices.translate(xScreenSpaceOffset, yScreenSpaceOffset, 1);
@@ -518,7 +532,7 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
                 //        "sX: %s, sY: %s, W: %s, H: %s".formatted(sX, sY, mcWidth, mcHeight),
                 //        0, 0, 0xffffffff, false);
 
-                context.enableScissor(sX, sY, sX + finalWidth, sY + finalHeight);
+                context.enableScissor(sX, sY, sX + renderWidth, sY + renderHeight);
             }
 
             this.onRender(context, mouseX, mouseY, delta);
