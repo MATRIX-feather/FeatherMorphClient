@@ -154,6 +154,11 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
     private KeyBinding displayOwnerBind;
     private KeyBinding emoteKeyBind;
 
+    public KeyBinding getEmoteKeyBind()
+    {
+        return emoteKeyBind;
+    }
+
     private KeyBinding testKeyBindGrant;
     private KeyBinding testKeyBindLost;
 

@@ -43,6 +43,7 @@ public class EmoteScreen extends SpinnerScreen<SingleEmoteWidget>
     {
         super(Text.literal("Disguise emote select screen"));
 
+        serverHandler = MorphClient.getInstance().serverHandler;
         morphManager = MorphClient.getInstance().morphManager;
 
         titleText.setText(Text.translatable("gui.morphclient.emote_select"));
@@ -97,8 +98,7 @@ public class EmoteScreen extends SpinnerScreen<SingleEmoteWidget>
         updateEmoteText(morphManager.emoteDisplayName);
     }
 
-    @Resolved(shouldSolveImmediately = true)
-    private ServerHandler serverHandler;
+    private final ServerHandler serverHandler;
 
     private SingleEmoteWidget addEmoteWidget(int x, int y)
     {
@@ -169,6 +169,15 @@ public class EmoteScreen extends SpinnerScreen<SingleEmoteWidget>
         }
 
         super.tick();
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers)
+    {
+        if (MorphClient.getInstance().getEmoteKeyBind().matchesKey(keyCode, scanCode))
+            MorphClient.getInstance().schedule(this::tryClose);
+
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     private void tryClose()
