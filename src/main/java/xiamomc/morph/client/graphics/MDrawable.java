@@ -8,6 +8,7 @@ import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.util.math.Vector2f;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector2i;
 import xiamomc.morph.client.MorphClientObject;
 import xiamomc.morph.client.graphics.transforms.Recorder;
 import xiamomc.morph.client.graphics.transforms.Transformer;
@@ -537,6 +538,12 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
     //region Transforms
 
     private Recorder<Integer> xRec;
+
+    public void moveTo(Vector2i position, long duration, Easing easing)
+    {
+        this.moveToX(position.x(), duration, easing);
+        this.moveToY(position.y(), duration, easing);
+    }
 
     public void moveToX(int x, long duration, Easing easing)
     {

@@ -3,6 +3,7 @@ package xiamomc.morph.client.screens.emote;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector2i;
 import xiamomc.morph.client.AnimationNames;
 import xiamomc.morph.client.ClientMorphManager;
 import xiamomc.morph.client.MorphClient;
@@ -53,10 +54,12 @@ public class EmoteScreen extends SpinnerScreen<SingleEmoteWidget>
 
         var size = this.getWidgetSize();
 
-        addEmoteWidget(0, -(size + 5));
-        addEmoteWidget(size + 5, 0);
-        addEmoteWidget(0, size + 5);
-        addEmoteWidget(-(size + 5), 0);
+        var widgetOffset = size + 5;
+
+        addEmoteWidget(0, -widgetOffset * 2).moveTo(new Vector2i(0, -widgetOffset), 300, Easing.OutExpo);
+        addEmoteWidget(widgetOffset * 2, 0).moveTo(new Vector2i(widgetOffset, 0), 300, Easing.OutExpo);
+        addEmoteWidget(0, widgetOffset * 2).moveTo(new Vector2i(0, widgetOffset), 300, Easing.OutExpo);
+        addEmoteWidget(-widgetOffset * 2, 0).moveTo(new Vector2i(-widgetOffset, 0), 300, Easing.OutExpo);
 
         var morphManager = MorphClient.getInstance().morphManager;
         var emotes = morphManager.getEmotes();
@@ -77,7 +80,7 @@ public class EmoteScreen extends SpinnerScreen<SingleEmoteWidget>
         this.add(currentAnimText);
 
         this.alpha.set(0f);
-        this.fadeIn(300, Easing.OutQuint);
+        this.fadeIn(500, Easing.OutQuint);
 
         var serverHandler = MorphClient.getInstance().serverHandler;
         this.serverReady.bindTo(serverHandler.serverReady);
