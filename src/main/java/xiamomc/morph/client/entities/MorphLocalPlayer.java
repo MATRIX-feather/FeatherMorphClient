@@ -38,14 +38,17 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
     @NotNull
     private Identifier morphTextureIdentifier = Identifier.of("minecraft", "textures/entity/player/wide/steve.png");
 
+    @Nullable
     private Identifier capeTextureIdentifier;
 
     @Nullable
     private Identifier ofCapeIdentifier;
 
+    @Nullable
     private String skinTextureUrl;
 
-    private SkinTextures.Model model;
+    @NotNull
+    private SkinTextures.Model model = SkinTextures.Model.SLIM;
 
     public boolean personEquals(MorphLocalPlayer other)
     {
@@ -147,7 +150,7 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
 
     //endregion From SkullBlockEntity
 
-    private AtomicBoolean initialFetchFired = new AtomicBoolean(false);
+    private final AtomicBoolean initialFetchFired = new AtomicBoolean(false);
 
     public void updateSkin(GameProfile profile)
     {
