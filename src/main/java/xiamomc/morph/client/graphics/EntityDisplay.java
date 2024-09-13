@@ -90,11 +90,11 @@ public class EntityDisplay extends MDrawable
         return displayingEntity;
     }
 
-    private boolean isLiving = true;
+    private AtomicBoolean isLiving = new AtomicBoolean(true);
 
     public boolean isLiving()
     {
-        return isLiving;
+        return isLiving.get();
     }
 
     private Text displayName;
@@ -156,7 +156,7 @@ public class EntityDisplay extends MDrawable
 
             var entityCache = EntityCache.getGlobalCache();
             var living = entityCache.getEntity(rawIdentifier, null);
-            isLiving = entityCache.isLiving(rawIdentifier);
+            isLiving.set(entityCache.isLiving(rawIdentifier));
 
             if (living == null)
             {
@@ -165,47 +165,54 @@ public class EntityDisplay extends MDrawable
                 if (isPlayerItSelf)
                 {
                     entity = MinecraftClient.getInstance().player;
-                    isLiving = true;
+                    isLiving.set(true);
                 }
 
                 //没有和此ID匹配的实体
                 if (entity == null)
                 {
-                    this.displayName = Text.literal(rawIdentifier);
+                    Runnable complete = () ->
+                    {
+                        this.displayName = Text.literal(rawIdentifier);
 
-                    if (postEntitySetup != null)
-                        postEntitySetup.run();
+                        if (postEntitySetup != null)
+                            postEntitySetup.run();
 
-                    loadingEntity.set(false);
+                        loadingEntity.set(false);
+                    };
+
+                    if (RenderSystem.isOnRenderThread())
+                        complete.run();
+                    else
+                        this.addSchedule(complete);
+
                     return;
                 }
 
                 living = entity;
             }
 
-            loadingEntity.set(false);
-            allowRender = true;
+            LivingEntity finalLiving = living;
+            Runnable onComplete = () ->
+            {
+                loadingEntity.set(false);
 
-            this.displayingEntity = living;
-            this.displayName = living.getDisplayName();
+                allowRender = true;
+
+                this.displayingEntity = finalLiving;
+                this.displayName = finalLiving.getDisplayName();
+
+                entitySize.set(getEntitySize(finalLiving));
+                entityYOffset = getEntityYOffset(finalLiving);
+
+                if (postEntitySetup != null)
+                    postEntitySetup.run();
+            };
 
             if (RenderSystem.isOnRenderThread())
-            {
-                entitySize.set(getEntitySize(living));
-                entityYOffset = getEntityYOffset(living);
-            }
+                onComplete.run();
             else
-            {
-                LivingEntity finalLiving = living;
-                this.addSchedule(() ->
-                {
-                    entitySize.set(getEntitySize(finalLiving));
-                    entityYOffset = getEntityYOffset(finalLiving);
-                });
-            }
-
-            if (postEntitySetup != null)
-                postEntitySetup.run();
+                this.addSchedule(onComplete);
         }
         catch (Exception e)
         {
@@ -230,7 +237,7 @@ public class EntityDisplay extends MDrawable
     @Override
     protected void onRender(DrawContext context, int mouseX, int mouseY, float delta)
     {
-        if (displayingEntity == null && isLiving)
+        if (displayingEntity == null && isLiving())
         {
             if (!loadingEntity.get())
                 CompletableFuture.runAsync(this::setupEntity);
@@ -239,7 +246,7 @@ public class EntityDisplay extends MDrawable
             return;
         }
 
-        if (!allowRender || !isLiving)
+        if (!allowRender || !isLiving())
         {
             if (displayLoadingIfInvalid)
                 renderLoading(context);
@@ -249,6 +256,12 @@ public class EntityDisplay extends MDrawable
 
         try
         {
+            if (displayingEntity.isRemoved())
+            {
+                resetEntity();
+                return;
+            }
+
             if (displayingEntity == MinecraftClient.getInstance().player)
                 PlayerRenderHelper.instance().skipRender = true;
 
@@ -257,14 +270,30 @@ public class EntityDisplay extends MDrawable
             var x1 = renderWidth / 2;
             var y2 = renderHeight;
 
+            // Compatibility for World curvature in Chunks Fade In
+            var originalPos = displayingEntity.getPos();
+            var playerPos = MinecraftClient.getInstance().player.getPos();
+            displayingEntity.setPos(playerPos.x, playerPos.y, playerPos.z);
+            displayingEntity.lastRenderX = playerPos.x;
+            displayingEntity.lastRenderY = playerPos.y;
+            displayingEntity.lastRenderZ = playerPos.z;
+            displayingEntity.prevX = playerPos.x;
+            displayingEntity.prevY = playerPos.y;
+            displayingEntity.prevZ = playerPos.z;
+
             drawEntity(context,
                     x1, 0, x1, y2,
                     entitySize.get(), 0.0625f + entityYOffset, -mouseX, -mouseY, displayingEntity);
 
-            PlayerRenderHelper.instance().skipRender = false;
+            displayingEntity.setPos(originalPos.x, originalPos.y, originalPos.z);
+            displayingEntity.lastRenderX = originalPos.x;
+            displayingEntity.lastRenderY = originalPos.y;
+            displayingEntity.lastRenderZ = originalPos.z;
+            displayingEntity.prevX = originalPos.x;
+            displayingEntity.prevY = originalPos.y;
+            displayingEntity.prevZ = originalPos.z;
 
-            if (displayingEntity.isRemoved())
-                resetEntity();
+            PlayerRenderHelper.instance().skipRender = false;
         }
         catch (Throwable t)
         {
