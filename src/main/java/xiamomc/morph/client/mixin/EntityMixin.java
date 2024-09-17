@@ -4,6 +4,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -20,6 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xiamomc.morph.client.EntityCache;
 import xiamomc.morph.client.ServerHandler;
 import xiamomc.morph.client.entities.IEntity;
+import xiamomc.morph.client.syncers.ClientDisguiseSyncer;
 import xiamomc.morph.client.utilties.ClientSyncerUtils;
 import xiamomc.morph.client.utilties.EntityCacheUtils;
 
@@ -96,6 +98,7 @@ public abstract class EntityMixin implements IEntity
         featherMorph$onCalcCallMthod(cir);
     }
 
+    @Unique
     private void featherMorph$onCalcCallMthod(CallbackInfoReturnable<Box> cir)
     {
         if (featherMorph$entityInstance == MinecraftClient.getInstance().player && ServerHandler.modifyBoundingBox)
@@ -105,10 +108,29 @@ public abstract class EntityMixin implements IEntity
         }
     }
 
-    @Inject(method = "squaredDistanceTo(Lnet/minecraft/entity/Entity;)D", at = @At("HEAD"), cancellable = true)
-    private void morphClient$onSquaredDistanceToCall(CallbackInfoReturnable<Double> cir)
+    @Unique
+    private boolean featherMorph$isDisguiseInstance()
     {
-        if (EntityCache.getGlobalCache().containsId(id))
+        var currentClientSyncer = ClientDisguiseSyncer.getCurrentInstance();
+        if (currentClientSyncer == null) return false;
+
+        var disguise = currentClientSyncer.getDisguiseInstance();
+        if (disguise == null) return false;
+
+        return disguise.equals(this);
+    }
+
+    @Inject(method = "squaredDistanceTo(Lnet/minecraft/entity/Entity;)D", at = @At("HEAD"), cancellable = true)
+    private void morphClient$onSquaredDistanceCallEntity(Entity entity, CallbackInfoReturnable<Double> cir)
+    {
+        if (featherMorph$isDisguiseInstance())
+            cir.setReturnValue(1d);
+    }
+
+    @Inject(method = "squaredDistanceTo(Lnet/minecraft/util/math/Vec3d;)D", at = @At("HEAD"), cancellable = true)
+    private void morphClient$onSquaredDistanceCallVec3d(Vec3d vector, CallbackInfoReturnable<Double> cir)
+    {
+        if (featherMorph$isDisguiseInstance())
             cir.setReturnValue(1d);
     }
 
