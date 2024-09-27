@@ -96,7 +96,7 @@ public class HudRenderHelper extends MorphClientObject
 
     public void onRender(DrawContext context, RenderTickCounter renderTickCounter)
     {
-        if (manager == null) return;
+        if (manager == null || drawAlpha.get() == 0f) return;
 
         var matrices = context.getMatrices();
 
