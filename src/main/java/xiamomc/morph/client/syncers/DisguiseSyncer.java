@@ -547,6 +547,10 @@ public abstract class DisguiseSyncer extends MorphClientObject
 
         ((EntityAccessor) entity).setTouchingWater(bindingPlayer.isTouchingWater());
 
+        // Glowing
+        if (bindingPlayer.isGlowing() != entity.isGlowing())
+            entity.setGlowing(bindingPlayer.isGlowing());
+
         //同步Pose
         entity.setPose(bindingPlayer.getPose());
         entity.setSwimming(bindingPlayer.isSwimming());
