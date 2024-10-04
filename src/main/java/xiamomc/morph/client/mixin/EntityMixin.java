@@ -62,16 +62,6 @@ public abstract class EntityMixin implements IEntity
             this.setFlag(6, glowing);
     }
 
-    @Inject(method = "getEyeY", at = @At("HEAD"), cancellable = true)
-    private void featherMorph$onGetEyeY(CallbackInfoReturnable<Double> cir)
-    {
-        if (featherMorph$entityInstance == MinecraftClient.getInstance().player && ServerHandler.modifyBoundingBox)
-        {
-            runIfSyncerEntityNotNull(syncerEntity ->
-                    cir.setReturnValue(MinecraftClient.getInstance().player.getY() + syncerEntity.getStandingEyeHeight()));
-        }
-    }
-
     @Inject(method = "getEyeHeight(Lnet/minecraft/entity/EntityPose;)F", at = @At("HEAD"), cancellable = true)
     private void featherMorph$onGetEyeHeight(EntityPose pose, CallbackInfoReturnable<Float> cir)
     {
