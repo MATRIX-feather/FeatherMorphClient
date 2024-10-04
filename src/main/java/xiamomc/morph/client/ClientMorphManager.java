@@ -180,8 +180,13 @@ public class ClientMorphManager extends MorphClientObject
 
         localPlayerSyncer = instanceTracker.setSyncer(MinecraftClient.getInstance().player, n);
 
-        if (lastEmote != null && localPlayerSyncer != null)
+        if (localPlayerSyncer == null) return;
+
+        if (lastEmote != null)
             localPlayerSyncer.playAnimation(lastEmote);
+
+        if (serverSkin != null)
+            localPlayerSyncer.updateSkin(serverSkin);
     }
 
     //region Add/Remove/Set disguises
@@ -344,6 +349,7 @@ public class ClientMorphManager extends MorphClientObject
         localPlayerSyncer = null;
         lastEmote = null;
         emoteDisplayName = null;
+        serverSkin = null;
 
         String finalVal = val;
         this.addSchedule(() -> refreshLocalSyncer(finalVal));
@@ -379,8 +385,13 @@ public class ClientMorphManager extends MorphClientObject
         return syncer;
     }
 
+    @Nullable
+    private GameProfile serverSkin;
+
     public void updateSkin(GameProfile profile)
     {
+        serverSkin = profile;
+
         if (localPlayerSyncer != null)
         {
             localPlayerSyncer.updateSkin(profile);
