@@ -109,12 +109,12 @@ public class DisguiseScreen extends FeatherScreen
         {
             this.close();
         });
-
+/*
         quickDisguiseButton = this.buildButtonWidget(0, 0, 20, 20, Text.literal("Q"), (button) ->
         {
             this.push(new QuickDisguiseScreen());
         });
-
+*/
         configMenuButton = this.buildButtonWidget(0, 0, 20, 20, Text.literal("C"), (button ->
         {
             var screen = morphClient.getFactory(this).build();
@@ -140,7 +140,7 @@ public class DisguiseScreen extends FeatherScreen
     private final MButtonWidget closeButton;
     private final MTextBoxWidget textBox;
     private final MButtonWidget configMenuButton;
-    private final MButtonWidget quickDisguiseButton;
+    //private final MButtonWidget quickDisguiseButton;
     //private final MButtonWidget testButton;
     private final ToggleSelfButton selfVisibleToggle;
 
@@ -261,7 +261,7 @@ public class DisguiseScreen extends FeatherScreen
             closeButton,
             selfVisibleToggle,
             configMenuButton,
-            quickDisguiseButton,
+            //quickDisguiseButton,
             textBox
             //testButton
         });
@@ -295,7 +295,7 @@ public class DisguiseScreen extends FeatherScreen
         closeButton.setX(baseX);
         selfVisibleToggle.setX(baseX - selfVisibleToggle.getWidth() - 5);
         configMenuButton.setX(baseX - selfVisibleToggle.getWidth() - 5 - configMenuButton.getWidth() - 5);
-        quickDisguiseButton.setX(baseX - selfVisibleToggle.getWidth() - 5 - configMenuButton.getWidth() - 5 - quickDisguiseButton.getWidth());
+        //quickDisguiseButton.setX(baseX - selfVisibleToggle.getWidth() - 5 - configMenuButton.getWidth() - 5 - quickDisguiseButton.getWidth());
     }
 
     private void scrollToCurrentOrLast(boolean scrollToLastIfNoCurrent)
