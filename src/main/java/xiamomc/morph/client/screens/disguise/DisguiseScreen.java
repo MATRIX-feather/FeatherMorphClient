@@ -46,7 +46,7 @@ public class DisguiseScreen extends FeatherScreen
             morphClient.schedule(() ->
             {
                 var availableMorphs = manager.getAvailableMorphs();
-                c.forEach(s -> list.children().add(availableMorphs.indexOf(s) + 1, new EntityDisplayWidget(s)));
+                c.forEach(s -> list.children().add(availableMorphs.indexOf(s) + 1, new EntityDisplayEntry(s)));
             });
 
             return true;
@@ -200,9 +200,9 @@ public class DisguiseScreen extends FeatherScreen
 
         if (last == null || last instanceof WaitingForServerScreen)
         {
-            list.children().add(new EntityDisplayWidget(MorphClient.UNMORPH_STIRNG));
+            list.children().add(new EntityDisplayEntry(MorphClient.UNMORPH_STIRNG));
 
-            manager.getAvailableMorphs().forEach(s -> list.children().add(new EntityDisplayWidget(s)));
+            manager.getAvailableMorphs().forEach(s -> list.children().add(new EntityDisplayEntry(s)));
 
             //第一次打开时滚动到当前伪装
             scrollToCurrentOrLast(false);
@@ -319,7 +319,7 @@ public class DisguiseScreen extends FeatherScreen
 
         if (!scrollToLastIfNoCurrent) return;
 
-        EntityDisplayWidget last = null;
+        EntityDisplayEntry last = null;
         if (filter.size() >= 1)
             last = filter.get(filter.size() - 1);
 
@@ -362,7 +362,7 @@ public class DisguiseScreen extends FeatherScreen
     /**
      * 搜索前伪装列表中的所有元素
      */
-    private List<EntityDisplayWidget> fullList;
+    private List<EntityDisplayEntry> fullList;
 
     @Override
     protected void init()

@@ -1,7 +1,6 @@
 package xiamomc.morph.client.screens.disguise;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import me.shedaniel.math.Color;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -24,19 +23,17 @@ import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.MorphClientObject;
 import xiamomc.morph.client.graphics.Anchor;
 import xiamomc.morph.client.graphics.EntityDisplay;
-import xiamomc.morph.client.graphics.color.ColorUtils;
+import xiamomc.morph.client.graphics.DrawableSprite;
 import xiamomc.morph.client.graphics.container.Container;
-import xiamomc.morph.client.graphics.transforms.Recorder;
-import xiamomc.morph.client.graphics.transforms.Transformer;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
 import xiamomc.pluginbase.Annotations.Resolved;
 import xiamomc.pluginbase.Bindables.Bindable;
 
 import java.util.List;
 
-public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWidget> implements Comparable<EntityDisplayWidget>
+public class EntityDisplayEntry extends ElementListWidget.Entry<EntityDisplayEntry> implements Comparable<EntityDisplayEntry>
 {
-    private TextWidget field;
+    private DisplayWidget field;
 
     private String identifier = "???";
 
@@ -78,23 +75,23 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
     {
         return children;
     }
-    private final List<TextWidget> children = new ObjectArrayList<>();
+    private final List<DisplayWidget> children = new ObjectArrayList<>();
 
-    public EntityDisplayWidget(String name)
+    public EntityDisplayEntry(String name)
     {
         initFields(name);
     }
 
     public void clearChildren()
     {
-        children.forEach(TextWidget::dispose);
+        children.forEach(DisplayWidget::dispose);
         children.clear();
     }
 
     private void initFields(String name)
     {
         this.identifier = name;
-        children.add(field = new TextWidget(0, 0, 180, 20, name));
+        children.add(field = new DisplayWidget(0, 0, 180, 20, name));
     }
 
     @Override
@@ -106,12 +103,12 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
     }
 
     @Override
-    public int compareTo(@NotNull EntityDisplayWidget entityDisplayWidget)
+    public int compareTo(@NotNull EntityDisplayEntry entityDisplayEntry)
     {
-        return identifier.compareTo(entityDisplayWidget.identifier);
+        return identifier.compareTo(entityDisplayEntry.identifier);
     }
 
-    private static class TextWidget extends MorphClientObject implements Selectable, Drawable, Element
+    private static class DisplayWidget extends MorphClientObject implements Selectable, Drawable, Element
     {
         private final String identifier;
         private String entityName;
@@ -142,7 +139,17 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
         private Bindable<String> currentIdentifier = new Bindable<>();
         private Bindable<String> selectedIdentifier = new Bindable<>();
 
-        public TextWidget(int screenSpaceX, int screenSpaceY, int width, int height, String identifier)
+        public static final Identifier buttonTextureSelected = Identifier.of("morphclient", "disguise_select_selected");
+        public static final Identifier buttonTextureCurrent = Identifier.of("morphclient", "disguise_select_current");
+        public static final Identifier buttonTextureWaiting = Identifier.of("morphclient", "disguise_select_waiting");
+        public static final Identifier buttonTextureOverlay = Identifier.of("morphclient", "disguise_select_overlay_hover");
+
+        private final DrawableSprite spriteSelected;
+        private final DrawableSprite spriteCurrent;
+        private final DrawableSprite spriteWaiting;
+        private final DrawableSprite spriteHover;
+
+        public DisplayWidget(int screenSpaceX, int screenSpaceY, int width, int height, String identifier)
         {
             this.identifier = identifier;
 
@@ -165,22 +172,53 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
                 this.trimDisplay(entityDisplay.getDisplayName());
             };
 
-            displayContainer.add(entityDisplay);
+            // Container Setup
+            var backgroundSize = new Vector2f(this.width, this.height);
             displayContainer.setSize(new Vector2f(48, 18));
             entityDisplay.setSize(new Vector2f(18, 18));
+            backgroundContainer.setSize(backgroundSize);
 
-            entityDisplay.setAnchor(Anchor.BottomCentre);
+            displayContainer.add(entityDisplay);
+            backgroundContainer.add(spriteSelected = new DrawableSprite(buttonTextureSelected));
+            backgroundContainer.add(spriteCurrent = new DrawableSprite(buttonTextureCurrent));
+            backgroundContainer.add(spriteWaiting = new DrawableSprite(buttonTextureWaiting));
+            backgroundContainer.add(spriteHover = new DrawableSprite(buttonTextureOverlay));
+            backgroundContainer.children().forEach(d ->
+            {
+                d.setAlpha(0f);
+                d.setSize(backgroundSize);
+            });
 
             // Setup display
             this.display = entityDisplay.getDisplayName();
+            entityDisplay.setAnchor(Anchor.BottomCentre);
 
             if (identifier.equals(currentIdentifier.get()) || isPlayerItSelf)
                 entityDisplay.doSetupImmedately();
 
+            activationState.onValueChanged((oldVal, newVal) ->
+            {
+                if (newVal == null) return;
+
+                this.spriteCurrent.fadeOut(300, Easing.OutExpo);
+                this.spriteSelected.fadeOut(300, Easing.OutExpo);
+                this.spriteWaiting.fadeOut(300, Easing.OutExpo);
+
+                switch (newVal)
+                {
+                    case SELECTED -> spriteSelected.fadeIn(300, Easing.OutExpo);
+                    case CURRENT -> spriteCurrent.fadeIn(300, Easing.OutExpo);
+                    case WAITING -> spriteWaiting.fadeIn(300, Easing.OutExpo);
+                    default -> {}
+                }
+            });
+
             selectedIdentifier.onValueChanged((o, n) ->
             {
-                if (!identifier.equals(n) && activationState != ActivationState.CURRENT && activationState != ActivationState.WAITING)
-                    activationState = ActivationState.NONE;
+                var actState = activationState.get();
+
+                if (!identifier.equals(n) && actState != ActivationState.CURRENT && actState != ActivationState.WAITING)
+                    activationState.set(ActivationState.NONE);
             }, true);
 
             currentIdentifier.onValueChanged((o, n) ->
@@ -194,9 +232,10 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
                 if (prevIsCurrent)
                     entityDisplay.resetEntity();
 
-                activationState = isCurrent
+                activationState.set(isCurrent
                         ? ActivationState.CURRENT
-                        : (prevIsCurrent ? ActivationState.NONE : activationState);
+                        : (prevIsCurrent ? ActivationState.NONE : activationState.get())
+                );
             }, true);
         }
 
@@ -217,52 +256,24 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
 
         private final EntityDisplay entityDisplay;
         private final Container displayContainer = new Container();
+        private final Container backgroundContainer = new Container();
 
         private final static TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 
         @Override
         public void render(DrawContext context, int mouseX, int mouseY, float delta)
         {
+            var lastHovered = this.hovered;
             this.hovered = mouseX < this.screenSpaceX + width && mouseX > this.screenSpaceX
                     && mouseY < this.screenSpaceY + height && mouseY > this.screenSpaceY;
 
-            var contentColorNext = 0x00333333;
-            var borderColorNext = 0x00999999;
-
-            if (hovered)
+            if (lastHovered != this.hovered)
             {
-                contentColorNext = 0xb5333333;
-                borderColorNext = 0xff999999;
+                if (this.hovered)
+                    spriteHover.fadeIn(300, Easing.OutExpo);
+                else
+                    spriteHover.fadeOut(300, Easing.OutExpo);
             }
-
-            if (activationState != ActivationState.NONE)
-            {
-                borderColorNext = switch (activationState)
-                        {
-                            //ARGB color
-                            case SELECTED -> 0xffffaa00;
-                            case CURRENT -> 0xffabcdef;
-                            case WAITING -> 0x50ffaa00;
-                            default -> 0x00000000;
-                        };
-
-                contentColorNext = 0x00333333 + (activationState == ActivationState.CURRENT ? 0xc9000000 : 0xb5000000);
-
-                if (hovered)
-                    contentColorNext += 0x00333333;
-            }
-
-            if (this.borderColor.get() == null)
-                this.borderColor.set(ColorUtils.fromIntARGB(borderColorNext));
-
-            if (this.contentColor.get() == null)
-                this.contentColor.set(ColorUtils.fromIntARGB(contentColorNext));
-
-            Transformer.transform(this.borderColor, ColorUtils.fromIntARGB(borderColorNext),
-                    200, Easing.OutExpo);
-
-            Transformer.transform(this.contentColor, ColorUtils.fromIntARGB(contentColorNext),
-                    300, Easing.OutExpo);
 
             var matrices = context.getMatrices();
 
@@ -273,22 +284,25 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
                 if (this.hovered)
                     matrices.translate(0, 0, 64);
 
-                if (activationState == ActivationState.CURRENT)
+                var actState = activationState.get();
+
+                if (actState == ActivationState.CURRENT)
                     matrices.translate(0, 0, 64);
 
-                context.fill(screenSpaceX + 1, screenSpaceY + 1,
-                        screenSpaceX + width - 1, screenSpaceY + height - 1,
-                        this.contentColor.get().getColor());
+                matrices.push();
+                this.backgroundContainer.setX(this.screenSpaceX);
+                this.backgroundContainer.setY(this.screenSpaceY);
+                this.backgroundContainer.render(context, mouseX, mouseY, delta);
+                matrices.pop();
 
-                context.drawBorder(screenSpaceX, screenSpaceY,
-                        width, height, this.borderColor.get().getColor());
+                matrices.translate(0, 0, 64);
 
                 var x = screenSpaceX + width - 24 - 5;
                 var y = screenSpaceY + 1;
                 var mX = 30;
                 var mY = -9;
 
-                if (activationState == ActivationState.CURRENT)
+                if (actState == ActivationState.CURRENT)
                 {
                     mX = x - mouseX;
                     mY = y - mouseY - (this.height / 2);
@@ -313,9 +327,6 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
             }
         }
 
-        private final Recorder<Color> borderColor = new Recorder<>(null);
-        private final Recorder<Color> contentColor = new Recorder<>(null);
-
         private boolean hovered;
 
         @Override
@@ -327,11 +338,11 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
         @Override
         public Selectable.SelectionType getType()
         {
-            return (activationState == ActivationState.CURRENT ? Selectable.SelectionType.FOCUSED : Selectable.SelectionType.NONE);
+            return (activationState.get() == ActivationState.CURRENT ? Selectable.SelectionType.FOCUSED : Selectable.SelectionType.NONE);
         }
 
         @NotNull
-        private ActivationState activationState = ActivationState.NONE;
+        private Bindable<ActivationState> activationState = new Bindable<>(ActivationState.NONE);
 
         private void playClickSound()
         {
@@ -347,15 +358,15 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
 
             if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT)
             {
-                var lastFocusType = activationState;
+                var lastFocusType = activationState.get();
 
                 switch (lastFocusType)
                 {
                     case SELECTED ->
                     {
-                        activationState = isPlayerItSelf && manager.currentIdentifier.get() == null
+                        activationState.set(isPlayerItSelf && manager.currentIdentifier.get() == null
                                 ? ActivationState.NONE
-                                : ActivationState.WAITING;
+                                : ActivationState.WAITING);
 
                         MorphClient.getInstance().sendMorphCommand(this.identifier);
                         playClickSound();
@@ -367,7 +378,7 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
 
                     default ->
                     {
-                        activationState = ActivationState.SELECTED;
+                        activationState.set(ActivationState.SELECTED);
                         playClickSound();
                     }
                 }
@@ -376,14 +387,16 @@ public class EntityDisplayWidget extends ElementListWidget.Entry<EntityDisplayWi
             }
             else if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT) //Selected + 右键 -> 取消选择
             {
-                if (activationState == ActivationState.SELECTED)
+                var actState = activationState.get();
+
+                if (actState == ActivationState.SELECTED)
                 {
                     manager.selectedIdentifier.set(null);
                     playClickSound();
                 }
-                else if (activationState == ActivationState.CURRENT && !isPlayerItSelf)
+                else if (actState == ActivationState.CURRENT && !isPlayerItSelf)
                 {
-                    activationState = ActivationState.WAITING;
+                    activationState.set(ActivationState.WAITING);
                     MorphClient.getInstance().sendMorphCommand(null);
                     playClickSound();
                 }

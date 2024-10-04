@@ -1,22 +1,15 @@
 package xiamomc.morph.client.screens.disguise;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ElementListWidget;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.math.MathHelper;
 import xiamomc.morph.client.MorphClient;
 import xiamomc.morph.client.graphics.IMDrawable;
-import xiamomc.morph.client.graphics.color.ColorUtils;
-import xiamomc.morph.client.graphics.color.Colors;
 import xiamomc.morph.client.graphics.transforms.Recorder;
 import xiamomc.morph.client.graphics.transforms.Transformer;
 import xiamomc.morph.client.graphics.transforms.easings.Easing;
 
-import java.awt.*;
-
-public class DisguiseList extends ElementListWidget<EntityDisplayWidget> implements IMDrawable
+public class DisguiseList extends ElementListWidget<EntityDisplayEntry> implements IMDrawable
 {
     public DisguiseList(MinecraftClient minecraftClient, int width, int height, int topPadding, int bottomPadding, int itemHeight)
     {
@@ -31,7 +24,7 @@ public class DisguiseList extends ElementListWidget<EntityDisplayWidget> impleme
     public void clearChildren(boolean disposeChildren)
     {
         if (disposeChildren)
-            children().forEach(EntityDisplayWidget::clearChildren);
+            children().forEach(EntityDisplayEntry::clearChildren);
 
         clearEntries();
     }
@@ -52,7 +45,7 @@ public class DisguiseList extends ElementListWidget<EntityDisplayWidget> impleme
         this.width = w;
     }
 
-    public void scrollTo(EntityDisplayWidget widget)
+    public void scrollTo(EntityDisplayEntry widget)
     {
         if (widget == null || !children().contains(widget)) return;
 
