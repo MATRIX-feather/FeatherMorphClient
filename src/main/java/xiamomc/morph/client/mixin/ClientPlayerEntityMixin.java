@@ -31,6 +31,7 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
     public Input input;
 
     @Shadow @Final private ClientRecipeBook recipeBook;
+    @Shadow public float renderPitch;
     @Nullable
     private Boolean inputLastValue;
 
@@ -49,19 +50,22 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
     public double getEyeY()
     {
         if (ServerHandler.modifyBoundingBox)
-            return morphclient$onGetEyeY();
+            return morphclient$overrideGetEyeY();
 
         return super.getEyeY();
     }
 
     @Unique
-    private double morphclient$onGetEyeY()
+    private double morphclient$overrideGetEyeY()
     {
-        AtomicReference<Double> disguiseEyeY = new AtomicReference<>(0d);
+        AtomicReference<Double> disguiseEyeY = new AtomicReference<>(Double.NaN);
         morphclient$runIfSyncerEntityNotNull(syncerEntity ->
         {
             disguiseEyeY.set(MinecraftClient.getInstance().player.getY() + syncerEntity.getStandingEyeHeight());
         });
+
+        if (Double.isNaN(disguiseEyeY.get()))
+            return super.getEyeY();
 
         return disguiseEyeY.get();
     }
