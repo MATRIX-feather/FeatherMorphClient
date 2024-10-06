@@ -1,83 +1,27 @@
 package xiamomc.morph.client.mixin;
 
-import com.mojang.authlib.GameProfile;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.input.Input;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.recipebook.ClientRecipeBook;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.Box;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xiamomc.morph.client.ServerHandler;
-import xiamomc.morph.client.utilties.ClientSyncerUtils;
-
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 
 @Mixin(ClientPlayerEntity.class)
-public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
+public class ClientPlayerEntityMixin
 {
     @Shadow
     @Nullable
     public Input input;
 
-    @Shadow @Final private ClientRecipeBook recipeBook;
-    @Shadow public float renderPitch;
     @Nullable
     private Boolean inputLastValue;
 
-    public ClientPlayerEntityMixin(ClientWorld world, GameProfile profile)
-    {
-        super(world, profile);
-    }
-
-    @Unique
-    private void morphclient$runIfSyncerEntityNotNull(Consumer<Entity> consumerifNotNull)
-    {
-        ClientSyncerUtils.runIfSyncerEntityValid(consumerifNotNull);
-    }
-
-    @Override
-    public double getEyeY()
-    {
-        if (ServerHandler.modifyBoundingBox)
-            return morphclient$overrideGetEyeY();
-
-        return super.getEyeY();
-    }
-
-    @Unique
-    private double morphclient$overrideGetEyeY()
-    {
-        AtomicReference<Double> disguiseEyeY = new AtomicReference<>(Double.NaN);
-        morphclient$runIfSyncerEntityNotNull(syncerEntity ->
-        {
-            disguiseEyeY.set(MinecraftClient.getInstance().player.getY() + syncerEntity.getStandingEyeHeight());
-        });
-
-        if (Double.isNaN(disguiseEyeY.get()))
-            return super.getEyeY();
-
-        return disguiseEyeY.get();
-    }
-
-    @Override
-    protected Box calculateBoundingBox()
-    {
-        return super.calculateBoundingBox();
-    }
-
     @Inject(method = "isSneaking", at = @At("HEAD"), cancellable = true)
-    private void morphclient$onSneakingCall(CallbackInfoReturnable<Boolean> cir)
+    private void onSneakingCall(CallbackInfoReturnable<Boolean> cir)
     {
         var serverSideSneaking = ServerHandler.serverSideSneaking;
 
