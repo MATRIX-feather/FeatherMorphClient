@@ -15,10 +15,10 @@
   "environment": "client",
   "entrypoints": {
     "client": [
-      "xiamomc.morph.client.MorphClient"
+      "xyz.nifeather.morph.client.MorphClient"
     ],
     "modmenu":[
-      "xiamomc.morph.client.ModMenuApiImpl"
+      "xyz.nifeather.morph.client.ModMenuApiImpl"
     ]
   },
   "mixins": [
