@@ -94,14 +94,14 @@ public class DisguiseEntryToast extends LinedToast
     private final EntityDisplay entityDisplay;
 
     @Override
-    protected void postBackgroundDrawing(DrawContext context, ToastManager manager, long startTime)
+    protected void postBackgroundDrawing(DrawContext context, long startTime)
     {
         drawEntity = this.drawAlpha.get() > 0.95f;
 
         if (!drawEntity) return;
 
         var matrices = context.getMatrices();
-        super.postBackgroundDrawing(context, manager, startTime);
+        super.postBackgroundDrawing(context, startTime);
 
         // Push a new entry to allow us to do some tricks
         matrices.push();
@@ -126,12 +126,10 @@ public class DisguiseEntryToast extends LinedToast
     private boolean drawEntity = true;
 
     @Override
-    public Visibility draw(DrawContext context, ToastManager manager, long startTime)
+    public void update(ToastManager manager, long startTime)
     {
-        var result = super.draw(context, manager, startTime);
-        result = isValid.get() ? result : Visibility.HIDE;
+        super.update(manager, startTime);
 
-        this.visibility.set(result);
-        return result;
+        this.visibility.set(isValid.get() ? this.visibility.get() : Visibility.HIDE);
     }
 }

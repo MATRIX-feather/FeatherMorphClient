@@ -8,9 +8,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.Util;
 import xyz.nifeather.morph.client.graphics.capes.ICapeProvider;
-import xyz.nifeather.morph.client.mixin.accessors.UtilAccessor;
 
 import java.io.FileNotFoundException;
 import java.net.URL;
@@ -19,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 /**
@@ -29,7 +28,14 @@ import java.util.function.Consumer;
 public final class KappaCapeProvider implements ICapeProvider
 {
 	//单独给披风请求开一个Worker，避免阻塞MainWorker上的其他请求
-	private static final ExecutorService capeService = ((UtilAccessor)new Util()).callCreateWorker("MorphClientCapeService");
+	private static final ExecutorService capeService = Executors.newFixedThreadPool(3, runnable ->
+	{
+		var thread = new Thread();
+
+		thread.setName("FeatherMorph Cape Worker");
+
+		return thread;
+	});
 
 	private ExecutorService getCapeExecutor()
 	{
@@ -89,7 +95,7 @@ public final class KappaCapeProvider implements ICapeProvider
 		{
 			for (int y = 0; y < srcHeight; y++)
 			{
-				out.setColor(x, y, in.getColor(x, y));
+				out.setColorArgb(x, y, in.getColorArgb(x, y));
 			}
         }
 

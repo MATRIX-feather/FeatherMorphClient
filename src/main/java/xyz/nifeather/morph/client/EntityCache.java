@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
@@ -174,7 +175,7 @@ public class EntityCache
             {
                 if (world == null) return null;
 
-                var instance = type.create(world);
+                var instance = type.create(world, SpawnReason.COMMAND);
 
                 if (!(instance instanceof LivingEntity le))
                 {

@@ -59,10 +59,4 @@ public class RequestToast extends LinedToast
     {
         return (int) (this.getWidth() * 0.85F);
     }
-
-    @Override
-    protected void postBackgroundDrawing(DrawContext matrices, ToastManager manager, long startTime)
-    {
-        super.postBackgroundDrawing(matrices, manager, startTime);
-    }
 }

@@ -189,6 +189,15 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
                     "key.morphclient.testToastLost", InputUtil.Type.KEYSYM,
                     GLFW.GLFW_KEY_X, "category.morphclient.keybind"
             ));
+
+            for (int i = 1; i <= keybindCount; i++)
+            {
+                var key = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                        "key.morphclient.quick_disguise.%s".formatted(i),
+                        InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_UNKNOWN, "category.morphclient.keybind"
+                ));
+                quickDisguiseKeys.add(key);
+            }
         }
 
         morphKeyBind = KeyBindingHelper.registerKeyBinding(new KeyBinding(
@@ -215,15 +224,6 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
                 "key.morphclient.display_name", InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_F8, "category.morphclient.keybind"
         ));
-
-        for (int i = 1; i <= keybindCount; i++)
-        {
-            var key = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                    "key.morphclient.quick_disguise.%s".formatted(i),
-                    InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_UNKNOWN, "category.morphclient.keybind"
-            ));
-            quickDisguiseKeys.add(key);
-        }
     }
 
     private void updateKeys(MinecraftClient client)
@@ -260,7 +260,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
 
             var clientPlayer = client.player;
             if (clientPlayer != null)
-                clientPlayer.sendMessage(Text.translatable("text.morphclient." + (doRender ? "display" : "hide") + "_real_names"));
+                clientPlayer.sendMessage(Text.translatable("text.morphclient." + (doRender ? "display" : "hide") + "_real_names"), false);
         }
 
         if (debugToasts)
@@ -296,7 +296,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
         {
             var player = client.player;
 
-            if (player != null && player.input != null && player.input.sneaking)
+            if (player != null && player.input != null && player.input.playerInput.sneak())
             {
                 serverHandler.sendCommand(new C2SMorphCommand(null));
             }

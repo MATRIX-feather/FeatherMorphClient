@@ -505,7 +505,7 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
 
         try
         {
-            context.setShaderColor(shaderColor[0], shaderColor[1], shaderColor[2], shaderColor[3] * this.alpha.get());
+            RenderSystem.setShaderColor(shaderColor[0], shaderColor[1], shaderColor[2], shaderColor[3] * this.alpha.get());
 
             if (!validatePosition()) updatePosition();
             if (!validateLayout()) updateLayout();
@@ -542,7 +542,7 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
             matrices.translate(-xScreenSpaceOffset, -yScreenSpaceOffset, -1);
             matrices.pop();
 
-            context.setShaderColor(shaderColor[0], shaderColor[1], shaderColor[2], shaderColor[3]);
+            RenderSystem.setShaderColor(shaderColor[0], shaderColor[1], shaderColor[2], shaderColor[3]);
 
             if (masking)
                 context.disableScissor();

@@ -267,17 +267,10 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
                 model, false);
     }
 
-    public boolean fallFlying;
-
     @Override
     public boolean isSpectator()
     {
         return bindingPlayer != null && bindingPlayer.isSpectator();
-    }
-
-    @Override
-    public boolean isFallFlying() {
-        return fallFlying;
     }
 
     public void setActiveItem(ItemStack stack)

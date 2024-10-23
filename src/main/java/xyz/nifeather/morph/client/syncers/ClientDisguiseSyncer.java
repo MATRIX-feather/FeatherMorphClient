@@ -106,8 +106,8 @@ public class ClientDisguiseSyncer extends DisguiseSyncer
 
         MorphClient.getInstance().updateClientView(true, false);
 
-        clientPlayer.sendMessage(Text.translatable("text.morphclient.error.update_disguise1").formatted(Formatting.RED));
-        clientPlayer.sendMessage(Text.translatable("text.morphclient.error.update_disguise2").formatted(Formatting.RED));
+        clientPlayer.sendMessage(Text.translatable("text.morphclient.error.update_disguise1").formatted(Formatting.RED), false);
+        clientPlayer.sendMessage(Text.translatable("text.morphclient.error.update_disguise2").formatted(Formatting.RED), false);
     }
 
     @Nullable

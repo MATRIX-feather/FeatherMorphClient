@@ -13,6 +13,7 @@ import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.model.EntityModelPartNames;
 import net.minecraft.client.render.entity.model.EntityModels;
+import net.minecraft.client.render.entity.state.LivingEntityRenderState;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -31,7 +32,6 @@ import xyz.nifeather.morph.client.mixin.accessors.DragonEntityRendererAccessor;
 import xyz.nifeather.morph.client.mixin.accessors.LivingRendererAccessor;
 import xyz.nifeather.morph.client.syncers.ClientDisguiseSyncer;
 import xyz.nifeather.morph.client.syncers.DisguiseSyncer;
-import xyz.nifeather.morph.client.syncers.OtherClientDisguiseSyncer;
 import xiamomc.pluginbase.Annotations.Initializer;
 import xiamomc.pluginbase.Annotations.Resolved;
 import xiamomc.pluginbase.Exceptions.NullDependencyException;
@@ -66,8 +66,10 @@ public class PlayerRenderHelper extends MorphClientObject
     @Resolved
     private DisguiseInstanceTracker instanceTracker;
 
-    public boolean shouldHideLabel(AbstractClientPlayerEntity player)
+    public boolean shouldHideLabel(@Nullable AbstractClientPlayerEntity player)
     {
+        if (player == null) return false;
+
         var localSyncer = ClientDisguiseSyncer.getCurrentInstance();
         return localSyncer != null && player == localSyncer.getDisguiseInstance();
     }
@@ -99,8 +101,8 @@ public class PlayerRenderHelper extends MorphClientObject
         var clientPlayer = MinecraftClient.getInstance().player;
         assert clientPlayer != null;
 
-        clientPlayer.sendMessage(Text.literal("渲染当前实体时出现错误。"));
-        clientPlayer.sendMessage(Text.literal("在当前伪装变更前客户端预览将被禁用以避免游戏崩溃。"));
+        clientPlayer.sendMessage(Text.literal("渲染当前实体时出现错误。"), false);
+        clientPlayer.sendMessage(Text.literal("在当前伪装变更前客户端预览将被禁用以避免游戏崩溃。"), false);
     }
 
     @ApiStatus.Internal
@@ -110,14 +112,8 @@ public class PlayerRenderHelper extends MorphClientObject
 
     /**
      * 覆盖玩家的实体渲染
-     * @param player 目标玩家
-     * @param yaw yaw
-     * @param tickDelta tickDelta
-     * @param matrixStack matrixStack
-     * @param vertexConsumerProvider vertexConsumerProvider
-     * @param light 所处光照
      * @return true: 不继续渲染玩家本体, false: 继续渲染玩家本体
-     */
+     *//*
     public final boolean overrideEntityRender(AbstractClientPlayerEntity player, float yaw, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light)
     {
         if (player instanceof MorphLocalPlayer) return false;
@@ -167,7 +163,7 @@ public class PlayerRenderHelper extends MorphClientObject
 
         return true;
     }
-
+*/
     private Camera camera()
     {
         return MinecraftClient.getInstance().gameRenderer.getCamera();
@@ -225,7 +221,7 @@ public class PlayerRenderHelper extends MorphClientObject
         EnderDragonEntityRenderer.renderCrystalBeam(relativeX,
                 relativeY + getCrystalYOffsetCopy(connectedCrystal, tickDelta),
                 relativeZ,
-                tickDelta, player.age, matrixStack, vertexConsumerProvider, light);
+                tickDelta, matrixStack, vertexConsumerProvider, light);
 
         matrixStack.pop();
     }
@@ -269,7 +265,7 @@ public class PlayerRenderHelper extends MorphClientObject
         //尝试获取对应的模型
         //有些模型变换会影响全局渲染，所以我们需要创建一个新的模型（比方说雪傀儡和铁傀儡的手臂模型）
         var targetEntry = EntityModels.getModels().entrySet().stream()
-                .filter(e -> e.getKey().getId().equals(EntityType.getId(type))).findFirst().orElse(null);
+                .filter(e -> e.getKey().id().equals(EntityType.getId(type))).findFirst().orElse(null);
 
         if (targetEntry != null)
             model = targetEntry.getValue().createModel();
@@ -348,9 +344,13 @@ public class PlayerRenderHelper extends MorphClientObject
 
     private final RenderLayer dragonLayer = RenderLayer.getEntityCutoutNoCull(Identifier.of("textures/entity/enderdragon/dragon.png"));
 
+    /**
+     * @return Whether rendered disguise instance
+     */
     @SuppressWarnings("rawtypes")
-    public boolean onArmDrawCall(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, AbstractClientPlayerEntity player, ModelPart arm, ModelPart sleeve)
+    public boolean onArmDrawCall(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light)
     {
+        //logger.info("On Arms!");
         if (!allowRender) return false;
 
         try
@@ -360,15 +360,14 @@ public class PlayerRenderHelper extends MorphClientObject
             if (syncer == null || syncer.disposed()) return false;
             var entity = syncer.getDisguiseInstance();
 
-            if (entity == null || player != MinecraftClient.getInstance().player || !MorphClient.getInstance().getModConfigData().clientViewVisible()) return false;
+            if (entity == null || !MorphClient.getInstance().getModConfigData().clientViewVisible()) return false;
 
-            EntityRenderer<?> disguiseRenderer = MinecraftClient.getInstance().getEntityRenderDispatcher().getRenderer(entity);
+            EntityRenderer<?, ?> disguiseRenderer = MinecraftClient.getInstance().getEntityRenderDispatcher().getRenderer(entity);
 
             ModelPart targetArm;
             ModelInfo modelInfo;
             RenderLayer layer = null;
             EntityModel model = null;
-
 
             if (disguiseRenderer instanceof EnderDragonEntityRenderer enderDragonEntityRenderer)
             {
@@ -380,19 +379,21 @@ public class PlayerRenderHelper extends MorphClientObject
             {
                 model = livingEntityRenderer.getModel();
 
-                if (entity instanceof MorphLocalPlayer)
+                if (entity instanceof MorphLocalPlayer localPlayer)
                 {
                     var renderer = (PlayerEntityRenderer) livingEntityRenderer;
 
                     if (renderingLeftPart)
-                        renderer.renderLeftArm(matrices, vertexConsumers, light, (MorphLocalPlayer)entity);
+                        renderer.renderLeftArm(matrices, vertexConsumers, light, localPlayer.getSkinTextures().texture(), true);
                     else
-                        renderer.renderRightArm(matrices, vertexConsumers, light, (MorphLocalPlayer)entity);
+                        renderer.renderRightArm(matrices, vertexConsumers, light, localPlayer.getSkinTextures().texture(), true);
 
                     return true;
                 }
 
-                layer = ((LivingRendererAccessor) livingEntityRenderer).callGetRenderLayer((LivingEntity) entity, true, false, true);
+                var renderState = (LivingEntityRenderState) livingEntityRenderer.createRenderState();
+                livingEntityRenderer.updateRenderState(entity, renderState, 0);
+                layer = ((LivingRendererAccessor) livingEntityRenderer).callGetRenderLayer(renderState, true, false, true);
             }
 
             modelInfo = tryGetModel(entity.getType(), model);
@@ -402,8 +403,8 @@ public class PlayerRenderHelper extends MorphClientObject
             {
                 layer = layer == null ? RenderLayer.getSolid() : layer;
 
-                model.setAngles(entity, 0, 0, 0, 0, 0);
-                model.handSwingProgress = 0;
+                targetArm.visible = true;
+                targetArm.resetTransform();
 
                 var scale = modelInfo.scale;
                 matrices.scale((float)scale.getX(), (float)scale.getY(), (float)scale.getZ());

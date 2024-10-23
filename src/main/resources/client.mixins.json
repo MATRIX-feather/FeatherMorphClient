@@ -19,10 +19,11 @@
     "ClientWorldMixin",
     "CreativeInventoryMixin",
     "EntityMixin",
+    "EntityRenderDispatcherMixin",
     "EntityRendererMixin",
+    "HeldItemRendererMixin",
     "InventoryScreenMixin",
     "MinecraftClientMixin",
-    "PlayerEntityRendererMixin",
     "PlayerMixin",
     "WorldRendererMixin",
     "accessors.AbstractHorseEntityMixin",
@@ -30,8 +31,7 @@
     "accessors.DragonEntityRendererAccessor",
     "accessors.EntityAccessor",
     "accessors.LimbAnimatorAccessor",
-    "accessors.LivingRendererAccessor",
-    "accessors.UtilAccessor"
+    "accessors.LivingRendererAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -173,9 +173,9 @@ public class DisguiseInstanceTracker extends MorphClientObject
     }
 
     @Nullable
-    public DisguiseSyncer getSyncerFor(AbstractClientPlayerEntity player)
+    public DisguiseSyncer getSyncerFor(Entity entity)
     {
-        return idSyncerMap.getOrDefault(player.getId(), null);
+        return idSyncerMap.getOrDefault(entity.getId(), null);
     }
 
     @Nullable

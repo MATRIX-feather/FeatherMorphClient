@@ -43,8 +43,7 @@ public class EntityRendererHelper
 
     public final void renderRevealNameIfPossible(EntityRenderDispatcher dispatcher,
                                            Entity renderingEntity, TextRenderer textRenderer,
-                                           MatrixStack matrices, VertexConsumerProvider vertexConsumers,
-                                           @Nullable CallbackInfo ci, int light)
+                                           MatrixStack matrices, VertexConsumerProvider vertexConsumers)
     {
         if (!doRenderRealName) return;
 
@@ -56,9 +55,9 @@ public class EntityRendererHelper
         String text = entrySet.getValue();
         if (text.equals(renderingEntity.getName().getString())) return;
 
-        var syncer = ClientDisguiseSyncer.getCurrentInstance();
-        if (syncer != null && renderingEntity != ClientDisguiseSyncer.getCurrentInstance().getDisguiseInstance())
-            renderingEntity.ignoreCameraFrustum = true;
+        //var syncer = ClientDisguiseSyncer.getCurrentInstance();
+        //if (syncer != null && renderingEntity != ClientDisguiseSyncer.getCurrentInstance().getDisguiseInstance())
+        //    renderingEntity.ignoreCameraFrustum = true;
 
         var typeText = renderingEntity instanceof PlayerEntity playerEntity
                 ? playerEntity.getName().getString()

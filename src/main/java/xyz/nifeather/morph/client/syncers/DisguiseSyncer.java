@@ -293,7 +293,7 @@ public abstract class DisguiseSyncer extends MorphClientObject
         var clientPlayer = MinecraftClient.getInstance().player;
         assert clientPlayer != null;
 
-        clientPlayer.sendMessage(Text.literal(this + "Sync Failed!"));
+        clientPlayer.sendMessage(Text.literal(this + "Sync Failed!"), false);
     }
 
     public void onGameTick()
@@ -509,7 +509,7 @@ public abstract class DisguiseSyncer extends MorphClientObject
         entity.setOnFire(bindingPlayer.isOnFire());
 
         // Health
-        var healthAttribute = entity.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH);
+        var healthAttribute = entity.getAttributeInstance(EntityAttributes.MAX_HEALTH);
 
         if (healthAttribute != null)
             healthAttribute.setBaseValue(bindingPlayer.getMaxHealth());
@@ -517,10 +517,10 @@ public abstract class DisguiseSyncer extends MorphClientObject
         entity.setHealth(bindingPlayer.getHealth());
 
         // Scale
-        var scaleAttribute = entity.getAttributeInstance(EntityAttributes.GENERIC_SCALE);
+        var scaleAttribute = entity.getAttributeInstance(EntityAttributes.SCALE);
 
         if (scaleAttribute != null)
-            scaleAttribute.setBaseValue(bindingPlayer.getAttributeValue(EntityAttributes.GENERIC_SCALE));
+            scaleAttribute.setBaseValue(bindingPlayer.getAttributeValue(EntityAttributes.SCALE));
 
         // Hand Swing
         entity.handSwinging = bindingPlayer.handSwinging;
@@ -569,7 +569,12 @@ public abstract class DisguiseSyncer extends MorphClientObject
 
         if (entity instanceof MorphLocalPlayer player)
         {
-            player.fallFlying = bindingPlayer.isFallFlying();
+            if (player.isGliding() != bindingPlayer.isGliding())
+            {
+                if (bindingPlayer.isGliding()) player.startGliding();
+                else player.stopGliding();
+            }
+
             player.usingRiptide = bindingPlayer.isUsingRiptide();
 
             player.fishHook = bindingPlayer.fishHook;

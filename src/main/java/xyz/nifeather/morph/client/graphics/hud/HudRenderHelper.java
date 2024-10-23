@@ -133,7 +133,7 @@ public class HudRenderHelper extends MorphClientObject
             shaderColor[3]
         };
 
-        context.setShaderColor(1, 1, 1, drawAlpha.get());
+        RenderSystem.setShaderColor(1, 1, 1, drawAlpha.get());
 
         // 先位移到屏幕外面
         // 然后再位移到屏幕里面
@@ -149,7 +149,7 @@ public class HudRenderHelper extends MorphClientObject
         var barEnd = height - padding;
         context.fill(padding, barStart, width - padding, barEnd, colorRecord.get().getColor());
 
-        context.setShaderColor(shaderColor[0], shaderColor[1], shaderColor[2], shaderColor[3]);
+        RenderSystem.setShaderColor(shaderColor[0], shaderColor[1], shaderColor[2], shaderColor[3]);
     }
 
     public void renderProgress(DrawContext context, RenderTickCounter renderTickCounter)

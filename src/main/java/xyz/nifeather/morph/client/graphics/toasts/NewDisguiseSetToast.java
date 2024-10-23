@@ -3,6 +3,7 @@ package xyz.nifeather.morph.client.graphics.toasts;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.toast.ToastManager;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -54,13 +55,13 @@ public class NewDisguiseSetToast extends LinedToast
     private static final Identifier TEX = Identifier.of(Identifier.DEFAULT_NAMESPACE, "textures/gui/sprites/icon/info.png");
 
     @Override
-    protected void postBackgroundDrawing(DrawContext context, ToastManager manager, long startTime)
+    protected void postBackgroundDrawing(DrawContext context, long startTime)
     {
-        super.postBackgroundDrawing(context, manager, startTime);
+        super.postBackgroundDrawing(context, startTime);
 
         RenderSystem.enableBlend();
         RenderSystem.setShaderTexture(0, TEX);
 
-        context.drawTexture(TEX, this.getWidth() / 16 - 2, 6, 0, 0, 20, 20, 20, 20);
+        context.drawGuiTexture(RenderLayer::getGuiTextured, TEX, this.getWidth() / 16 - 2, 6, 20, 20);
     }
 }

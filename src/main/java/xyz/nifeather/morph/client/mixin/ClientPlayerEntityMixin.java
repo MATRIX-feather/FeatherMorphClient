@@ -26,11 +26,11 @@ public class ClientPlayerEntityMixin
         var serverSideSneaking = ServerHandler.serverSideSneaking;
 
         //如果input的下蹲状态发生变化，则重置服务器状态并返回input的当前状态
-        if (input != null && (inputLastValue == null || input.sneaking != inputLastValue))
+        if (input != null && (inputLastValue == null || input.playerInput.sneak() != inputLastValue))
         {
-            inputLastValue = input.sneaking;
+            inputLastValue = input.playerInput.sneak();
 
-            cir.setReturnValue(input.sneaking);
+            cir.setReturnValue(input.playerInput.sneak());
             ServerHandler.serverSideSneaking = serverSideSneaking = null;
             return;
         }

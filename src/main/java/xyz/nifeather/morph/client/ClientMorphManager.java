@@ -421,9 +421,31 @@ public class ClientMorphManager extends MorphClientObject
         quickDisguiseMap.clear();
     }
 
+    private void testClientDisguise(int index)
+    {
+        String[] disguises = new String[]
+                {
+                        "player:Faruzan_",
+                        "minecraft:sheep",
+                        "minecraft:ender_dragon",
+                        "player:Tairiitsuu"
+                };
+
+        MinecraftClient.getInstance().player.sendMessage(Text.literal("Test! " + disguises[index]), true);
+        this.selfVisibleEnabled.set(!this.selfVisibleEnabled.get());
+
+        this.setCurrent(disguises[index]);
+    }
+
     public void onQuickDisguise(int index)
     {
-        MinecraftClient.getInstance().player.sendMessage(Text.literal("QUick Disguise! " + index));
+        if (1+1==2)
+        {
+            testClientDisguise(index);
+            return;
+        }
+
+        MinecraftClient.getInstance().player.sendMessage(Text.literal("QUick Disguise! " + index), false);
 
         var disguise = quickDisguiseMap.getOrDefault(index, null);
         if (disguise == null) return;

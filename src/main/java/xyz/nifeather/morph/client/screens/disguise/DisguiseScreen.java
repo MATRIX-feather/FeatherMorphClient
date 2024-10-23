@@ -6,6 +6,7 @@ import me.shedaniel.math.Color;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.slf4j.Logger;
@@ -397,30 +398,24 @@ public class DisguiseScreen extends FeatherScreen
     }
 
     @Override
-    protected void applyBlur(float delta)
-    {
-        super.applyBlur(delta);
-    }
-
-    @Override
     public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta)
     {
         super.renderBackground(context, mouseX, mouseY, delta);
 
-        context.setShaderColor(0.2F, 0.2F, 0.2F, 1.0F);
+        RenderSystem.setShaderColor(0.2F, 0.2F, 0.2F, 1.0F);
 
         RenderSystem.enableBlend();
-        context.drawTexture(Screen.MENU_BACKGROUND_TEXTURE,
+        context.drawTexture(RenderLayer::getGuiTextured, Screen.MENU_BACKGROUND_TEXTURE,
                 0, 0,
                 0, -topHeight.get(),
                 this.width, this.topHeight.get(), 32, 32);
 
-        context.drawTexture(Screen.MENU_BACKGROUND_TEXTURE,
+        context.drawTexture(RenderLayer::getGuiTextured, Screen.MENU_BACKGROUND_TEXTURE,
                 0, this.height - bottomHeight.get(),
                 0, 0,
                 this.width, this.height, 32, 32);
 
-        context.setShaderColor(1F, 1F, 1F, 1F);
+        RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
     }
 
     @Override

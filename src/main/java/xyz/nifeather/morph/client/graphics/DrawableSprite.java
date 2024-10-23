@@ -2,6 +2,7 @@ package xyz.nifeather.morph.client.graphics;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.Identifier;
 
 public class DrawableSprite extends MDrawable
@@ -18,7 +19,7 @@ public class DrawableSprite extends MDrawable
     {
         RenderSystem.enableBlend();
 
-        context.drawGuiTexture(textureIdentifier,
+        context.drawGuiTexture(RenderLayer::getGuiTextured, textureIdentifier,
                 this.getX(), this.getY(), 0,
                 Math.round(this.getRenderWidth()), Math.round(this.getRenderHeight()));
     }

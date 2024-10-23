@@ -1,7 +1,10 @@
 package xyz.nifeather.morph.client.mixin;
 
+import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.render.*;
+import net.minecraft.client.util.Handle;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.profiler.Profiler;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
@@ -32,14 +35,14 @@ public abstract class WorldRendererMixin
     @Unique
     private MatrixStack featherMorph$currentStack;
 
-    @Inject(method = "render",
+    @Inject(method = "method_62214",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/BufferBuilderStorage;getEntityVertexConsumers()Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;", shift = At.Shift.AFTER))
-    private void featherMorph$onRender(RenderTickCounter tickCounter, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci)
+    private void featherMorph$onRender(Fog fog, RenderTickCounter renderTickCounter, Camera camera, Profiler profiler, Matrix4f matrix4f, Matrix4f matrix4f2, Handle<Framebuffer> handle, Handle<Framebuffer> handle2, Handle<Framebuffer> handle3, Handle<Framebuffer> handle4, boolean bl, Frustum frustum, Handle<Framebuffer> handle5, CallbackInfo ci)
     {
         if (featherMorph$currentStack != null)
         {
             var featherMorph$vertex = this.bufferBuilders.getEntityVertexConsumers();
-            PlayerRenderHelper.instance().renderCrystalBeam(tickCounter, featherMorph$currentStack, featherMorph$vertex, 0xFFFFFF);
+            PlayerRenderHelper.instance().renderCrystalBeam(renderTickCounter, featherMorph$currentStack, featherMorph$vertex, 0xFFFFFF);
 
             featherMorph$currentStack = null;
         }

@@ -1,5 +1,6 @@
 package xyz.nifeather.morph.client.mixin.accessors;
 
+import net.minecraft.client.render.entity.DragonEntityModel;
 import net.minecraft.client.render.entity.EnderDragonEntityRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
@@ -8,5 +9,5 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface DragonEntityRendererAccessor
 {
     @Accessor
-    EnderDragonEntityRenderer.DragonEntityModel getModel();
+    DragonEntityModel getModel();
 }

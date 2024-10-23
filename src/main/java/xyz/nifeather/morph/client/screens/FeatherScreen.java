@@ -96,11 +96,11 @@ public abstract class FeatherScreen extends Screen implements IMDrawable
                         shaderColor[3]
                 };
 
-        context.setShaderColor(shaderColor[0], shaderColor[1], shaderColor[2], shaderColor[3] * this.alpha.get());
+        RenderSystem.setShaderColor(shaderColor[0], shaderColor[1], shaderColor[2], shaderColor[3] * this.alpha.get());
 
         super.render(context, mouseX, mouseY, delta);
 
-        context.setShaderColor(shaderColor[0], shaderColor[1], shaderColor[2], shaderColor[3]);
+        RenderSystem.setShaderColor(shaderColor[0], shaderColor[1], shaderColor[2], shaderColor[3]);
     }
 
     @Override

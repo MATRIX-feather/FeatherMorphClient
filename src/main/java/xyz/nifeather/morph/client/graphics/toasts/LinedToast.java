@@ -145,15 +145,15 @@ public class LinedToast extends MorphClientObject implements Toast
 
     private final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 
-    protected void postTextDrawing(DrawContext context, ToastManager manager, long startTime)
+    protected void postTextDrawing(DrawContext context, long startTime)
     {
     }
 
-    protected void postBackgroundDrawing(DrawContext context, ToastManager manager, long startTime)
+    protected void postBackgroundDrawing(DrawContext context, long startTime)
     {
     }
 
-    protected void postDraw(DrawContext context, ToastManager manager, long startTime)
+    protected void postDraw(DrawContext context, long startTime)
     {
     }
 
@@ -173,7 +173,25 @@ public class LinedToast extends MorphClientObject implements Toast
     }
 
     @Override
-    public Visibility draw(DrawContext context, ToastManager manager, long startTime)
+    public Visibility getVisibility()
+    {
+        return this.visibility.get();
+    }
+
+    private double progress = 0d;
+
+    @Override
+    public void update(ToastManager manager, long startTime)
+    {
+        this.progress = Math.min(1, startTime / (5000.0 * manager.getNotificationDisplayTimeMultiplier()));
+
+        // Update visibility
+        var visibility = this.progress >= 1 ? Visibility.HIDE : Visibility.SHOW;
+        this.visibility.set(visibility);
+    }
+
+    @Override
+    public void draw(DrawContext context, TextRenderer textRenderer, long startTime)
     {
         if (!layoutValid.get())
             updateLayout();
@@ -181,16 +199,14 @@ public class LinedToast extends MorphClientObject implements Toast
         // RenderSystem#getShaderColor -> return shaderColor;
         var shaderColor = RenderSystem.getShaderColor();
         shaderColor = new float[]
-        {
-                shaderColor[0],
-                shaderColor[1],
-                shaderColor[2],
-                shaderColor[3]
-        };
+                {
+                        shaderColor[0],
+                        shaderColor[1],
+                        shaderColor[2],
+                        shaderColor[3]
+                };
 
-        context.setShaderColor(shaderColor[0], shaderColor[1], shaderColor[2], drawAlpha.get());
-
-        var progress = Math.min(1, startTime / (5000.0 * manager.getNotificationDisplayTimeMultiplier()));
+        RenderSystem.setShaderColor(shaderColor[0], shaderColor[1], shaderColor[2], drawAlpha.get());
 
         var xRightPadding = 1;
         var xLeftPadding = 2;
@@ -213,7 +229,7 @@ public class LinedToast extends MorphClientObject implements Toast
                         ColorUtils.fromHex("666666").getColor());
             }
 
-            postBackgroundDrawing(context, manager, startTime);
+            postBackgroundDrawing(context, startTime);
 
             // Draw text
             var textStartX = (int)getTextStartX();
@@ -222,7 +238,7 @@ public class LinedToast extends MorphClientObject implements Toast
             context.drawTextWithShadow(textRenderer, titleDisplay, textStartX, textStartY - 1, 0xffffffff);
             context.drawTextWithShadow(textRenderer, descDisplay, textStartX, textStartY + textRenderer.fontHeight + 1, 0xffffffff);
 
-            postTextDrawing(context, manager, startTime);
+            postTextDrawing(context, startTime);
         }
 
         var matrices = context.getMatrices();
@@ -252,15 +268,9 @@ public class LinedToast extends MorphClientObject implements Toast
         //var borderColor = ColorUtils.fromHex("#222222");
         //DrawableHelper.drawBorder(matrices, 0, 0, this.getWidth(), this.getHeight(), borderColor.getColor());
 
-        // Update visibility
-        var visibility = progress >= 1 ? Visibility.HIDE : Visibility.SHOW;
-        this.visibility.set(visibility);
-
         if (renderContent)
-            postDraw(context, manager, startTime);
+            postDraw(context, startTime);
 
-        context.setShaderColor(shaderColor[0], shaderColor[1], shaderColor[2], shaderColor[3]);
-
-        return visibility;
+        RenderSystem.setShaderColor(shaderColor[0], shaderColor[1], shaderColor[2], shaderColor[3]);
     }
 }
