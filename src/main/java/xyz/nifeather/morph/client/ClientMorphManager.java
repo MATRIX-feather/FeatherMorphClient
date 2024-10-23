@@ -62,8 +62,6 @@ public class ClientMorphManager extends MorphClientObject
 
     public final Bindable<Float> revealingValue = new Bindable<>(0f);
 
-    public final Map<Integer, String> playerMap = new Object2ObjectArrayMap<>();
-
     @Resolved
     private DisguiseInstanceTracker instanceTracker;
 
@@ -126,8 +124,6 @@ public class ClientMorphManager extends MorphClientObject
 
     private void onDisconnect()
     {
-        playerMap.clear();
-
         world = null;
         prevWorld = null;
 
@@ -431,7 +427,8 @@ public class ClientMorphManager extends MorphClientObject
                         "player:Tairiitsuu"
                 };
 
-        MinecraftClient.getInstance().player.sendMessage(Text.literal("Test! " + disguises[index]), true);
+        var player = MinecraftClient.getInstance().player;
+        player.sendMessage(Text.literal("Test! " + disguises[index]), true);
         this.selfVisibleEnabled.set(!this.selfVisibleEnabled.get());
 
         this.setCurrent(disguises[index]);

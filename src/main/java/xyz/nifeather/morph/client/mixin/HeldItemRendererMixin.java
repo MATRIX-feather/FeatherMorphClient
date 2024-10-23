@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import xyz.nifeather.morph.client.MorphClient;
 import xyz.nifeather.morph.client.graphics.PlayerRenderHelper;
 import xyz.nifeather.morph.client.syncers.ClientDisguiseSyncer;
 
@@ -27,7 +28,7 @@ public class HeldItemRendererMixin
     )
     private void morphclient$renderArmHoldingItem_left(PlayerEntityRenderer instance, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, Identifier skinTexture, boolean sleeveVisible)
     {
-        if (morphclient$hasClientSyncer())
+        if (morphclient$canRender())
             morphclient$renderLeftArm(matrices, vertexConsumers, light);
         else
             instance.renderLeftArm(matrices, vertexConsumers, light, skinTexture, this.client.player.isPartVisible(PlayerModelPart.LEFT_SLEEVE));
@@ -39,7 +40,7 @@ public class HeldItemRendererMixin
     )
     private void morphclient$renderArmHoldingItem_right(PlayerEntityRenderer instance, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, Identifier skinTexture, boolean sleeveVisible)
     {
-        if (morphclient$hasClientSyncer())
+        if (morphclient$canRender())
             morphclient$renderRightArm(matrices, vertexConsumers, light);
         else
             instance.renderRightArm(matrices, vertexConsumers, light, skinTexture, this.client.player.isPartVisible(PlayerModelPart.RIGHT_SLEEVE));
@@ -51,7 +52,7 @@ public class HeldItemRendererMixin
     )
     private void morphclient$renderArmHoldingItem_right_alt(PlayerEntityRenderer instance, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, Identifier skinTexture, boolean sleeveVisible)
     {
-        if (morphclient$hasClientSyncer())
+        if (morphclient$canRender())
             morphclient$renderRightArm(matrices, vertexConsumers, light);
         else
             instance.renderRightArm(matrices, vertexConsumers, light, skinTexture, this.client.player.isPartVisible(PlayerModelPart.RIGHT_SLEEVE));
@@ -63,7 +64,7 @@ public class HeldItemRendererMixin
     )
     private void morphclient$renderArmHoldingItem_left_alt(PlayerEntityRenderer instance, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, Identifier skinTexture, boolean sleeveVisible)
     {
-        if (morphclient$hasClientSyncer())
+        if (morphclient$canRender())
             morphclient$renderLeftArm(matrices, vertexConsumers, light);
         else
             instance.renderLeftArm(matrices, vertexConsumers, light, skinTexture, this.client.player.isPartVisible(PlayerModelPart.RIGHT_SLEEVE));
@@ -89,10 +90,10 @@ public class HeldItemRendererMixin
     private static final PlayerRenderHelper morphclient$rendererHelper = PlayerRenderHelper.instance();
 
     @Unique
-    private boolean morphclient$hasClientSyncer()
+    private boolean morphclient$canRender()
     {
         var clientSyncer = ClientDisguiseSyncer.getCurrentInstance();
-        return clientSyncer != null && !clientSyncer.disposed();
+        return clientSyncer != null && !clientSyncer.disposed() && MorphClient.getInstance().getModConfigData().clientViewVisible();
     }
 
     @Unique

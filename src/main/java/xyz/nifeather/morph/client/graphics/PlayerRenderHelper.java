@@ -360,7 +360,7 @@ public class PlayerRenderHelper extends MorphClientObject
             if (syncer == null || syncer.disposed()) return false;
             var entity = syncer.getDisguiseInstance();
 
-            if (entity == null || !MorphClient.getInstance().getModConfigData().clientViewVisible()) return false;
+            if (entity == null) return false;
 
             EntityRenderer<?, ?> disguiseRenderer = MinecraftClient.getInstance().getEntityRenderDispatcher().getRenderer(entity);
 

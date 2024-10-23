@@ -119,6 +119,7 @@ public class DisguiseInstanceTracker extends MorphClientObject
     public void reset()
     {
         trackingDisguises.clear();
+        this.playerMap.clear();
 
         var mapCopy = new Object2ObjectArrayMap<>(idSyncerMap);
         mapCopy.forEach((id, syncer) -> this.removeSyncer(syncer));
@@ -185,6 +186,8 @@ public class DisguiseInstanceTracker extends MorphClientObject
     }
 
     //endregion
+
+    public final Map<Integer, String> playerMap = new Object2ObjectArrayMap<>();
 
     @Nullable
     public DisguiseSyncer addSyncerIfNotExist(int networkId, String did)

@@ -11,11 +11,10 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityAttachmentType;
 import net.minecraft.entity.player.PlayerEntity;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import xyz.nifeather.morph.client.DisguiseInstanceTracker;
 import xyz.nifeather.morph.client.MorphClient;
 import xyz.nifeather.morph.client.graphics.color.ColorUtils;
 import xyz.nifeather.morph.client.graphics.color.MaterialColors;
-import xyz.nifeather.morph.client.syncers.ClientDisguiseSyncer;
 
 import java.util.Map;
 
@@ -36,7 +35,7 @@ public class EntityRendererHelper
     @Nullable
     public final Map.Entry<Integer, String> getEntry(Integer id)
     {
-        return MorphClient.getInstance().morphManager.playerMap.entrySet().stream()
+        return DisguiseInstanceTracker.getInstance().playerMap.entrySet().stream()
                 .filter(set -> id.equals(set.getKey()))
                 .findFirst().orElse(null);
     }
@@ -97,7 +96,7 @@ public class EntityRendererHelper
         var positionMatrix = matrices.peek().getPositionMatrix();
         var x = textRenderer.getWidth(text) / -2f;
 
-        //背景
+        //背景+文字
         textRenderer.draw(text, x, 0,
                 textColorTransparent, false,
                 positionMatrix, vertexConsumers,

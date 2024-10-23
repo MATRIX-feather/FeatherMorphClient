@@ -434,27 +434,27 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
     {
         var map = s2CMapCommand.getMap();
 
-        morphManager.playerMap.clear();
-        morphManager.playerMap.putAll(map);
+        instanceTracker.playerMap.clear();
+        instanceTracker.playerMap.putAll(map);
     }
 
     @Override
     public void onMapPartialCommand(S2CPartialMapCommand s2CPartialMapCommand)
     {
-        morphManager.playerMap.putAll(s2CPartialMapCommand.getMap());
+        instanceTracker.playerMap.putAll(s2CPartialMapCommand.getMap());
     }
 
     @Override
     public void onMapClearCommand(S2CMapClearCommand s2CMapClearCommand)
     {
-        morphManager.playerMap.clear();
+        instanceTracker.playerMap.clear();
     }
 
     @Override
     public void onMapRemoveCommand(S2CMapRemoveCommand s2CMapRemoveCommand)
     {
         var id = s2CMapRemoveCommand.getTargetId();
-        morphManager.playerMap.remove(id);
+        instanceTracker.playerMap.remove(id);
     }
 
     @Override
