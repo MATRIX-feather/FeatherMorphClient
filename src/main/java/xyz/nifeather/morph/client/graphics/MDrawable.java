@@ -470,6 +470,11 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
     {
     }
 
+    protected boolean disableAlphaShaderBlend()
+    {
+        return false;
+    }
+
     @Override
     public final void render(DrawContext context, int mouseX, int mouseY, float delta)
     {
@@ -493,7 +498,7 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
             matrices.pop();
             return;
         }
-
+/*
         var shaderColor = RenderSystem.getShaderColor();
         shaderColor = new float[]
                 {
@@ -502,10 +507,14 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
                         shaderColor[2],
                         shaderColor[3]
                 };
+*/
 
         try
         {
-            RenderSystem.setShaderColor(shaderColor[0], shaderColor[1], shaderColor[2], shaderColor[3] * this.alpha.get());
+            // BUG: Minecraft从1.21.2起，调用RenderSystem#setShaderColor会使文本渲染变得奇怪
+            //      因此我们之后可能都得手动应用透明度了
+            //
+            //RenderSystem.setShaderColor(shaderColor[0], shaderColor[1], shaderColor[2], shaderColor[3] * this.alpha.get());
 
             if (!validatePosition()) updatePosition();
             if (!validateLayout()) updateLayout();
@@ -542,7 +551,7 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
             matrices.translate(-xScreenSpaceOffset, -yScreenSpaceOffset, -1);
             matrices.pop();
 
-            RenderSystem.setShaderColor(shaderColor[0], shaderColor[1], shaderColor[2], shaderColor[3]);
+            //RenderSystem.setShaderColor(shaderColor[0], shaderColor[1], shaderColor[2], shaderColor[3]);
 
             if (masking)
                 context.disableScissor();

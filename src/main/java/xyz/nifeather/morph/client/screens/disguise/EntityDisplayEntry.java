@@ -24,6 +24,7 @@ import xyz.nifeather.morph.client.MorphClientObject;
 import xyz.nifeather.morph.client.graphics.Anchor;
 import xyz.nifeather.morph.client.graphics.EntityDisplay;
 import xyz.nifeather.morph.client.graphics.DrawableSprite;
+import xyz.nifeather.morph.client.graphics.color.Colors;
 import xyz.nifeather.morph.client.graphics.container.Container;
 import xyz.nifeather.morph.client.graphics.transforms.easings.Easing;
 import xiamomc.pluginbase.Annotations.Resolved;
@@ -139,10 +140,10 @@ public class EntityDisplayEntry extends ElementListWidget.Entry<EntityDisplayEnt
         private Bindable<String> currentIdentifier = new Bindable<>();
         private Bindable<String> selectedIdentifier = new Bindable<>();
 
-        public static final Identifier buttonTextureSelected = Identifier.of("morphclient", "disguise_select_selected");
-        public static final Identifier buttonTextureCurrent = Identifier.of("morphclient", "disguise_select_current");
-        public static final Identifier buttonTextureWaiting = Identifier.of("morphclient", "disguise_select_waiting");
-        public static final Identifier buttonTextureOverlay = Identifier.of("morphclient", "disguise_select_overlay_hover");
+        public static final Identifier buttonTextureSelected = Identifier.of("morphclient", "disguise_selection/disguise_select_selected");
+        public static final Identifier buttonTextureCurrent = Identifier.of("morphclient", "disguise_selection/disguise_select_current");
+        public static final Identifier buttonTextureWaiting = Identifier.of("morphclient", "disguise_selection/disguise_select_waiting");
+        public static final Identifier buttonTextureOverlay = Identifier.of("morphclient", "disguise_selection/disguise_select_overlay_hover");
 
         private final DrawableSprite spriteSelected;
         private final DrawableSprite spriteCurrent;

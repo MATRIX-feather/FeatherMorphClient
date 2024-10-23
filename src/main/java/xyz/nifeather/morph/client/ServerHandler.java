@@ -529,6 +529,11 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
         instanceTracker.reset();
     }
 
+    public void testSetServerReady()
+    {
+        serverReady.set(true);
+    }
+
     private void updateServerStatus()
     {
         serverReady.set(handshakeReceived && apiVersionChecked);

@@ -5,6 +5,9 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.Text;
+import xyz.nifeather.morph.client.graphics.color.ColorUtils;
+import xyz.nifeather.morph.client.graphics.color.Colors;
+import xyz.nifeather.morph.client.graphics.color.MaterialColors;
 
 public class DrawableText extends MDrawable
 {

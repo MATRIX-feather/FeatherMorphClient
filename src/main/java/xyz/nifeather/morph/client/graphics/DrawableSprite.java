@@ -1,9 +1,10 @@
 package xyz.nifeather.morph.client.graphics;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.Identifier;
+import xyz.nifeather.morph.client.graphics.color.ColorUtils;
+import xyz.nifeather.morph.client.graphics.color.Colors;
 
 public class DrawableSprite extends MDrawable
 {
@@ -12,15 +13,23 @@ public class DrawableSprite extends MDrawable
     public DrawableSprite(Identifier textureIdentifier)
     {
         this.textureIdentifier = textureIdentifier;
+
+        this.alpha.onUpdate = this::updateRenderAlpha;
+    }
+
+    private int drawColor = -1;
+
+    private void updateRenderAlpha(float newAlpha)
+    {
+        drawColor = ColorUtils.forOpacity(Colors.WHITE, this.alpha.get()).getColor();
     }
 
     @Override
     protected void onRender(DrawContext context, int mouseX, int mouseY, float delta)
     {
-        RenderSystem.enableBlend();
-
         context.drawGuiTexture(RenderLayer::getGuiTextured, textureIdentifier,
-                this.getX(), this.getY(), 0,
-                Math.round(this.getRenderWidth()), Math.round(this.getRenderHeight()));
+                this.getX(), this.getY(),
+                Math.round(this.getRenderWidth()), Math.round(this.getRenderHeight()),
+                drawColor);
     }
 }

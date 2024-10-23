@@ -1,52 +1,56 @@
 package xyz.nifeather.morph.client.screens.spinner;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 import xyz.nifeather.morph.client.graphics.Axes;
-import xyz.nifeather.morph.client.graphics.Box;
-import xyz.nifeather.morph.client.graphics.color.ColorUtils;
+import xyz.nifeather.morph.client.graphics.DrawableSprite;
 import xyz.nifeather.morph.client.graphics.container.Container;
 import xyz.nifeather.morph.client.graphics.transforms.easings.Easing;
 
 public class ClickableSpinnerWidget extends Container
 {
-    private final Box hover = new Box();
-    private final Box background = new Box();
+    protected final DrawableSprite spriteBackground;
+    protected final DrawableSprite spriteBorder;
+    protected final DrawableSprite spriteHover;
+
+    protected Identifier getPathOf(String variant)
+    {
+        return Identifier.of("morphclient", "spinner_default/" + variant);
+    }
+
+    protected long getFadeDuration()
+    {
+        return 300;
+    }
+
+    protected DrawableSprite createDrawableSprite(Identifier textureIdentifier)
+    {
+        var drawableSprite = new DrawableSprite(textureIdentifier);
+
+        drawableSprite.setRelativeSizeAxes(Axes.Both);
+
+        return drawableSprite;
+    }
 
     public ClickableSpinnerWidget()
     {
-        hover.setRelativeSizeAxes(Axes.Both);
-        hover.setAlpha(0);
-        hover.color = ColorUtils.fromHex("#000000").getColor();
-        hover.setDepth(-1);
+        spriteBackground = createDrawableSprite(getPathOf("background"));
+        spriteBorder = createDrawableSprite(getPathOf("border"));
+        spriteHover = createDrawableSprite(getPathOf("hover"));
 
-        background.setRelativeSizeAxes(Axes.Both);
-        background.setDepth(1);
-        background.color = ColorUtils.forOpacity(ColorUtils.fromHex("#333333"), 0.4f).getColor();
+        spriteHover.setAlpha(0);
+        spriteHover.setDepth(-1);
 
-        this.add(background);
-        this.add(hover);
-    }
+        spriteBorder.setDepth(-100);
 
-    private final int borderColor = ColorUtils.fromHex("#aaaaaa").getColor();
+        spriteBackground.setDepth(10);
 
-    @Override
-    protected void onRender(DrawContext context, int mouseX, int mouseY, float delta)
-    {
-        super.onRender(context, mouseX, mouseY, delta);
-
-        // Draw border
-
-        context.getMatrices().translate(0, 0, 100);
-
-        context.drawBorder(0, 0, (int)this.width, (int)this.height, borderColor);
-
-        context.getMatrices().translate(0, 0, -100);
-
-        // End draw border
+        this.add(spriteBackground);
+        this.add(spriteBorder);
+        this.add(spriteHover);
     }
 
     private Runnable onClick;
@@ -77,7 +81,7 @@ public class ClickableSpinnerWidget extends Container
     {
         super.onHover();
 
-        hover.fadeTo(0.5f, 300, Easing.OutQuint);
+        spriteHover.fadeTo(0.5f, getFadeDuration(), Easing.OutQuint);
     }
 
     @Override
@@ -85,6 +89,6 @@ public class ClickableSpinnerWidget extends Container
     {
         super.onHoverLost();
 
-        hover.fadeOut(300, Easing.OutQuint);
+        spriteHover.fadeOut(getFadeDuration(), Easing.OutQuint);
     }
 }
