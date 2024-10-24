@@ -1,5 +1,6 @@
 package xyz.nifeather.morph.client.mixin;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -17,9 +18,12 @@ public class EntityRendererMixin
     )
     public void morphclient$hasLabel(LivingEntity livingEntity, double d, CallbackInfoReturnable<Boolean> cir)
     {
-        var clientSyncer = ClientDisguiseSyncer.getCurrentInstance();
-        if (clientSyncer == null) return;
+        if (livingEntity != MinecraftClient.getInstance().player)
+        {
+            var clientSyncer = ClientDisguiseSyncer.getCurrentInstance();
+            if (clientSyncer == null) return;
 
-        cir.setReturnValue(clientSyncer.getDisguiseInstance() != livingEntity);
+            cir.setReturnValue(clientSyncer.getDisguiseInstance() != livingEntity);
+        }
     }
 }
