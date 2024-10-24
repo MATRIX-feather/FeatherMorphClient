@@ -8,4 +8,7 @@ public interface IEntity
     public void featherMorph$overridePose(@Nullable EntityPose newPose);
     public void featherMorph$overrideInvisibility(boolean invisible);
     public void featherMorph$setNoAcceptSetPose(boolean noAccept);
+
+    public void featherMorph$requestBypassDispatcherRedirect(Object source, boolean bypass);
+    public boolean featherMorph$bypassesDispatcherRedirect();
 }

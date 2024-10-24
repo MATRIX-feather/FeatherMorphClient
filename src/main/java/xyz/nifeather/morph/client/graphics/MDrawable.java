@@ -470,9 +470,13 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
     {
     }
 
-    protected boolean disableAlphaShaderBlend()
+    protected void setShaderColor(DrawContext context, float red, float green, float blue, float alpha)
     {
-        return false;
+        // 在1.21.1的DrawContext中，他们是这样处理context#setShaderColor的
+        // 我们需要在设定ShaderColor前先让上下文绘制当前提交的所有调用
+
+        context.draw();
+        RenderSystem.setShaderColor(red, green, blue, alpha);
     }
 
     @Override
@@ -498,7 +502,7 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
             matrices.pop();
             return;
         }
-/*
+
         var shaderColor = RenderSystem.getShaderColor();
         shaderColor = new float[]
                 {
@@ -507,14 +511,10 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
                         shaderColor[2],
                         shaderColor[3]
                 };
-*/
 
         try
         {
-            // BUG: Minecraft从1.21.2起，调用RenderSystem#setShaderColor会使文本渲染变得奇怪
-            //      因此我们之后可能都得手动应用透明度了
-            //
-            //RenderSystem.setShaderColor(shaderColor[0], shaderColor[1], shaderColor[2], shaderColor[3] * this.alpha.get());
+            this.setShaderColor(context, shaderColor[0], shaderColor[1], shaderColor[2], shaderColor[3] * this.alpha.get());
 
             if (!validatePosition()) updatePosition();
             if (!validateLayout()) updateLayout();
@@ -551,7 +551,7 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
             matrices.translate(-xScreenSpaceOffset, -yScreenSpaceOffset, -1);
             matrices.pop();
 
-            //RenderSystem.setShaderColor(shaderColor[0], shaderColor[1], shaderColor[2], shaderColor[3]);
+            this.setShaderColor(context, shaderColor[0], shaderColor[1], shaderColor[2], shaderColor[3]);
 
             if (masking)
                 context.disableScissor();

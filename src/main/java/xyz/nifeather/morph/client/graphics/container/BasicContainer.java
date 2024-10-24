@@ -63,24 +63,35 @@ public class BasicContainer<T extends MDrawable> extends MDrawable
 
     public void remove(T drawable) {
         drawable.setParent(null);
+        this.children.remove(drawable);
+        drawable.dispose();
 
         invalidateLayout();
     }
 
     public void removeRange(T[] drawables) {
         children.removeAll(Arrays.stream(drawables).toList());
+        for (T drawable : drawables)
+            drawable.dispose();
 
         invalidateLayout();
     }
 
     public void removeRange(Collection<T> drawables) {
         children.removeAll(drawables);
+        for (T drawable : drawables)
+            drawable.dispose();
 
         invalidateLayout();
     }
 
     public void clear() {
-        children.forEach(MDrawable::dispose);
+        children.forEach(drawable ->
+        {
+            drawable.setParent(null);
+            drawable.dispose();
+        });
+
         children.clear();
 
         invalidateLayout();

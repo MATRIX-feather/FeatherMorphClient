@@ -1,5 +1,6 @@
 package xyz.nifeather.morph.client.mixin;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPose;
@@ -24,6 +25,7 @@ import xyz.nifeather.morph.client.syncers.ClientDisguiseSyncer;
 import xyz.nifeather.morph.client.utilties.ClientSyncerUtils;
 import xyz.nifeather.morph.client.utilties.EntityCacheUtils;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 @Mixin(Entity.class)
@@ -198,5 +200,28 @@ public abstract class EntityMixin implements IEntity
     {
         if (this.morphClient$noAcceptSetPose)
             ci.cancel();
+    }
+
+    @Unique
+    private final List<Object> morphClient$bypassRequests = new ObjectArrayList<>();
+
+    @Override
+    public void featherMorph$requestBypassDispatcherRedirect(Object source, boolean bypass)
+    {
+        if (!bypass)
+        {
+            morphClient$bypassRequests.remove(source);
+            return;
+        }
+
+        if (morphClient$bypassRequests.contains(source)) return;
+
+        morphClient$bypassRequests.add(source);
+    }
+
+    @Override
+    public boolean featherMorph$bypassesDispatcherRedirect()
+    {
+        return !morphClient$bypassRequests.isEmpty();
     }
 }

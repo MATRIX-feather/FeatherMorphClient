@@ -15,7 +15,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xyz.nifeather.morph.client.DisguiseInstanceTracker;
+import xyz.nifeather.morph.client.entities.IEntity;
 import xyz.nifeather.morph.client.graphics.EntityRendererHelper;
+import xyz.nifeather.morph.client.graphics.PlayerRenderHelper;
 
 @Mixin(EntityRenderDispatcher.class)
 public abstract class EntityRenderDispatcherMixin
@@ -27,15 +29,21 @@ public abstract class EntityRenderDispatcherMixin
             at = @At("HEAD"),
             index = 1,
             argsOnly = true)
-    public Entity morphclient$modifyEntityToRender(Entity value)
+    public Entity morphclient$modifyEntityToRender(Entity source)
     {
+        if (PlayerRenderHelper.instance().skipRender)
+            return source;
+
+        if (((IEntity)source).featherMorph$bypassesDispatcherRedirect())
+            return source;
+
         var instanceTracker = DisguiseInstanceTracker.getInstance();
 
-        var syncer = instanceTracker.getSyncerFor(value);
-        if (syncer == null) return value;
+        var syncer = instanceTracker.getSyncerFor(source);
+        if (syncer == null) return source;
 
         var morphclient$instance = syncer.getDisguiseInstance();
-        return morphclient$instance == null ? value : morphclient$instance;
+        return morphclient$instance == null ? source : morphclient$instance;
     }
 
     @Inject(

@@ -108,62 +108,6 @@ public class PlayerRenderHelper extends MorphClientObject
     @ApiStatus.Internal
     public boolean skipRender = false;
 
-    public boolean skipRenderExternal = false;
-
-    /**
-     * 覆盖玩家的实体渲染
-     * @return true: 不继续渲染玩家本体, false: 继续渲染玩家本体
-     *//*
-    public final boolean overrideEntityRender(AbstractClientPlayerEntity player, float yaw, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light)
-    {
-        if (player instanceof MorphLocalPlayer) return false;
-
-        var syncer = instanceTracker.getSyncerFor(player);
-
-        if (!allowRender || syncer == null || skipRender || skipRenderExternal) return false;
-
-        try
-        {
-            var entity = syncer.getDisguiseInstance();
-            var isOurClient = syncer == ClientDisguiseSyncer.getCurrentInstance();
-
-            if (entity == null || (isOurClient && !MorphClient.getInstance().getModConfigData().clientViewVisible()))
-                return false;
-
-            var disguiseRenderer = MinecraftClient.getInstance().getEntityRenderDispatcher().getRenderer(entity);
-
-            syncer.onGameRender();
-
-            // 目前因为其他客户端的伪装会被拉到对应的玩家那里，因此不需要我们手动渲染
-            if (syncer instanceof OtherClientDisguiseSyncer)
-            {
-                var renderHelper = EntityRendererHelper.instance;
-                if (EntityRendererHelper.doRenderRealName && renderHelper.getEntry(player.getId()) != null)
-                {
-                    var textRenderer = MinecraftClient.getInstance().textRenderer;
-                    var dispatcher = MinecraftClient.getInstance().getEntityRenderDispatcher();
-                    EntityRendererHelper.instance.renderLabelOnTop(matrixStack, vertexConsumerProvider, textRenderer, entity, dispatcher, player.getName().getString());
-                }
-
-                matrixStack.translate(0, -1024, 0);
-                return true;
-            }
-
-            light = (entity.getType() == EntityType.ALLAY || entity.getType() == EntityType.VEX || entity.getType() == EntityType.MAGMA_CUBE)
-                    ? LightmapTextureManager.MAX_LIGHT_COORDINATE
-                    : light;
-
-            disguiseRenderer.render(entity, yaw, tickDelta, matrixStack, vertexConsumerProvider, light);
-        }
-        catch (Exception e)
-        {
-            onRenderException(e);
-            return false;
-        }
-
-        return true;
-    }
-*/
     private Camera camera()
     {
         return MinecraftClient.getInstance().gameRenderer.getCamera();
