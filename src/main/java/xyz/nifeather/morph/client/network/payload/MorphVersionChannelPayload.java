@@ -5,22 +5,27 @@ import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.CustomPayload;
 import xyz.nifeather.morph.client.ServerHandler;
 
-public record MorphVersionChannelPayload(String protocolVersion) implements CustomPayload
+public record MorphVersionChannelPayload(int protocolVersion) implements CustomPayload
 {
+    public MorphVersionChannelPayload(String string)
+    {
+        this(parse(string));
+    }
+
     // Client --String-> Server
     // Server --Integer-> Client
     // :(
     public static final PacketCodec<PacketByteBuf, MorphVersionChannelPayload> CODEC  = PacketCodec.of(
-            (value, buf) -> buf.writeBytes(MorphInitChannelPayload.writeString(value.protocolVersion())),
-            buf -> new MorphVersionChannelPayload("" + parseInt(buf))
+            (value, buf) -> buf.writeInt(value.protocolVersion()), //Server
+            buf -> new MorphVersionChannelPayload(parseBuf(buf)) // Client
     );
 
     public int getProtocolVersion()
     {
-        return parse(protocolVersion);
+        return protocolVersion;
     }
 
-    private int parse(String input)
+    private static int parse(String input)
     {
         try
         {
@@ -34,7 +39,7 @@ public record MorphVersionChannelPayload(String protocolVersion) implements Cust
         return 1;
     }
 
-    public static int parseInt(PacketByteBuf buf)
+    public static int parseBuf(PacketByteBuf buf)
     {
         //System.out.println("Buf is '" + buf.toString(StandardCharsets.UTF_8) + "' :: with hashCode" + buf.hashCode());
         int read = -1;
@@ -45,7 +50,6 @@ public record MorphVersionChannelPayload(String protocolVersion) implements Cust
         catch (Throwable t)
         {
             System.err.println("[FeatherMorph] Error parsing protocol version from server: " + t.getMessage());
-            t.printStackTrace();
         }
 
         buf.clear();

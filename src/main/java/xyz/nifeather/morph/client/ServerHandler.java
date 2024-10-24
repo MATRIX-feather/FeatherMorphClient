@@ -22,6 +22,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 import xyz.nifeather.morph.client.config.ModConfigData;
+import xyz.nifeather.morph.client.entities.IEntity;
 import xyz.nifeather.morph.client.network.commands.ClientSetEquipCommand;
 import xyz.nifeather.morph.client.network.payload.MorphCommandPayload;
 import xyz.nifeather.morph.client.network.payload.MorphInitChannelPayload;
@@ -164,14 +165,6 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
     private void initializePayloadMap()
     {
         logger.info("Registering payload types...");
-        PayloadTypeRegistry.playC2S().register(MorphInitChannelPayload.id, MorphInitChannelPayload.CODEC);
-        PayloadTypeRegistry.playC2S().register(MorphVersionChannelPayload.id, MorphVersionChannelPayload.CODEC);
-        PayloadTypeRegistry.playC2S().register(MorphCommandPayload.id, MorphCommandPayload.CODEC);
-
-        PayloadTypeRegistry.playS2C().register(MorphInitChannelPayload.id, MorphInitChannelPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(MorphVersionChannelPayload.id, MorphVersionChannelPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(MorphCommandPayload.id, MorphCommandPayload.CODEC);
-
         payloadMap.put(initializeChannelIdentifier, raw -> new MorphInitChannelPayload(raw.toString()));
         payloadMap.put(commandChannelIdentifier, raw -> new MorphCommandPayload(raw.toString()));
         payloadMap.put(versionChannelIdentifier, raw -> new MorphVersionChannelPayload(raw.toString()));
@@ -390,7 +383,13 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
     @Override
     public void onSetSelfViewingCommand(S2CSetSelfViewingCommand s2CSetToggleSelfCommand)
     {
-        morphManager.selfVisibleEnabled.set(s2CSetToggleSelfCommand.getArgumentAt(0));
+        var enabled = s2CSetToggleSelfCommand.getArgumentAt(0);
+        enabled = enabled != null && enabled;
+
+        morphManager.selfVisibleEnabled.set(enabled);
+
+        var iEntity = (IEntity) MinecraftClient.getInstance().player;
+        iEntity.featherMorph$requestBypassDispatcherRedirect(this, !enabled);
     }
 
     @Override

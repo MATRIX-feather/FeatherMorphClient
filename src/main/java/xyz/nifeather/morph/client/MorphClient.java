@@ -18,6 +18,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.random.Random;
 import org.jetbrains.annotations.Nullable;
@@ -40,6 +41,7 @@ import xiamomc.morph.network.commands.C2S.*;
 import xiamomc.morph.network.commands.S2C.S2CRequestCommand;
 import xiamomc.pluginbase.AbstractSchedulablePlugin;
 import xiamomc.pluginbase.ScheduleInfo;
+import xyz.nifeather.morph.misc.SharedValues;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -446,6 +448,17 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
                                 .setDefaultValue(false)
                                 .setSaveConsumer(v -> modConfigData.displayToastProgress = v)
                                 .build());
+
+        ConfigCategory debugCategory = builder.getOrCreateCategory(Text.literal("Debug"));
+        debugCategory.setDescription(new StringVisitable[] {Text.literal("Debug settings, be careful!")});
+
+        debugCategory.addEntry(
+                entryBuilder.startBooleanToggle(Text.literal("Enable singleplayer client test"), SharedValues.allowSinglePlayerDebugging)
+                        .setTooltip()
+                        .setDefaultValue(false)
+                        .setSaveConsumer(v -> SharedValues.allowSinglePlayerDebugging = v)
+                        .build()
+        );
 
         builder.setParentScreen(parent)
                 .setTitle(Text.translatable("title.morphclient.config"))

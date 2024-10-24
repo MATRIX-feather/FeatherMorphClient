@@ -19,6 +19,9 @@
     ],
     "modmenu":[
       "xyz.nifeather.morph.client.ModMenuApiImpl"
+    ],
+    "main":[
+      "xyz.nifeather.morph.testserver.MorphClientMain"
     ]
   },
   "mixins": [
