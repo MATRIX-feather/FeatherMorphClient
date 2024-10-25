@@ -14,8 +14,10 @@ import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 import xyz.nifeather.morph.client.DisguiseInstanceTracker;
 import xyz.nifeather.morph.client.MorphClient;
+import xyz.nifeather.morph.client.entities.MorphLocalPlayer;
 import xyz.nifeather.morph.client.graphics.color.ColorUtils;
 import xyz.nifeather.morph.client.graphics.color.MaterialColors;
+import xyz.nifeather.morph.client.syncers.ClientDisguiseSyncer;
 import xyz.nifeather.morph.shared.entities.IMorphEntity;
 
 import java.util.Map;
@@ -49,13 +51,17 @@ public class EntityRendererHelper
         if (!doRenderRealName) return;
 
         int id = renderingEntity.getId();
+        Entity masterEntity = null;
 
         // client renderer
         if (renderingEntity instanceof IMorphEntity iMorphEntity && iMorphEntity.featherMorph$isDisguiseEntity())
         {
             var syncer = DisguiseInstanceTracker.getInstance().getSyncerFor(iMorphEntity.featherMorph$getMasterEntityId());
             if (syncer != null)
+            {
+                masterEntity = syncer.getBindingPlayer();
                 id = syncer.getBindingPlayer().getId();
+            }
         }
 
         var entrySet = getEntry(id);
@@ -66,17 +72,23 @@ public class EntityRendererHelper
 
         String text = "%s(%s)".formatted(disguiseEntityName, revealName);
 
-        renderLabelOnTop(matrices, vertexConsumers, textRenderer, renderingEntity, dispatcher, text);
+        renderLabelOnTop(matrices, vertexConsumers, textRenderer, renderingEntity, dispatcher, text, masterEntity);
     }
 
     public void renderLabelOnTop(MatrixStack matrices, VertexConsumerProvider vertexConsumers,
                                  TextRenderer textRenderer,
                                  Entity entity, EntityRenderDispatcher dispatcher,
-                                 String textToRender)
+                                 String textToRender,
+                                 @Nullable Entity masterEntity)
     {
         matrices.push();
 
         var nametagOffset = (entity.hasCustomName() || entity instanceof PlayerEntity) ? 0.25f : 0;
+        if (entity instanceof MorphLocalPlayer morphLocalPlayer
+            && morphLocalPlayer.getBindingPlayer() == MinecraftClient.getInstance().player)
+        {
+            nametagOffset = morphLocalPlayer.shouldRenderName() ? 0.25f : 0;
+        }
 
         Vec3d labelRelativePosition = entity.getAttachments().getPointNullable(EntityAttachmentType.NAME_TAG, 0, 0);
 
@@ -90,7 +102,8 @@ public class EntityRendererHelper
 
         if (MorphClient.getInstance().getModConfigData().scaleNameTag)
         {
-            var labelWorldPosition = entity.getPos().add(labelRelativePosition);
+            var entityToLookup = masterEntity != null ? masterEntity : entity;
+            var labelWorldPosition = entityToLookup.getPos().add(labelRelativePosition);
             var distance = dispatcher.camera.getPos().distanceTo(labelWorldPosition);
             var scale = Math.max(1, (float)distance / 7.5f);
             matrices.scale(scale, scale, scale);

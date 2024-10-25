@@ -69,6 +69,12 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
 
     private PlayerEntity bindingPlayer;
 
+    @Nullable
+    public PlayerEntity getBindingPlayer()
+    {
+        return bindingPlayer;
+    }
+
     public void setBindingPlayer(PlayerEntity newInstance)
     {
         bindingPlayer = newInstance;

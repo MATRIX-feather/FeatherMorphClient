@@ -1,6 +1,7 @@
 package xyz.nifeather.morph.client.mixin;
 
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderer;
@@ -24,17 +25,6 @@ import xyz.nifeather.morph.shared.entities.IMorphEntity;
 public abstract class EntityRenderDispatcherMixin
 {
     @Shadow @Final private TextRenderer textRenderer;
-
-    @Inject(
-            method = "render(Lnet/minecraft/entity/Entity;DDDFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
-            at = @At("HEAD"),
-            cancellable = true
-    )
-    public void morphclient$onEntityRender(Entity entity, double x, double y, double z, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci)
-    {
-        if (entity instanceof IMorphEntity iMorphEntity && iMorphEntity.featherMorph$isDisguiseEntity())
-            ci.cancel();
-    }
 
     @ModifyVariable(
             method = "render(Lnet/minecraft/entity/Entity;DDDFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
