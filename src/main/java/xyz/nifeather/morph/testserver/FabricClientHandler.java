@@ -16,6 +16,7 @@ import xiamomc.morph.network.commands.S2C.S2CCurrentCommand;
 import xiamomc.morph.network.commands.S2C.clientrender.S2CRenderMapAddCommand;
 import xiamomc.morph.network.commands.S2C.clientrender.S2CRenderMapRemoveCommand;
 import xiamomc.morph.network.commands.S2C.clientrender.S2CRenderMapSyncCommand;
+import xiamomc.morph.network.commands.S2C.map.S2CPartialMapCommand;
 import xiamomc.morph.network.commands.S2C.query.QueryType;
 import xiamomc.morph.network.commands.S2C.query.S2CQueryCommand;
 import xiamomc.morph.network.commands.S2C.set.S2CSetAvailableAnimationsCommand;
@@ -222,13 +223,16 @@ public class FabricClientHandler implements BasicClientHandler<ServerPlayerEntit
         Map<Integer, String> renderMap = new Object2ObjectOpenHashMap<>();
 
         for (DisguiseSession session : morphManager.listAllSession())
-        {
             renderMap.put(session.player().getId(), session.disguiseIdentifier());
-        }
-
-        logger.info("Sending map with " + renderMap.size() + " elements.");
 
         this.sendCommand(player, new S2CRenderMapSyncCommand(renderMap));
+
+        Map<Integer, String> revealMap = new Object2ObjectOpenHashMap<>();
+
+        for (DisguiseSession session : morphManager.listAllSession())
+            revealMap.put(session.player().getId(), session.player().getName().getLiteralString());
+
+        this.sendCommand(player, new S2CPartialMapCommand(revealMap));
     }
 
     @Override
