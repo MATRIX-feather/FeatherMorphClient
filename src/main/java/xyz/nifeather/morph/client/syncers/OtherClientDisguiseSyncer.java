@@ -19,7 +19,7 @@ public class OtherClientDisguiseSyncer extends DisguiseSyncer
         var playerPos = bindingPlayer.getPos();
 
         //暂时先这样
-        disguiseInstance.setPosition(playerPos.add(0, -100, 0));
+        disguiseInstance.setPosition(playerPos.add(-4096, -4096, -4096));
     }
 
     @Override
