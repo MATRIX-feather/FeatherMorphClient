@@ -148,11 +148,26 @@ public class DisguiseInstanceTracker extends MorphClientObject
 
     //region Syncer Tracking
 
+    // PlayerID <-> Syncer
     private final Map<Integer, DisguiseSyncer> idSyncerMap = new Object2ObjectArrayMap<>();
 
     public List<DisguiseSyncer> getAllSyncer()
     {
         return new ObjectArrayList<>(idSyncerMap.values());
+    }
+
+    @Nullable
+    public DisguiseSyncer findSyncerByDisguiseEntity(Entity entity)
+    {
+        var id = entity.getId();
+        var targetSyncer = this.idSyncerMap.values().stream()
+                .filter(syncer -> syncer.getDisguiseInstance() != null && syncer.getDisguiseInstance().getId() == id)
+                .findFirst()
+                .orElse(null);
+
+        //logger.info("Return syncer " + targetSyncer + " for " + entity.getName().getLiteralString());
+
+        return targetSyncer;
     }
 
     public void removeSyncer(DisguiseSyncer targetSyncer)

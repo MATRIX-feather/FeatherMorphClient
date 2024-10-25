@@ -237,22 +237,8 @@ public class FabricClientHandler implements BasicClientHandler<ServerPlayerEntit
         ServerPlayerEntity player = command.getOwner();
         String disguiseId = command.getArgumentAt(0, "");
 
-        this.sendCommand(player, new S2CCurrentCommand(disguiseId));
-        this.sendCommand(player, new S2CSetAvailableAnimationsCommand(
-                AnimationNames.CRAWL,
-                AnimationNames.DIGDOWN,
-                AnimationNames.LAY,
-                AnimationNames.DANCE
-        ));
-
         var morphManager = VirtualServer.instance.morphManager;
         morphManager.morph(player, disguiseId);
-
-        var cmd = new S2CRenderMapAddCommand(player.getId(), disguiseId);
-        for (ServerPlayerEntity serverPlayerEntity : VirtualServer.server.getPlayerManager().getPlayerList())
-        {
-            this.sendCommand(serverPlayerEntity, cmd);
-        }
     }
 
     @Override
@@ -282,16 +268,9 @@ public class FabricClientHandler implements BasicClientHandler<ServerPlayerEntit
     public void onUnmorphCommand(C2SUnmorphCommand command)
     {
         ServerPlayerEntity player = command.getOwner();
-        this.sendCommand(player, new S2CCurrentCommand(null));
 
         var morphManager = VirtualServer.instance.morphManager;
         morphManager.unMorph(player);
-
-        var cmd = new S2CRenderMapRemoveCommand(player.getId());
-        for (ServerPlayerEntity serverPlayerEntity : VirtualServer.server.getPlayerManager().getPlayerList())
-        {
-            this.sendCommand(serverPlayerEntity, cmd);
-        }
     }
 
     @Override

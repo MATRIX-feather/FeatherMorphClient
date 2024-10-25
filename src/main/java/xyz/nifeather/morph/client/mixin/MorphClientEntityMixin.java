@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xyz.nifeather.morph.client.EntityCache;
 import xyz.nifeather.morph.client.ServerHandler;
-import xyz.nifeather.morph.client.entities.IEntity;
+import xyz.nifeather.morph.client.entities.IMorphClientEntity;
 import xyz.nifeather.morph.client.syncers.ClientDisguiseSyncer;
 import xyz.nifeather.morph.client.utilties.ClientSyncerUtils;
 import xyz.nifeather.morph.client.utilties.EntityCacheUtils;
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @Mixin(Entity.class)
-public abstract class EntityMixin implements IEntity
+public abstract class MorphClientEntityMixin implements IMorphClientEntity
 {
     @Shadow
     private int id;

@@ -19,14 +19,14 @@ public class OtherClientDisguiseSyncer extends DisguiseSyncer
         var playerPos = bindingPlayer.getPos();
 
         //暂时先这样
-        disguiseInstance.setPosition(playerPos.add(0, -100, 0));
+        disguiseInstance.setPosition(playerPos);
     }
 
     @Override
     protected void onDispose()
     {
-        if (disguiseInstance != null)
-            bindingPlayer.setPosition(disguiseInstance.getPos());
+        //if (disguiseInstance != null)
+        //    bindingPlayer.setPosition(disguiseInstance.getPos());
     }
 
     private EntityCache localCache;
@@ -56,18 +56,8 @@ public class OtherClientDisguiseSyncer extends DisguiseSyncer
         syncPosition();
         syncYawPitch();
 
-        // syncer可能会在baseSync后被处理
-        if (disposed())
-            return;
-
         if (disguiseInstance.isGlowing() != bindingPlayer.isGlowing())
             disguiseInstance.setGlowing(bindingPlayer.isGlowing());
-
-        if (!dimensionsRefreshed)
-        {
-            bindingPlayer.calculateDimensions();
-            dimensionsRefreshed = true;
-        }
     }
 
     private boolean dimensionsRefreshed;
@@ -75,11 +65,15 @@ public class OtherClientDisguiseSyncer extends DisguiseSyncer
     @Override
     public void syncDraw()
     {
+        if (disposed()) return;
+
         syncYawPitch();
     }
 
     @Override
     protected void initialSync()
     {
+        syncPosition();
+        syncYawPitch();
     }
 }

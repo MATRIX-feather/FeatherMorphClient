@@ -9,7 +9,6 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EntityStatuses;
 import net.minecraft.entity.EquipmentSlot;
@@ -22,7 +21,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 import xyz.nifeather.morph.client.config.ModConfigData;
-import xyz.nifeather.morph.client.entities.IEntity;
+import xyz.nifeather.morph.client.entities.IMorphClientEntity;
 import xyz.nifeather.morph.client.network.commands.ClientSetEquipCommand;
 import xyz.nifeather.morph.client.network.payload.MorphCommandPayload;
 import xyz.nifeather.morph.client.network.payload.MorphInitChannelPayload;
@@ -388,7 +387,7 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
 
         morphManager.selfVisibleEnabled.set(enabled);
 
-        var iEntity = (IEntity) MinecraftClient.getInstance().player;
+        var iEntity = (IMorphClientEntity) MinecraftClient.getInstance().player;
         iEntity.featherMorph$requestBypassDispatcherRedirect(this, !enabled);
     }
 

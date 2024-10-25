@@ -1,4 +1,4 @@
-package xyz.nifeather.morph.misc;
+package xyz.nifeather.morph.shared;
 
 public class SharedValues
 {

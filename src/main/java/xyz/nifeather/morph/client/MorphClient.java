@@ -41,7 +41,7 @@ import xiamomc.morph.network.commands.C2S.*;
 import xiamomc.morph.network.commands.S2C.S2CRequestCommand;
 import xiamomc.pluginbase.AbstractSchedulablePlugin;
 import xiamomc.pluginbase.ScheduleInfo;
-import xyz.nifeather.morph.misc.SharedValues;
+import xyz.nifeather.morph.shared.SharedValues;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

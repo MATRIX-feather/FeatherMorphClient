@@ -10,7 +10,7 @@ import xiamomc.morph.network.Constants;
 import xyz.nifeather.morph.client.network.payload.MorphCommandPayload;
 import xyz.nifeather.morph.client.network.payload.MorphInitChannelPayload;
 import xyz.nifeather.morph.client.network.payload.MorphVersionChannelPayload;
-import xyz.nifeather.morph.misc.SharedValues;
+import xyz.nifeather.morph.shared.SharedValues;
 
 public class VirtualServer
 {
@@ -32,7 +32,7 @@ public class VirtualServer
     @Nullable
     public static MinecraftServer server;
 
-    private final FabricClientHandler clientHandler = new FabricClientHandler();
+    public final FabricClientHandler clientHandler = new FabricClientHandler();
 
     public final FabricMorphManager morphManager = new FabricMorphManager();
 

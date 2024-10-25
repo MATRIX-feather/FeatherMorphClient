@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xyz.nifeather.morph.client.EntityCache;
 import xyz.nifeather.morph.client.MorphClient;
+import xyz.nifeather.morph.shared.entities.IMorphEntity;
 
 import java.util.Random;
 
@@ -25,10 +26,6 @@ public class EnderDragonEntityMixin
     @Unique
     private EnderDragonEntity morphClient$entityInstance;
 
-    @Unique
-    @Nullable
-    private Boolean morphClient$isCache = null;
-
     @Inject(method = "<init>", at = @At("RETURN"))
     private void morphClient$onInit(EntityType<?> entityType, World world, CallbackInfo ci)
     {
@@ -38,10 +35,7 @@ public class EnderDragonEntityMixin
     @Inject(method = "addFlapEffects", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;playSound(DDDLnet/minecraft/sound/SoundEvent;Lnet/minecraft/sound/SoundCategory;FFZ)V"))
     private void morphClient$onFlapWings(CallbackInfo ci)
     {
-        if (morphClient$isCache == null)
-            this.morphClient$isCache = morphClient$entityInstance.getCommandTags().contains(EntityCache.tag);
-
-        if (morphClient$isCache)
+        if (((IMorphEntity)this).featherMorph$isDisguiseEntity())
             morphClient$playSoundAtPlayer();
     }
 

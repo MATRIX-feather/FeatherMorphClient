@@ -15,14 +15,26 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xyz.nifeather.morph.client.DisguiseInstanceTracker;
-import xyz.nifeather.morph.client.entities.IEntity;
+import xyz.nifeather.morph.client.entities.IMorphClientEntity;
 import xyz.nifeather.morph.client.graphics.EntityRendererHelper;
 import xyz.nifeather.morph.client.graphics.PlayerRenderHelper;
+import xyz.nifeather.morph.shared.entities.IMorphEntity;
 
 @Mixin(EntityRenderDispatcher.class)
 public abstract class EntityRenderDispatcherMixin
 {
     @Shadow @Final private TextRenderer textRenderer;
+
+    @Inject(
+            method = "render(Lnet/minecraft/entity/Entity;DDDFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
+            at = @At("HEAD"),
+            cancellable = true
+    )
+    public void morphclient$onEntityRender(Entity entity, double x, double y, double z, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci)
+    {
+        if (entity instanceof IMorphEntity iMorphEntity && iMorphEntity.featherMorph$isDisguiseEntity())
+            ci.cancel();
+    }
 
     @ModifyVariable(
             method = "render(Lnet/minecraft/entity/Entity;DDDFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
@@ -34,7 +46,7 @@ public abstract class EntityRenderDispatcherMixin
         if (PlayerRenderHelper.instance().skipRender)
             return source;
 
-        if (((IEntity)source).featherMorph$bypassesDispatcherRedirect())
+        if (((IMorphClientEntity)source).featherMorph$bypassesDispatcherRedirect())
             return source;
 
         var instanceTracker = DisguiseInstanceTracker.getInstance();
@@ -53,7 +65,7 @@ public abstract class EntityRenderDispatcherMixin
                     target = "Lnet/minecraft/client/util/math/MatrixStack;pop()V"
             )
     )
-    public <E extends Entity, S extends EntityRenderState> void morphclient$onRender(E entity, double x, double y, double z, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, EntityRenderer<? super E, S> renderer, CallbackInfo ci)
+    public <E extends Entity, S extends EntityRenderState> void morphclient$tryRenderRevealName(E entity, double x, double y, double z, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, EntityRenderer<? super E, S> renderer, CallbackInfo ci)
     {
         EntityRendererHelper.instance.renderRevealNameIfPossible((EntityRenderDispatcher)(Object) this, entity, textRenderer, matrices, vertexConsumers);
     }

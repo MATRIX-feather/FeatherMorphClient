@@ -4,7 +4,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.mob.WardenEntity;
 import xyz.nifeather.morph.client.AnimationNames;
-import xyz.nifeather.morph.client.entities.IEntity;
+import xyz.nifeather.morph.client.entities.IMorphClientEntity;
 import xyz.nifeather.morph.client.syncers.animations.AnimationHandler;
 
 public class WardenAnimationHandler extends AnimationHandler
@@ -15,7 +15,7 @@ public class WardenAnimationHandler extends AnimationHandler
         if (!(entity instanceof WardenEntity warden))
             throw new IllegalArgumentException("Entity not a Warden!");
 
-        var mixinWarden = (IEntity) warden;
+        var mixinWarden = (IMorphClientEntity) warden;
 
         switch (animationId)
         {

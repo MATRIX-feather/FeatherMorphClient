@@ -13,6 +13,7 @@ public class LivingEntityMixin
     @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
     private void featherMorph$onTick(CallbackInfo ci)
     {
-        EntityTickHandler.cancelIfIsDisguiseAndNotSyncing(ci, this);
+        if (((LivingEntity)(Object)this).getWorld().isClient())
+            EntityTickHandler.cancelIfIsDisguiseAndNotSyncing(ci, this);
     }
 }

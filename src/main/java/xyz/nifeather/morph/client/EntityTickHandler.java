@@ -1,8 +1,11 @@
 package xyz.nifeather.morph.client;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xyz.nifeather.morph.client.syncers.DisguiseSyncer;
 
+@Environment(EnvType.CLIENT)
 public class EntityTickHandler
 {
     /**

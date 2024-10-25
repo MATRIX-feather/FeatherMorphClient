@@ -23,6 +23,7 @@ import xyz.nifeather.morph.client.mixin.accessors.EntityAccessor;
 import xyz.nifeather.morph.client.mixin.accessors.LimbAnimatorAccessor;
 import xyz.nifeather.morph.client.syncers.animations.AnimationHandler;
 import xiamomc.pluginbase.Annotations.Resolved;
+import xyz.nifeather.morph.shared.entities.IMorphEntity;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -170,6 +171,9 @@ public abstract class DisguiseSyncer extends MorphClientObject
 
                 disguiseInstance.addCommandTag("BINDING_" + bindingPlayer.getId());
                 disguiseInstance.noClip = true;
+
+                if (disguiseInstance instanceof IMorphEntity iMorphEntity)
+                    iMorphEntity.featherMorph$setIsDisguiseEntity(bindingNetworkId);
 
                 if (disguiseInstance instanceof MorphLocalPlayer localPlayer && prevEntity instanceof MorphLocalPlayer prevPlayer && prevPlayer.personEquals(localPlayer))
                 {
@@ -519,7 +523,7 @@ public abstract class DisguiseSyncer extends MorphClientObject
         // Scale
         var scaleAttribute = entity.getAttributeInstance(EntityAttributes.SCALE);
 
-        if (scaleAttribute != null)
+        if (scaleAttribute != null && scaleAttribute.getValue() != bindingPlayer.getAttributeValue(EntityAttributes.SCALE))
             scaleAttribute.setBaseValue(bindingPlayer.getAttributeValue(EntityAttributes.SCALE));
 
         // Hand Swing
