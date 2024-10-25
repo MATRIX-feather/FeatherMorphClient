@@ -19,7 +19,7 @@ public class OtherClientDisguiseSyncer extends DisguiseSyncer
         var playerPos = bindingPlayer.getPos();
 
         //暂时先这样
-        disguiseInstance.setPosition(playerPos);
+        disguiseInstance.setPosition(playerPos.add(0, -100, 0));
     }
 
     @Override
@@ -54,6 +54,7 @@ public class OtherClientDisguiseSyncer extends DisguiseSyncer
 
         baseSync();
         syncPosition();
+        syncYawPitch();
 
         // syncer可能会在baseSync后被处理
         if (disposed())

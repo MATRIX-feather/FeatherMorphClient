@@ -5,8 +5,11 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.Registries;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class FabricMorphManager
 {
@@ -60,6 +63,29 @@ public class FabricMorphManager
         if (availableDisguises.isEmpty()) listEntityTypes();
 
         return new ObjectArrayList<>(availableDisguises);
+    }
+
+    private final Map<PlayerEntity, DisguiseSession> disguiseSessionMap = new ConcurrentHashMap<>();
+
+    @Nullable
+    public DisguiseSession getSessionFor(PlayerEntity player)
+    {
+        return disguiseSessionMap.getOrDefault(player, null);
+    }
+
+    public List<DisguiseSession> listAllSession()
+    {
+        return new ObjectArrayList<>(disguiseSessionMap.values());
+    }
+
+    public void morph(PlayerEntity player, String identifier)
+    {
+        disguiseSessionMap.put(player, new DisguiseSession(player, identifier));
+    }
+
+    public void unMorph(PlayerEntity player)
+    {
+        disguiseSessionMap.remove(player);
     }
 
     public void dispose()

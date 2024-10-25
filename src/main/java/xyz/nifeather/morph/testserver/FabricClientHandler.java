@@ -1,5 +1,6 @@
 package xyz.nifeather.morph.testserver;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.Nullable;
@@ -12,6 +13,9 @@ import xiamomc.morph.network.commands.CommandRegistries;
 import xiamomc.morph.network.commands.S2C.AbstractS2CCommand;
 import xiamomc.morph.network.commands.S2C.S2CAnimationCommand;
 import xiamomc.morph.network.commands.S2C.S2CCurrentCommand;
+import xiamomc.morph.network.commands.S2C.clientrender.S2CRenderMapAddCommand;
+import xiamomc.morph.network.commands.S2C.clientrender.S2CRenderMapRemoveCommand;
+import xiamomc.morph.network.commands.S2C.clientrender.S2CRenderMapSyncCommand;
 import xiamomc.morph.network.commands.S2C.query.QueryType;
 import xiamomc.morph.network.commands.S2C.query.S2CQueryCommand;
 import xiamomc.morph.network.commands.S2C.set.S2CSetAvailableAnimationsCommand;
@@ -21,6 +25,7 @@ import xyz.nifeather.morph.client.AnimationNames;
 import xyz.nifeather.morph.client.network.payload.MorphCommandPayload;
 
 import java.util.List;
+import java.util.Map;
 
 public class FabricClientHandler implements BasicClientHandler<ServerPlayerEntity>
 {
@@ -213,20 +218,41 @@ public class FabricClientHandler implements BasicClientHandler<ServerPlayerEntit
 
         this.sendCommand(player, cmd);
         this.sendCommand(player, new S2CSetSelfViewingCommand(true));
+
+        Map<Integer, String> renderMap = new Object2ObjectOpenHashMap<>();
+
+        for (DisguiseSession session : morphManager.listAllSession())
+        {
+            renderMap.put(session.player().getId(), session.disguiseIdentifier());
+        }
+
+        logger.info("Sending map with " + renderMap.size() + " elements.");
+
+        this.sendCommand(player, new S2CRenderMapSyncCommand(renderMap));
     }
 
     @Override
     public void onMorphCommand(C2SMorphCommand command)
     {
         ServerPlayerEntity player = command.getOwner();
+        String disguiseId = command.getArgumentAt(0, "");
 
-        this.sendCommand(player, new S2CCurrentCommand(command.getArgumentAt(0, "")));
+        this.sendCommand(player, new S2CCurrentCommand(disguiseId));
         this.sendCommand(player, new S2CSetAvailableAnimationsCommand(
                 AnimationNames.CRAWL,
                 AnimationNames.DIGDOWN,
                 AnimationNames.LAY,
                 AnimationNames.DANCE
         ));
+
+        var morphManager = VirtualServer.instance.morphManager;
+        morphManager.morph(player, disguiseId);
+
+        var cmd = new S2CRenderMapAddCommand(player.getId(), disguiseId);
+        for (ServerPlayerEntity serverPlayerEntity : VirtualServer.server.getPlayerManager().getPlayerList())
+        {
+            this.sendCommand(serverPlayerEntity, cmd);
+        }
     }
 
     @Override
@@ -257,6 +283,15 @@ public class FabricClientHandler implements BasicClientHandler<ServerPlayerEntit
     {
         ServerPlayerEntity player = command.getOwner();
         this.sendCommand(player, new S2CCurrentCommand(null));
+
+        var morphManager = VirtualServer.instance.morphManager;
+        morphManager.unMorph(player);
+
+        var cmd = new S2CRenderMapRemoveCommand(player.getId());
+        for (ServerPlayerEntity serverPlayerEntity : VirtualServer.server.getPlayerManager().getPlayerList())
+        {
+            this.sendCommand(serverPlayerEntity, cmd);
+        }
     }
 
     @Override
