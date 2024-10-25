@@ -298,7 +298,7 @@ public class EntityDisplayEntry extends ElementListWidget.Entry<EntityDisplayEnt
 
                 matrices.translate(0, 0, 64);
 
-                var x = screenSpaceX + width - 24 - 5;
+                var x = screenSpaceX + width - 24 - 15;
                 var y = screenSpaceY + 1;
                 var mX = 30;
                 var mY = -9;
@@ -322,7 +322,7 @@ public class EntityDisplayEntry extends ElementListWidget.Entry<EntityDisplayEnt
             finally
             {
                 context.drawTextWithShadow(textRenderer, display,
-                        screenSpaceX + 5, (screenSpaceY + Math.round((height - textRenderer.fontHeight) / 2f)), 0xffffffff);
+                        screenSpaceX + 10, (screenSpaceY + Math.round((height - textRenderer.fontHeight) / 2f)), 0xffffffff);
 
                 matrices.pop();
             }
