@@ -96,6 +96,8 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
     {
         Constants.initialize(false);
 
+        SharedValues.allowSinglePlayerDebugging = debugToasts;
+
         this.registerKeys();
 
         //初始化配置
