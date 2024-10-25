@@ -85,13 +85,16 @@ public class ModelWorkarounds
         addWorkaround(EntityType.VILLAGER, (l, r) ->
                 WorkaroundMeta.of(new Vec3d(0, -0.5, 0.3), Vec3dUtils.ONE()));
 
+        addWorkaround(EntityType.DONKEY, (l, r) ->
+                WorkaroundMeta.of(Vec3dUtils.of(0, -0.5f, 0.6f), Vec3dUtils.ONE()));
+
         addWorkaround(EntityType.ENDER_DRAGON, (l, r) ->
         {
             //0.55f
             l.yaw = -0.6f;
             r.yaw = -l.yaw;
 
-            return new WorkaroundMeta(Vec3dUtils.of(0, -3.2, 0), Vec3dUtils.of(.6));
+            return new WorkaroundMeta(Vec3dUtils.of(0, -3.2, 0.6f), Vec3dUtils.of(.6));
         });
 
     }

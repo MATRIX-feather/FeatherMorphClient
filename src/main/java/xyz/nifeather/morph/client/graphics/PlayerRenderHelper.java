@@ -348,7 +348,7 @@ public class PlayerRenderHelper extends MorphClientObject
                 layer = layer == null ? RenderLayer.getSolid() : layer;
 
                 targetArm.visible = true;
-                targetArm.resetTransform();
+                //targetArm.resetTransform();
 
                 var scale = modelInfo.scale;
                 matrices.scale((float)scale.getX(), (float)scale.getY(), (float)scale.getZ());
