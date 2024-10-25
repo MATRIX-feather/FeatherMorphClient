@@ -5,15 +5,13 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import xyz.nifeather.morph.client.EntityCache;
 import xyz.nifeather.morph.client.MorphClient;
-import xyz.nifeather.morph.shared.entities.IMorphEntity;
+import xyz.nifeather.morph.client.entities.IMorphClientEntity;
 
 import java.util.Random;
 
@@ -35,7 +33,7 @@ public class EnderDragonEntityMixin
     @Inject(method = "addFlapEffects", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;playSound(DDDLnet/minecraft/sound/SoundEvent;Lnet/minecraft/sound/SoundCategory;FFZ)V"))
     private void morphClient$onFlapWings(CallbackInfo ci)
     {
-        if (((IMorphEntity)this).featherMorph$isDisguiseEntity())
+        if (((IMorphClientEntity)this).featherMorph$isDisguiseEntity())
             morphClient$playSoundAtPlayer();
     }
 

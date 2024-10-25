@@ -17,13 +17,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 import xyz.nifeather.morph.client.*;
+import xyz.nifeather.morph.client.entities.IMorphClientEntity;
 import xyz.nifeather.morph.client.entities.MorphLocalPlayer;
 import xyz.nifeather.morph.client.mixin.accessors.AbstractHorseEntityMixin;
 import xyz.nifeather.morph.client.mixin.accessors.EntityAccessor;
 import xyz.nifeather.morph.client.mixin.accessors.LimbAnimatorAccessor;
 import xyz.nifeather.morph.client.syncers.animations.AnimationHandler;
 import xiamomc.pluginbase.Annotations.Resolved;
-import xyz.nifeather.morph.shared.entities.IMorphEntity;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -172,7 +172,7 @@ public abstract class DisguiseSyncer extends MorphClientObject
                 disguiseInstance.addCommandTag("BINDING_" + bindingPlayer.getId());
                 disguiseInstance.noClip = true;
 
-                if (disguiseInstance instanceof IMorphEntity iMorphEntity)
+                if (disguiseInstance instanceof IMorphClientEntity iMorphEntity)
                     iMorphEntity.featherMorph$setIsDisguiseEntity(bindingNetworkId);
 
                 if (disguiseInstance instanceof MorphLocalPlayer localPlayer && prevEntity instanceof MorphLocalPlayer prevPlayer && prevPlayer.personEquals(localPlayer))

@@ -2,7 +2,6 @@ package xyz.nifeather.morph.client.graphics;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
@@ -14,11 +13,10 @@ import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 import xyz.nifeather.morph.client.DisguiseInstanceTracker;
 import xyz.nifeather.morph.client.MorphClient;
+import xyz.nifeather.morph.client.entities.IMorphClientEntity;
 import xyz.nifeather.morph.client.entities.MorphLocalPlayer;
 import xyz.nifeather.morph.client.graphics.color.ColorUtils;
 import xyz.nifeather.morph.client.graphics.color.MaterialColors;
-import xyz.nifeather.morph.client.syncers.ClientDisguiseSyncer;
-import xyz.nifeather.morph.shared.entities.IMorphEntity;
 
 import java.util.Map;
 
@@ -54,7 +52,7 @@ public class EntityRendererHelper
         Entity masterEntity = null;
 
         // client renderer
-        if (renderingEntity instanceof IMorphEntity iMorphEntity && iMorphEntity.featherMorph$isDisguiseEntity())
+        if (renderingEntity instanceof IMorphClientEntity iMorphEntity && iMorphEntity.featherMorph$isDisguiseEntity())
         {
             var syncer = DisguiseInstanceTracker.getInstance().getSyncerFor(iMorphEntity.featherMorph$getMasterEntityId());
             if (syncer != null)

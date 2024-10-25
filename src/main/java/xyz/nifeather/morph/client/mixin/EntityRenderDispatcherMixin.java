@@ -1,7 +1,6 @@
 package xyz.nifeather.morph.client.mixin;
 
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderer;
@@ -19,7 +18,6 @@ import xyz.nifeather.morph.client.DisguiseInstanceTracker;
 import xyz.nifeather.morph.client.entities.IMorphClientEntity;
 import xyz.nifeather.morph.client.graphics.EntityRendererHelper;
 import xyz.nifeather.morph.client.graphics.PlayerRenderHelper;
-import xyz.nifeather.morph.shared.entities.IMorphEntity;
 
 @Mixin(EntityRenderDispatcher.class)
 public abstract class EntityRenderDispatcherMixin
