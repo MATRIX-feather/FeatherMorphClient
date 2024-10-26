@@ -89,7 +89,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
 
     private final AnimHandlerIndex animHandlerIndex = new AnimHandlerIndex();
 
-    private final boolean debugToasts = true;
+    private final boolean debugToasts = false;
 
     @Override
     public void onInitializeClient()

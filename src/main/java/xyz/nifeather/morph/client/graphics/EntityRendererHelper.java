@@ -48,6 +48,12 @@ public class EntityRendererHelper
     {
         if (!doRenderRealName) return;
 
+        // 服务器发送来的揭示数据是 玩家ID <-> 玩家名 的格式
+        // 因此当客户端玩家有伪装时，渲染其本体也会显示揭示标签
+        // 但我们不想这样，所以跳过此实体的渲染
+        if (renderingEntity == MinecraftClient.getInstance().player)
+            return;
+
         int id = renderingEntity.getId();
         Entity masterEntity = null;
 
