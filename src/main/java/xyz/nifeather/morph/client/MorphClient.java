@@ -451,11 +451,11 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
                                 .setSaveConsumer(v -> modConfigData.displayToastProgress = v)
                                 .build());
 
-        ConfigCategory debugCategory = builder.getOrCreateCategory(Text.literal("Debug"));
-        debugCategory.setDescription(new StringVisitable[] {Text.literal("Debug settings, be careful!")});
+        ConfigCategory debugCategory = builder.getOrCreateCategory(Text.translatable("category.morphclient.debug"));
+        debugCategory.setDescription(new StringVisitable[] {Text.translatable("category.morphclient.debug.description")});
 
         debugCategory.addEntry(
-                entryBuilder.startBooleanToggle(Text.literal("Enable singleplayer client test"), SharedValues.allowSinglePlayerDebugging)
+                entryBuilder.startBooleanToggle(Text.translatable("option.morphclient.singleplayer_debug"), SharedValues.allowSinglePlayerDebugging)
                         .setTooltip()
                         .setDefaultValue(false)
                         .setSaveConsumer(v -> SharedValues.allowSinglePlayerDebugging = v)
