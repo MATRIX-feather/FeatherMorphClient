@@ -34,12 +34,13 @@ public abstract class EntityRenderDispatcherMixin
         if (PlayerRenderHelper.instance().skipRender)
             return source;
 
-        if (((IMorphClientEntity)source).featherMorph$bypassesDispatcherRedirect())
+        if (!(source instanceof IMorphClientEntity iMorphClientEntity))
             return source;
 
-        var instanceTracker = DisguiseInstanceTracker.getInstance();
+        if (iMorphClientEntity.featherMorph$bypassesDispatcherRedirect())
+            return source;
 
-        var syncer = instanceTracker.getSyncerFor(source);
+        var syncer = DisguiseInstanceTracker.getInstance().getSyncerFor(source);
         if (syncer == null) return source;
 
         var morphclient$instance = syncer.getDisguiseInstance();

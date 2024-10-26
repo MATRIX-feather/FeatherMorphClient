@@ -40,6 +40,8 @@ public class InventoryRenderHelper extends MorphClientObject
         var syncerNotAvailable = syncer == null || syncer.disposed();
         var entity = syncerNotAvailable ? null : syncer.getDisguiseInstance();
 
+        PlayerRenderHelper.instance().skipRender = true;
+
         if (entity != null && (modConfig.clientViewVisible() || modConfig.alwaysShowPreviewInInventory))
         {
             try
@@ -59,5 +61,7 @@ public class InventoryRenderHelper extends MorphClientObject
             if (clientPlayer != null)
                 InventoryScreen.drawEntity(context, x1, y1, x2, y2, size, f, mouseX, mouseY, clientPlayer);
         }
+
+        PlayerRenderHelper.instance().skipRender = false;
     }
 }
