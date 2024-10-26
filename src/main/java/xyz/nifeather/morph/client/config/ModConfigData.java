@@ -30,6 +30,8 @@ public class ModConfigData implements ConfigData
     public boolean displayQuerySetToast = false;
     public boolean displayToastProgress = false;
 
+    public boolean singlePlayerDebugging = false;
+
     public boolean clientViewVisible()
     {
         return MorphClient.getInstance().morphManager.selfVisibleEnabled.get() && allowClientView;

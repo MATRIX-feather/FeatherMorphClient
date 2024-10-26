@@ -96,8 +96,6 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
     {
         Constants.initialize(false);
 
-        SharedValues.allowSinglePlayerDebugging = debugToasts;
-
         this.registerKeys();
 
         //初始化配置
@@ -110,6 +108,8 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
 
             modConfigData = configHolder.getConfig();
         }
+
+        SharedValues.allowSinglePlayerDebugging = debugToasts || modConfigData.singlePlayerDebugging;
 
         dependencyManager.cache(this);
         dependencyManager.cache(disguiseTracker = new DisguiseInstanceTracker());
@@ -458,7 +458,11 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
                 entryBuilder.startBooleanToggle(Text.translatable("option.morphclient.singleplayer_debug"), SharedValues.allowSinglePlayerDebugging)
                         .setTooltip()
                         .setDefaultValue(false)
-                        .setSaveConsumer(v -> SharedValues.allowSinglePlayerDebugging = v)
+                        .setSaveConsumer(v ->
+                                {
+                                    SharedValues.allowSinglePlayerDebugging = v;
+                                    modConfigData.singlePlayerDebugging = v;
+                                })
                         .build()
         );
 
