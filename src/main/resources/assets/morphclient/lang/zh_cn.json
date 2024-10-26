@@ -75,5 +75,7 @@
   "category.morphclient.debug": "调试",
   "category.morphclient.debug.description": "调试设置，使用时务必小心！",
   "option.morphclient.singleplayer_debug": "启用单人游戏调试",
-  "gui.morphclient.no_disguise": "无"
+  "gui.morphclient.no_disguise": "无",
+  "text.morphclient.error.render_disguise1": "渲染伪装时出现错误",
+  "text.morphclient.error.render_disguise2": "在当前伪装变更前客户端预览将被禁用以避免游戏崩溃"
 }

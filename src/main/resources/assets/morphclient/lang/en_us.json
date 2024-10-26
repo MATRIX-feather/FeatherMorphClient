@@ -74,5 +74,7 @@
   "text.morphclient.toast.request.receive": "New exchange request!",
   "text.morphclient.toast.request.send": "Exchange request send!",
   "text.morphclient.toast.request.to": "Request to %s",
-  "title.morphclient.config": "FeatherMorph client settings"
+  "title.morphclient.config": "FeatherMorph client settings",
+  "text.morphclient.error.render_disguise1": "Error occurred rendering disguise",
+  "text.morphclient.error.render_disguise2": "SelfView has been disabled until the current disguise has been changed!"
 }

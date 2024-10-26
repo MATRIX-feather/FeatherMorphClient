@@ -101,8 +101,8 @@ public class PlayerRenderHelper extends MorphClientObject
         var clientPlayer = MinecraftClient.getInstance().player;
         assert clientPlayer != null;
 
-        clientPlayer.sendMessage(Text.literal("渲染当前实体时出现错误。"), false);
-        clientPlayer.sendMessage(Text.literal("在当前伪装变更前客户端预览将被禁用以避免游戏崩溃。"), false);
+        clientPlayer.sendMessage(Text.translatable("text.morphclient.error.render_disguise1"), false);
+        clientPlayer.sendMessage(Text.translatable("text.morphclient.error.render_disguise2"), false);
     }
 
     @ApiStatus.Internal
