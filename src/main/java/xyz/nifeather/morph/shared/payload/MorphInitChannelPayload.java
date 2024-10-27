@@ -1,4 +1,4 @@
-package xyz.nifeather.morph.client.network.payload;
+package xyz.nifeather.morph.shared.payload;
 
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.codec.PacketCodec;

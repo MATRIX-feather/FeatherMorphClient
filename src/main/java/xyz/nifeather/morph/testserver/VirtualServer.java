@@ -7,9 +7,9 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.network.Constants;
-import xyz.nifeather.morph.client.network.payload.MorphCommandPayload;
-import xyz.nifeather.morph.client.network.payload.MorphInitChannelPayload;
-import xyz.nifeather.morph.client.network.payload.MorphVersionChannelPayload;
+import xyz.nifeather.morph.shared.payload.MorphCommandPayload;
+import xyz.nifeather.morph.shared.payload.MorphInitChannelPayload;
+import xyz.nifeather.morph.shared.payload.MorphVersionChannelPayload;
 import xyz.nifeather.morph.shared.SharedValues;
 
 public class VirtualServer

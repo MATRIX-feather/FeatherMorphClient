@@ -2,9 +2,9 @@ package xyz.nifeather.morph.testserver;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
-import xyz.nifeather.morph.client.network.payload.MorphCommandPayload;
-import xyz.nifeather.morph.client.network.payload.MorphInitChannelPayload;
-import xyz.nifeather.morph.client.network.payload.MorphVersionChannelPayload;
+import xyz.nifeather.morph.shared.payload.MorphCommandPayload;
+import xyz.nifeather.morph.shared.payload.MorphInitChannelPayload;
+import xyz.nifeather.morph.shared.payload.MorphVersionChannelPayload;
 
 public class MorphClientMain implements ModInitializer
 {

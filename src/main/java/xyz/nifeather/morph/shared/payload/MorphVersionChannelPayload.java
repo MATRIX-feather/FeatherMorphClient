@@ -1,9 +1,10 @@
-package xyz.nifeather.morph.client.network.payload;
+package xyz.nifeather.morph.shared.payload;
 
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.CustomPayload;
 import xyz.nifeather.morph.client.ServerHandler;
+import xyz.nifeather.morph.shared.SharedValues;
 
 import java.nio.charset.StandardCharsets;
 
@@ -11,11 +12,12 @@ public record MorphVersionChannelPayload(int protocolVersion) implements CustomP
 {
     public MorphVersionChannelPayload(String string)
     {
-        this(parse(string));
+        this(parseInt(string));
     }
 
     // Client --String-> Server
-    // Server --Integer-> Client
+    // Bukkit Server --Integer-> Client
+    // Fabric Server --String-> Client
     // :(
     public static final PacketCodec<PacketByteBuf, MorphVersionChannelPayload> CODEC  = PacketCodec.of(
             (value, buf) -> buf.writeBytes(MorphInitChannelPayload.writeString("" + value.protocolVersion)), //Server
@@ -27,7 +29,7 @@ public record MorphVersionChannelPayload(int protocolVersion) implements CustomP
         return protocolVersion;
     }
 
-    private static int parse(String input)
+    private static int parseInt(String input)
     {
         try
         {
@@ -35,7 +37,7 @@ public record MorphVersionChannelPayload(int protocolVersion) implements CustomP
         }
         catch (Throwable t)
         {
-            System.err.println("[FeatherMorph] Failed to parse protocol version from input: " + t.getMessage());
+            SharedValues.LOGGER.error("Failed to parse protocol version from input: " + t.getMessage());
         }
 
         return 1;
@@ -45,14 +47,28 @@ public record MorphVersionChannelPayload(int protocolVersion) implements CustomP
     {
         //System.out.println("Buf is '" + buf.toString(StandardCharsets.UTF_8) + "' :: with hashCode" + buf.hashCode());
         int read = -1;
+
         try
         {
-            var str = buf.toString(StandardCharsets.UTF_8);
-            read = Integer.parseInt(str);
+            // If from a bukkit server
+            read = buf.readInt();
         }
-        catch (Throwable t)
+        catch (Throwable ignored)
         {
-            System.err.println("[FeatherMorph] Error parsing protocol version from server: " + t.getMessage());
+        }
+
+        if (read == -1)
+        {
+            try
+            {
+                // If from a fabric server
+                var str = buf.toString(StandardCharsets.UTF_8);
+                read = Integer.parseInt(str);
+            }
+            catch (Throwable t)
+            {
+                SharedValues.LOGGER.error("Error parsing protocol version!");
+            }
         }
 
         buf.clear();
