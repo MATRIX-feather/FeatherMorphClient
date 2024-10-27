@@ -5,6 +5,8 @@ import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.CustomPayload;
 import xyz.nifeather.morph.client.ServerHandler;
 
+import java.nio.charset.StandardCharsets;
+
 public record MorphVersionChannelPayload(int protocolVersion) implements CustomPayload
 {
     public MorphVersionChannelPayload(String string)
@@ -16,7 +18,7 @@ public record MorphVersionChannelPayload(int protocolVersion) implements CustomP
     // Server --Integer-> Client
     // :(
     public static final PacketCodec<PacketByteBuf, MorphVersionChannelPayload> CODEC  = PacketCodec.of(
-            (value, buf) -> buf.writeInt(value.protocolVersion()), //Server
+            (value, buf) -> buf.writeBytes(MorphInitChannelPayload.writeString("" + value.protocolVersion)), //Server
             buf -> new MorphVersionChannelPayload(parseBuf(buf)) // Client
     );
 
@@ -45,7 +47,8 @@ public record MorphVersionChannelPayload(int protocolVersion) implements CustomP
         int read = -1;
         try
         {
-            read = buf.readInt();
+            var str = buf.toString(StandardCharsets.UTF_8);
+            read = Integer.parseInt(str);
         }
         catch (Throwable t)
         {
