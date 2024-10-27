@@ -40,7 +40,7 @@ public class DisguiseEntryToast extends LinedToast
         this.rawIdentifier = rawIdentifier;
         this.isGrant = isGrant;
 
-        this.entityDisplay = new EntityDisplay(rawIdentifier, true, EntityDisplay.InitialSetupMethod.NONE);
+        this.entityDisplay = new ToastEntityDisplay(rawIdentifier, true, EntityDisplay.InitialSetupMethod.NONE);
         entityDisplay.setX(512);
         entityDisplay.setSize(new Vector2f(26, 20));
         entityDisplay.setMasking(true);
@@ -131,5 +131,25 @@ public class DisguiseEntryToast extends LinedToast
         super.update(manager, startTime);
 
         this.visibility.set(isValid.get() ? this.visibility.get() : Visibility.HIDE);
+    }
+
+    private static final class ToastEntityDisplay extends EntityDisplay
+    {
+        public ToastEntityDisplay(String rawIdentifier, boolean displayLoadingIfNotValid, InitialSetupMethod initialSetupMethod)
+        {
+            super(rawIdentifier, displayLoadingIfNotValid, initialSetupMethod);
+        }
+
+        public ToastEntityDisplay(String id)
+        {
+            super(id);
+        }
+
+        // workaround: MDrawable中如果此Drawable没有父级，那么会自动通过窗口确定位置
+        //             然后无视之前设定的ParentScreenSpace
+        @Override
+        protected void updateParentScreenSpace()
+        {
+        }
     }
 }
