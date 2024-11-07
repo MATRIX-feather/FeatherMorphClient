@@ -313,17 +313,6 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
     }
 
     @Override
-    public Vec3d getPos()
-    {
-        var clientPlayer = bindingPlayer;
-
-        if (clientPlayer != null)
-            return clientPlayer.getPos();
-
-        return super.getPos();
-    }
-
-    @Override
     protected void initDataTracker(DataTracker.Builder builder)
     {
         super.initDataTracker(builder);

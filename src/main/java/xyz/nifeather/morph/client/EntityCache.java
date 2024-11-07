@@ -2,7 +2,6 @@ package xyz.nifeather.morph.client;
 
 import com.mojang.authlib.GameProfile;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -18,6 +17,7 @@ import xiamomc.pluginbase.Bindables.Bindable;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
@@ -50,7 +50,7 @@ public class EntityCache
         });
     }
 
-    private final Map<String, LivingEntity> cacheMap = new Object2ObjectOpenHashMap<>();
+    private final Map<String, LivingEntity> cacheMap = new ConcurrentHashMap<>();
 
     public void clearCache()
     {
@@ -253,7 +253,9 @@ public class EntityCache
             writeLock.unlock();
         }
 
-        //LoggerFactory.getLogger("morph").info("Pushing " + identifier + " into EntityCache.");
+        //living.setPos(0, -4096, 0);
+        if (identifier.startsWith("player:"))
+        LoggerFactory.getLogger("morph").info("Pushing " + identifier + " into EntityCache.");
 
         return living;
     }

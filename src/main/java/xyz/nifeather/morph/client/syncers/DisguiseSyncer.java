@@ -153,33 +153,35 @@ public abstract class DisguiseSyncer extends MorphClientObject
 
                 prevEntity.hurtTime = 0;
 
+                prevEntity.discard();
                 entityCache.discardEntity(disguiseId);
             }
 
-            disguiseInstance = entityCache.getEntity(disguiseId, bindingPlayer);
+            var newInstance = entityCache.getEntity(disguiseId, bindingPlayer);
 
-            if (disguiseInstance != null)
+            if (newInstance != null)
             {
-                var entityToAdd = disguiseInstance;
-                entityToAdd.setId(entityToAdd.getId() - entityToAdd.getId() * 2);
+                newInstance.setId(newInstance.getId() - newInstance.getId() * 2);
 
-                client.schedule(() -> clientWorld.addEntity(entityToAdd));
+                client.schedule(() -> clientWorld.addEntity(newInstance));
 
                 var nbt = getCompound();
                 if (nbt != null)
                     client.schedule(() -> mergeNbt(nbt));
 
-                disguiseInstance.addCommandTag("BINDING_" + bindingPlayer.getId());
-                disguiseInstance.noClip = true;
+                newInstance.addCommandTag("BINDING_" + bindingPlayer.getId());
+                newInstance.noClip = true;
 
-                if (disguiseInstance instanceof IMorphClientEntity iMorphEntity)
+                if (newInstance instanceof IMorphClientEntity iMorphEntity)
                     iMorphEntity.featherMorph$setIsDisguiseEntity(bindingNetworkId);
 
-                if (disguiseInstance instanceof MorphLocalPlayer localPlayer && prevEntity instanceof MorphLocalPlayer prevPlayer && prevPlayer.personEquals(localPlayer))
+                if (newInstance instanceof MorphLocalPlayer localPlayer && prevEntity instanceof MorphLocalPlayer prevPlayer && prevPlayer.personEquals(localPlayer))
                 {
                     localPlayer.copyFrom(prevPlayer);
                     localPlayer.setBindingPlayer(MinecraftClient.getInstance().player);
                 }
+
+                this.disguiseInstance = newInstance;
 
                 initialSync();
                 baseSync();

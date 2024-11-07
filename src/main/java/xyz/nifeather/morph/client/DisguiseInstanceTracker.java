@@ -61,6 +61,12 @@ public class DisguiseInstanceTracker extends MorphClientObject
         var networkId = s2CRenderMapAddCommand.getPlayerNetworkId();
         trackingDisguises.put(networkId, s2CRenderMapAddCommand.getMobId());
 
+        if (MinecraftClient.getInstance().player.getId() == networkId)
+        {
+            //logger.info("Ignoring client player since we have another method.");
+            return;
+        }
+
         var prevSyncer = getSyncerFor(networkId);
         if (prevSyncer != null)
             this.removeSyncer(prevSyncer);
@@ -228,7 +234,7 @@ public class DisguiseInstanceTracker extends MorphClientObject
     }
 
     @Nullable
-    public DisguiseSyncer setSyncer(Entity entity, String did)
+    public DisguiseSyncer setSyncer(Entity entity, String newId)
     {
         if (!(entity instanceof AbstractClientPlayerEntity player)) return null;
 
@@ -241,7 +247,7 @@ public class DisguiseInstanceTracker extends MorphClientObject
             this.removeSyncer(prevSyncer);
 
         // 然后再添加新的
-        var syncer = manager.createSyncerFor(player, did, player.getId());
+        var syncer = manager.createSyncerFor(player, newId, player.getId());
         idSyncerMap.put(networkId, syncer);
 
         return syncer;

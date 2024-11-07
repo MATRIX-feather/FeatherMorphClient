@@ -31,6 +31,7 @@ import xiamomc.pluginbase.Exceptions.NullDependencyException;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
 public class ClientMorphManager extends MorphClientObject
@@ -148,7 +149,7 @@ public class ClientMorphManager extends MorphClientObject
             prevWorld = world;
 
         var currentClientPlayer = MinecraftClient.getInstance().player;
-        if (currentClientPlayer != null && lastClientPlayer != currentClientPlayer)
+        if (currentClientPlayer != null && lastClientPlayer != currentClientPlayer && !syncerRefreshScheduled.get())
         {
             if (localPlayerSyncer != null && localPlayerSyncer.disposed())
                 localPlayerSyncer = null;
@@ -162,8 +163,12 @@ public class ClientMorphManager extends MorphClientObject
     @Nullable
     private PlayerEntity lastClientPlayer;
 
+    private final AtomicBoolean syncerRefreshScheduled = new AtomicBoolean(false);
+
     private void refreshLocalSyncer(String n)
     {
+        syncerRefreshScheduled.set(false);
+
         if (localPlayerSyncer != null)
         {
             logger.info("Removing previous syncer " + localPlayerSyncer);
@@ -349,6 +354,7 @@ public class ClientMorphManager extends MorphClientObject
 
         String finalVal = val;
         this.addSchedule(() -> refreshLocalSyncer(finalVal));
+        syncerRefreshScheduled.set(true);
 
         if (val != null && (val.isBlank() || val.isEmpty()))
             val = null;

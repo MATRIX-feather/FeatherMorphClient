@@ -270,28 +270,9 @@ public class EntityDisplay extends MDrawable
             var x1 = renderWidth / 2;
             var y2 = renderHeight;
 
-            // Compatibility for World curvature in Chunks Fade In
-            var originalPos = displayingEntity.getPos();
-            var playerPos = MinecraftClient.getInstance().player.getPos();
-            displayingEntity.setPos(playerPos.x, playerPos.y, playerPos.z);
-            displayingEntity.lastRenderX = playerPos.x;
-            displayingEntity.lastRenderY = playerPos.y;
-            displayingEntity.lastRenderZ = playerPos.z;
-            displayingEntity.prevX = playerPos.x;
-            displayingEntity.prevY = playerPos.y;
-            displayingEntity.prevZ = playerPos.z;
-
             drawEntity(context,
                     x1, 0, x1, y2,
                     entitySize.get(), 0.0625f + entityYOffset, -mouseX, -mouseY, displayingEntity);
-
-            displayingEntity.setPos(originalPos.x, originalPos.y, originalPos.z);
-            displayingEntity.lastRenderX = originalPos.x;
-            displayingEntity.lastRenderY = originalPos.y;
-            displayingEntity.lastRenderZ = originalPos.z;
-            displayingEntity.prevX = originalPos.x;
-            displayingEntity.prevY = originalPos.y;
-            displayingEntity.prevZ = originalPos.z;
 
             PlayerRenderHelper.instance().skipRender = false;
         }
