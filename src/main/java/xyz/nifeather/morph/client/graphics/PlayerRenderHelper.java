@@ -2,6 +2,7 @@ package xyz.nifeather.morph.client.graphics;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.*;
@@ -17,7 +18,6 @@ import net.minecraft.client.render.entity.state.LivingEntityRenderState;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -302,11 +302,11 @@ public class PlayerRenderHelper extends MorphClientObject
             var syncer = ClientDisguiseSyncer.getCurrentInstance();
 
             if (syncer == null || syncer.disposed()) return false;
-            var entity = syncer.getDisguiseInstance();
+            var disguiseEntity = syncer.getDisguiseInstance();
 
-            if (entity == null) return false;
+            if (disguiseEntity == null) return false;
 
-            EntityRenderer<?, ?> disguiseRenderer = MinecraftClient.getInstance().getEntityRenderDispatcher().getRenderer(entity);
+            EntityRenderer<?, ?> disguiseRenderer = MinecraftClient.getInstance().getEntityRenderDispatcher().getRenderer(disguiseEntity);
 
             ModelPart targetArm;
             ModelInfo modelInfo;
@@ -323,7 +323,7 @@ public class PlayerRenderHelper extends MorphClientObject
             {
                 model = livingEntityRenderer.getModel();
 
-                if (entity instanceof MorphLocalPlayer localPlayer)
+                if (disguiseEntity instanceof MorphLocalPlayer localPlayer)
                 {
                     var renderer = (PlayerEntityRenderer) livingEntityRenderer;
 
@@ -336,11 +336,11 @@ public class PlayerRenderHelper extends MorphClientObject
                 }
 
                 var renderState = (LivingEntityRenderState) livingEntityRenderer.createRenderState();
-                livingEntityRenderer.updateRenderState(entity, renderState, 0);
+                livingEntityRenderer.updateRenderState(disguiseEntity, renderState, 0);
                 layer = ((LivingRendererAccessor) livingEntityRenderer).callGetRenderLayer(renderState, true, false, true);
             }
 
-            modelInfo = tryGetModel(entity.getType(), model);
+            modelInfo = tryGetModel(disguiseEntity.getType(), model);
             targetArm = modelInfo.getPart(renderingLeftPart);
 
             if (targetArm != null)
@@ -356,7 +356,7 @@ public class PlayerRenderHelper extends MorphClientObject
                 var offset = modelInfo.offset;
                 matrices.translate(offset.getX(), offset.getY(), offset.getZ());
 
-                light = (entity.getType() == EntityType.ALLAY || entity.getType() == EntityType.VEX)
+                light = (disguiseEntity.getType() == EntityType.ALLAY || disguiseEntity.getType() == EntityType.VEX)
                         ? LightmapTextureManager.MAX_LIGHT_COORDINATE
                         : light;
 
