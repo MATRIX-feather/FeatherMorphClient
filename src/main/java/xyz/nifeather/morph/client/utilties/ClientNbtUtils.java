@@ -1,4 +1,4 @@
-package xyz.nifeather.morph.misc;
+package xyz.nifeather.morph.client.utilties;
 
 import net.minecraft.command.EntityDataObject;
 import net.minecraft.entity.Entity;

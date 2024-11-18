@@ -24,6 +24,7 @@ import net.minecraft.util.Identifier;
 import xyz.nifeather.morph.client.config.ModConfigData;
 import xyz.nifeather.morph.client.entities.IMorphClientEntity;
 import xyz.nifeather.morph.client.network.commands.ClientSetEquipCommand;
+import xyz.nifeather.morph.shared.SharedValues;
 import xyz.nifeather.morph.shared.payload.MorphCommandPayload;
 import xyz.nifeather.morph.shared.payload.MorphInitChannelPayload;
 import xyz.nifeather.morph.shared.payload.MorphVersionChannelPayload;
@@ -109,12 +110,6 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
 
     //region Common
 
-    private static final String morphNameSpace = "morphplugin";
-
-    public static Identifier initializeChannelIdentifier = Identifier.of(morphNameSpace, "init");
-    public static Identifier versionChannelIdentifier = Identifier.of(morphNameSpace, "version");
-    public static Identifier commandChannelIdentifier = Identifier.of(morphNameSpace, "commands");
-
     @Resolved
     private ClientMorphManager morphManager;
 
@@ -169,9 +164,9 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
     private void initializePayloadMap()
     {
         logger.info("Registering payload types...");
-        payloadMap.put(initializeChannelIdentifier, raw -> new MorphInitChannelPayload(raw.toString()));
-        payloadMap.put(commandChannelIdentifier, raw -> new MorphCommandPayload(raw.toString()));
-        payloadMap.put(versionChannelIdentifier, raw -> new MorphVersionChannelPayload(MorphVersionChannelPayload.parseInt(raw.toString())));
+        payloadMap.put(SharedValues.initializeChannelIdentifier, raw -> new MorphInitChannelPayload(raw.toString()));
+        payloadMap.put(SharedValues.commandChannelIdentifier, raw -> new MorphCommandPayload(raw.toString()));
+        payloadMap.put(SharedValues.versionChannelIdentifier, raw -> new MorphVersionChannelPayload(MorphVersionChannelPayload.parseInt(raw.toString())));
 
         logger.info("Done.");
     }
@@ -213,7 +208,7 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
 
         cmd = cmd.trim();
 
-        sendCommand(commandChannelIdentifier, cmd);
+        sendCommand(SharedValues.commandChannelIdentifier, cmd);
 
         return true;
     }
@@ -223,7 +218,7 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
     {
         this.resetServerStatus();
 
-        this.sendCommand(initializeChannelIdentifier, "");
+        this.sendCommand(SharedValues.initializeChannelIdentifier, "");
     }
 
     @Override
@@ -589,7 +584,7 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
 
             // Server parses version with Integer.parseInt(), and client only accepts integer value not string
             // What a cursed pair :(
-            sendCommand(versionChannelIdentifier, "" + getImplmentingApiVersion());
+            sendCommand(SharedValues.versionChannelIdentifier, "" + getImplmentingApiVersion());
             sendCommand(new C2SInitialCommand());
             sendCommand(new C2SOptionCommand(C2SOptionCommand.ClientOptions.CLIENTVIEW).setValue(config.allowClientView));
             sendCommand(new C2SOptionCommand(C2SOptionCommand.ClientOptions.HUD).setValue(config.displayDisguiseOnHud));

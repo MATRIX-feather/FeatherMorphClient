@@ -1,4 +1,4 @@
-package xyz.nifeather.morph.misc;
+package xyz.nifeather.morph.client.utilties;
 
 import com.google.gson.Gson;
 import com.mojang.serialization.JsonOps;

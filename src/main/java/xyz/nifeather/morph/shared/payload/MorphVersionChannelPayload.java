@@ -5,7 +5,6 @@ import net.fabricmc.api.Environment;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.CustomPayload;
-import xyz.nifeather.morph.client.ServerHandler;
 import xyz.nifeather.morph.shared.SharedValues;
 
 import java.nio.charset.StandardCharsets;
@@ -74,7 +73,7 @@ public record MorphVersionChannelPayload(int protocolVersion) implements CustomP
         return read;
     }
 
-    public static final Id<MorphVersionChannelPayload> id = new Id<>(ServerHandler.versionChannelIdentifier);
+    public static final Id<MorphVersionChannelPayload> id = new Id<>(SharedValues.versionChannelIdentifier);
 
     @Override
     public Id<? extends CustomPayload> getId()

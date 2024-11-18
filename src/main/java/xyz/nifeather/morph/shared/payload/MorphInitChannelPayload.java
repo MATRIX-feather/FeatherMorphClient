@@ -1,11 +1,9 @@
 package xyz.nifeather.morph.shared.payload;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.CustomPayload;
-import xyz.nifeather.morph.client.ServerHandler;
+import xyz.nifeather.morph.shared.SharedValues;
 
 import java.nio.charset.StandardCharsets;
 
@@ -51,7 +49,7 @@ public record MorphInitChannelPayload(String message) implements CustomPayload
         return new String(dst, StandardCharsets.UTF_8);
     }
 
-    public static final CustomPayload.Id<MorphInitChannelPayload> id = new Id<>(ServerHandler.initializeChannelIdentifier);
+    public static final CustomPayload.Id<MorphInitChannelPayload> id = new Id<>(SharedValues.initializeChannelIdentifier);
 
     @Override
     public Id<? extends CustomPayload> getId()
