@@ -1,22 +1,25 @@
-package xyz.nifeather.morph.testserver;
+package xyz.nifeather.morph.server;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.dedicated.DedicatedServer;
+import net.minecraft.server.dedicated.MinecraftDedicatedServer;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.network.Constants;
 import xyz.nifeather.morph.shared.payload.MorphCommandPayload;
 import xyz.nifeather.morph.shared.payload.MorphInitChannelPayload;
-import xyz.nifeather.morph.shared.payload.MorphVersionChannelPayload;
 import xyz.nifeather.morph.shared.SharedValues;
+import xyz.nifeather.morph.shared.payload.MorphVersionChannelPayload;
 
-public class VirtualServer
+public class MorphServer
 {
-    public static VirtualServer instance;
+    public static MorphServer instance;
 
-    public VirtualServer()
+    public MorphServer()
     {
         instance = this;
     }
@@ -25,6 +28,10 @@ public class VirtualServer
 
     public void init()
     {
+        PayloadTypeRegistry.playS2C().register(MorphInitChannelPayload.id, MorphInitChannelPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(MorphVersionChannelPayload.id, MorphVersionChannelPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(MorphCommandPayload.id, MorphCommandPayload.CODEC);
+
         ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStop);
         ServerLifecycleEvents.SERVER_STARTING.register(this::onServerStart);
     }
@@ -51,7 +58,7 @@ public class VirtualServer
         server = startingServer;
     }
 
-    private void onServerStop(MinecraftServer server)
+    private void onServerStop(MinecraftServer mcServer)
     {
         server = null;
         morphManager.dispose();

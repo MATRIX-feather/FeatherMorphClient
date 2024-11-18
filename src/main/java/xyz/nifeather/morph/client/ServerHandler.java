@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EntityStatuses;
 import net.minecraft.entity.EquipmentSlot;
@@ -58,6 +59,10 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
 
     public ServerHandler(MorphClient client)
     {
+        PayloadTypeRegistry.playC2S().register(MorphInitChannelPayload.id, MorphInitChannelPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(MorphVersionChannelPayload.id, MorphVersionChannelPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(MorphCommandPayload.id, MorphCommandPayload.CODEC);
+
         this.client = client;
     }
 
@@ -166,7 +171,7 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
         logger.info("Registering payload types...");
         payloadMap.put(initializeChannelIdentifier, raw -> new MorphInitChannelPayload(raw.toString()));
         payloadMap.put(commandChannelIdentifier, raw -> new MorphCommandPayload(raw.toString()));
-        payloadMap.put(versionChannelIdentifier, raw -> new MorphVersionChannelPayload(raw.toString()));
+        payloadMap.put(versionChannelIdentifier, raw -> new MorphVersionChannelPayload(MorphVersionChannelPayload.parseInt(raw.toString())));
 
         logger.info("Done.");
     }

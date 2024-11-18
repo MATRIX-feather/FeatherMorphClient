@@ -1,5 +1,7 @@
 package xyz.nifeather.morph.shared.payload;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.CustomPayload;
@@ -21,6 +23,23 @@ public record MorphInitChannelPayload(String message) implements CustomPayload
 
     public static String readString(PacketByteBuf buf)
     {
+        int lastRead = buf.readerIndex();
+        int lastWrite = buf.writerIndex();
+
+        try
+        {
+            var content = buf.readString();
+            buf.clear();
+
+            return content;
+        }
+        catch (Throwable t)
+        {
+            System.out.println("Failed to decode in modern pattern.");
+            buf.readerIndex(lastRead);
+            buf.writerIndex(lastWrite);
+        }
+
         //System.out.println("Buf is '" + buf.toString(StandardCharsets.UTF_8) + "' :: with hashCode" + buf.hashCode());
 
         var directBuffer = buf.readBytes(buf.readableBytes());

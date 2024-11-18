@@ -1,8 +1,8 @@
-package xyz.nifeather.morph.testserver;
+package xyz.nifeather.morph.server;
 
 import net.minecraft.entity.player.PlayerEntity;
 
-public class DisguiseSession
+public class FabricDisguiseSession
 {
     private final PlayerEntity bindingPlayer;
 
@@ -18,7 +18,7 @@ public class DisguiseSession
         return disguiseIdentifier;
     }
 
-    public DisguiseSession(PlayerEntity bindingPlayer, String disguiseIdentifier)
+    public FabricDisguiseSession(PlayerEntity bindingPlayer, String disguiseIdentifier)
     {
         this.disguiseIdentifier = disguiseIdentifier;
         this.bindingPlayer = bindingPlayer;

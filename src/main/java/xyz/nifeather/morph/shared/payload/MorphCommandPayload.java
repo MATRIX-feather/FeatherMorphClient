@@ -8,7 +8,7 @@ import xyz.nifeather.morph.client.ServerHandler;
 public record MorphCommandPayload(String content) implements CustomPayload
 {
     public static final PacketCodec<PacketByteBuf, MorphCommandPayload> CODEC = PacketCodec.of(
-            (value, buf) -> buf.writeBytes(MorphInitChannelPayload.writeString(value.content())),
+            (value, buf) -> buf.writeString(value.content()),
             buf -> new MorphCommandPayload(MorphInitChannelPayload.readString(buf))
     );
 

@@ -1,5 +1,7 @@
 package xyz.nifeather.morph.shared.payload;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.CustomPayload;
@@ -8,20 +10,16 @@ import xyz.nifeather.morph.shared.SharedValues;
 
 import java.nio.charset.StandardCharsets;
 
+@Environment(EnvType.CLIENT)
 public record MorphVersionChannelPayload(int protocolVersion) implements CustomPayload
 {
-    public MorphVersionChannelPayload(String string)
-    {
-        this(parseInt(string));
-    }
-
     // Client --String-> Server
     // Bukkit Server --Integer-> Client
     // Fabric Server --String-> Client
     // :(
     public static final PacketCodec<PacketByteBuf, MorphVersionChannelPayload> CODEC  = PacketCodec.of(
-            (value, buf) -> buf.writeBytes(MorphInitChannelPayload.writeString("" + value.protocolVersion)), //Server
-            buf -> new MorphVersionChannelPayload(parseBuf(buf)) // Client
+            (value, buf) -> buf.writeInt(value.protocolVersion), //Client -> Server
+            buf -> new MorphVersionChannelPayload(parseBuf(buf)) // Server -> Client
     );
 
     public int getProtocolVersion()
@@ -29,7 +27,7 @@ public record MorphVersionChannelPayload(int protocolVersion) implements CustomP
         return protocolVersion;
     }
 
-    private static int parseInt(String input)
+    public static int parseInt(String input)
     {
         try
         {
@@ -57,6 +55,7 @@ public record MorphVersionChannelPayload(int protocolVersion) implements CustomP
         {
         }
 
+        // Kept for legacy servers.
         if (read == -1)
         {
             try

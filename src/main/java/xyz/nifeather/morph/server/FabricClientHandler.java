@@ -1,4 +1,4 @@
-package xyz.nifeather.morph.testserver;
+package xyz.nifeather.morph.server;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -25,11 +25,11 @@ import java.util.Map;
 
 public class FabricClientHandler implements BasicClientHandler<ServerPlayerEntity>
 {
-    private final CommandRegistries registries = new CommandRegistries();
+    private final CommandRegistries commandRegistries = new CommandRegistries();
 
     public FabricClientHandler()
     {
-        registries.registerC2S(C2SCommandNames.Initial, a -> new C2SInitialCommand())
+        commandRegistries.registerC2S(C2SCommandNames.Initial, a -> new C2SInitialCommand())
                 .registerC2S(C2SCommandNames.Morph, C2SMorphCommand::new)
                 .registerC2S(C2SCommandNames.Skill, a -> new C2SSkillCommand())
                 .registerC2S(C2SCommandNames.Option, C2SOptionCommand::fromString)
@@ -39,7 +39,7 @@ public class FabricClientHandler implements BasicClientHandler<ServerPlayerEntit
                 .registerC2S("animation", C2SAnimationCommand::new);
     }
 
-    private final Logger logger = VirtualServer.LOGGER;
+    private final Logger logger = MorphServer.LOGGER;
 
     private final Bindable<Boolean> allowClient = new Bindable<>(true);
     private final Bindable<Boolean> logInComingPackets = new Bindable<>(true);
@@ -82,7 +82,7 @@ public class FabricClientHandler implements BasicClientHandler<ServerPlayerEntit
         }
 
         var baseCommand = str[0];
-        var c2sCommand = registries.createC2SCommand(baseCommand, str.length == 2 ? str[1] : "");
+        var c2sCommand = commandRegistries.createC2SCommand(baseCommand, str.length == 2 ? str[1] : "");
 
         if (c2sCommand != null)
         {
@@ -199,7 +199,7 @@ public class FabricClientHandler implements BasicClientHandler<ServerPlayerEntit
     @Override
     public @Nullable PlayerOptions<ServerPlayerEntity> getPlayerOption(ServerPlayerEntity ServerPlayerEntity)
     {
-        VirtualServer.LOGGER.warn("getPlayerOption is not implemented yet.");
+        MorphServer.LOGGER.warn("getPlayerOption is not implemented yet.");
         return null;
     }
 
@@ -207,7 +207,7 @@ public class FabricClientHandler implements BasicClientHandler<ServerPlayerEntit
     public void onInitialCommand(C2SInitialCommand command)
     {
         ServerPlayerEntity player = command.getOwner();
-        var morphManager = VirtualServer.instance.morphManager;
+        var morphManager = MorphServer.instance.morphManager;
 
         var unlocked = morphManager.getUnlockedDisguises(player);
         var cmd = new S2CQueryCommand(QueryType.SET, unlocked.toArray(new String[0]));
@@ -217,14 +217,14 @@ public class FabricClientHandler implements BasicClientHandler<ServerPlayerEntit
 
         Map<Integer, String> renderMap = new Object2ObjectOpenHashMap<>();
 
-        for (DisguiseSession session : morphManager.listAllSession())
+        for (FabricDisguiseSession session : morphManager.listAllSession())
             renderMap.put(session.player().getId(), session.disguiseIdentifier());
 
         this.sendCommand(player, new S2CRenderMapSyncCommand(renderMap));
 
         Map<Integer, String> revealMap = new Object2ObjectOpenHashMap<>();
 
-        for (DisguiseSession session : morphManager.listAllSession())
+        for (FabricDisguiseSession session : morphManager.listAllSession())
             revealMap.put(session.player().getId(), session.player().getName().getLiteralString());
 
         this.sendCommand(player, new S2CPartialMapCommand(revealMap));
@@ -236,7 +236,7 @@ public class FabricClientHandler implements BasicClientHandler<ServerPlayerEntit
         ServerPlayerEntity player = command.getOwner();
         String disguiseId = command.getArgumentAt(0, "");
 
-        var morphManager = VirtualServer.instance.morphManager;
+        var morphManager = MorphServer.instance.morphManager;
         morphManager.morph(player, disguiseId);
     }
 
@@ -268,7 +268,7 @@ public class FabricClientHandler implements BasicClientHandler<ServerPlayerEntit
     {
         ServerPlayerEntity player = command.getOwner();
 
-        var morphManager = VirtualServer.instance.morphManager;
+        var morphManager = MorphServer.instance.morphManager;
         morphManager.unMorph(player);
     }
 
