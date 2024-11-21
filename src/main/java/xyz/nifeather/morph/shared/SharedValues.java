@@ -14,4 +14,6 @@ public class SharedValues
     public static Identifier initializeChannelIdentifier = Identifier.of(morphNameSpace, "init");
     public static Identifier versionChannelIdentifier = Identifier.of(morphNameSpace, "version");
     public static Identifier commandChannelIdentifier = Identifier.of(morphNameSpace, "commands");
+
+    public static boolean client_UseNewPacketSerializeMethod = false;
 }

@@ -8,8 +8,8 @@ import xyz.nifeather.morph.shared.SharedValues;
 public record MorphCommandPayload(String content) implements CustomPayload
 {
     public static final PacketCodec<PacketByteBuf, MorphCommandPayload> CODEC = PacketCodec.of(
-            (value, buf) -> buf.writeString(value.content()),
-            buf -> new MorphCommandPayload(MorphInitChannelPayload.readString(buf))
+            (value, buf) -> BufferUtils.writeBufAuto(value.content, buf),
+            buf -> new MorphCommandPayload(BufferUtils.readBufAuto(buf))
     );
 
     public static final CustomPayload.Id<MorphCommandPayload> id = new Id<>(SharedValues.commandChannelIdentifier);

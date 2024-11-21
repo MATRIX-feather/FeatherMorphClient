@@ -17,8 +17,8 @@ public record MorphVersionChannelPayload(int protocolVersion) implements CustomP
     // Fabric Server --String-> Client
     // :(
     public static final PacketCodec<PacketByteBuf, MorphVersionChannelPayload> CODEC  = PacketCodec.of(
-            (value, buf) -> buf.writeInt(value.protocolVersion), //Client -> Server
-            buf -> new MorphVersionChannelPayload(parseBuf(buf)) // Server -> Client
+            (value, buf) -> BufferUtils.writeVersionBufAuto(value.protocolVersion, buf), //Client -> Server
+            buf -> new MorphVersionChannelPayload(BufferUtils.readVersionBufAuto(buf)) // Server -> Client
     );
 
     public int getProtocolVersion()

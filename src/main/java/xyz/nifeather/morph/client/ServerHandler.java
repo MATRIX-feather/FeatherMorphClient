@@ -1,5 +1,6 @@
 package xyz.nifeather.morph.client;
 
+import com.llamalad7.mixinextras.sugar.Share;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.netty.buffer.ByteBuf;
@@ -10,6 +11,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.util.TriState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EntityStatuses;
 import net.minecraft.entity.EquipmentSlot;
@@ -49,6 +51,7 @@ import xiamomc.pluginbase.Bindables.Bindable;
 import xiamomc.pluginbase.Exceptions.NullDependencyException;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -213,12 +216,15 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
         return true;
     }
 
+    private static final String newProtocolIdentify = "1_21_3_packetbuf";
+
     @Override
     public void connect()
     {
         this.resetServerStatus();
 
-        this.sendCommand(SharedValues.initializeChannelIdentifier, "");
+        SharedValues.client_UseNewPacketSerializeMethod = true;
+        this.sendCommand(SharedValues.initializeChannelIdentifier, newProtocolIdentify);
     }
 
     @Override
@@ -521,6 +527,7 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
     {
         handshakeReceived = false;
         apiVersionChecked = false;
+        usingLegacyPackets = false;
 
         morphManager.reset();
         updateServerStatus();
@@ -539,6 +546,8 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
     }
 
     private boolean networkInitialized;
+
+    private boolean usingLegacyPackets;
 
     public void initializeNetwork()
     {
@@ -564,16 +573,26 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
         //初始化网络
         ClientPlayNetworking.registerGlobalReceiver(MorphInitChannelPayload.id, (payload, context) ->
         {
-            //logger.info("Payload is " + payload);
-            if (!(payload instanceof MorphInitChannelPayload initPayload))
+            var content = Arrays.stream(payload.message().split(" ")).toList();
+
+            String msgDeny = "no";
+
+            if (content.stream().noneMatch(s -> s.equals(newProtocolIdentify)))
             {
-                logger.info("Not custom payload!");
-                return;
+                logger.info("The server is using legacy method to serialize commands.");
+                usingLegacyPackets = true;
+
+                SharedValues.client_UseNewPacketSerializeMethod = false;
+            }
+            else
+            {
+                logger.info("The server is using new method to serialize commands.");
+                usingLegacyPackets = false;
+
+                SharedValues.client_UseNewPacketSerializeMethod = true;
             }
 
-            var content = initPayload.message();
-
-            if (content.equalsIgnoreCase("no"))
+            if (content.stream().anyMatch(s -> s.equals(msgDeny)))
             {
                 logger.error("Initialize failed: Denied by server");
                 return;
