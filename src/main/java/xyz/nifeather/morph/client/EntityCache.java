@@ -99,7 +99,7 @@ public class EntityCache
 
     private final long lockWait = 10;
 
-    private final Map<String, Boolean> isLivingMap = new Object2ObjectArrayMap<>();
+    private final Map<String, Boolean> isLivingMap = new ConcurrentHashMap<>();
 
     public boolean isLiving(String identifier)
     {

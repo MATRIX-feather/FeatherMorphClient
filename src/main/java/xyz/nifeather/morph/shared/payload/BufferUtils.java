@@ -19,7 +19,7 @@ public class BufferUtils
         if (SharedValues.client_UseNewPacketSerializeMethod)
             writeIntBuf(content, buf);
         else
-            writeIntBufLegacy(content, buf);
+            writeVersionBufLegacy(content, buf);
     }
 
     public static void writeIntBuf(int content, PacketByteBuf buf)
@@ -27,7 +27,7 @@ public class BufferUtils
         buf.writeInt(content);
     }
 
-    public static void writeIntBufLegacy(int content, PacketByteBuf buf)
+    public static void writeVersionBufLegacy(int content, PacketByteBuf buf)
     {
         var str = "" + content;
         var bytes = str.getBytes(StandardCharsets.UTF_8);
@@ -36,12 +36,17 @@ public class BufferUtils
     }
 
     // string
-    public static void writeBufAuto(String content, PacketByteBuf buf)
+    public static void writeCommandBuf(String content, PacketByteBuf buf)
     {
         if (SharedValues.client_UseNewPacketSerializeMethod)
             writeBuf(content, buf);
         else
             writeBufLegacy(content, buf);
+    }
+
+    public static void writeInitBuf(String content, PacketByteBuf buf)
+    {
+        writeBuf(content, buf);
     }
 
     public static void writeBuf(String content, PacketByteBuf buf)
@@ -59,7 +64,7 @@ public class BufferUtils
     //region Read
 
     // int
-    public static int readVersionBufAuto(PacketByteBuf buf)
+    public static int readVersionBuf(PacketByteBuf buf)
     {
         try
         {
@@ -74,30 +79,23 @@ public class BufferUtils
 
     // string
 
-    public static String readBufAutoFallback(PacketByteBuf buf)
+    public static String readInitBuf(PacketByteBuf buf)
     {
-        if (SharedValues.client_UseNewPacketSerializeMethod)
-        {
-            try
-            {
-                return readBuf(buf);
-            }
-            catch (Throwable t)
-            {
-                LOGGER.info("Can't read buffer with readBuf(), trying legacy method...");
-                return readBufLegacy(buf);
-            }
-        }
-        else
-            return readBufLegacy(buf);
-    }
-
-    public static String readBufAuto(PacketByteBuf buf)
-    {
-        if (SharedValues.client_UseNewPacketSerializeMethod)
+        try
         {
             return readBuf(buf);
         }
+        catch (Throwable t)
+        {
+            LOGGER.info("Can't read buffer with readBuf(), trying legacy method...");
+            return readBufLegacy(buf);
+        }
+    }
+
+    public static String readCommandBuf(PacketByteBuf buf)
+    {
+        if (SharedValues.client_UseNewPacketSerializeMethod)
+            return readBuf(buf);
         else
             return readBufLegacy(buf);
     }

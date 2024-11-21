@@ -223,7 +223,6 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
     {
         this.resetServerStatus();
 
-        SharedValues.client_UseNewPacketSerializeMethod = true;
         this.sendCommand(SharedValues.initializeChannelIdentifier, newProtocolIdentify);
     }
 

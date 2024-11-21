@@ -18,7 +18,7 @@ public record MorphVersionChannelPayload(int protocolVersion) implements CustomP
     // :(
     public static final PacketCodec<PacketByteBuf, MorphVersionChannelPayload> CODEC  = PacketCodec.of(
             (value, buf) -> BufferUtils.writeVersionBufAuto(value.protocolVersion, buf), //Client -> Server
-            buf -> new MorphVersionChannelPayload(BufferUtils.readVersionBufAuto(buf)) // Server -> Client
+            buf -> new MorphVersionChannelPayload(BufferUtils.readVersionBuf(buf)) // Server -> Client
     );
 
     public int getProtocolVersion()
