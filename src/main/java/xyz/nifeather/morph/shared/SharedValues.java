@@ -12,8 +12,11 @@ public class SharedValues
     private static final String morphNameSpace = "morphplugin";
 
     public static Identifier initializeChannelIdentifier = Identifier.of(morphNameSpace, "init");
-    public static Identifier versionChannelIdentifier = Identifier.of(morphNameSpace, "version");
-    public static Identifier commandChannelIdentifier = Identifier.of(morphNameSpace, "commands");
+    public static Identifier versionChannelIdentifier = Identifier.of(morphNameSpace, "version_v2");
+    public static Identifier commandChannelIdentifier = Identifier.of(morphNameSpace, "commands_v2");
+
+    public static Identifier versionChannelIdentifierLegacy = Identifier.of(morphNameSpace, "version");
+    public static Identifier commandChannelIdentifierLegacy = Identifier.of(morphNameSpace, "commands");
 
     public static boolean client_UseNewPacketSerializeMethod = false;
 }

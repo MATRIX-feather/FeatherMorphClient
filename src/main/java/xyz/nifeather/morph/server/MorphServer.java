@@ -10,10 +10,8 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xiamomc.morph.network.Constants;
-import xyz.nifeather.morph.shared.payload.MorphCommandPayload;
-import xyz.nifeather.morph.shared.payload.MorphInitChannelPayload;
+import xyz.nifeather.morph.shared.payload.*;
 import xyz.nifeather.morph.shared.SharedValues;
-import xyz.nifeather.morph.shared.payload.MorphVersionChannelPayload;
 
 public class MorphServer
 {
@@ -31,6 +29,9 @@ public class MorphServer
         PayloadTypeRegistry.playS2C().register(MorphInitChannelPayload.id, MorphInitChannelPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(MorphVersionChannelPayload.id, MorphVersionChannelPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(MorphCommandPayload.id, MorphCommandPayload.CODEC);
+
+        PayloadTypeRegistry.playS2C().register(LegacyMorphVersionChannelPayload.id, LegacyMorphVersionChannelPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(LegacyMorphCommandPayload.id, LegacyMorphCommandPayload.CODEC);
 
         ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStop);
         ServerLifecycleEvents.SERVER_STARTING.register(this::onServerStart);
