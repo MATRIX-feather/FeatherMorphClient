@@ -21,6 +21,8 @@
   "emote.morphclient.standup": "Stand",
   "emote.morphclient.stop": "Stop",
   "emote.morphclient.vanish": "Vanish",
+  "emote.morphclient.eye_glow": "Eyes glow",
+  "emote.morphclient.stop_eye_glow": "Stop glow",
   "gui.morphclient.current_disguise": "Current disguise: %s",
   "gui.morphclient.current_emote": "Current Playing: %s",
   "gui.morphclient.emote_select": "Disguise actions",
