@@ -60,6 +60,8 @@
   "option.morphclient.toast_progress": "Display toast progress",
   "option.morphclient.verbosePackets.description": "",
   "option.morphclient.verbosePackets.name": "(Debug) Log packets",
+  "option.morphclient.smoothscroll.name": "Smooth scroll in disguise selection",
+  "option.morphclient.smoothscroll.description": "Disable this might improve compatibility with Smooth Scrolling",
   "text.morphclient.display_real_names": "Displaying disguises' owner name",
   "text.morphclient.error.update_disguise1": "Error occurred while updating disguise at client side.",
   "text.morphclient.error.update_disguise2": "SelfView has been disabled until the current disguise has been changed!",

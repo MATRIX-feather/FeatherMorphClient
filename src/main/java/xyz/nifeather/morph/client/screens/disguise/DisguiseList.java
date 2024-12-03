@@ -29,6 +29,11 @@ public class DisguiseList extends ElementListWidget<EntityDisplayEntry> implemen
         clearEntries();
     }
 
+    private boolean smoothScroll()
+    {
+        return MorphClient.getInstance().getModConfigData().disguiseListSmoothScroll;
+    }
+
     @Override
     public void setFocused(boolean focused)
     {
@@ -72,10 +77,10 @@ public class DisguiseList extends ElementListWidget<EntityDisplayEntry> implemen
 
         targetAmount = MathHelper.clamp(targetAmount, 0, getMaxScrollY());
 
-        //this.diff = targetAmount - this.scrollAmount.get();
-        this.targetAmount = targetAmount;
-
-        Transformer.transform(this.scrollAmount, targetAmount, duration, Easing.OutExpo);
+        if (smoothScroll())
+            Transformer.transform(this.scrollAmount, targetAmount, duration, Easing.OutExpo);
+        else
+            this.scrollAmount.set(targetAmount);
     }
 
     private final Recorder<Double> scrollAmount = new Recorder<>(0D);
@@ -108,7 +113,9 @@ public class DisguiseList extends ElementListWidget<EntityDisplayEntry> implemen
     @Override
     public double getScrollY()
     {
-        return returnEasing ? this.scrollAmount.get() : targetAmount;
+        return (returnEasing || smoothScroll())
+               ? this.scrollAmount.get()
+               : super.getScrollY();
     }
 
     @Override
@@ -119,8 +126,6 @@ public class DisguiseList extends ElementListWidget<EntityDisplayEntry> implemen
     }
 
     //private double diff;
-
-    private double targetAmount;
 
     @Override
     public int getRowWidth()

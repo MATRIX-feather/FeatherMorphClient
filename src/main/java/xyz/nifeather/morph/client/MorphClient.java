@@ -430,6 +430,12 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
                         .setDefaultValue(false)
                         .setSaveConsumer(v -> modConfigData.scaleNameTag = v)
                         .build()
+        ).addEntry(
+                entryBuilder.startBooleanToggle(Text.translatable("option.morphclient.smoothscroll.name"), modConfigData.disguiseListSmoothScroll)
+                        .setTooltip(Text.translatable("option.morphclient.smoothscroll.description"))
+                        .setDefaultValue(true)
+                        .setSaveConsumer(v -> modConfigData.disguiseListSmoothScroll = v)
+                        .build()
         );
 
         ConfigCategory categoryToast = builder.getOrCreateCategory(Text.translatable("category.morphclient.config_toasts"));
