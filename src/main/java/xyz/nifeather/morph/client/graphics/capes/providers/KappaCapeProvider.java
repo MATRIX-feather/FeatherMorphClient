@@ -114,7 +114,10 @@ public final class KappaCapeProvider implements ICapeProvider
 			URL url = new URL(urlFrom);
 			NativeImage tex = uncrop(NativeImage.read(url.openStream()));
 			NativeImageBackedTexture nIBT = new NativeImageBackedTexture(tex);
-			Identifier id = MinecraftClient.getInstance().getTextureManager().registerDynamicTexture("kappa" + player.getId().toString().replace("-", ""), nIBT);
+
+			Identifier id = Identifier.of("kappa", player.getId().toString().replace("-", "_"));
+			MinecraftClient.getInstance().getTextureManager().registerTexture(id, nIBT);
+
 			capes.put(player.getName(), id);
 			callback.onTexAvail(id);
 

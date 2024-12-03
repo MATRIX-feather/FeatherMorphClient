@@ -10,6 +10,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2i;
 import xyz.nifeather.morph.client.MorphClientObject;
+import xyz.nifeather.morph.client.graphics.color.MaterialColors;
 import xyz.nifeather.morph.client.graphics.transforms.Recorder;
 import xyz.nifeather.morph.client.graphics.transforms.Transformer;
 import xyz.nifeather.morph.client.graphics.transforms.easings.Easing;
@@ -534,14 +535,13 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
             // 嵌套遮罩有问题
             if (masking)
             {
-                var sX = Math.round(getScreenSpaceX());
-                var sY = Math.round(getScreenSpaceY());
+                //context.fill(sX, sY, sX + renderWidth, sY + renderHeight, MaterialColors.Blue500.getColor());
 
                 //context.drawText(MinecraftClient.getInstance().textRenderer,
-                //        "sX: %s, sY: %s, W: %s, H: %s".formatted(sX, sY, mcWidth, mcHeight),
+                //        "sX: %s, sY: %s, W: %s, H: %s".formatted(sX, sY, renderWidth, renderHeight),
                 //        0, 0, 0xffffffff, false);
 
-                context.enableScissor(sX, sY, sX + renderWidth, sY + renderHeight);
+                context.enableScissor(0, 0, renderWidth, renderHeight);
             }
 
             this.onRender(context, mouseX, mouseY, delta);

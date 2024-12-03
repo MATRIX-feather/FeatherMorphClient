@@ -60,15 +60,17 @@ public class DisguiseList extends ElementListWidget<EntityDisplayEntry> implemen
         var maxScroll = this.getEntryCount() * this.itemHeight - finalScreenSpaceHeight + 4;
         if (amount > maxScroll) amount = maxScroll;
 
-        this.setScrollAmount(amount);
+        this.setScrollY(amount);
     }
 
     private long duration = 525;
 
     @Override
-    public void setScrollAmount(double targetAmount)
+    public void setScrollY(double targetAmount)
     {
-        targetAmount = MathHelper.clamp(targetAmount, 0, getMaxScroll());
+        super.setScrollY(targetAmount);
+
+        targetAmount = MathHelper.clamp(targetAmount, 0, getMaxScrollY());
 
         //this.diff = targetAmount - this.scrollAmount.get();
         this.targetAmount = targetAmount;
@@ -104,14 +106,16 @@ public class DisguiseList extends ElementListWidget<EntityDisplayEntry> implemen
     }
 
     @Override
-    public double getScrollAmount()
+    public double getScrollY()
     {
         return returnEasing ? this.scrollAmount.get() : targetAmount;
     }
 
     @Override
-    protected boolean isSelectButton(int button) {
-        return true;
+    protected int getScrollbarThumbY()
+    {
+        return Math.max(this.getY(), Math.round((float)this.getScrollY() * (this.height - this.getScrollbarThumbHeight()) / this.getMaxScrollY() + this.getY()));
+        //return super.getScrollbarThumbY();
     }
 
     //private double diff;
@@ -127,7 +131,6 @@ public class DisguiseList extends ElementListWidget<EntityDisplayEntry> implemen
     public void setHeaderHeight(int newHeaderHeight)
     {
         this.headerHeight = newHeaderHeight;
-        this.setRenderHeader(true, newHeaderHeight);
     }
 
     @Override

@@ -75,6 +75,11 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
         return bindingPlayer;
     }
 
+    public boolean hasBindingPlayer()
+    {
+        return bindingPlayer != null;
+    }
+
     public void setBindingPlayer(PlayerEntity newInstance)
     {
         bindingPlayer = newInstance;
@@ -222,10 +227,12 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
             // 反之，获取其中的皮肤
             var skinProvider = MinecraftClient.getInstance().getSkinProvider();
             var skinFetchTask = skinProvider.fetchSkinTextures(profile);
-            skinFetchTask.thenApply(a ->
+            skinFetchTask.thenAccept(texturesOptional ->
             {
-                onFetchComplete(invokeId, a, profile);
-                return null;
+                if (texturesOptional.isEmpty())
+                    return;
+
+                onFetchComplete(invokeId, texturesOptional.get(), profile);
             });
 
             return null;
@@ -350,8 +357,9 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
     }
 
     @Override
-    public boolean shouldRenderName() {
-        return false;
+    public boolean shouldRenderName()
+    {
+        return hasBindingPlayer() && bindingPlayer != MinecraftClient.getInstance().player;
     }
 
     @Override

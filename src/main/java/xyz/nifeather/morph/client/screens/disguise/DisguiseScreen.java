@@ -355,7 +355,7 @@ public class DisguiseScreen extends FeatherScreen
         list.clearChildren(false);
         list.children().addAll(filter);
 
-        if (list.getScrollAmount() > list.getMaxScroll())
+        if (list.getScrollY() > list.getMaxScrollY())
             scrollToCurrentOrLast(true);
     }
 
