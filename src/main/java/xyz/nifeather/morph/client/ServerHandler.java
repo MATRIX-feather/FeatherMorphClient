@@ -198,14 +198,12 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
         return true;
     }
 
-    private static final String newProtocolIdentify = "1_21_3_packetbuf";
-
     @Override
     public void connect()
     {
         this.resetServerStatus();
 
-        this.sendCommand(SharedValues.initializeChannelIdentifier, newProtocolIdentify);
+        this.sendCommand(SharedValues.initializeChannelIdentifier, SharedValues.newProtocolIdentify);
     }
 
     @Override
@@ -562,7 +560,7 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
 
             String msgDeny = "no";
 
-            if (content.stream().noneMatch(s -> s.equals(newProtocolIdentify)))
+            if (content.stream().noneMatch(s -> s.equals(SharedValues.newProtocolIdentify)))
             {
                 logger.info("The server is using legacy method to serialize commands.");
                 usingLegacyPackets = true;

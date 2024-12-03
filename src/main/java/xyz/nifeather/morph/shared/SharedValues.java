@@ -15,6 +15,8 @@ public class SharedValues
     public static Identifier versionChannelIdentifier = Identifier.of(morphNameSpace, "version_v2");
     public static Identifier commandChannelIdentifier = Identifier.of(morphNameSpace, "commands_v2");
 
+    public static final String newProtocolIdentify = "1_21_3_packetbuf";
+
     public static Identifier versionChannelIdentifierLegacy = Identifier.of(morphNameSpace, "version");
     public static Identifier commandChannelIdentifierLegacy = Identifier.of(morphNameSpace, "commands");
 

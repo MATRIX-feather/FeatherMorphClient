@@ -79,7 +79,7 @@ public class MorphServer
         var player = context.player();
         LOGGER.info("On init payload! from " + player);
 
-        var payload = new MorphInitChannelPayload("Hello");
+        var payload = new MorphInitChannelPayload(SharedValues.newProtocolIdentify);
 
         ServerPlayNetworking.send(player, payload);
     }
