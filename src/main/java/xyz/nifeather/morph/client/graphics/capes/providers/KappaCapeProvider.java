@@ -8,6 +8,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.util.Identifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import xyz.nifeather.morph.client.graphics.capes.ICapeProvider;
 
 import java.io.FileNotFoundException;
@@ -28,14 +30,22 @@ import java.util.function.Consumer;
 public final class KappaCapeProvider implements ICapeProvider
 {
 	//单独给披风请求开一个Worker，避免阻塞MainWorker上的其他请求
-	private static final ExecutorService capeService = Executors.newFixedThreadPool(3, runnable ->
+	private final ExecutorService capeService = Executors.newFixedThreadPool(3, runnable ->
 	{
-		var thread = new Thread();
+		var thread = new Thread(runnable);
 
 		thread.setName("FeatherMorph Cape Worker");
 
+		thread.setUncaughtExceptionHandler((t, error) ->
+		{
+			log.info("Error occurred in thread '%s': %s".formatted(t.getName(), error.getMessage()));
+			error.printStackTrace();
+		});
+
 		return thread;
 	});
+
+	private static final Logger log = LoggerFactory.getLogger(KappaCapeProvider.class);
 
 	private ExecutorService getCapeExecutor()
 	{
@@ -112,6 +122,7 @@ public final class KappaCapeProvider implements ICapeProvider
 		try
 		{
 			URL url = new URL(urlFrom);
+
 			NativeImage tex = uncrop(NativeImage.read(url.openStream()));
 			NativeImageBackedTexture nIBT = new NativeImageBackedTexture(tex);
 
@@ -130,7 +141,7 @@ public final class KappaCapeProvider implements ICapeProvider
 			// Getting the cape was successful! But there's no cape, so don't retry.
 			return true;
 		}
-		catch(Exception e)
+		catch(Throwable t)
 		{
 			onGoingRequests.removeIf(uuid -> uuid.equals(player.getId()));
 			return false;

@@ -77,7 +77,7 @@ public class DisguiseList extends ElementListWidget<EntityDisplayEntry> implemen
 
         targetAmount = MathHelper.clamp(targetAmount, 0, getMaxScrollY());
 
-        if (smoothScroll())
+        if (smoothScroll() && !noTransform)
             Transformer.transform(this.scrollAmount, targetAmount, duration, Easing.OutExpo);
         else
             this.scrollAmount.set(targetAmount);
@@ -85,16 +85,16 @@ public class DisguiseList extends ElementListWidget<EntityDisplayEntry> implemen
 
     private final Recorder<Double> scrollAmount = new Recorder<>(0D);
 
-    private boolean returnEasing = true;
+    private boolean noTransform = true;
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY)
     {
         duration = 125;
 
-        this.returnEasing = false;
+        this.noTransform = true;
         var result = super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
-        this.returnEasing = true;
+        this.noTransform = false;
 
         return result;
     }
@@ -113,7 +113,7 @@ public class DisguiseList extends ElementListWidget<EntityDisplayEntry> implemen
     @Override
     public double getScrollY()
     {
-        return (returnEasing || smoothScroll())
+        return (!noTransform || smoothScroll())
                ? this.scrollAmount.get()
                : super.getScrollY();
     }
