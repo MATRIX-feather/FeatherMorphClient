@@ -68,7 +68,7 @@ public class DisguiseList extends ElementListWidget<EntityDisplayEntry> implemen
         this.setScrollY(amount);
     }
 
-    private long duration = 525;
+    private long duration = 300;
 
     @Override
     public void setScrollY(double targetAmount)
@@ -78,14 +78,14 @@ public class DisguiseList extends ElementListWidget<EntityDisplayEntry> implemen
         targetAmount = MathHelper.clamp(targetAmount, 0, getMaxScrollY());
 
         if (smoothScroll() && !noTransform)
-            Transformer.transform(this.scrollAmount, targetAmount, duration, Easing.OutExpo);
+            Transformer.transform(this.scrollAmount, targetAmount, duration, Easing.OutQuint);
         else
             this.scrollAmount.set(targetAmount);
     }
 
     private final Recorder<Double> scrollAmount = new Recorder<>(0D);
 
-    private boolean noTransform = true;
+    private boolean noTransform = false;
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY)

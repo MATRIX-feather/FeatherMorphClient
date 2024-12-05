@@ -416,7 +416,7 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
                         .setTooltip(Text.translatable("option.morphclient.scrollSpeed.description"))
                         .setMax(4F)
                         .setMin(0.5F)
-                        .setDefaultValue(1)
+                        .setDefaultValue(2.5f)
                         .setSaveConsumer(v -> modConfigData.scrollSpeed = v)
                         .build()
         ).addEntry(

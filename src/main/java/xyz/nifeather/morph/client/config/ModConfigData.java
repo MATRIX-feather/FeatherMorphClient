@@ -22,7 +22,7 @@ public class ModConfigData implements ConfigData
 
     public int duration = 450;
 
-    public float scrollSpeed = 1f;
+    public float scrollSpeed = 2.5f;
 
     public boolean scaleNameTag = false;
 
