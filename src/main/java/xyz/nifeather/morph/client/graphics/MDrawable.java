@@ -456,6 +456,14 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
     {
     }
 
+    // 在ParentElement中，只有isMouseOver返回为true的物件才会在hoveredElement中被选中
+    // 如果永远为false则永远都不会选中此物件，这样就无法接收到鼠标点击事件
+    @Override
+    public boolean isMouseOver(double mouseX, double mouseY)
+    {
+        return hovered();
+    }
+
     private boolean hovered;
 
     protected boolean hovered()
