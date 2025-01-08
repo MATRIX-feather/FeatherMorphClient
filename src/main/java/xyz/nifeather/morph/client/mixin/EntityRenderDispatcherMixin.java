@@ -1,12 +1,15 @@
 package xyz.nifeather.morph.client.mixin;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.state.EntityRenderState;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -23,6 +26,37 @@ import xyz.nifeather.morph.client.graphics.PlayerRenderHelper;
 public abstract class EntityRenderDispatcherMixin
 {
     @Shadow @Final private TextRenderer textRenderer;
+
+    @ModifyVariable(
+            method = "render(Lnet/minecraft/entity/Entity;DDDFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/render/entity/EntityRenderDispatcher;getRenderer(Lnet/minecraft/entity/Entity;)Lnet/minecraft/client/render/entity/EntityRenderer;",
+                    shift = At.Shift.AFTER
+            ),
+            index = 11,
+            argsOnly = true
+    )
+    private int morphclient$overrideLight(int value, @Local(argsOnly = true) Entity entity)
+    {
+        if (!(entity instanceof IMorphClientEntity iMorphClientEntity))
+            return value;
+
+        if (!iMorphClientEntity.featherMorph$isDisguiseEntity())
+            return value;
+
+        var type = entity.getType();
+
+        if (type == EntityType.ALLAY
+                || type == EntityType.BLAZE
+                || type == EntityType.MAGMA_CUBE
+                || type == EntityType.VEX)
+        {
+            return LightmapTextureManager.MAX_LIGHT_COORDINATE;
+        }
+
+        return value;
+    }
 
     @ModifyVariable(
             method = "render(Lnet/minecraft/entity/Entity;DDDFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
