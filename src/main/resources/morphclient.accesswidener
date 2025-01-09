@@ -1,3 +1,6 @@
 accessWidener v2 named
 accessible class net/minecraft/network/handler/PacketCodecDispatcher$PacketType
 accessible method net/minecraft/entity/LivingEntity getBaseDimensions (Lnet/minecraft/entity/EntityPose;)Lnet/minecraft/entity/EntityDimensions;
+
+accessible method net/minecraft/entity/Entity setFlag (IZ)V
+accessible field net/minecraft/entity/Entity GLIDING_FLAG_INDEX I

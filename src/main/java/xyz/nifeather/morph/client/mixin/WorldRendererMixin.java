@@ -37,7 +37,7 @@ public abstract class WorldRendererMixin
 
     @Inject(method = "method_62214",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/BufferBuilderStorage;getEntityVertexConsumers()Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;", shift = At.Shift.AFTER))
-    private void featherMorph$onRender(Fog fog, RenderTickCounter renderTickCounter, Camera camera, Profiler profiler, Matrix4f matrix4f, Matrix4f matrix4f2, Handle<Framebuffer> handle, Handle<Framebuffer> handle2, Handle<Framebuffer> handle3, Handle<Framebuffer> handle4, boolean bl, Frustum frustum, Handle<Framebuffer> handle5, CallbackInfo ci)
+    private void featherMorph$onRender(Fog fog, RenderTickCounter renderTickCounter, Camera camera, Profiler profiler, Matrix4f matrix4f, Matrix4f matrix4f2, Handle handle, Handle handle2, Handle handle3, boolean bl, Frustum frustum, Handle handle4, CallbackInfo ci)
     {
         if (featherMorph$currentStack != null)
         {

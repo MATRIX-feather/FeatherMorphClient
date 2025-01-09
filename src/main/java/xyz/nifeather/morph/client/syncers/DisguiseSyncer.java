@@ -578,7 +578,7 @@ public abstract class DisguiseSyncer extends MorphClientObject
             if (player.isGliding() != bindingPlayer.isGliding())
             {
                 if (bindingPlayer.isGliding()) player.startGliding();
-                else player.stopGliding();
+                else player.setFlag(Entity.GLIDING_FLAG_INDEX, false); // Stop gliding!
             }
 
             player.usingRiptide = bindingPlayer.isUsingRiptide();
