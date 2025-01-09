@@ -20,7 +20,7 @@ public class LoadingSpinner extends MDrawable
     {
         RenderSystem.enableBlend();
 
-        context.drawGuiTexture(RenderLayer::getGuiTextured, LOADING_TEX, 0, 0, 16, 16);
+        context.drawGuiTexture(RenderLayer::getGuiTextured, LOADING_TEX, 0, 0, this.renderWidth, this.renderHeight);
         super.onRender(context, mouseX, mouseY, delta);
     }
 }

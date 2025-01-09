@@ -1,6 +1,7 @@
 package xyz.nifeather.morph.client.screens.disguise;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ElementListWidget;
 import net.minecraft.util.math.MathHelper;
 import xyz.nifeather.morph.client.MorphClient;
@@ -9,11 +10,24 @@ import xyz.nifeather.morph.client.graphics.transforms.Recorder;
 import xyz.nifeather.morph.client.graphics.transforms.Transformer;
 import xyz.nifeather.morph.client.graphics.transforms.easings.Easing;
 
+import java.util.List;
+
 public class DisguiseList extends ElementListWidget<EntityDisplayEntry> implements IMDrawable
 {
     public DisguiseList(MinecraftClient minecraftClient, int width, int height, int topPadding, int bottomPadding, int itemHeight)
     {
         super(minecraftClient, width, height, 0, itemHeight);
+    }
+
+    public void addChild(EntityDisplayEntry entry)
+    {
+        entry.updateParentAllowedScreenSpaceWidth(this.getRowWidth());
+        this.children().add(entry);
+    }
+
+    public void addChildrenRange(List<EntityDisplayEntry> entry)
+    {
+        entry.forEach(this::addChild);
     }
 
     public void clearChildren()
@@ -48,21 +62,17 @@ public class DisguiseList extends ElementListWidget<EntityDisplayEntry> implemen
     public void setWidth(int w)
     {
         this.width = w;
+        var rowWidth = this.getRowWidth();
+
+        this.children().forEach(entry -> entry.updateParentAllowedScreenSpaceWidth(rowWidth));
     }
 
     public void scrollTo(EntityDisplayEntry widget)
     {
         if (widget == null || !children().contains(widget)) return;
 
-        //top和bottom此时可能正处于动画中，因此需要我们自己确定最终屏幕的可用空间大小
-        //在界面Header和Footer替换成我们自己的实现之前先这样
-        var fontMargin = 4;
-        var topPadding = MinecraftClient.getInstance().textRenderer.fontHeight * 2 + fontMargin * 2;
-        var bottomPadding = 30;
-        var finalScreenSpaceHeight = this.height - topPadding - bottomPadding;
-
         var amount = children().indexOf(widget) * itemHeight - itemHeight * 4;
-        var maxScroll = this.getEntryCount() * this.itemHeight - finalScreenSpaceHeight + 4;
+        var maxScroll = this.getMaxScrollY();
         if (amount > maxScroll) amount = maxScroll;
 
         this.setScrollY(amount);
@@ -125,12 +135,17 @@ public class DisguiseList extends ElementListWidget<EntityDisplayEntry> implemen
         //return super.getScrollbarThumbY();
     }
 
+    @Override
+    protected void drawHeaderAndFooterSeparators(DrawContext context)
+    {
+    }
+
     //private double diff;
 
     @Override
     public int getRowWidth()
     {
-        return 200;
+        return Math.round(this.getWidth() * 0.7f);
     }
 
     public void setHeaderHeight(int newHeaderHeight)

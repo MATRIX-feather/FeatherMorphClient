@@ -4,10 +4,12 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
+import net.minecraft.client.util.math.Vector2f;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -48,7 +50,7 @@ public class EntityDisplay extends MDrawable
         SYNC
     }
 
-    public EntityDisplay(String rawIdentifier, boolean displayLoadingIfNotValid, InitialSetupMethod initialSetupMethod)
+    public EntityDisplay(@NotNull String rawIdentifier, boolean displayLoadingIfNotValid, InitialSetupMethod initialSetupMethod)
     {
         this.rawIdentifier = rawIdentifier;
         this.isPlayerItSelf = rawIdentifier.equals(MorphClient.UNMORPH_STIRNG);
@@ -60,6 +62,8 @@ public class EntityDisplay extends MDrawable
 
         loadingSpinner.setAnchor(Anchor.Centre);
         loadingSpinner.setParent(this);
+        loadingSpinner.setRelativeSizeAxes(Axes.Both);
+        loadingSpinner.setSize(new Vector2f(1, 1));
 
         switch (initialSetupMethod)
         {
@@ -104,7 +108,7 @@ public class EntityDisplay extends MDrawable
         return displayName;
     }
 
-    private final AtomicInteger entitySize = new AtomicInteger(1);
+    private final AtomicInteger initialEntitySize = new AtomicInteger(1);
     private int entityYOffset;
 
     private int getEntityYOffset(LivingEntity entity)
@@ -118,7 +122,7 @@ public class EntityDisplay extends MDrawable
         };
     }
 
-    private int getEntitySize(LivingEntity entity)
+    protected int getInitialEntitySize(LivingEntity entity)
     {
         var type = Registries.ENTITY_TYPE.getId(entity.getType());
 
@@ -127,14 +131,7 @@ public class EntityDisplay extends MDrawable
             case "minecraft:ender_dragon" -> 3;
             case "minecraft:squid", "minecraft:glow_squid" -> 10;
             case "minecraft:horse", "minecraft:player" -> 8;
-            default ->
-            {
-                //15 / ...
-                var size = (int) ((Math.min(this.getRenderHeight(), this.getRenderWidth()) * 0.8) / Math.max(entity.getHeight(), entity.getWidth()));
-                size = Math.max(1, size);
-
-                yield size;
-            }
+            default -> 1;
         };
     }
 
@@ -202,7 +199,7 @@ public class EntityDisplay extends MDrawable
                 this.displayingEntity = finalLiving;
                 this.displayName = finalLiving.getDisplayName();
 
-                entitySize.set(getEntitySize(finalLiving));
+                initialEntitySize.set(getInitialEntitySize(finalLiving));
                 entityYOffset = getEntityYOffset(finalLiving);
 
                 if (postEntitySetup != null)
@@ -232,6 +229,16 @@ public class EntityDisplay extends MDrawable
     private void renderLoading(DrawContext context)
     {
         loadingSpinner.render(context, 0, 0, 0);
+    }
+
+    protected float getRenderScale()
+    {
+        float scaledMaxEntityBorder = Math.max(displayingEntity.getWidth(), displayingEntity.getHeight()) * initialEntitySize.get();
+
+        var scale = Math.round((Math.min(this.getRenderHeight(), this.getRenderWidth()) * 0.8f) / scaledMaxEntityBorder);
+        scale = Math.max(1, scale);
+
+        return scale;
     }
 
     @Override
@@ -267,12 +274,16 @@ public class EntityDisplay extends MDrawable
 
             //context.fill(0, 0, renderWidth, renderHeight, MaterialColors.Red500.getColor());
 
-            var x1 = renderWidth / 2;
-            var y2 = renderHeight;
+            var scale = 1;
+
+            float scaledMaxEntityBorder = Math.max(displayingEntity.getWidth(), displayingEntity.getHeight()) * initialEntitySize.get();
+
+            scale = Math.round((Math.min(this.getRenderHeight(), this.getRenderWidth()) * 0.8f) / scaledMaxEntityBorder);
+            scale = Math.max(1, scale);
 
             drawEntity(context,
-                    x1, 0, x1, y2,
-                    entitySize.get(), 0.0625f + entityYOffset, -mouseX, -mouseY, displayingEntity);
+                    0, 0, renderWidth, renderHeight,
+                    scale * initialEntitySize.get(), 0.0625f + entityYOffset, mouseX, mouseY, displayingEntity);
 
             PlayerRenderHelper.instance().skipRender = false;
         }
@@ -288,27 +299,38 @@ public class EntityDisplay extends MDrawable
      * Copied from {@link InventoryScreen#drawEntity(DrawContext, int, int, int, int, int, float, float, float, LivingEntity)}
      * Because they introduced scissor that is not compatible with our gui impl.
      */
-    public static void drawEntity(DrawContext context, int x1, int y1, int x2, int y2, int size, float f, float mouseX, float mouseY, LivingEntity entity) {
-        float g = (float)(x1 + x2) / 2.0f;
-        float h = (float)(y1 + y2) / 2.0f;
-        //context.enableScissor(x1, y1, x2, y2);
-        float i = (float)Math.atan((g - mouseX) / 40.0f);
-        float j = (float)Math.atan((h - mouseY) / 40.0f);
+    public void drawEntity(DrawContext context,
+                                  int x1, int y1,
+                                  int x2, int y2,
+                                  int size, float f,
+                                  float mouseX, float mouseY,
+                                  LivingEntity entity)
+    {
+        float regionXCenter = (float)(x1 + x2) / 2.0f;
+        float regionYCenter = (float)(y1 + y2) / 2.0f;
+
+        //context.drawText(MinecraftClient.getInstance().textRenderer, Text.literal("mX %s, mY %s".formatted(mouseX, mouseY)), 0, 0, -1, true);
+
+        float xAtan = (float) Math.atan((getScreenSpaceX() + regionXCenter - mouseX) / 40.0f);
+        float yAtan = (float) Math.atan((getScreenSpaceY() + regionYCenter - mouseY) / 40.0f);
+
         Quaternionf quaternionf = new Quaternionf().rotateZ((float)Math.PI);
-        Quaternionf quaternionf2 = new Quaternionf().rotateX(j * 20.0f * ((float)Math.PI / 180));
+        Quaternionf quaternionf2 = new Quaternionf().rotateX(yAtan * 20.0f * ((float)Math.PI / 180));
         quaternionf.mul(quaternionf2);
         float k = entity.bodyYaw;
         float l = entity.getYaw();
         float m = entity.getPitch();
         float n = entity.prevHeadYaw;
         float o = entity.headYaw;
-        entity.bodyYaw = 180.0f + i * 20.0f;
-        entity.setYaw(180.0f + i * 40.0f);
-        entity.setPitch(-j * 20.0f);
+        entity.bodyYaw = 180.0f + xAtan * 20.0f;
+        entity.setYaw(180.0f + xAtan * 40.0f);
+        entity.setPitch(-yAtan * 20.0f);
         entity.headYaw = entity.getYaw();
         entity.prevHeadYaw = entity.getYaw();
         Vector3f vector3f = new Vector3f(0.0f, entity.getHeight() / 2.0f + f, 0.0f);
-        InventoryScreen.drawEntity(context, g, h, size, vector3f, quaternionf, quaternionf2, entity);
+
+        InventoryScreen.drawEntity(context, regionXCenter, regionYCenter, size, vector3f, quaternionf, quaternionf2, entity);
+
         entity.bodyYaw = k;
         entity.setYaw(l);
         entity.setPitch(m);

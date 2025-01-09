@@ -42,6 +42,10 @@ public class EntityRendererHelper
                 .findFirst().orElse(null);
     }
 
+    public void cacheReveal()
+    {
+    }
+
     public final void renderRevealNameIfPossible(EntityRenderDispatcher dispatcher,
                                            Entity renderingEntity, TextRenderer textRenderer,
                                            MatrixStack matrices, VertexConsumerProvider vertexConsumers)

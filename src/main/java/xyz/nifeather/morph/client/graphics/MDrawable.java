@@ -276,7 +276,7 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
     public float getRenderHeight()
     {
         var modY = this.relativeSizeAxes.modY;
-        return modY ? height * getParentScreenSpace().width() : height;
+        return modY ? height * getParentScreenSpace().height() : height;
     }
 
     public void setSize(Vector2f vector2f)
