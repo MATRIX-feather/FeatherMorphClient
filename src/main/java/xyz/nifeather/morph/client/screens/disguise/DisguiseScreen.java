@@ -33,8 +33,6 @@ import java.util.List;
 
 public class DisguiseScreen extends FeatherScreen
 {
-    private static final Logger log = LoggerFactory.getLogger(DisguiseScreen.class);
-
     public DisguiseScreen()
     {
         super(Text.literal("选择界面"));

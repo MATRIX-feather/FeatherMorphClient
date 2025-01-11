@@ -1,6 +1,7 @@
 package xyz.nifeather.morph.client.graphics;
 
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.util.math.Vector2f;
 import net.minecraft.text.Text;
 
 public class MButtonWidget extends ButtonWidget implements IMDrawable
@@ -28,6 +29,25 @@ public class MButtonWidget extends ButtonWidget implements IMDrawable
     @Override
     public void invalidateLayout()
     {
+    }
+
+    @Override
+    public void setWidth(float width)
+    {
+        this.setWidth(Math.round(width));
+    }
+
+    @Override
+    public void setHeight(float height)
+    {
+        this.setHeight(Math.round(height));
+    }
+
+    @Override
+    public void setSize(Vector2f vector)
+    {
+        this.setWidth(vector.getX());
+        this.setHeight(vector.getY());
     }
 
     private int depth = 0;

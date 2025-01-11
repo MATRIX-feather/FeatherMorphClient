@@ -3,6 +3,7 @@ package xyz.nifeather.morph.client.screens.disguise;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ElementListWidget;
+import net.minecraft.client.util.math.Vector2f;
 import net.minecraft.util.math.MathHelper;
 import xyz.nifeather.morph.client.MorphClient;
 import xyz.nifeather.morph.client.graphics.IMDrawable;
@@ -161,6 +162,25 @@ public class DisguiseList extends ElementListWidget<EntityDisplayEntry> implemen
     @Override
     public void invalidateLayout()
     {
+    }
+
+    @Override
+    public void setWidth(float width)
+    {
+        this.setWidth(Math.round(width));
+    }
+
+    @Override
+    public void setHeight(float height)
+    {
+        this.setHeight(Math.round(height));
+    }
+
+    @Override
+    public void setSize(Vector2f vector)
+    {
+        this.setWidth(vector.getX());
+        this.setHeight(vector.getY());
     }
 
     private int depth = 0;

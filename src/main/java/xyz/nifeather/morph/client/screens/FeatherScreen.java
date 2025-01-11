@@ -7,6 +7,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.util.math.Vector2f;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 import xyz.nifeather.morph.client.MorphClient;
@@ -31,6 +32,24 @@ public abstract class FeatherScreen extends Screen implements IMDrawable
 
     private Screen lastScreen;
     private Screen nextScreen;
+
+    @Override
+    public void setWidth(float width)
+    {
+        MorphClient.LOGGER.warn("setWidth() for FeatherScreen is not implemented!!!");
+    }
+
+    @Override
+    public void setHeight(float height)
+    {
+        MorphClient.LOGGER.warn("setHeight() for FeatherScreen is not implemented!!!");
+    }
+
+    @Override
+    public void setSize(Vector2f vector)
+    {
+        MorphClient.LOGGER.warn("setSize() for FeatherScreen is not implemented!!!");
+    }
 
     @Override
     public int getDepth()

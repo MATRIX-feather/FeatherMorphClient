@@ -7,6 +7,7 @@ import net.minecraft.client.gui.navigation.GuiNavigationPath;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.GridWidget;
+import net.minecraft.client.util.math.Vector2f;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
@@ -16,6 +17,25 @@ public class MGridWidget extends GridWidget implements IMDrawable
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta)
     {
+    }
+
+    @Override
+    public void setWidth(float width)
+    {
+        this.width = Math.round(width);
+    }
+
+    @Override
+    public void setHeight(float height)
+    {
+        this.height = Math.round(height);
+    }
+
+    @Override
+    public void setSize(Vector2f vector)
+    {
+        this.setWidth(vector.getX());
+        this.setHeight(vector.getY());
     }
 
     //region wtf

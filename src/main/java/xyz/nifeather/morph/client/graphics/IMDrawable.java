@@ -3,11 +3,16 @@ package xyz.nifeather.morph.client.graphics;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.Selectable;
+import net.minecraft.client.util.math.Vector2f;
 
 public interface IMDrawable extends Drawable, Element, Selectable
 {
     public void invalidatePosition();
     public void invalidateLayout();
+
+    public void setWidth(float width);
+    public void setHeight(float height);
+    public void setSize(Vector2f vector);
 
     /**
      * Depth of this IMDrawable, higher value means this drawable should be rendered below others
