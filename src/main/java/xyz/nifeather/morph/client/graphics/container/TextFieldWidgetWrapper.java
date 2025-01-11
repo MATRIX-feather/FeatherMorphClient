@@ -45,8 +45,6 @@ public class TextFieldWidgetWrapper extends MDrawable
     @Override
     protected void onRender(DrawContext context, int mouseX, int mouseY, float delta)
     {
-        context.fill(0, 0, renderWidth, renderHeight, MaterialColors.Amber500.getColor());
-
         context.getMatrices().translate(-this.getScreenSpaceX(), -this.getScreenSpaceY(), 0);
         widget.render(context, mouseX, mouseY, delta);
 
