@@ -49,7 +49,7 @@ public class DisguiseScreenNew extends FeatherScreen
         flow.setFlowAxes(Axes.Both);
         flow.setSize(new Vector2f(flowWidthRatio, 1));
         flow.setRelativeSizeAxes(Axes.Both);
-        flow.setMargin(new Margin(5, 0, 20 + 5, 0));
+        flow.setMargin(new MarginPadding(5, 0, 20 + 5, 0));
 
         MorphClient.getInstance().morphManager.getAvailableMorphs().forEach(id ->
         {

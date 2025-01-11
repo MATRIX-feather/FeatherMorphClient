@@ -7,8 +7,4 @@ import java.util.List;
 
 public class Container extends BasicContainer<MDrawable>
 {
-    public List<MDrawable> children()
-    {
-        return new ArrayList<>(super.children);
-    }
 }

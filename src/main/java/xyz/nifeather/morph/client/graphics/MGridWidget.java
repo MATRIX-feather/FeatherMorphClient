@@ -8,6 +8,7 @@ import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.GridWidget;
 import net.minecraft.client.util.math.Vector2f;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
@@ -36,6 +37,50 @@ public class MGridWidget extends GridWidget implements IMDrawable
     {
         this.setWidth(vector.getX());
         this.setHeight(vector.getY());
+    }
+
+    @Override
+    public float getRenderWidth()
+    {
+        return getWidth();
+    }
+
+    @Override
+    public float getRenderHeight()
+    {
+        return getHeight();
+    }
+
+    @Override
+    public @NotNull MarginPadding getPadding()
+    {
+        return new MarginPadding(0);
+    }
+
+    private IMDrawable parent;
+
+    @Override
+    public void setParent(@Nullable IMDrawable parent)
+    {
+        this.parent = parent;
+    }
+
+    @Override
+    public @Nullable IMDrawable getParent()
+    {
+        return parent;
+    }
+
+    @Override
+    public float getScreenSpaceX()
+    {
+        return getX();
+    }
+
+    @Override
+    public float getScreenSpaceY()
+    {
+        return getY();
     }
 
     //region wtf

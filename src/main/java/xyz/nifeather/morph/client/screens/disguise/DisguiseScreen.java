@@ -9,20 +9,22 @@ import net.minecraft.client.gui.ScreenPos;
 import net.minecraft.client.gui.ScreenRect;
 import net.minecraft.client.gui.navigation.NavigationAxis;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ContainerWidget;
+import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.math.Vector2f;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.text.TextColor;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import xyz.nifeather.morph.client.ClientMorphManager;
 import xyz.nifeather.morph.client.EntityCache;
 import xyz.nifeather.morph.client.MorphClient;
 import xyz.nifeather.morph.client.ServerHandler;
 import xyz.nifeather.morph.client.graphics.*;
-import xyz.nifeather.morph.client.graphics.container.Container;
+import xyz.nifeather.morph.client.graphics.container.*;
 import xyz.nifeather.morph.client.graphics.transforms.Recorder;
 import xyz.nifeather.morph.client.screens.FeatherScreen;
 import xyz.nifeather.morph.client.screens.WaitingForServerScreen;
@@ -30,6 +32,7 @@ import xiamomc.pluginbase.Bindables.Bindable;
 import xyz.nifeather.morph.client.screens.disguise.preview.DisguisePreviewDisplay;
 
 import java.util.List;
+import java.util.function.Function;
 
 public class DisguiseScreen extends FeatherScreen
 {
@@ -111,28 +114,12 @@ public class DisguiseScreen extends FeatherScreen
         titleText.setWidth(200);
         titleText.setHeight(20);
 
-        //初始化按钮
-        closeButton = this.buildButtonWidget(0, 0, 112, 20, Text.translatable("gui.back"), (button) ->
-        {
-            this.close();
-        });
-
-        configMenuButton = this.buildButtonWidget(0, 0, 20, 20, Text.literal("C"), (button ->
-        {
-            var screen = morphClient.getFactory(this).build();
-
-            MinecraftClient.getInstance().setScreen(screen);
-        }));
-
-        //testButton = this.buildButtonWidget(0, 0, 20, 20, Text.literal("T"), button ->
-        //{
-        //    this.push(new DisguiseScreenNew(Text.literal("d")));
-        //});
-
-        textBox = new MTextBoxWidget(MinecraftClient.getInstance().textRenderer, 120, 17, Text.literal("Search disguise..."));
+        textBox = new TextFieldWidgetWrapper(new TextFieldWidget(MinecraftClient.getInstance().textRenderer, 120, 17, Text.literal("Search disguise...")));
         textBox.setChangedListener(this::applySearch);
 
-        selfVisibleToggle = new ToggleSelfButton(0, 0, 20, 20, manager.selfVisibleEnabled.get(), this);
+        textBox.setAnchor(Anchor.TopRight);
+        textBox.setMargin(new MarginPadding(5));
+        //textBox.setX(Math.round(-textBox.getWidth()));
     }
 
     @Nullable
@@ -170,12 +157,7 @@ public class DisguiseScreen extends FeatherScreen
     private final Bindable<Boolean> serverReady = new Bindable<>(false);
     private final Bindable<String> currentIdentifier = new Bindable<>(MorphClient.UNMORPH_STIRNG);
 
-    private final MButtonWidget closeButton;
-    private final MTextBoxWidget textBox;
-    private final MButtonWidget configMenuButton;
-    //private final MButtonWidget quickDisguiseButton;
-    //private final MButtonWidget testButton;
-    private final ToggleSelfButton selfVisibleToggle;
+    private final TextFieldWidgetWrapper textBox;
 
     private final ClientMorphManager manager;
     private final ServerHandler serverHandler;
@@ -243,64 +225,115 @@ public class DisguiseScreen extends FeatherScreen
         if (last instanceof WaitingForServerScreen waitingForServerScreen)
             backgroundDim.set(waitingForServerScreen.getCurrentDim());
 
-        //var duration = 450; //MorphClient.getInstance().getModConfigData().duration;
-        //var easing = Easing.OutQuint; //MorphClient.getInstance().getModConfigData().easing;
-
         int headerTargetHeight = textRenderer.fontHeight * 2 + fontMargin * 2;
-        int footerTargetHeight = 30;
 
         topHeight.set(headerTargetHeight);
         bottomHeight.set(30);
         backgroundDim.set(0.3f);
 
-        //Transformer.transform(topHeight, headerTargetHeight, duration, easing);
-        //Transformer.transform(bottomHeight, footerTargetHeight, duration, easing);
-        //Transformer.transform(backgroundDim, 0.3f, duration, easing);
-
         topTextContainer.addRange(titleText, selectedIdentifierText);
-        //topTextContainer.setY(-40);
-        topTextContainer.setPadding(new Margin(0, 0, fontMargin - 1, 0));
+        topTextContainer.setPadding(new MarginPadding(0, 0, fontMargin - 1, 0));
 
         if (!MorphClient.getInstance().serverHandler.serverApiMatch())
             bottomTextContainer.add(outdatedText);
 
         bottomTextContainer.add(serverAPIText);
         bottomTextContainer.setAnchor(Anchor.BottomLeft);
-        //bottomTextContainer.setY(40);
-        bottomTextContainer.setPadding(new Margin(0, 0, fontMargin + 1, 0));
-
-        // Apply transforms
-        //topTextContainer.moveToY(0, duration, easing);
-        //bottomTextContainer.moveToY(0, duration, easing);
+        bottomTextContainer.setPadding(new MarginPadding(0, 0, fontMargin + 1, 0));
 
         var fontHeight = textRenderer.fontHeight;
-        serverAPIText.setMargin(new Margin(0, 0, fontHeight + 2, 0));
-        selectedIdentifierText.setMargin(new Margin(0, 0, fontHeight + 2, 0));
+        serverAPIText.setMargin(new MarginPadding(0, 0, fontHeight + 2, 0));
+        selectedIdentifierText.setMargin(new MarginPadding(0, 0, fontHeight + 2, 0));
 
         var containerHeight = 30;
         bottomTextContainer.setHeight(containerHeight);
         topTextContainer.setHeight(containerHeight);
 
-        this.addRange(new IMDrawable[]
+        var buttonContainer = new BasicContainer<MDrawable>();
+
+        //初始化按钮
+        var closeButton = this.createDrawableWrapper(0, 0, 112, 20, Text.translatable("gui.back"), (button) ->
         {
-            disguiseList,
-            topTextContainer,
-            bottomTextContainer,
-            closeButton,
-            selfVisibleToggle,
-            configMenuButton,
-            //quickDisguiseButton,
-            textBox
-            //testButton
+            this.close();
         });
+
+        var configMenuButton = this.createDrawableWrapper(0, 0, 20, 20, Text.literal("C"), (button ->
+        {
+            var screen = MorphClient.getInstance().getFactory(this).build();
+
+            MinecraftClient.getInstance().setScreen(screen);
+        }));
+
+        var selfVisibleToggle = this.createToggleSelfButton();
+
+        selfVisibleToggle.setX(Math.round(configMenuButton.getWidth() + 5));
+        closeButton.setX(selfVisibleToggle.getX() + (int)selfVisibleToggle.getWidth() + 5);
+
+        buttonContainer.addRange(closeButton, selfVisibleToggle, configMenuButton);
+        buttonContainer.setAnchor(Anchor.BottomRight);
+        buttonContainer.setSize(new Vector2f(closeButton.getX() + closeButton.getWidth(), 20));
+        buttonContainer.setMargin(new MarginPadding(5));
+
+        var topHeader = new DrawableSprite(Screen.INWORLD_HEADER_SEPARATOR_TEXTURE, false);
+        topHeader.setY(this.topHeight.get() - 2);
+        topHeader.setSize(new Vector2f(1, 2));
+        topHeader.setRelativeSizeAxes(Axes.X);
+
+        var bottomFooter = new DrawableSprite(Screen.INWORLD_FOOTER_SEPARATOR_TEXTURE, false);
+        bottomFooter.setAnchor(Anchor.BottomLeft);
+        bottomFooter.setY(-bottomHeight.get() + 1);
+        bottomFooter.setSize(new Vector2f(1, 2));
+        bottomFooter.setRelativeSizeAxes(Axes.X);
 
         //顶端文本
         var screenX = 30;
 
         topTextContainer.setX(screenX);
         bottomTextContainer.setX(screenX);
+        textBox.setX(-25);
+        buttonContainer.setX(-25);
 
         serverAPIText.setText("C %s :: S %s".formatted(serverHandler.getImplmentingApiVersion(), serverHandler.getServerApiVersion()));
+
+        this.addRange(new IMDrawable[]
+        {
+                disguiseList,
+                topTextContainer,
+                bottomTextContainer,
+                buttonContainer,
+                textBox,
+                topHeader,
+                bottomFooter
+        });
+    }
+
+    private DrawableButtonWrapper createToggleSelfButton()
+    {
+        var bindable = manager.selfVisibleEnabled;
+
+        Function<Boolean, Text> textFunction = val ->
+        {
+            var color = val
+                        ? TextColor.fromFormatting(Formatting.GREEN)
+                        : TextColor.fromFormatting(Formatting.RED);
+
+            return Text.literal(val ? "I" : "O")
+                    .setStyle(Style.EMPTY.withColor(color));
+        };
+
+        var button = this.buildButtonWidget(0, 0, 20, 20, textFunction.apply(bindable.get()), btn ->
+        {
+            var val = !bindable.get();
+            bindable.set(val);
+
+            var modInstance = MorphClient.getInstance();
+            var config = modInstance.getModConfigData();
+
+            modInstance.updateClientView(config.allowClientView, val);
+            btn.setMessage(textFunction.apply(val));
+        });
+
+        return new DrawableButtonWrapper(button);
     }
 
     private void resizeDisguiseList()
@@ -324,16 +357,6 @@ public class DisguiseScreen extends FeatherScreen
 
         bottomTextContainer.invalidatePosition();
         topTextContainer.invalidatePosition();
-
-        //按钮
-        var baseX = this.width - closeButton.getWidth() - 20;
-
-        textBox.setX(baseX);
-
-        closeButton.setX(baseX);
-        selfVisibleToggle.setX(baseX - selfVisibleToggle.getWidth() - 5);
-        configMenuButton.setX(baseX - selfVisibleToggle.getWidth() - 5 - configMenuButton.getWidth() - 5);
-        //quickDisguiseButton.setX(baseX - selfVisibleToggle.getWidth() - 5 - configMenuButton.getWidth() - 5 - quickDisguiseButton.getWidth());
     }
 
     private void scrollToCurrentOrLast(boolean scrollToLastIfNoCurrent)
@@ -414,41 +437,6 @@ public class DisguiseScreen extends FeatherScreen
     public void mouseMoved(double mouseX, double mouseY)
     {
         super.mouseMoved(mouseX, mouseY);
-    }
-
-    @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta)
-    {
-        var dim = (int) (255 * backgroundDim.get());
-        var color = Color.ofRGBA(0, 0, 0, dim);
-
-        var bottomMargin = (30 - this.bottomHeight.get());
-
-        var bottomY = this.height - 25 + bottomMargin;
-        selfVisibleToggle.setY(bottomY);
-        closeButton.setY(bottomY);
-        configMenuButton.setY(bottomY);
-
-        textBox.setY(this.topHeight.get() - textBox.getHeight() - 5);
-
-        context.fillGradient(0, 0, this.width, this.height, color.getColor(), color.getColor());
-
-        super.render(context, mouseX, mouseY, delta);
-
-        // Separator
-        Identifier identifierHeader = Screen.INWORLD_HEADER_SEPARATOR_TEXTURE;
-        Identifier identifierFooter = Screen.INWORLD_FOOTER_SEPARATOR_TEXTURE;
-        context.drawTexture(RenderLayer::getGuiTextured, identifierHeader,
-                0, this.topHeight.get() - 2,
-                0, 0,
-                this.width, 2,
-                32, 2);
-
-        context.drawTexture(RenderLayer::getGuiTextured, identifierFooter,
-                0, this.height - bottomHeight.get(),
-                0, 0,
-                this.width, 2,
-                32, 2);
     }
 
     @Override

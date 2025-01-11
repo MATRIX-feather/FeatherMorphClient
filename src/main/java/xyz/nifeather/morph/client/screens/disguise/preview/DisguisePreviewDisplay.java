@@ -1,6 +1,9 @@
 package xyz.nifeather.morph.client.screens.disguise.preview;
 
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.navigation.GuiNavigation;
+import net.minecraft.client.gui.navigation.GuiNavigationPath;
+import org.jetbrains.annotations.Nullable;
 import xyz.nifeather.morph.client.graphics.EntityDisplay;
 
 public class DisguisePreviewDisplay extends EntityDisplay
@@ -35,5 +38,11 @@ public class DisguisePreviewDisplay extends EntityDisplay
         {
             matrices.pop();
         }
+    }
+
+    @Override
+    public @Nullable GuiNavigationPath getNavigationPath(GuiNavigation navigation)
+    {
+        return null;
     }
 }

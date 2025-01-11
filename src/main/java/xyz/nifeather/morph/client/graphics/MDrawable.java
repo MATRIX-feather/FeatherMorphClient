@@ -4,13 +4,15 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.ScreenRect;
+import net.minecraft.client.gui.navigation.GuiNavigation;
+import net.minecraft.client.gui.navigation.GuiNavigationPath;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.util.math.Vector2f;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
 import xyz.nifeather.morph.client.MorphClientObject;
-import xyz.nifeather.morph.client.graphics.color.MaterialColors;
 import xyz.nifeather.morph.client.graphics.transforms.Recorder;
 import xyz.nifeather.morph.client.graphics.transforms.Transformer;
 import xyz.nifeather.morph.client.graphics.transforms.easings.Easing;
@@ -56,9 +58,9 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
 
     //region Parent
 
-    protected MDrawable parent;
+    protected IMDrawable parent;
 
-    public void setParent(MDrawable parent)
+    public void setParent(IMDrawable parent)
     {
         if (this.parent == parent) return;
 
@@ -70,7 +72,7 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
         invalidateLayout();
     }
 
-    public MDrawable getParent()
+    public IMDrawable getParent()
     {
         return parent;
     }
@@ -158,6 +160,8 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
         float xScreenSpaceOffset = x;
         float yScreenSpaceOffset = y;
 
+        var parentPadding = parent == null ? new MarginPadding(0) : parent.getPadding();
+
         // 坐标原点：左上角
         // 居中时，通过左侧Margin减去右侧Margin来取得此Drawable的X位移
         // 对父级Padding同理
@@ -167,11 +171,11 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
         // x3 右对齐：-右侧Margin + (父级横轴空间 - 宽度) - 父级右侧Padding
         var maskX = (anchor.posMask << 4) >> 4;
         if ((maskX & PosMask.x1) == PosMask.x1)
-            xScreenSpaceOffset += margin.left + (parent == null ? 0 : parent.padding.left);
+            xScreenSpaceOffset += margin.left + parentPadding.left;
         else if ((maskX & PosMask.x2) == PosMask.x2)
-            xScreenSpaceOffset += margin.getCentreOffsetX() + (rectCentre.getX() - this.renderWidth / 2f) + (parent == null ? 0 : parent.padding.getCentreOffsetX());
+            xScreenSpaceOffset += margin.getCentreOffsetX() + (rectCentre.getX() - this.renderWidth / 2f) + parentPadding.getCentreOffsetX();
         else if ((maskX & PosMask.x3) == PosMask.x3)
-            xScreenSpaceOffset += -margin.right + (parentRectWidth - this.renderWidth) - (parent == null ? 0 : parent.padding.right);
+            xScreenSpaceOffset += -margin.right + (parentRectWidth - this.renderWidth) - parentPadding.left;
 
         // 坐标原点：左上角
         // 居中时，通过上方Margin减去下方Margin来取得此Drawable的X位移
@@ -182,11 +186,11 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
         // y3 向下对齐：-下方Margin + (父级纵轴空间 - 高度) - 父级下方Padding
         var maskY = (anchor.posMask >> 4) << 4;
         if ((maskY & PosMask.y1) == PosMask.y1)
-            yScreenSpaceOffset += margin.top + (parent == null ? 0 : parent.padding.top);
+            yScreenSpaceOffset += margin.top + parentPadding.top;
         else if ((maskY & PosMask.y2) == PosMask.y2)
-            yScreenSpaceOffset += margin.getCentreOffset() + (rectCentre.getY() - this.renderHeight / 2f) + (parent == null ? 0 : parent.padding.getCentreOffset());
+            yScreenSpaceOffset += margin.getCentreOffsetY() + (rectCentre.getY() - this.renderHeight / 2f) + parentPadding.getCentreOffsetY();
         else if ((maskY & PosMask.y3) == PosMask.y3)
-            yScreenSpaceOffset += - margin.bottom + (parentRectHeight - this.renderHeight) - (parent == null ? 0 : parent.padding.bottom);
+            yScreenSpaceOffset += - margin.bottom + (parentRectHeight - this.renderHeight) - parentPadding.bottom;
 
         this.xScreenSpaceOffset = xScreenSpaceOffset;
         this.yScreenSpaceOffset = yScreenSpaceOffset;
@@ -408,30 +412,30 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
     //region MarginPadding
 
     @NotNull
-    protected Margin padding = new Margin();
+    protected MarginPadding padding = new MarginPadding();
 
     @NotNull
-    public Margin getPadding()
+    public MarginPadding getPadding()
     {
         return padding;
     }
 
-    public void setPadding(Margin padding)
+    public void setPadding(MarginPadding padding)
     {
-        padding = padding == null ? new Margin() : padding;
+        padding = padding == null ? new MarginPadding() : padding;
         this.padding = padding;
     }
 
     @NotNull
-    private Margin margin = new Margin();
+    private MarginPadding margin = new MarginPadding();
 
     @NotNull
-    public Margin getMargin()
+    public MarginPadding getMargin()
     {
         return margin;
     }
 
-    public void setMargin(@NotNull Margin margin)
+    public void setMargin(@NotNull MarginPadding margin)
     {
         if (this.margin.equals(margin)) return;
 
@@ -662,6 +666,20 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
 
     //region Element
 
+    @Override
+    public @Nullable GuiNavigationPath getNavigationPath(GuiNavigation navigation)
+    {
+        return this.isFocused()
+               ? null
+               : GuiNavigationPath.of(this);
+    }
+
+    @Override
+    public ScreenRect getNavigationFocus()
+    {
+        return new ScreenRect(this.getX(), this.getY(), Math.round(this.getRenderWidth()), Math.round(this.getHeight()));
+    }
+
     private boolean focused;
 
     @Override
@@ -683,7 +701,9 @@ public abstract class MDrawable extends MorphClientObject implements IMDrawable
     @Override
     public SelectionType getType()
     {
-        return SelectionType.NONE;
+        return focused
+               ? SelectionType.FOCUSED
+               : hovered ? SelectionType.HOVERED : SelectionType.NONE;
     }
 
     @Override

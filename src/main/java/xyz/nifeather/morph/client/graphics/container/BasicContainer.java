@@ -2,14 +2,21 @@ package xyz.nifeather.morph.client.graphics.container;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.ParentElement;
+import net.minecraft.client.gui.navigation.GuiNavigation;
+import net.minecraft.client.gui.navigation.GuiNavigationPath;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
+import xyz.nifeather.morph.client.graphics.IMDrawable;
 import xyz.nifeather.morph.client.graphics.MDrawable;
+import xyz.nifeather.morph.client.graphics.color.MaterialColors;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-public class BasicContainer<T extends MDrawable> extends MDrawable
+public class BasicContainer<T extends IMDrawable> extends MDrawable implements ParentElement
 {
     //region Layout Validation
 
@@ -20,19 +27,24 @@ public class BasicContainer<T extends MDrawable> extends MDrawable
         invalidateLayout();
         super.invalidatePosition();
 
-        this.children.forEach(MDrawable::invalidatePosition);
+        this.children.forEach(IMDrawable::invalidatePosition);
+    }
+
+    public List<T> children()
+    {
+        return new ObjectArrayList<>(children);
     }
 
     @Override
     public void invalidateLayout()
     {
-        this.children.forEach(MDrawable::invalidateLayout);
+        this.children.forEach(IMDrawable::invalidateLayout);
         super.invalidateLayout();
     }
 
     protected void updateLayout()
     {
-        for (MDrawable child : children)
+        for (IMDrawable child : children)
             child.setParent(this);
 
         super.updateLayout();
@@ -102,6 +114,67 @@ public class BasicContainer<T extends MDrawable> extends MDrawable
     }
 
     @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button)
+    {
+        var filter = this.children.stream().filter(child ->
+        {
+            return mouseX > child.getScreenSpaceX() && mouseX < child.getScreenSpaceX() + child.getRenderWidth()
+                    && mouseY > child.getScreenSpaceY() && mouseY < child.getScreenSpaceY() + child.getRenderHeight();
+        }).toList();
+
+        boolean handled = false;
+
+        for (T t : filter)
+        {
+            if (t.mouseClicked(mouseX, mouseY, button))
+            {
+                handled = true;
+                break;
+            }
+        }
+
+        return handled;
+    }
+
+    //region ParentElement
+
+    @Override
+    public boolean isDragging()
+    {
+        return dragging;
+    }
+
+    private boolean dragging;
+
+    @Override
+    public void setDragging(boolean dragging)
+    {
+        this.dragging = dragging;
+    }
+
+    @Override
+    public @Nullable Element getFocused()
+    {
+        return focusedElement;
+    }
+
+    private Element focusedElement;
+
+    @Override
+    public void setFocused(@Nullable Element focused)
+    {
+        if (this.focusedElement != null)
+            this.focusedElement.setFocused(false);
+
+        this.focusedElement = focused;
+
+        if (focused != null)
+            focused.setFocused(true);
+    }
+
+    //endregion ParentElement
+
+    @Override
     protected void onRender(DrawContext context, int mouseX, int mouseY, float delta)
     {
         super.onRender(context, mouseX, mouseY, delta);
@@ -112,25 +185,40 @@ public class BasicContainer<T extends MDrawable> extends MDrawable
 
         matrices.translate(0, 0, 50);
 
+        //context.fill(0, 0, renderWidth, renderHeight, MaterialColors.Blue500.getColor());
+
         try
         {
             this.children.forEach(d ->
             {
-                matrices.translate(0, 0, -d.getDepth());
+                var haveDepth = d.getDepth() != 0;
+
+                if (haveDepth)
+                    matrices.translate(0, 0, -d.getDepth());
+
                 d.render(context, mouseX, mouseY, delta);
-                matrices.translate(0, 0, d.getDepth());
+
+                if (haveDepth)
+                    matrices.translate(0, 0, d.getDepth());
             });
         }
         finally
         {
-            matrices.translate(0, 0, -50);
+            //matrices.translate(0, 0, -50);
             matrices.pop();
         }
     }
 
     @Override
-    public void dispose() {
+    public @Nullable GuiNavigationPath getNavigationPath(GuiNavigation navigation)
+    {
+        return ParentElement.super.getNavigationPath(navigation);
+    }
+
+    @Override
+    public void dispose()
+    {
         super.dispose();
-        children.forEach(MDrawable::dispose);
+        children.forEach(IMDrawable::dispose);
     }
 }

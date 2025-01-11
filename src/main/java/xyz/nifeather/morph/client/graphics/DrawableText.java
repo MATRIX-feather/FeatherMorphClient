@@ -4,7 +4,10 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.navigation.GuiNavigation;
+import net.minecraft.client.gui.navigation.GuiNavigationPath;
 import net.minecraft.text.Text;
+import org.jetbrains.annotations.Nullable;
 import xyz.nifeather.morph.client.graphics.color.ColorUtils;
 import xyz.nifeather.morph.client.graphics.color.Colors;
 import xyz.nifeather.morph.client.graphics.color.MaterialColors;
@@ -86,5 +89,11 @@ public class DrawableText extends MDrawable
     public void onRender(DrawContext context, int mouseX, int mouseY, float delta)
     {
         context.drawText(renderer, text, 0, 0, color, drawShadow);
+    }
+
+    @Override
+    public @Nullable GuiNavigationPath getNavigationPath(GuiNavigation navigation)
+    {
+        return null;
     }
 }

@@ -4,15 +4,21 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.Vector2f;
 import net.minecraft.text.Text;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import xyz.nifeather.morph.client.MorphClient;
 import xyz.nifeather.morph.client.graphics.IMDrawable;
 import xyz.nifeather.morph.client.graphics.MButtonWidget;
+import xyz.nifeather.morph.client.graphics.MarginPadding;
+import xyz.nifeather.morph.client.graphics.container.DrawableButtonWrapper;
 import xyz.nifeather.morph.client.graphics.transforms.Recorder;
 import xyz.nifeather.morph.client.graphics.transforms.Transformer;
 import xyz.nifeather.morph.client.graphics.transforms.easings.Easing;
@@ -24,6 +30,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class FeatherScreen extends Screen implements IMDrawable
 {
+    private static final Logger log = LoggerFactory.getLogger(FeatherScreen.class);
+
     protected FeatherScreen(Text title) {
         super(title);
     }
@@ -49,6 +57,50 @@ public abstract class FeatherScreen extends Screen implements IMDrawable
     public void setSize(Vector2f vector)
     {
         MorphClient.LOGGER.warn("setSize() for FeatherScreen is not implemented!!!");
+    }
+
+    @Override
+    public float getRenderWidth()
+    {
+        return this.width;
+    }
+
+    @Override
+    public float getRenderHeight()
+    {
+        return this.height;
+    }
+
+    @Override
+    public @NotNull MarginPadding getPadding()
+    {
+        return new MarginPadding(0);
+    }
+
+    private IMDrawable parent;
+
+    @Override
+    public void setParent(@Nullable IMDrawable parent)
+    {
+        this.parent = parent;
+    }
+
+    @Override
+    public @Nullable IMDrawable getParent()
+    {
+        return parent;
+    }
+
+    @Override
+    public float getScreenSpaceX()
+    {
+        return 0;
+    }
+
+    @Override
+    public float getScreenSpaceY()
+    {
+        return 0;
     }
 
     @Override
@@ -260,6 +312,18 @@ public abstract class FeatherScreen extends Screen implements IMDrawable
 
     protected void onScreenResume(@Nullable Screen lastScreen)
     {
+    }
+
+    @Override
+    public void setFocused(@Nullable Element focused)
+    {
+        log.info("Focus! " + focused);
+        super.setFocused(focused);
+    }
+
+    protected DrawableButtonWrapper createDrawableWrapper(int x, int y, int width, int height, Text text, ButtonWidget.PressAction action)
+    {
+        return new DrawableButtonWrapper(this.buildButtonWidget(x, y, width, height, text, action));
     }
 
     protected MButtonWidget buildButtonWidget(int x, int y, int width, int height, Text text, ButtonWidget.PressAction action)

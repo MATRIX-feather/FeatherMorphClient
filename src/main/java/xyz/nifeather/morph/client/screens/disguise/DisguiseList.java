@@ -5,8 +5,11 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ElementListWidget;
 import net.minecraft.client.util.math.Vector2f;
 import net.minecraft.util.math.MathHelper;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import xyz.nifeather.morph.client.MorphClient;
 import xyz.nifeather.morph.client.graphics.IMDrawable;
+import xyz.nifeather.morph.client.graphics.MarginPadding;
 import xyz.nifeather.morph.client.graphics.transforms.Recorder;
 import xyz.nifeather.morph.client.graphics.transforms.Transformer;
 import xyz.nifeather.morph.client.graphics.transforms.easings.Easing;
@@ -181,6 +184,50 @@ public class DisguiseList extends ElementListWidget<EntityDisplayEntry> implemen
     {
         this.setWidth(vector.getX());
         this.setHeight(vector.getY());
+    }
+
+    @Override
+    public float getRenderWidth()
+    {
+        return this.width;
+    }
+
+    @Override
+    public float getRenderHeight()
+    {
+        return this.height;
+    }
+
+    @Override
+    public @NotNull MarginPadding getPadding()
+    {
+        return new MarginPadding(0);
+    }
+
+    private IMDrawable parent;
+
+    @Override
+    public void setParent(@Nullable IMDrawable parent)
+    {
+        this.parent = parent;
+    }
+
+    @Override
+    public @Nullable IMDrawable getParent()
+    {
+        return this.parent;
+    }
+
+    @Override
+    public float getScreenSpaceX()
+    {
+        return getX();
+    }
+
+    @Override
+    public float getScreenSpaceY()
+    {
+        return getY();
     }
 
     private int depth = 0;

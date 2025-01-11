@@ -3,6 +3,8 @@ package xyz.nifeather.morph.client.graphics;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.Vector2f;
 import net.minecraft.text.Text;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class MButtonWidget extends ButtonWidget implements IMDrawable
 {
@@ -48,6 +50,51 @@ public class MButtonWidget extends ButtonWidget implements IMDrawable
     {
         this.setWidth(vector.getX());
         this.setHeight(vector.getY());
+    }
+
+    @Override
+    public float getRenderWidth()
+    {
+        return this.getWidth();
+    }
+
+    @Override
+    public float getRenderHeight()
+    {
+        return this.getHeight();
+    }
+
+    @Override
+    public @NotNull MarginPadding getPadding()
+    {
+        return new MarginPadding(0);
+    }
+
+    @Nullable
+    private IMDrawable parent;
+
+    @Override
+    public void setParent(@Nullable IMDrawable parent)
+    {
+        this.parent = parent;
+    }
+
+    @Override
+    public @Nullable IMDrawable getParent()
+    {
+        return this.parent;
+    }
+
+    @Override
+    public float getScreenSpaceX()
+    {
+        return getX();
+    }
+
+    @Override
+    public float getScreenSpaceY()
+    {
+        return getY();
     }
 
     private int depth = 0;
