@@ -9,7 +9,6 @@ import net.minecraft.client.gui.ScreenPos;
 import net.minecraft.client.gui.ScreenRect;
 import net.minecraft.client.gui.navigation.NavigationAxis;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ContainerWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.math.Vector2f;
@@ -17,14 +16,16 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import xyz.nifeather.morph.client.ClientMorphManager;
 import xyz.nifeather.morph.client.EntityCache;
 import xyz.nifeather.morph.client.MorphClient;
 import xyz.nifeather.morph.client.ServerHandler;
 import xyz.nifeather.morph.client.graphics.*;
+import xyz.nifeather.morph.client.graphics.color.Colors;
+import xyz.nifeather.morph.client.graphics.color.MaterialColors;
 import xyz.nifeather.morph.client.graphics.container.*;
+import xyz.nifeather.morph.client.graphics.container.Container;
 import xyz.nifeather.morph.client.graphics.transforms.Recorder;
 import xyz.nifeather.morph.client.screens.FeatherScreen;
 import xyz.nifeather.morph.client.screens.WaitingForServerScreen;
@@ -115,7 +116,7 @@ public class DisguiseScreen extends FeatherScreen
         titleText.setHeight(20);
 
         textBox = new TextFieldWidgetWrapper(new TextFieldWidget(MinecraftClient.getInstance().textRenderer, 120, 17, Text.literal("Search disguise...")));
-        textBox.setChangedListener(this::applySearch);
+        textBox.setChangedListener(this::onTextBoxText);
 
         textBox.setAnchor(Anchor.TopRight);
         textBox.setMargin(new MarginPadding(5));
@@ -386,6 +387,22 @@ public class DisguiseScreen extends FeatherScreen
 
         if (last != null)
             disguiseList.scrollTo(last);
+    }
+
+    private final class_114514 field_1919810 = new class_114514(this);
+
+    private void onTextBoxText(String str)
+    {
+        if (!str.startsWith("!"))
+        {
+            textBox.widget.setEditableColor(Colors.WHITE.getColor());
+            applySearch(str);
+        }
+        else
+        {
+            textBox.widget.setEditableColor(MaterialColors.Amber500.getColor());
+            field_1919810.apply(str);
+        }
     }
 
     //todo: Refactor this to use another list instance.

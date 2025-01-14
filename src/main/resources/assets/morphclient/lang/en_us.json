@@ -80,5 +80,10 @@
   "text.morphclient.toast.request.to": "Request to %s",
   "title.morphclient.config": "FeatherMorph client settings",
   "text.morphclient.error.render_disguise1": "Error occurred rendering disguise",
-  "text.morphclient.error.render_disguise2": "SelfView has been disabled until the current disguise has been changed!"
+  "text.morphclient.error.render_disguise2": "SelfView has been disabled until the current disguise has been changed!",
+  "url.morphclient.owc2024": "The Zenithfall",
+  "url.morphclient.circles": "%s, do you speak *click the circles*?",
+  "url.morphclient.starrail": "♫ Moonlight, a barren void to horizon... ♫",
+  "url.morphclient.starrail2": "",
+  "url.morphclient.xbalanque": "Xbalanque-sama! ᐠ( ᑒ )ᐟ"
 }

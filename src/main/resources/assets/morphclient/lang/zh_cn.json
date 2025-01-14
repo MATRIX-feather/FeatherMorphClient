@@ -81,5 +81,10 @@
   "option.morphclient.singleplayer_debug": "启用单人游戏调试",
   "gui.morphclient.no_disguise": "无",
   "text.morphclient.error.render_disguise1": "渲染伪装时出现错误",
-  "text.morphclient.error.render_disguise2": "在当前伪装变更前客户端预览将被禁用以避免游戏崩溃"
+  "text.morphclient.error.render_disguise2": "在当前伪装变更前客户端预览将被禁用以避免游戏崩溃",
+  "url.morphclient.owc2024": "盛极而衰",
+  "url.morphclient.circles": "%s, 你会说 *click the circles* 吗?",
+  "url.morphclient.starrail": "♫ 无愧 无悔 ♫",
+  "url.morphclient.starrail2": "♫ 为何不配？为何要跪？ ♫",
+  "url.morphclient.xbalanque": "希巴拉克大人 ᐠ( ᑒ )ᐟ"
 }
