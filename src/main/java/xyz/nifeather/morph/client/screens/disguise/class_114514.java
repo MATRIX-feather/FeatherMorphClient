@@ -48,6 +48,8 @@ public class class_114514
                     "https://www.youtube.com/watch?v=fu0KoihoeA8",
                     Text.translatable("url.morphclient.circles", client.player.getName()));
 
+            // 需要更好的文本描述
+            /*
             case "starrail", "nameless" -> this.open(isChinese,
                     "https://www.bilibili.com/video/BV1Nm67YKEZv",
                     "https://www.youtube.com/watch?v=3ZFrYKdQqUc",
@@ -58,6 +60,7 @@ public class class_114514
                     "https://www.bilibili.com/video/BV1mX6dYjEqW",
                     "https://www.bilibili.com/video/BV1mX6dYjEqW",
                     Text.translatable("url.morphclient.xbalanque"));
+            */
         }
     }
 
