@@ -461,10 +461,6 @@ public class DisguiseScreen extends FeatherScreen
     {
         super.renderBackground(context, mouseX, mouseY, delta);
 
-        RenderSystem.enableBlend();
-
-        context.fill(0, 0, this.width, this.height, Color.ofRGBA(0, 0, 0, 0.3f).getColor());
-
         context.drawTexture(RenderLayer::getGuiTextured, Screen.MENU_BACKGROUND_TEXTURE,
                 0, 0,
                 0, -topHeight.get(),
@@ -474,20 +470,5 @@ public class DisguiseScreen extends FeatherScreen
                 0, this.height - bottomHeight.get(),
                 0, 0,
                 this.width, this.height, 32, 32);
-    }
-
-    @Override
-    public void renderInGameBackground(DrawContext context)
-    {
-    }
-
-    @Override
-    protected void renderDarkening(DrawContext context)
-    {
-    }
-
-    @Override
-    protected void renderDarkening(DrawContext context, int x, int y, int width, int height)
-    {
     }
 }
