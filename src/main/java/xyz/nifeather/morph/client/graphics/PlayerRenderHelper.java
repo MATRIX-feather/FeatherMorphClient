@@ -165,7 +165,7 @@ public class PlayerRenderHelper extends MorphClientObject
         EnderDragonEntityRenderer.renderCrystalBeam(relativeX,
                 relativeY + getCrystalYOffsetCopy(connectedCrystal, tickDelta),
                 relativeZ,
-                tickDelta, matrixStack, vertexConsumerProvider, light);
+                player.age + tickDelta, matrixStack, vertexConsumerProvider, light);
 
         matrixStack.pop();
     }
@@ -186,7 +186,7 @@ public class PlayerRenderHelper extends MorphClientObject
 
     private final Map<EntityType<?>, ModelInfo> typeModelPartMap = new Object2ObjectOpenHashMap<>();
 
-    private record ModelInfo(@Nullable ModelPart left, @Nullable ModelPart right, Vec3d offset, Vec3d scale)
+    public record ModelInfo(@Nullable ModelPart left, @Nullable ModelPart right, Vec3d offset, Vec3d scale)
     {
         @Nullable
         public ModelPart getPart(boolean isLeftArm)
@@ -195,7 +195,7 @@ public class PlayerRenderHelper extends MorphClientObject
         }
     }
 
-    public ModelInfo tryGetModel(EntityType<?> type, EntityModel<?> sourceModel)
+    public ModelInfo tryGetModel(EntityType<?> type, @Nullable EntityModel<?> sourceModel)
     {
         if (sourceModel == null) return new ModelInfo(null, null, Vec3dUtils.of(0), Vec3dUtils.of(1));
 
@@ -339,6 +339,9 @@ public class PlayerRenderHelper extends MorphClientObject
                 livingEntityRenderer.updateRenderState(disguiseEntity, renderState, 0);
                 layer = ((LivingRendererAccessor) livingEntityRenderer).callGetRenderLayer(renderState, true, false, true);
             }
+
+            if (model != null)
+                model.resetTransforms();
 
             modelInfo = tryGetModel(disguiseEntity.getType(), model);
             targetArm = modelInfo.getPart(renderingLeftPart);
