@@ -320,13 +320,13 @@ public class EntityDisplay extends MDrawable
         float k = entity.bodyYaw;
         float l = entity.getYaw();
         float m = entity.getPitch();
-        float n = entity.prevHeadYaw;
+        float n = entity.lastHeadYaw;
         float o = entity.headYaw;
         entity.bodyYaw = 180.0f + xAtan * 20.0f;
         entity.setYaw(180.0f + xAtan * 40.0f);
         entity.setPitch(-yAtan * 20.0f);
         entity.headYaw = entity.getYaw();
-        entity.prevHeadYaw = entity.getYaw();
+        entity.lastHeadYaw = entity.getYaw();
         Vector3f vector3f = new Vector3f(0.0f, entity.getHeight() / 2.0f + f, 0.0f);
 
         InventoryScreen.drawEntity(context, regionXCenter, regionYCenter, size, vector3f, quaternionf, quaternionf2, entity);
@@ -334,7 +334,7 @@ public class EntityDisplay extends MDrawable
         entity.bodyYaw = k;
         entity.setYaw(l);
         entity.setPitch(m);
-        entity.prevHeadYaw = n;
+        entity.lastHeadYaw = n;
         entity.headYaw = o;
         //context.disableScissor();
     }

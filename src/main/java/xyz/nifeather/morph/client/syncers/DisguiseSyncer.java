@@ -377,12 +377,12 @@ public abstract class DisguiseSyncer extends MorphClientObject
             disguiseInstance.setYaw(player.getYaw());
 
         disguiseInstance.headYaw = player.headYaw;
-        disguiseInstance.prevHeadYaw = player.prevHeadYaw;
+        disguiseInstance.lastHeadYaw = player.lastHeadYaw;
 
         if (disguiseInstance.getType() == EntityType.ARMOR_STAND)
         {
             disguiseInstance.bodyYaw = player.headYaw;
-            disguiseInstance.prevBodyYaw = player.prevHeadYaw;
+            disguiseInstance.lastBodyYaw = player.lastHeadYaw;
         }
     }
 
@@ -500,7 +500,7 @@ public abstract class DisguiseSyncer extends MorphClientObject
         var playerLimbAccessor = (LimbAnimatorAccessor) bindingPlayer.limbAnimator;
         var playerLimb = bindingPlayer.limbAnimator;
 
-        entitylimbAnimatorAccessor.setPrevSpeed(playerLimbAccessor.getPrevSpeed());
+        entitylimbAnimatorAccessor.setLastSpeed(playerLimbAccessor.getLastSpeed());
         entitylimbAnimatorAccessor.setPos(playerLimb.getPos());
         entitylimbAnimatorAccessor.setSpeed(playerLimb.getSpeed());
 

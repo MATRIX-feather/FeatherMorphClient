@@ -15,12 +15,14 @@ import net.minecraft.entity.mob.GhastEntity;
 import net.minecraft.entity.mob.WardenEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 import xyz.nifeather.morph.client.config.ModConfigData;
 import xyz.nifeather.morph.client.entities.IMorphClientEntity;
 import xyz.nifeather.morph.client.network.commands.ClientSetEquipCommand;
+import xyz.nifeather.morph.client.utilties.NbtUtils;
 import xyz.nifeather.morph.shared.SharedValues;
 import xyz.nifeather.morph.shared.payload.*;
 import xyz.nifeather.morph.client.utilties.NbtHelperCopy;
@@ -315,16 +317,11 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
     @Override
     public void onSetSNbtCommand(S2CSetSNbtCommand s2CSetSNbtCommand)
     {
-        try
-        {
-            var nbt = StringNbtReader.parse(s2CSetSNbtCommand.serializeArguments().replace("\\u003d", "="));
+        var nbt = NbtUtils.parseSNbt(s2CSetSNbtCommand.serializeArguments());
+        if (nbt == null)
+            nbt = new NbtCompound();
 
-            morphManager.currentNbtCompound.set(nbt);
-        }
-        catch (CommandSyntaxException e)
-        {
-            //todo
-        }
+        morphManager.currentNbtCompound.set(nbt);
     }
 
     @Override
@@ -332,7 +329,7 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
     {
         try
         {
-            var nbt = StringNbtReader.parse(s2CSetProfileCommand.serializeArguments());
+            var nbt = NbtUtils.parseOrThrow(s2CSetProfileCommand.serializeArguments());
 
             var profile = NbtHelperCopy.toGameProfile(nbt);
 

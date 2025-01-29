@@ -140,9 +140,9 @@ public class ClientDisguiseSyncer extends DisguiseSyncer
         var clientPlayer = bindingPlayer;
 
         //更新prevXYZ和披风
-        entity.prevX = clientPlayer.prevX;
-        entity.prevY = clientPlayer.prevY - 4096;
-        entity.prevZ = clientPlayer.prevZ;
+        entity.lastX = clientPlayer.lastX;
+        entity.lastY = clientPlayer.lastY - 4096;
+        entity.lastZ = clientPlayer.lastZ;
 
         if (entity instanceof MorphLocalPlayer player)
         {
@@ -150,9 +150,9 @@ public class ClientDisguiseSyncer extends DisguiseSyncer
             player.capeY = clientPlayer.capeY;
             player.capeZ = clientPlayer.capeZ;
 
-            player.prevCapeX = clientPlayer.prevCapeX;
-            player.prevCapeY = clientPlayer.prevCapeY;
-            player.prevCapeZ = clientPlayer.prevCapeZ;
+            player.lastCapeX = clientPlayer.lastCapeX;
+            player.lastCapeY = clientPlayer.lastCapeY;
+            player.lastCapeZ = clientPlayer.lastCapeZ;
         }
     }
 

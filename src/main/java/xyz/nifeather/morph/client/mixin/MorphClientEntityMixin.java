@@ -43,8 +43,6 @@ public abstract class MorphClientEntityMixin implements IMorphClientEntity
 
     @Shadow protected abstract void setFlag(int index, boolean value);
 
-    @Shadow @Final private static Logger LOGGER;
-
     @Shadow public abstract void setPose(EntityPose pose);
 
     private Entity featherMorph$entityInstance;

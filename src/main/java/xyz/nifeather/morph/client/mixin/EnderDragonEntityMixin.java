@@ -30,7 +30,7 @@ public class EnderDragonEntityMixin
         this.morphClient$entityInstance = (EnderDragonEntity) (Object) this;
     }
 
-    @Inject(method = "addFlapEffects", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;playSound(DDDLnet/minecraft/sound/SoundEvent;Lnet/minecraft/sound/SoundCategory;FFZ)V"))
+    @Inject(method = "addFlapEffects", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;playSoundClient(DDDLnet/minecraft/sound/SoundEvent;Lnet/minecraft/sound/SoundCategory;FFZ)V"))
     private void morphClient$onFlapWings(CallbackInfo ci)
     {
         if (((IMorphClientEntity)this).featherMorph$isDisguiseEntity())
@@ -45,7 +45,7 @@ public class EnderDragonEntityMixin
         if (!allowClientView && fmClient.morphManager.selfVisibleEnabled.get()) return;
 
         var playerLoc = MinecraftClient.getInstance().player.getPos();
-        morphClient$entityInstance.getWorld().playSound(playerLoc.x, playerLoc.y, playerLoc.z,
+        morphClient$entityInstance.getWorld().playSoundClient(playerLoc.x, playerLoc.y, playerLoc.z,
                 SoundEvents.ENTITY_ENDER_DRAGON_FLAP, morphClient$entityInstance.getSoundCategory(),
                 5.0F, 0.8F + random.nextFloat() * 0.3F, false);
     }

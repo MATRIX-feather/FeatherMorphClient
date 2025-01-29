@@ -142,11 +142,11 @@ public class PlayerRenderHelper extends MorphClientObject
         var player = MinecraftClient.getInstance().player;
         assert player != null;
 
-        var tickDelta = tickCounter.getTickDelta(true);
+        var tickDelta = tickCounter.getTickProgress(true);
         //通过插值的方式获取玩家XYZ可以避免让渲染出来的光柱看起来非常卡顿
-        var lerpPlayerX = MathHelper.lerp(tickDelta, player.prevX, player.getX());
-        var lerpPlayerY = MathHelper.lerp(tickDelta, player.prevY, player.getY());
-        var lerpPlayerZ = MathHelper.lerp(tickDelta, player.prevZ, player.getZ());
+        var lerpPlayerX = MathHelper.lerp(tickDelta, player.lastX, player.getX());
+        var lerpPlayerY = MathHelper.lerp(tickDelta, player.lastY, player.getY());
+        var lerpPlayerZ = MathHelper.lerp(tickDelta, player.lastZ, player.getZ());
 
         //光柱目标的Y轴位移，数值越大最终的位置相较于相机越低
         var yOffset = 1f;
