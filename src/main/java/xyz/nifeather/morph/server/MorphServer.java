@@ -1,11 +1,15 @@
 package xyz.nifeather.morph.server;
 
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.dedicated.DedicatedServer;
-import net.minecraft.server.dedicated.MinecraftDedicatedServer;
+import net.minecraft.server.command.CommandManager;
+import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,17 +28,58 @@ public class MorphServer
 
     public static final Logger LOGGER = LoggerFactory.getLogger("FeatherMorph$TestServer");
 
-    public void init()
+    public void onModLoad()
     {
-        PayloadTypeRegistry.playS2C().register(MorphInitChannelPayload.id, MorphInitChannelPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(MorphVersionChannelPayload.id, MorphVersionChannelPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(MorphCommandPayload.id, MorphCommandPayload.CODEC);
-
-        PayloadTypeRegistry.playS2C().register(LegacyMorphVersionChannelPayload.id, LegacyMorphVersionChannelPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(LegacyMorphCommandPayload.id, LegacyMorphCommandPayload.CODEC);
-
         ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStop);
         ServerLifecycleEvents.SERVER_STARTING.register(this::onServerStart);
+
+        CommandRegistrationCallback.EVENT.register(this::onCommandRegister);
+    }
+
+    private void onCommandRegister(CommandDispatcher<ServerCommandSource> dispatcher,
+                                   CommandRegistryAccess registryAccess,
+                                   CommandManager.RegistrationEnvironment environment)
+    {
+        dispatcher.register(
+                CommandManager.literal("morph")
+                        .then(
+                                CommandManager.argument("id", StringArgumentType.greedyString())
+                                        .executes(ctx ->
+                                        {
+                                            if (!ctx.getSource().isExecutedByPlayer())
+                                            {
+                                                ctx.getSource().sendError(Text.literal("You must be a player to use this command"));
+                                                return 0;
+                                            }
+
+                                            var executor = ctx.getSource().getPlayerOrThrow();
+
+                                            String id = StringArgumentType.getString(ctx, "id");
+
+                                            morphManager.morph(executor, id);
+
+                                            return 1;
+                                        })
+                        )
+        );
+
+        dispatcher.register(
+                CommandManager.literal("unmorph")
+                        .executes(ctx ->
+                        {
+                            if (!ctx.getSource().isExecutedByPlayer())
+                            {
+                                ctx.getSource().sendError(Text.literal("You must be a player to use this command"));
+                                return 0;
+                            }
+
+                            var executor = ctx.getSource().getPlayerOrThrow();
+
+                            morphManager.unMorph(executor);
+
+                            return 1;
+                        })
+        );
     }
 
     @Nullable

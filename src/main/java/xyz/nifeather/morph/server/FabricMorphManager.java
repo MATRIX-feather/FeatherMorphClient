@@ -2,11 +2,14 @@ package xyz.nifeather.morph.server;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import me.shedaniel.cloth.clothconfig.shadowed.org.yaml.snakeyaml.error.YAMLException;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 import xiamomc.morph.network.commands.S2C.S2CCurrentCommand;
 import xiamomc.morph.network.commands.S2C.clientrender.S2CRenderMapAddCommand;
@@ -91,6 +94,28 @@ public class FabricMorphManager
     {
         disguiseSessionMap.put(player, new FabricDisguiseSession(player, identifier));
 
+        if (identifier.startsWith("minecraft"))
+        {
+            var type = EntityType.get(identifier);
+
+            if (type.isEmpty())
+            {
+                player.sendMessage(Text.literal("No such entity!"));
+                return;
+            }
+
+            if (!type.get().getBaseClass().isAssignableFrom(LivingEntity.class))
+            {
+                player.sendMessage(Text.literal("Not a living entity!"));
+                return;
+            }
+        }
+        else if (!identifier.startsWith("player"))
+        {
+            player.sendMessage(Text.literal("Invalid id '%s'".formatted(identifier)));
+            return;
+        }
+
         var clientHandler = MorphServer.instance.clientHandler;
         clientHandler.sendCommand(player, new S2CCurrentCommand(identifier));
         clientHandler.sendCommand(player, new S2CSetAvailableAnimationsCommand(
@@ -111,6 +136,8 @@ public class FabricMorphManager
             clientHandler.sendCommand(serverPlayerEntity, cmd);
             clientHandler.sendCommand(serverPlayerEntity, cmdReveal);
         }
+
+        player.sendMessage(Text.literal("Disguising as '%s'".formatted(identifier)));
     }
 
     public void unMorph(ServerPlayerEntity player)
@@ -127,6 +154,8 @@ public class FabricMorphManager
             clientHandler.sendCommand(serverPlayerEntity, cmd);
             clientHandler.sendCommand(serverPlayerEntity, cmdReveal);
         }
+
+        player.sendMessage(Text.literal("Undisguised"));
     }
 
     public void dispose()
