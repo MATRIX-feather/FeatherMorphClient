@@ -15,7 +15,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.slf4j.LoggerFactory;
 import xyz.nifeather.morph.client.EntityCache;
-import xyz.nifeather.morph.client.MorphClient;
+import xyz.nifeather.morph.client.FeatherMorphClient;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -53,7 +53,7 @@ public class EntityDisplay extends MDrawable
     public EntityDisplay(@NotNull String rawIdentifier, boolean displayLoadingIfNotValid, InitialSetupMethod initialSetupMethod)
     {
         this.rawIdentifier = rawIdentifier;
-        this.isPlayerItSelf = rawIdentifier.equals(MorphClient.UNMORPH_STIRNG);
+        this.isPlayerItSelf = rawIdentifier.equals(FeatherMorphClient.UNMORPH_STIRNG);
 
         this.displayName = Text.translatable("gui.morphclient.loading")
                 .formatted(Formatting.ITALIC, Formatting.GRAY);

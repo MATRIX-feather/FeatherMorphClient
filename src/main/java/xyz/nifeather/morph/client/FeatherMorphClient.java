@@ -20,11 +20,13 @@ import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.random.Random;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import xiamomc.pluginbase.XiaMoJavaPlugin;
 import xyz.nifeather.morph.client.config.ModConfigData;
 import xyz.nifeather.morph.client.graphics.EntityRendererHelper;
 import xyz.nifeather.morph.client.graphics.ModelWorkarounds;
@@ -39,29 +41,26 @@ import xyz.nifeather.morph.client.syncers.animations.AnimHandlerIndex;
 import xiamomc.morph.network.Constants;
 import xiamomc.morph.network.commands.C2S.*;
 import xiamomc.morph.network.commands.S2C.S2CRequestCommand;
-import xiamomc.pluginbase.AbstractSchedulablePlugin;
-import xiamomc.pluginbase.ScheduleInfo;
 import xyz.nifeather.morph.shared.SharedValues;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 @Environment(EnvType.CLIENT)
-public class MorphClient extends AbstractSchedulablePlugin implements ClientModInitializer
+public class FeatherMorphClient extends XiaMoJavaPlugin implements ClientModInitializer
 {
-    private static MorphClient instance;
+    private static FeatherMorphClient instance;
 
-    public static MorphClient getInstance()
+    public static FeatherMorphClient getInstance()
     {
         return instance;
     }
 
     public static final String UNMORPH_STIRNG = "morph:unmorph";
 
-    public static final Logger LOGGER = LoggerFactory.getLogger("FeatherMorph");
+    public static final Logger LOGGER = LoggerFactory.getLogger("FeatherMorph$Client");
 
     @Override
-    public String getNameSpace()
+    public String namespace()
     {
         return getClientNameSpace();
     }
@@ -77,9 +76,24 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
         return LOGGER;
     }
 
-    public MorphClient()
+    public FeatherMorphClient()
     {
         instance = this;
+    }
+
+    @Nullable
+    private Runnable mainLoopRunnable;
+
+    @Override
+    public void startMainLoop(Runnable r)
+    {
+        mainLoopRunnable = r;
+    }
+
+    @Override
+    public void runAsync(Runnable r)
+    {
+        Util.getMainWorkerExecutor().execute(r);
     }
 
     public ClientMorphManager morphManager;
@@ -94,6 +108,8 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
     @Override
     public void onInitializeClient()
     {
+        enablePlugin();
+
         Constants.initialize(false);
 
         this.registerKeys();
@@ -485,98 +501,13 @@ public class MorphClient extends AbstractSchedulablePlugin implements ClientModI
 
     //region tick相关
 
-    private long currentTick = 0;
-
     private void tick(MinecraftClient client)
     {
-        currentTick += 1;
-
-        if (shouldAbortTicking) return;
-
-        var schedules = new ObjectArrayList<>(this.schedules);
-        schedules.forEach(c ->
-        {
-            if (currentTick - c.TickScheduled >= c.Delay)
-            {
-                this.schedules.remove(c);
-
-                if (c.isCanceled()) return;
-
-                //LOGGER.info("执行：" + c + "，当前TICK：" + currentTick);\
-                if (c.isAsync)
-                    CompletableFuture.runAsync(() -> runFunction(c));
-                else
-                    runFunction(c);
-            }
-        });
-
-        schedules.clear();
+        if (mainLoopRunnable != null)
+            mainLoopRunnable.run();
 
         this.updateKeys(client);
     }
 
-    private void runFunction(ScheduleInfo c)
-    {
-        try
-        {
-            c.Function.run();
-        }
-        catch (Exception e)
-        {
-            this.onExceptionCaught(e, c);
-        }
-    }
-
-    //region tick异常捕捉与处理
-
-    //一秒内最多能接受多少异常
-    protected final int exceptionLimit = 5;
-
-    //已经捕获的异常
-    private int exceptionCaught = 0;
-
-    //是否应该中断tick
-    private boolean shouldAbortTicking = false;
-
-    private synchronized void onExceptionCaught(Exception exception, ScheduleInfo scheduleInfo)
-    {
-        if (exception == null) return;
-
-        exceptionCaught += 1;
-
-        LOGGER.warn("执行" + scheduleInfo + "时捕获到未处理的异常：");
-        exception.printStackTrace();
-
-        if (exceptionCaught >= exceptionLimit)
-        {
-            LOGGER.error("可接受异常已到达最大限制");
-            this.shouldAbortTicking = true;
-        }
-    }
-
-    private void processExceptionCount()
-    {
-        exceptionCaught -= 1;
-
-        this.schedule(this::processExceptionCount, 5);
-    }
-
-    //endregion tick异常捕捉与处理
-
     //endregion tick相关
-
-    //region Schedules
-
-    public long getCurrentTick()
-    {
-        return currentTick;
-    }
-
-    @Override
-    public boolean acceptSchedules()
-    {
-        return true;
-    }
-
-    //endregion Schedules
 }

@@ -6,7 +6,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.Vector2f;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
-import xyz.nifeather.morph.client.MorphClient;
+import xyz.nifeather.morph.client.FeatherMorphClient;
 import xyz.nifeather.morph.client.graphics.*;
 import xyz.nifeather.morph.client.graphics.color.ColorUtils;
 import xyz.nifeather.morph.client.graphics.color.MaterialColors;
@@ -51,7 +51,7 @@ public class DisguiseScreenNew extends FeatherScreen
         flow.setRelativeSizeAxes(Axes.Both);
         flow.setMargin(new MarginPadding(5, 0, 20 + 5, 0));
 
-        MorphClient.getInstance().morphManager.getAvailableMorphs().forEach(id ->
+        FeatherMorphClient.getInstance().morphManager.getAvailableMorphs().forEach(id ->
         {
             var widget = new DisplayWdgt(id);
             widget.setSize(new Vector2f(36, 48));

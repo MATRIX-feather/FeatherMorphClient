@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import xyz.nifeather.morph.client.MorphClient;
+import xyz.nifeather.morph.client.FeatherMorphClient;
 import xyz.nifeather.morph.client.graphics.PlayerRenderHelper;
 import xyz.nifeather.morph.client.syncers.ClientDisguiseSyncer;
 
@@ -93,7 +93,7 @@ public class HeldItemRendererMixin
     private boolean morphclient$canRender()
     {
         var clientSyncer = ClientDisguiseSyncer.getCurrentInstance();
-        return clientSyncer != null && !clientSyncer.disposed() && MorphClient.getInstance().getModConfigData().clientViewVisible();
+        return clientSyncer != null && !clientSyncer.disposed() && FeatherMorphClient.getInstance().getModConfigData().clientViewVisible();
     }
 
     @Unique

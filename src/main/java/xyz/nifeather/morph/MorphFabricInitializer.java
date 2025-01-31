@@ -2,12 +2,12 @@ package xyz.nifeather.morph;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
-import xyz.nifeather.morph.server.MorphServer;
+import xyz.nifeather.morph.server.MorphServerLoader;
 import xyz.nifeather.morph.shared.payload.*;
 
-public class MorphFabricMain implements ModInitializer
+public class MorphFabricInitializer implements ModInitializer
 {
-    private final MorphServer morphServer = new MorphServer();
+    private final MorphServerLoader morphServerLoader = new MorphServerLoader();
 
     /**
      * Runs the mod initializer.
@@ -23,6 +23,6 @@ public class MorphFabricMain implements ModInitializer
         PayloadTypeRegistry.playS2C().register(LegacyMorphVersionChannelPayload.id, LegacyMorphVersionChannelPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(LegacyMorphCommandPayload.id, LegacyMorphCommandPayload.CODEC);
 
-        morphServer.onModLoad();
+        morphServerLoader.onModLoad();
     }
 }

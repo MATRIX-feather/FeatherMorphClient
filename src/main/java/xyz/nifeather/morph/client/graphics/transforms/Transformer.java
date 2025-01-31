@@ -2,7 +2,7 @@ package xyz.nifeather.morph.client.graphics.transforms;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.MinecraftClient;
-import xyz.nifeather.morph.client.MorphClient;
+import xyz.nifeather.morph.client.FeatherMorphClient;
 import xyz.nifeather.morph.client.graphics.transforms.easings.Easing;
 import xiamomc.pluginbase.Bindables.Bindable;
 
@@ -44,7 +44,7 @@ public class Transformer
                 }
                 catch (Throwable throwable)
                 {
-                    MorphClient.LOGGER.warn(throwable.getMessage());
+                    FeatherMorphClient.LOGGER.warn(throwable.getMessage());
                     throwable.printStackTrace();
                 }
             }

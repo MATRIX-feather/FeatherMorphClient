@@ -1,8 +1,6 @@
 package xyz.nifeather.morph.client.screens.disguise;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import me.shedaniel.math.Color;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.ScreenPos;
@@ -19,7 +17,7 @@ import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.Nullable;
 import xyz.nifeather.morph.client.ClientMorphManager;
 import xyz.nifeather.morph.client.EntityCache;
-import xyz.nifeather.morph.client.MorphClient;
+import xyz.nifeather.morph.client.FeatherMorphClient;
 import xyz.nifeather.morph.client.ServerHandler;
 import xyz.nifeather.morph.client.graphics.*;
 import xyz.nifeather.morph.client.graphics.color.Colors;
@@ -41,7 +39,7 @@ public class DisguiseScreen extends FeatherScreen
     {
         super(Text.literal("选择界面"));
 
-        var morphClient = MorphClient.getInstance();
+        var morphClient = FeatherMorphClient.getInstance();
 
         this.serverHandler = morphClient.serverHandler;
         this.manager = morphClient.morphManager;
@@ -79,7 +77,7 @@ public class DisguiseScreen extends FeatherScreen
 
         this.serverReady.onValueChanged((o, n) ->
         {
-            MorphClient.getInstance().schedule(() ->
+            FeatherMorphClient.getInstance().schedule(() ->
             {
                 if (this.isCurrent() && !n)
                     this.push(new WaitingForServerScreen(new DisguiseScreen()));
@@ -130,7 +128,7 @@ public class DisguiseScreen extends FeatherScreen
     {
         String identifier = newId == null
                             ? this.currentIdentifier.get() == null
-                                ? MorphClient.UNMORPH_STIRNG
+                                ? FeatherMorphClient.UNMORPH_STIRNG
                                 : this.currentIdentifier.get()
                             : newId;
 
@@ -154,9 +152,9 @@ public class DisguiseScreen extends FeatherScreen
         this.add(newDisplay);
     }
 
-    private final Bindable<String> selectedIdentifier = new Bindable<>(MorphClient.UNMORPH_STIRNG);
+    private final Bindable<String> selectedIdentifier = new Bindable<>(FeatherMorphClient.UNMORPH_STIRNG);
     private final Bindable<Boolean> serverReady = new Bindable<>(false);
-    private final Bindable<String> currentIdentifier = new Bindable<>(MorphClient.UNMORPH_STIRNG);
+    private final Bindable<String> currentIdentifier = new Bindable<>(FeatherMorphClient.UNMORPH_STIRNG);
 
     private final TextFieldWidgetWrapper textBox;
 
@@ -215,7 +213,7 @@ public class DisguiseScreen extends FeatherScreen
 
         if (last == null || last instanceof WaitingForServerScreen)
         {
-            disguiseList.addChild(new EntityDisplayEntry(MorphClient.UNMORPH_STIRNG));
+            disguiseList.addChild(new EntityDisplayEntry(FeatherMorphClient.UNMORPH_STIRNG));
 
             manager.getAvailableMorphs().forEach(s -> disguiseList.addChild(new EntityDisplayEntry(s)));
 
@@ -235,7 +233,7 @@ public class DisguiseScreen extends FeatherScreen
         topTextContainer.addRange(titleText, selectedIdentifierText);
         topTextContainer.setPadding(new MarginPadding(0, 0, fontMargin - 1, 0));
 
-        if (!MorphClient.getInstance().serverHandler.serverApiMatch())
+        if (!FeatherMorphClient.getInstance().serverHandler.serverApiMatch())
             bottomTextContainer.add(outdatedText);
 
         bottomTextContainer.add(serverAPIText);
@@ -260,7 +258,7 @@ public class DisguiseScreen extends FeatherScreen
 
         var configMenuButton = this.createDrawableWrapper(0, 0, 20, 20, Text.literal("C"), (button ->
         {
-            var screen = MorphClient.getInstance().getFactory(this).build();
+            var screen = FeatherMorphClient.getInstance().getFactory(this).build();
 
             MinecraftClient.getInstance().setScreen(screen);
         }));
@@ -327,7 +325,7 @@ public class DisguiseScreen extends FeatherScreen
             var val = !bindable.get();
             bindable.set(val);
 
-            var modInstance = MorphClient.getInstance();
+            var modInstance = FeatherMorphClient.getInstance();
             var config = modInstance.getModConfigData();
 
             modInstance.updateClientView(config.allowClientView, val);

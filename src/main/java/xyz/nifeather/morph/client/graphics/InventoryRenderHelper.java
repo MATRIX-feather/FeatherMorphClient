@@ -4,7 +4,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import xyz.nifeather.morph.client.ClientMorphManager;
-import xyz.nifeather.morph.client.MorphClient;
+import xyz.nifeather.morph.client.FeatherMorphClient;
 import xyz.nifeather.morph.client.MorphClientObject;
 import xyz.nifeather.morph.client.syncers.ClientDisguiseSyncer;
 import xiamomc.pluginbase.Annotations.Initializer;
@@ -34,7 +34,7 @@ public class InventoryRenderHelper extends MorphClientObject
     public void onRenderCall(DrawContext context, int x1, int y1, int x2, int y2, int size, float f, float mouseX, float mouseY)
     {
         if (!allowRender) return;
-        var modConfig = MorphClient.getInstance().getModConfigData();
+        var modConfig = FeatherMorphClient.getInstance().getModConfigData();
 
         var syncer = ClientDisguiseSyncer.getCurrentInstance();
         var syncerNotAvailable = syncer == null || syncer.disposed();

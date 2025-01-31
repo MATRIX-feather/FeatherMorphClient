@@ -6,7 +6,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import xyz.nifeather.morph.client.MorphClient;
+import xyz.nifeather.morph.client.FeatherMorphClient;
 import xyz.nifeather.morph.client.graphics.*;
 import xyz.nifeather.morph.client.graphics.transforms.Transformer;
 import xyz.nifeather.morph.client.graphics.transforms.easings.Easing;
@@ -53,7 +53,7 @@ public class WaitingForServerScreen extends FeatherScreen
     {
         super.onScreenEnter(last);
 
-        var morphClient = MorphClient.getInstance();
+        var morphClient = FeatherMorphClient.getInstance();
         this.serverReady.bindTo(morphClient.serverHandler.serverReady);
 
         if (serverReady.get())
@@ -64,7 +64,7 @@ public class WaitingForServerScreen extends FeatherScreen
         {
             serverReady.onValueChanged((o, n) ->
             {
-                MorphClient.getInstance().schedule(() ->
+                FeatherMorphClient.getInstance().schedule(() ->
                 {
                     if (isCurrent() && n)
                         this.push(nextScreen);

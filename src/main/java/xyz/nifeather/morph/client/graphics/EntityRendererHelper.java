@@ -12,7 +12,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 import xyz.nifeather.morph.client.DisguiseInstanceTracker;
-import xyz.nifeather.morph.client.MorphClient;
+import xyz.nifeather.morph.client.FeatherMorphClient;
 import xyz.nifeather.morph.client.entities.IMorphClientEntity;
 import xyz.nifeather.morph.client.entities.MorphLocalPlayer;
 import xyz.nifeather.morph.client.graphics.color.ColorUtils;
@@ -108,7 +108,7 @@ public class EntityRendererHelper
         matrices.multiply(dispatcher.getRotation());
         matrices.scale(0.025F, -0.025F, 0.025F);
 
-        if (MorphClient.getInstance().getModConfigData().scaleNameTag)
+        if (FeatherMorphClient.getInstance().getModConfigData().scaleNameTag)
         {
             var entityToLookup = masterEntity != null ? masterEntity : entity;
             var labelWorldPosition = entityToLookup.getPos().add(labelRelativePosition);

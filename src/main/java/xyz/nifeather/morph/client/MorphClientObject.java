@@ -1,12 +1,12 @@
 package xyz.nifeather.morph.client;
 
-import xiamomc.pluginbase.ClientPluginObject;
+import xiamomc.pluginbase.PluginObject;
 
-public class MorphClientObject extends ClientPluginObject<MorphClient>
+public class MorphClientObject extends PluginObject<FeatherMorphClient>
 {
     @Override
     protected String getPluginNamespace()
     {
-        return MorphClient.getClientNameSpace();
+        return FeatherMorphClient.getClientNameSpace();
     }
 }

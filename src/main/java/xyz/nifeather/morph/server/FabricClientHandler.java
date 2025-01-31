@@ -17,13 +17,14 @@ import xiamomc.morph.network.commands.S2C.map.S2CPartialMapCommand;
 import xiamomc.morph.network.commands.S2C.query.QueryType;
 import xiamomc.morph.network.commands.S2C.query.S2CQueryCommand;
 import xiamomc.morph.network.commands.S2C.set.S2CSetSelfViewingCommand;
+import xiamomc.pluginbase.Annotations.Resolved;
 import xiamomc.pluginbase.Bindables.Bindable;
 import xyz.nifeather.morph.shared.payload.MorphCommandPayload;
 
 import java.util.List;
 import java.util.Map;
 
-public class FabricClientHandler implements BasicClientHandler<ServerPlayerEntity>
+public class FabricClientHandler extends ServerPluginObject implements BasicClientHandler<ServerPlayerEntity>
 {
     private final CommandRegistries commandRegistries = new CommandRegistries();
 
@@ -38,8 +39,6 @@ public class FabricClientHandler implements BasicClientHandler<ServerPlayerEntit
                 .registerC2S(C2SCommandNames.Request, C2SRequestCommand::new)
                 .registerC2S("animation", C2SAnimationCommand::new);
     }
-
-    private final Logger logger = MorphServer.LOGGER;
 
     private final Bindable<Boolean> allowClient = new Bindable<>(true);
     private final Bindable<Boolean> logInComingPackets = new Bindable<>(true);
@@ -199,15 +198,17 @@ public class FabricClientHandler implements BasicClientHandler<ServerPlayerEntit
     @Override
     public @Nullable PlayerOptions<ServerPlayerEntity> getPlayerOption(ServerPlayerEntity ServerPlayerEntity)
     {
-        MorphServer.LOGGER.warn("getPlayerOption is not implemented yet.");
+        logger.warn("getPlayerOption is not implemented yet.");
         return null;
     }
+
+    @Resolved(shouldSolveImmediately = true)
+    private FabricMorphManager morphManager;
 
     @Override
     public void onInitialCommand(C2SInitialCommand command)
     {
         ServerPlayerEntity player = command.getOwner();
-        var morphManager = MorphServer.instance.morphManager;
 
         var unlocked = morphManager.getUnlockedDisguises(player);
         var cmd = new S2CQueryCommand(QueryType.SET, unlocked.toArray(new String[0]));
@@ -236,7 +237,6 @@ public class FabricClientHandler implements BasicClientHandler<ServerPlayerEntit
         ServerPlayerEntity player = command.getOwner();
         String disguiseId = command.getArgumentAt(0, "");
 
-        var morphManager = MorphServer.instance.morphManager;
         morphManager.morph(player, disguiseId);
     }
 
@@ -268,7 +268,6 @@ public class FabricClientHandler implements BasicClientHandler<ServerPlayerEntit
     {
         ServerPlayerEntity player = command.getOwner();
 
-        var morphManager = MorphServer.instance.morphManager;
         morphManager.unMorph(player);
     }
 

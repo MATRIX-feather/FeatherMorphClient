@@ -439,7 +439,7 @@ public class ClientMorphManager extends MorphClientObject
 
         this.availableMorphs.clear();
         this.availableMorphs.addAll(List.of("minecraft:sheep", "player:Faruzan_", "minecraft:ender_dragon", "player:Tairiitsuu"));
-        MorphClient.getInstance().serverHandler.testSetServerReady();
+        FeatherMorphClient.getInstance().serverHandler.testSetServerReady();
         this.setEmotes(List.of("crawl", "sniff", "lay", "roar"));
         this.setCurrent(disguises[index]);
     }
@@ -457,6 +457,6 @@ public class ClientMorphManager extends MorphClientObject
         var disguise = quickDisguiseMap.getOrDefault(index, null);
         if (disguise == null) return;
 
-        MorphClient.getInstance().sendMorphCommand(disguise);
+        FeatherMorphClient.getInstance().sendMorphCommand(disguise);
     }
 }

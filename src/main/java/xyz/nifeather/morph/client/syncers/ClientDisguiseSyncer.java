@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.nifeather.morph.client.ClientMorphManager;
 import xyz.nifeather.morph.client.EntityCache;
-import xyz.nifeather.morph.client.MorphClient;
+import xyz.nifeather.morph.client.FeatherMorphClient;
 import xyz.nifeather.morph.client.ServerHandler;
 import xyz.nifeather.morph.client.entities.MorphLocalPlayer;
 import xyz.nifeather.morph.client.graphics.CameraHelper;
@@ -53,7 +53,7 @@ public class ClientDisguiseSyncer extends DisguiseSyncer
 
         currentNbtCompound.onValueChanged((o, n) ->
         {
-            if (n != null) MorphClient.getInstance().schedule(() -> this.mergeNbt(n));
+            if (n != null) FeatherMorphClient.getInstance().schedule(() -> this.mergeNbt(n));
         }, true);
 
         isThirdPerson.onValueChanged((o, n) -> this.onThirdPersonChange(disguiseInstance, MinecraftClient.getInstance().player));
@@ -104,7 +104,7 @@ public class ClientDisguiseSyncer extends DisguiseSyncer
         var clientPlayer = MinecraftClient.getInstance().player;
         assert clientPlayer != null;
 
-        MorphClient.getInstance().updateClientView(true, false);
+        FeatherMorphClient.getInstance().updateClientView(true, false);
 
         clientPlayer.sendMessage(Text.translatable("text.morphclient.error.update_disguise1").formatted(Formatting.RED), false);
         clientPlayer.sendMessage(Text.translatable("text.morphclient.error.update_disguise2").formatted(Formatting.RED), false);
@@ -213,7 +213,7 @@ public class ClientDisguiseSyncer extends DisguiseSyncer
         }
         else
         {
-            var manager = MorphClient.getInstance().morphManager;
+            var manager = FeatherMorphClient.getInstance().morphManager;
 
             disguiseInstance.equipStack(EquipmentSlot.MAINHAND, manager.getOverridedItemStackOn(EquipmentSlot.MAINHAND));
             disguiseInstance.equipStack(EquipmentSlot.OFFHAND, manager.getOverridedItemStackOn(EquipmentSlot.OFFHAND));

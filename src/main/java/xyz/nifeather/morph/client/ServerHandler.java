@@ -49,11 +49,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ServerHandler extends MorphClientObject implements BasicServerHandler<PlayerEntity>
 {
-    private final MorphClient client;
+    private final FeatherMorphClient client;
 
     private final CommandRegistries registries = new CommandRegistries();
 
-    public ServerHandler(MorphClient client)
+    public ServerHandler(FeatherMorphClient client)
     {
         this.client = client;
     }
@@ -258,7 +258,7 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
     public void onQueryCommand(xiamomc.morph.network.commands.S2C.query.S2CQueryCommand s2CQueryCommand)
     {
         var diff = s2CQueryCommand.getDiff();
-        var modConfig = MorphClient.getInstance().getModConfigData();
+        var modConfig = FeatherMorphClient.getInstance().getModConfigData();
         switch (s2CQueryCommand.queryType())
         {
             case ADD -> morphManager.addDisguises(diff, modConfig.displayGrantRevokeToast);
@@ -652,7 +652,7 @@ public class ServerHandler extends MorphClientObject implements BasicServerHandl
                 if (RenderSystem.isOnRenderThread())
                     cmd.onCommand(this);
                 else
-                    MorphClient.getInstance().schedule(() -> cmd.onCommand(this));
+                    FeatherMorphClient.getInstance().schedule(() -> cmd.onCommand(this));
             }
             else
                 logger.warn("Unknown client command: " + baseName);

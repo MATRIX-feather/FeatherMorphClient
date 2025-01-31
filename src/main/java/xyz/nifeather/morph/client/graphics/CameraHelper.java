@@ -6,7 +6,7 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.RaycastContext;
 import org.jetbrains.annotations.Nullable;
-import xyz.nifeather.morph.client.MorphClient;
+import xyz.nifeather.morph.client.FeatherMorphClient;
 import xyz.nifeather.morph.client.syncers.ClientDisguiseSyncer;
 import xiamomc.pluginbase.Bindables.Bindable;
 
@@ -28,7 +28,7 @@ public class CameraHelper
         if (instance == null) return 0f;
 
         var current = getCurrentDisguise();
-        var client = MorphClient.getInstance();
+        var client = FeatherMorphClient.getInstance();
 
         if (current != null && client.morphManager.selfVisibleEnabled.get() && client.getModConfigData().changeCameraHeight)
         {

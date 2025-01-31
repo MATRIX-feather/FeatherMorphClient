@@ -4,11 +4,11 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.StringNbtReader;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
-import xyz.nifeather.morph.client.MorphClient;
+import xyz.nifeather.morph.client.FeatherMorphClient;
 
 public class NbtUtils
 {
-    private static final Logger logger = MorphClient.LOGGER;
+    private static final Logger logger = FeatherMorphClient.LOGGER;
 
     @Nullable
     public static NbtCompound parseSNbt(@Nullable String snbt)

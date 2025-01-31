@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 import xiamomc.pluginbase.Annotations.Resolved;
 import xiamomc.pluginbase.Bindables.Bindable;
 import xyz.nifeather.morph.client.ClientMorphManager;
-import xyz.nifeather.morph.client.MorphClient;
+import xyz.nifeather.morph.client.FeatherMorphClient;
 import xyz.nifeather.morph.client.MorphClientObject;
 import xyz.nifeather.morph.client.graphics.Anchor;
 import xyz.nifeather.morph.client.graphics.DrawableSprite;
@@ -101,7 +101,7 @@ public class DisplayWidget extends MorphClientObject implements Selectable, Draw
     {
         this.identifier = identifier;
 
-        this.isPlayerItSelf = identifier.equals(MorphClient.UNMORPH_STIRNG);
+        this.isPlayerItSelf = identifier.equals(FeatherMorphClient.UNMORPH_STIRNG);
 
         this.screenSpaceX = screenSpaceX;
         this.screenSpaceY = screenSpaceY;
@@ -177,8 +177,8 @@ public class DisplayWidget extends MorphClientObject implements Selectable, Draw
 
         currentIdentifier.onValueChanged((o, n) ->
         {
-            n = n == null ? MorphClient.UNMORPH_STIRNG : n;
-            o = o == null ? MorphClient.UNMORPH_STIRNG : o;
+            n = n == null ? FeatherMorphClient.UNMORPH_STIRNG : n;
+            o = o == null ? FeatherMorphClient.UNMORPH_STIRNG : o;
 
             var isCurrent = identifier.equals(n);
             var prevIsCurrent = identifier.equals(o);
@@ -336,7 +336,7 @@ public class DisplayWidget extends MorphClientObject implements Selectable, Draw
                                         ? ActivationState.NONE
                                         : ActivationState.WAITING);
 
-                    MorphClient.getInstance().sendMorphCommand(this.identifier);
+                    FeatherMorphClient.getInstance().sendMorphCommand(this.identifier);
                     playClickSound();
                 }
 
@@ -365,7 +365,7 @@ public class DisplayWidget extends MorphClientObject implements Selectable, Draw
             else if (actState == ActivationState.CURRENT && !isPlayerItSelf)
             {
                 activationState.set(ActivationState.WAITING);
-                MorphClient.getInstance().sendMorphCommand(null);
+                FeatherMorphClient.getInstance().sendMorphCommand(null);
                 playClickSound();
             }
         }

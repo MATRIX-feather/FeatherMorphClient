@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
 import xyz.nifeather.morph.client.AnimationNames;
 import xyz.nifeather.morph.client.ClientMorphManager;
-import xyz.nifeather.morph.client.MorphClient;
+import xyz.nifeather.morph.client.FeatherMorphClient;
 import xyz.nifeather.morph.client.ServerHandler;
 import xyz.nifeather.morph.client.graphics.Anchor;
 import xyz.nifeather.morph.client.graphics.DrawableText;
@@ -53,8 +53,8 @@ public class EmoteScreen extends SpinnerScreen<SingleEmoteWidget>
     {
         super(Text.literal("Disguise emote select screen"));
 
-        serverHandler = MorphClient.getInstance().serverHandler;
-        morphManager = MorphClient.getInstance().morphManager;
+        serverHandler = FeatherMorphClient.getInstance().serverHandler;
+        morphManager = FeatherMorphClient.getInstance().morphManager;
 
         titleText.setText(Text.translatable("gui.morphclient.emote_select"));
         titleText.setAnchor(Anchor.TopCentre);
@@ -72,7 +72,7 @@ public class EmoteScreen extends SpinnerScreen<SingleEmoteWidget>
         addEmoteWidget(0, widgetOffset * 2).moveTo(new Vector2i(0, widgetOffset), 300, Easing.OutExpo);
         addEmoteWidget(-widgetOffset * 2, 0).moveTo(new Vector2i(-widgetOffset, 0), 300, Easing.OutExpo);
 
-        var morphManager = MorphClient.getInstance().morphManager;
+        var morphManager = FeatherMorphClient.getInstance().morphManager;
         var emotes = morphManager.getEmotes();
         for (int i = 0; i < emotes.size(); i++)
         {
@@ -93,12 +93,12 @@ public class EmoteScreen extends SpinnerScreen<SingleEmoteWidget>
         this.alpha.set(0f);
         this.fadeIn(500, Easing.OutQuint);
 
-        var serverHandler = MorphClient.getInstance().serverHandler;
+        var serverHandler = FeatherMorphClient.getInstance().serverHandler;
         this.serverReady.bindTo(serverHandler.serverReady);
 
         this.serverReady.onValueChanged((o, n) ->
         {
-            MorphClient.getInstance().schedule(() ->
+            FeatherMorphClient.getInstance().schedule(() ->
             {
                 if (this.isCurrent() && !n)
                     this.push(new WaitingForServerScreen(new EmoteScreen()));
@@ -124,7 +124,7 @@ public class EmoteScreen extends SpinnerScreen<SingleEmoteWidget>
             if (emote != null)
                 serverHandler.sendCommand(new C2SAnimationCommand(emote));
 
-            MorphClient.getInstance().schedule(this::tryClose);
+            FeatherMorphClient.getInstance().schedule(this::tryClose);
         });
 
         return widget;
@@ -184,8 +184,8 @@ public class EmoteScreen extends SpinnerScreen<SingleEmoteWidget>
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers)
     {
-        if (MorphClient.getInstance().getEmoteKeyBind().matchesKey(keyCode, scanCode))
-            MorphClient.getInstance().schedule(this::tryClose);
+        if (FeatherMorphClient.getInstance().getEmoteKeyBind().matchesKey(keyCode, scanCode))
+            FeatherMorphClient.getInstance().schedule(this::tryClose);
 
         return super.keyPressed(keyCode, scanCode, modifiers);
     }

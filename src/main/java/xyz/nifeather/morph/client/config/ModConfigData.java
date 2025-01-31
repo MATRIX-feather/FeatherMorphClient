@@ -2,7 +2,7 @@ package xyz.nifeather.morph.client.config;
 
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
-import xyz.nifeather.morph.client.MorphClient;
+import xyz.nifeather.morph.client.FeatherMorphClient;
 import xyz.nifeather.morph.client.graphics.transforms.easings.Easing;
 
 @Config(name = "morphclient")
@@ -36,6 +36,6 @@ public class ModConfigData implements ConfigData
 
     public boolean clientViewVisible()
     {
-        return MorphClient.getInstance().morphManager.selfVisibleEnabled.get() && allowClientView;
+        return FeatherMorphClient.getInstance().morphManager.selfVisibleEnabled.get() && allowClientView;
     }
 }

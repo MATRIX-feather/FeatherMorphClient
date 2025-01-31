@@ -15,13 +15,13 @@
   "environment": "client",
   "entrypoints": {
     "client": [
-      "xyz.nifeather.morph.client.MorphClient"
+      "xyz.nifeather.morph.client.FeatherMorphClient"
     ],
     "modmenu":[
       "xyz.nifeather.morph.client.ModMenuApiImpl"
     ],
     "main":[
-      "xyz.nifeather.morph.MorphFabricMain"
+      "xyz.nifeather.morph.MorphFabricInitializer"
     ]
   },
   "mixins": [

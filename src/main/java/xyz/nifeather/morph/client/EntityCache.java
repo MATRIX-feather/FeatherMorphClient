@@ -1,7 +1,6 @@
 package xyz.nifeather.morph.client;
 
 import com.mojang.authlib.GameProfile;
-import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -83,7 +82,7 @@ public class EntityCache
 
         if (entity != null)
         {
-            MorphClient.getInstance().schedule(() ->
+            FeatherMorphClient.getInstance().schedule(() ->
             {
                 entity.discard();
                 entity.onRemoved();
@@ -112,7 +111,7 @@ public class EntityCache
     {
         droppingCaches.set(true);
 
-        var morphClient = MorphClient.getInstance();
+        var morphClient = FeatherMorphClient.getInstance();
         cacheMap.forEach((id, entity) ->
         {
             morphClient.schedule(entity::discard);
@@ -140,13 +139,13 @@ public class EntityCache
         }
         catch (Throwable t)
         {
-            MorphClient.LOGGER.warn("Unable to lock entity cache for read: " + t.getMessage());
+            FeatherMorphClient.LOGGER.warn("Unable to lock entity cache for read: " + t.getMessage());
             locked = false;
         }
 
         if (!locked)
         {
-            MorphClient.LOGGER.warn("Unable to lock entity cache for read: Timed out.");
+            FeatherMorphClient.LOGGER.warn("Unable to lock entity cache for read: Timed out.");
             return null;
         }
 
@@ -190,7 +189,7 @@ public class EntityCache
             }
             catch (Throwable t)
             {
-                MorphClient.LOGGER.error("Error occurred while creating entity: %s".formatted(t.getMessage()));
+                FeatherMorphClient.LOGGER.error("Error occurred while creating entity: %s".formatted(t.getMessage()));
                 t.printStackTrace();
 
                 return null;
@@ -213,7 +212,7 @@ public class EntityCache
             }
             catch (Throwable t)
             {
-                MorphClient.LOGGER.error("Error occurred while creating entity: %s".formatted(t.getMessage()));
+                FeatherMorphClient.LOGGER.error("Error occurred while creating entity: %s".formatted(t.getMessage()));
                 t.printStackTrace();
                 return null;
             }
@@ -229,7 +228,7 @@ public class EntityCache
         }
         catch (Throwable t)
         {
-            MorphClient.LOGGER.warn("Unable to lock entity cache for write: " + t.getMessage());
+            FeatherMorphClient.LOGGER.warn("Unable to lock entity cache for write: " + t.getMessage());
             t.printStackTrace();
 
             return null;
@@ -237,7 +236,7 @@ public class EntityCache
 
         if (!locked)
         {
-            MorphClient.LOGGER.warn("Unable to lock entity cache for write: Timed out");
+            FeatherMorphClient.LOGGER.warn("Unable to lock entity cache for write: Timed out");
             return null;
         }
 

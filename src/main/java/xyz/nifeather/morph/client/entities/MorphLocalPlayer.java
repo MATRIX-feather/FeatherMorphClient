@@ -17,7 +17,7 @@ import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
-import xyz.nifeather.morph.client.MorphClient;
+import xyz.nifeather.morph.client.FeatherMorphClient;
 import xyz.nifeather.morph.client.graphics.capes.ICapeProvider;
 import xyz.nifeather.morph.client.graphics.capes.providers.KappaCapeProvider;
 
@@ -105,7 +105,7 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
 
     private final static ICapeProvider capeProvider = new KappaCapeProvider();
 
-    private static final Logger logger = MorphClient.LOGGER;
+    private static final Logger logger = FeatherMorphClient.LOGGER;
 
     private static ApiServices apiServices;
     private static Executor apiExecutor;
@@ -169,7 +169,7 @@ public class MorphLocalPlayer extends OtherClientPlayerEntity
     {
         if (!RenderSystem.isOnRenderThread())
         {
-            MorphClient.getInstance().schedule(() -> updateSkin(profile));
+            FeatherMorphClient.getInstance().schedule(() -> updateSkin(profile));
             return;
         }
 

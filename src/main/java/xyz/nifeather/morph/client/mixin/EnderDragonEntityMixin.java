@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import xyz.nifeather.morph.client.MorphClient;
+import xyz.nifeather.morph.client.FeatherMorphClient;
 import xyz.nifeather.morph.client.entities.IMorphClientEntity;
 
 import java.util.Random;
@@ -40,7 +40,7 @@ public class EnderDragonEntityMixin
     @Unique
     private void morphClient$playSoundAtPlayer()
     {
-        var fmClient = MorphClient.getInstance();
+        var fmClient = FeatherMorphClient.getInstance();
         var allowClientView = fmClient.getModConfigData().allowClientView;
         if (!allowClientView && fmClient.morphManager.selfVisibleEnabled.get()) return;
 

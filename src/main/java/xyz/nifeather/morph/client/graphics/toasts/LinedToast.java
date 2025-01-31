@@ -10,7 +10,7 @@ import net.minecraft.client.toast.ToastManager;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import xyz.nifeather.morph.client.MorphClient;
+import xyz.nifeather.morph.client.FeatherMorphClient;
 import xyz.nifeather.morph.client.MorphClientObject;
 import xyz.nifeather.morph.client.graphics.color.ColorUtils;
 import xyz.nifeather.morph.client.graphics.transforms.Recorder;
@@ -159,7 +159,7 @@ public class LinedToast extends MorphClientObject implements Toast
 
     protected boolean drawProgress()
     {
-        return MorphClient.getInstance().getModConfigData().displayToastProgress;
+        return FeatherMorphClient.getInstance().getModConfigData().displayToastProgress;
     }
 
     protected float getTextStartX()

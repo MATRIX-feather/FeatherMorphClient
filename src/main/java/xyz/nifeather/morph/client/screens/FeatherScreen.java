@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xyz.nifeather.morph.client.MorphClient;
+import xyz.nifeather.morph.client.FeatherMorphClient;
 import xyz.nifeather.morph.client.graphics.IMDrawable;
 import xyz.nifeather.morph.client.graphics.MButtonWidget;
 import xyz.nifeather.morph.client.graphics.MarginPadding;
@@ -44,19 +44,19 @@ public abstract class FeatherScreen extends Screen implements IMDrawable
     @Override
     public void setWidth(float width)
     {
-        MorphClient.LOGGER.warn("setWidth() for FeatherScreen is not implemented!!!");
+        FeatherMorphClient.LOGGER.warn("setWidth() for FeatherScreen is not implemented!!!");
     }
 
     @Override
     public void setHeight(float height)
     {
-        MorphClient.LOGGER.warn("setHeight() for FeatherScreen is not implemented!!!");
+        FeatherMorphClient.LOGGER.warn("setHeight() for FeatherScreen is not implemented!!!");
     }
 
     @Override
     public void setSize(Vector2f vector)
     {
-        MorphClient.LOGGER.warn("setSize() for FeatherScreen is not implemented!!!");
+        FeatherMorphClient.LOGGER.warn("setSize() for FeatherScreen is not implemented!!!");
     }
 
     @Override
@@ -112,7 +112,7 @@ public abstract class FeatherScreen extends Screen implements IMDrawable
     @Override
     public void setDepth(int depth)
     {
-        MorphClient.LOGGER.warn("setDepth() for FeatherScreen is not implemented!!!");
+        FeatherMorphClient.LOGGER.warn("setDepth() for FeatherScreen is not implemented!!!");
     }
 
     @Override

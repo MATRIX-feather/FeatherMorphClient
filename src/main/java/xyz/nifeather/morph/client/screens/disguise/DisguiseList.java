@@ -7,7 +7,7 @@ import net.minecraft.client.util.math.Vector2f;
 import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import xyz.nifeather.morph.client.MorphClient;
+import xyz.nifeather.morph.client.FeatherMorphClient;
 import xyz.nifeather.morph.client.graphics.IMDrawable;
 import xyz.nifeather.morph.client.graphics.MarginPadding;
 import xyz.nifeather.morph.client.graphics.transforms.Recorder;
@@ -49,7 +49,7 @@ public class DisguiseList extends ElementListWidget<EntityDisplayEntry> implemen
 
     private boolean smoothScroll()
     {
-        return MorphClient.getInstance().getModConfigData().disguiseListSmoothScroll;
+        return FeatherMorphClient.getInstance().getModConfigData().disguiseListSmoothScroll;
     }
 
     @Override
@@ -118,8 +118,8 @@ public class DisguiseList extends ElementListWidget<EntityDisplayEntry> implemen
     {
         duration = 300;
 
-        verticalAmount *= 3f * MorphClient.getInstance().getModConfigData().scrollSpeed;
-        horizontalAmount *= 3f * MorphClient.getInstance().getModConfigData().scrollSpeed;
+        verticalAmount *= 3f * FeatherMorphClient.getInstance().getModConfigData().scrollSpeed;
+        horizontalAmount *= 3f * FeatherMorphClient.getInstance().getModConfigData().scrollSpeed;
 
         return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
     }

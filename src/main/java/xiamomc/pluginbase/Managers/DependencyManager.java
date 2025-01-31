@@ -3,9 +3,10 @@ package xiamomc.pluginbase.Managers;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
-import xiamomc.pluginbase.AbstractSchedulablePlugin;
+import xiamomc.pluginbase.XiaMoJavaPlugin;
 import xiamomc.pluginbase.Exceptions.DependencyAlreadyRegistedException;
 import xiamomc.pluginbase.Exceptions.NullDependencyException;
+import xiamomc.pluginbase.XiaMoJavaPlugin;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,11 +34,11 @@ public class DependencyManager
      */
     @Contract("null -> null; !null -> !null")
     @Nullable
-    public static DependencyManager getManagerOrCreate(AbstractSchedulablePlugin pluginInstance)
+    public static DependencyManager getManagerOrCreate(XiaMoJavaPlugin pluginInstance)
     {
         if (pluginInstance == null) return null;
 
-        var depMgr = instances.get(pluginInstance.getNameSpace());
+        var depMgr = instances.get(pluginInstance.namespace());
         if (depMgr != null) return depMgr;
 
         depMgr = new DependencyManager(pluginInstance);
@@ -46,29 +47,29 @@ public class DependencyManager
     }
 
     /**
-     * @deprecated 建议使用 {@link DependencyManager#getManagerOrCreate(AbstractSchedulablePlugin)}
+     * @deprecated 建议使用 {@link DependencyManager#getManagerOrCreate(XiaMoJavaPlugin)}
      * @param plugin 插件实例
      */
     @Deprecated
-    public DependencyManager(AbstractSchedulablePlugin plugin)
+    public DependencyManager(XiaMoJavaPlugin plugin)
     {
         registerPluginInstance(plugin);
     }
 
-    public void registerPluginInstance(AbstractSchedulablePlugin plugin)
+    public void registerPluginInstance(XiaMoJavaPlugin plugin)
     {
-        if (instances.containsKey(plugin.getNameSpace()))
+        if (instances.containsKey(plugin.namespace()))
         {
-            LoggerFactory.getLogger("XiaMoBase").warn("已经有一个 " + plugin.getNameSpace() + "的DependencyManager实例了");
+            LoggerFactory.getLogger("XiaMoBase").warn("已经有一个 " + plugin.namespace() + "的DependencyManager实例了");
             Thread.dumpStack();
         }
 
-        instances.put(plugin.getNameSpace(), this);
+        instances.put(plugin.namespace(), this);
     }
 
-    public void unRegisterPluginInstance(AbstractSchedulablePlugin plugin)
+    public void unRegisterPluginInstance(XiaMoJavaPlugin plugin)
     {
-        instances.remove(plugin.getNameSpace());
+        instances.remove(plugin.namespace());
     }
     //endregion 实例相关
 

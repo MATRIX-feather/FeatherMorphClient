@@ -2,7 +2,6 @@ package xyz.nifeather.morph.server;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import me.shedaniel.cloth.clothconfig.shadowed.org.yaml.snakeyaml.error.YAMLException;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.SpawnReason;
@@ -17,22 +16,23 @@ import xiamomc.morph.network.commands.S2C.clientrender.S2CRenderMapRemoveCommand
 import xiamomc.morph.network.commands.S2C.map.S2CMapRemoveCommand;
 import xiamomc.morph.network.commands.S2C.map.S2CPartialMapCommand;
 import xiamomc.morph.network.commands.S2C.set.S2CSetAvailableAnimationsCommand;
+import xiamomc.pluginbase.Annotations.Resolved;
 import xyz.nifeather.morph.client.AnimationNames;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class FabricMorphManager
+public class FabricMorphManager extends ServerPluginObject
 {
     private final List<String> availableDisguises = new ObjectArrayList<>();
 
     private void listEntityTypes()
     {
-        var server = MorphServer.server;
+        var server = MorphServerLoader.mcserver;
         if (server == null)
         {
-            MorphServer.LOGGER.warn("Server is NULL, not listing entity types!");
+            logger.warn("Server is NULL, not listing entity types!");
             return;
         }
 
@@ -42,7 +42,7 @@ public class FabricMorphManager
 
         if (entityTypeRegistry == null)
         {
-            MorphServer.LOGGER.warn("Entity type registry is NULL, not listing entity types!");
+            logger.warn("Entity type registry is NULL, not listing entity types!");
             return;
         }
 
@@ -67,7 +67,7 @@ public class FabricMorphManager
                 "player:Nahida"
         ));
 
-        MorphServer.LOGGER.info("Done init valid entity types.");
+        logger.info("Done init valid entity types.");
     }
 
     public List<String> getUnlockedDisguises(PlayerEntity player)
@@ -89,6 +89,9 @@ public class FabricMorphManager
     {
         return new ObjectArrayList<>(disguiseSessionMap.values());
     }
+
+    @Resolved
+    private FabricClientHandler clientHandler;
 
     public void morph(ServerPlayerEntity player, String identifier)
     {
@@ -116,7 +119,6 @@ public class FabricMorphManager
             return;
         }
 
-        var clientHandler = MorphServer.instance.clientHandler;
         clientHandler.sendCommand(player, new S2CCurrentCommand(identifier));
         clientHandler.sendCommand(player, new S2CSetAvailableAnimationsCommand(
                 AnimationNames.CRAWL,
@@ -131,7 +133,7 @@ public class FabricMorphManager
         revealMap.put(player.getId(), player.getName().getString());
 
         var cmdReveal = new S2CPartialMapCommand(revealMap);
-        for (ServerPlayerEntity serverPlayerEntity : MorphServer.server.getPlayerManager().getPlayerList())
+        for (ServerPlayerEntity serverPlayerEntity : MorphServerLoader.mcserver.getPlayerManager().getPlayerList())
         {
             clientHandler.sendCommand(serverPlayerEntity, cmd);
             clientHandler.sendCommand(serverPlayerEntity, cmdReveal);
@@ -144,12 +146,11 @@ public class FabricMorphManager
     {
         disguiseSessionMap.remove(player);
 
-        var clientHandler = MorphServer.instance.clientHandler;
         clientHandler.sendCommand(player, new S2CCurrentCommand(null));
 
         var cmd = new S2CRenderMapRemoveCommand(player.getId());
         var cmdReveal = new S2CMapRemoveCommand(player.getId());
-        for (ServerPlayerEntity serverPlayerEntity : MorphServer.server.getPlayerManager().getPlayerList())
+        for (ServerPlayerEntity serverPlayerEntity : MorphServerLoader.mcserver.getPlayerManager().getPlayerList())
         {
             clientHandler.sendCommand(serverPlayerEntity, cmd);
             clientHandler.sendCommand(serverPlayerEntity, cmdReveal);
@@ -160,7 +161,7 @@ public class FabricMorphManager
 
     public void dispose()
     {
-        MorphServer.LOGGER.info("Disposing FabricMorphManager");
+        logger.info("Disposing FabricMorphManager");
         availableDisguises.clear();
     }
 }

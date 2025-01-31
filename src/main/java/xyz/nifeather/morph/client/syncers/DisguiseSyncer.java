@@ -137,7 +137,7 @@ public abstract class DisguiseSyncer extends MorphClientObject
             var entityCache = getEntityCache();
 
             var prevEntity = disguiseInstance;
-            var client = MorphClient.getInstance();
+            var client = FeatherMorphClient.getInstance();
 
             if (prevEntity != null)
             {
@@ -189,7 +189,7 @@ public abstract class DisguiseSyncer extends MorphClientObject
         }
         catch (Throwable t)
         {
-            MorphClient.LOGGER.error("Error occurred while refreshing client view: %s".formatted(t.getMessage()));
+            FeatherMorphClient.LOGGER.error("Error occurred while refreshing client view: %s".formatted(t.getMessage()));
             t.printStackTrace();
 
             disguiseInstance = null;

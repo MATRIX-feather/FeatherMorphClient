@@ -2,7 +2,7 @@ package xyz.nifeather.morph.client.utilties;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.entity.Entity;
-import xyz.nifeather.morph.client.MorphClient;
+import xyz.nifeather.morph.client.FeatherMorphClient;
 
 import java.util.Map;
 import java.util.function.Consumer;
@@ -19,7 +19,7 @@ public class EntityCacheUtils
             }
             catch (Throwable t)
             {
-                MorphClient.LOGGER.error("Error occurred while processing postEntityRemove hook '%s': %s".formatted(consumer, t));
+                FeatherMorphClient.LOGGER.error("Error occurred while processing postEntityRemove hook '%s': %s".formatted(consumer, t));
                 t.printStackTrace();
             }
         });
@@ -47,7 +47,7 @@ public class EntityCacheUtils
             }
             catch (Throwable t)
             {
-                MorphClient.LOGGER.error("Error occurred while processing onEntityAdd hook '%s': %s".formatted(consumer, t));
+                FeatherMorphClient.LOGGER.error("Error occurred while processing onEntityAdd hook '%s': %s".formatted(consumer, t));
                 t.printStackTrace();
             }
         });

@@ -8,6 +8,6 @@ public class ModMenuApiImpl implements ModMenuApi
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory()
     {
-        return parent -> MorphClient.getInstance().getFactory(parent).build();
+        return parent -> FeatherMorphClient.getInstance().getFactory(parent).build();
     }
 }

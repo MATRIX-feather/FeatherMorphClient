@@ -18,9 +18,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
-public abstract class ClientPluginObject<P extends AbstractSchedulablePlugin>
+public abstract class PluginObject<P extends XiaMoJavaPlugin>
 {
-    protected final AbstractSchedulablePlugin plugin = P.getInstance(getPluginNamespace());
+    protected final XiaMoJavaPlugin plugin = P.getInstance(getPluginNamespace());
 
     protected final DependencyManager dependencies = DependencyManager.getInstance(getPluginNamespace());
 
@@ -30,7 +30,7 @@ public abstract class ClientPluginObject<P extends AbstractSchedulablePlugin>
     protected final DependencyManager Dependencies = dependencies;
 
     @Deprecated
-    protected final AbstractSchedulablePlugin Plugin = plugin;
+    protected final XiaMoJavaPlugin Plugin = plugin;
 
     @Deprecated
     protected final Logger Logger = logger;
@@ -41,7 +41,7 @@ public abstract class ClientPluginObject<P extends AbstractSchedulablePlugin>
 
     protected abstract String getPluginNamespace();
 
-    protected ClientPluginObject()
+    protected PluginObject()
     {
         initialDependencyResolve();
     }
